@@ -1,0 +1,76 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="referrer" content="no-referrer">
+<title>Card Vault: Google sign-in</title>
+<style>
+  :root{color-scheme:dark}
+  body{margin:0;min-height:100vh;display:grid;place-items:center;background:#14100d;color:#eadfcf;font:16px/1.5 system-ui,-apple-system,"Segoe UI",Roboto,sans-serif;padding:24px;box-sizing:border-box}
+  main{max-width:420px;text-align:center}
+  h1{font:600 20px/1.3 system-ui,-apple-system,"Segoe UI",Roboto,sans-serif;margin:0 0 8px;color:#f1e6d4}
+  p{margin:0 0 16px;color:#baab99}
+  a{color:#e7c27a}
+</style>
+</head>
+<body>
+<main>
+  <h1 id="title">Signing in to Google Drive…</h1>
+  <p id="text">One moment.</p>
+  <p><a href="./" id="back" hidden>Back to Card Vault</a></p>
+</main>
+<script>
+// Google sends you back here after signing in, with a short-lived access token in the address (after #).
+// It's kept in this browser's storage for Card Vault (the same website), and this window closes.
+(function () {
+  "use strict";
+  var TOKEN_KEY = "cardvault.v2.gdriveToken", STATE_KEY = "cardvault.v2.gdriveState";
+  var params = new URLSearchParams(location.hash.replace(/^#/, ""));
+  // the token never stays in the address bar or the history
+  try { history.replaceState(null, "", location.pathname); } catch (e) {}
+  var expected = null;
+  try { expected = localStorage.getItem(STATE_KEY); } catch (e) {}
+  var msg;
+  if (params.get("access_token") && expected && params.get("state") === expected) {
+    var seconds = parseInt(params.get("expires_in"), 10) || 3600;
+    try {
+      localStorage.setItem(TOKEN_KEY, JSON.stringify({token: params.get("access_token"), expiresAt: Date.now() + (seconds - 60) * 1000}));
+      localStorage.removeItem(STATE_KEY);
+      msg = {ok: true};
+    } catch (e) {
+      msg = {error: "storage"};
+    }
+  } else {
+    msg = {error: params.get("error") || (params.get("access_token") ? "state" : "no_token")};
+  }
+  try { var ch = new BroadcastChannel("cardvault-google"); ch.postMessage(msg); ch.close(); } catch (e) {}
+  var title = document.getElementById("title"), text = document.getElementById("text"), back = document.getElementById("back");
+  // Card Vault notes when it signed in in its own window (not a separate sign-in window): then go straight back.
+  var sameWindow = false;
+  try { sameWindow = !!localStorage.getItem("cardvault.v2.gdrivePending"); } catch (e) {}
+  var reasons = {
+    access_denied: "Google Drive access wasn't allowed. Card Vault keeps working on this device; you can try again from Settings.",
+    state: "This sign-in didn't come from Card Vault on this device, so it wasn't used. Go back to Card Vault and try again.",
+    no_token: "Google didn't send a sign-in. Go back to Card Vault and try again.",
+    storage: "This browser wouldn't let Card Vault save the sign-in (private browsing can do this)."
+  };
+  if (msg.ok) {
+    title.textContent = "Signed in to Google Drive";
+    text.textContent = sameWindow ? "Going back to Card Vault…" : "This window closes by itself. If it doesn't, close it to go back to Card Vault.";
+  } else {
+    title.textContent = "Not signed in";
+    text.textContent = reasons[msg.error] || "Google said: " + msg.error + ". Go back to Card Vault and try again.";
+  }
+  // (a link back only when this is Card Vault's own window; in a separate sign-in window it would open a second copy)
+  back.hidden = !sameWindow;
+  if (sameWindow) {
+    if (msg.ok) location.replace("./");
+  } else {
+    // Card Vault's sign-in window: close it (if the browser won't, the link above goes back)
+    setTimeout(function () { try { window.close(); } catch (e) {} }, msg.ok ? 150 : 2500);
+  }
+})();
+</script>
+</body>
+</html>

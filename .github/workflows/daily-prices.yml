@@ -1,0 +1,105 @@
+name: Daily TCGplayer prices
+
+# Every evening this downloads the day's TCGplayer prices (through TCGCSV) for the Card Vault website and
+# publishes the website with GitHub Pages. It also publishes right away whenever the website's files change.
+# "Run workflow" on the Actions tab runs it by hand.
+# Before the first run: Settings > Pages > Build and deployment > Source: "GitHub Actions".
+
+on:
+  schedule:
+    - cron: "40 21 * * *"   # 21:40 UTC: 5:40 PM New York time in summer, 4:40 PM in winter (TCGCSV refreshes before that)
+  workflow_dispatch:
+  push:
+    branches: [main]
+
+permissions: {}   # each job gets only what it needs (below)
+
+concurrency:
+  group: pages
+  cancel-in-progress: false
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - name: Bring back yesterday's card lists and earlier prices
+        uses: actions/cache/restore@v4
+        with:
+          path: |
+            tcgplayer-cache
+            tcgplayer-data.js
+            tcgplayer-data-version.js
+          key: tcgplayer-${{ github.run_id }}
+          restore-keys: tcgplayer-
+
+      - name: Download today's TCGplayer prices
+        continue-on-error: true   # if TCGCSV is down, the website keeps the last prices
+        env:
+          CARDVAULT_PAUSE: "0.2"
+        run: python update_tcgplayer_data.py
+
+      - name: Keep the card lists and prices for tomorrow
+        uses: actions/cache/save@v4
+        with:
+          path: |
+            tcgplayer-cache
+            tcgplayer-data.js
+            tcgplayer-data-version.js
+          key: tcgplayer-${{ github.run_id }}
+
+      - name: Put the website together
+        run: |
+          mkdir -p _site/icons
+          cp index.html config.js manifest.webmanifest oauth.html sw.js _site/
+          cp icons/*.png _site/icons/
+          if [ -f tcgplayer-data.js ]; then cp tcgplayer-data.js tcgplayer-data-version.js _site/; fi
+          ls -la _site
+
+      - uses: actions/upload-pages-artifact@v3
+        with:
+          path: _site
+
+  deploy:
+    needs: build
+    runs-on: ubuntu-latest
+    permissions:
+      pages: write
+      id-token: write
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    steps:
+      - uses: actions/configure-pages@v5
+      - id: deployment
+        uses: actions/deploy-pages@v4
+
+  # GitHub pauses scheduled workflows in a repository with no new commits for 60 days.
+  # A one-line note twice a month keeps the daily prices coming.
+  keep-schedule-running:
+    needs: deploy
+    if: github.event_name == 'schedule'
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    steps:
+      - uses: actions/checkout@v4
+      - name: Note that the daily prices are running (on the 1st and 15th)
+        run: |
+          day=$(date -u +%d)
+          if [ "$day" != "01" ] && [ "$day" != "15" ]; then echo "Not today."; exit 0; fi
+          date -u +"Prices last updated %Y-%m-%d" > .github/last-price-update.txt
+          git config user.name "Card Vault daily prices"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          git add .github/last-price-update.txt
+          git commit -m "Daily prices are running ($(date -u +%F))"
+          git push

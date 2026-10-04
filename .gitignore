@@ -1,0 +1,6 @@
+# Made by the daily price update on GitHub (kept between runs, not in the repository)
+tcgplayer-data.js
+tcgplayer-data-version.js
+tcgplayer-cache/
+_site/
+__pycache__/

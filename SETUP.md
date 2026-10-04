@@ -1,0 +1,115 @@
+# Card Vault website: setup
+
+Card Vault as a website you can add to your iPhone's home screen, with your collection synced through
+Google Drive and TCGplayer prices updated every evening by GitHub.
+
+In this guide, `YOUR-USERNAME` is your GitHub username. The website's address will be
+`https://YOUR-USERNAME.github.io/card-vault/`.
+
+## What lives where
+
+- **This repository** (public): the website's code and this guide. Your collection is never in it.
+- **Your devices**: your collection, saved in each browser (and in the home-screen app on your iPhone).
+- **Your Google Drive**: `Card Vault/Card Vault backup.json`, which every device syncs with. Card Vault can
+  only see files it created itself in your Drive.
+- **GitHub Actions**: every evening it downloads the day's TCGplayer prices (through TCGCSV) and publishes
+  the website with them.
+
+## 1. GitHub: the website
+
+1. Sign in at [github.com](https://github.com) (or create a free account).
+2. Click **+** (top right) > **New repository**. Name: `card-vault`. Choose **Public** (free GitHub Pages
+   websites need a public repository). Don't add a README. Click **Create repository**.
+3. In the new repository: **Settings** > **Pages** > **Build and deployment** > **Source**: **GitHub Actions**.
+4. Upload the files from the `card-vault` folder: on the repository's main page, click
+   **uploading an existing file**, drag in everything from the folder (including the `icons` folder), and click
+   **Commit changes**.
+5. Windows often hides the `.github` folder, so make the price-update file by hand: **Add file** >
+   **Create new file**, name it `.github/workflows/daily-prices.yml`, paste in the contents of that file from
+   the folder, and click **Commit changes**.
+6. Open the **Actions** tab. "Daily TCGplayer prices" starts by itself; the first run takes a few minutes
+   (it downloads every set's card list once). When it shows a green check, the website is live at
+   `https://YOUR-USERNAME.github.io/card-vault/`.
+
+Keep this GitHub account for Card Vault only, or at least don't publish other websites from it: all
+GitHub Pages websites of one account share the address `YOUR-USERNAME.github.io`, and a page on another
+one could read Card Vault's Google sign-in.
+
+## 2. Google Cloud: signing in to Google Drive
+
+1. Go to [console.cloud.google.com](https://console.cloud.google.com) and sign in with the Google account
+   whose Drive you want to use.
+2. Project picker (top left) > **New project**. Name: `Card Vault`. **Create**, then select it.
+3. **APIs & Services** > **Library**, search for **Google Drive API**, open it and click **Enable**.
+4. **Google Auth Platform** (search for it at the top if you don't see it) > **Get started**:
+   - App name: `Card Vault`, user support email: yours. **Next**.
+   - Audience: **External**. **Next**.
+   - Contact information: your email. **Next**, agree, **Create**.
+5. **Audience** > **Test users** > **Add users**: your Gmail address. **Save**. (Leave the app in
+   "Testing": only the test users you add can sign in.)
+6. **Data Access** > **Add or remove scopes**: tick
+   `.../auth/drive.file` ("See, edit, create, and delete only the specific Google Drive files you use with
+   this app"). **Update**, then **Save**.
+7. **Clients** > **Create client**:
+   - Application type: **Web application**. Name: `Card Vault website`.
+   - Authorized JavaScript origins: `https://YOUR-USERNAME.github.io`
+   - Authorized redirect URIs: `https://YOUR-USERNAME.github.io/card-vault/oauth.html`
+   - **Create**. Copy the **Client ID** (it ends in `.apps.googleusercontent.com`). The client secret isn't
+     used; don't share it.
+8. On GitHub, open `config.js` in the repository, click the pencil (**Edit**), paste the Client ID between the
+   quotes after `googleClientId:`, and click **Commit changes**. The website updates within a couple of
+   minutes.
+
+When you sign in, Google shows **"Google hasn't verified this app"**. That's expected for your own
+personal app: click **Continue**.
+
+## 3. Move your collection to the website (on the PC)
+
+1. In the Card Vault you use now, open **Settings** > **Download a backup file** (or use your existing
+   `Card Vault backup.json`).
+2. In Chrome or Edge, open `https://YOUR-USERNAME.github.io/card-vault/`, then **Settings** >
+   **Restore from a backup…** and pick that file.
+3. **Settings** > **Sync with Google Drive**, sign in, and allow access. Card Vault saves your collection to
+   your Google Drive.
+4. Optional: install it as an app. In Chrome: the install icon at the right of the address bar (or menu >
+   **Cast, save and share** > **Install page as app**).
+5. From now on, use the website on the PC too, so there's one collection.
+
+## 4. iPhone
+
+1. Open `https://YOUR-USERNAME.github.io/card-vault/` in **Safari**.
+2. Tap **Share** > **Add to Home Screen** > **Add**.
+3. Open Card Vault from the home screen, then **Settings** > **Sync with Google Drive**, sign in, and choose
+   **OK** when it offers to load your collection.
+4. If you see "Still waiting for Google sign-in", tap **Sign in here**.
+
+## Good to know
+
+- **Google's sign-in lasts an hour.** After that, Card Vault shows "Sign in to Google Drive again": tap
+  **Resume** (usually no typing). Until then, changes are kept on the device and sync afterwards.
+- **No internet** (at a card shop, say): Card Vault opens and works; changes sync when you're back online.
+- **Syncing**: each device checks Google Drive every 15 seconds while Card Vault is open, and before every
+  save. If the same card is changed on two devices, the later change wins.
+- **Camera scanning** works on the iPhone (Add card > Scan with camera; allow the camera).
+- **Windows notifications** still come from the Card Vault folder on your PC (Turn On Daily Updates). It
+  reads your cards from `Card Vault backup.json` in your Google Drive, so install
+  [Google Drive for desktop](https://www.google.com/drive/download/) on that PC, signed in to the same
+  account. The old OneDrive backup file isn't updated anymore.
+
+## If prices stop updating
+
+1. On GitHub, open the repository's **Actions** tab and click **Daily TCGplayer prices**.
+2. If a run failed, open it to see why (TCGCSV being down for a day fixes itself). **Run workflow** runs it
+   again by hand.
+3. GitHub pauses scheduled workflows in repositories without new commits for 60 days. The workflow writes a
+   one-line note twice a month to prevent that, but if GitHub shows "This scheduled workflow is disabled",
+   click **Enable workflow**.
+4. Price comparisons (since the last update, 7 days, 30 days) are kept between runs in GitHub's cache. If the
+   updates stopped for more than a week, they start over and fill in again day by day.
+
+## Turning it off
+
+- **Settings** > **Turn off** (under Backup and sync) stops syncing on that device; the file stays in your
+  Google Drive.
+- To remove Card Vault's access to your Google account completely:
+  [myaccount.google.com/connections](https://myaccount.google.com/connections) > Card Vault > remove access.
