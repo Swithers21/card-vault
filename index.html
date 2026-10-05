@@ -1600,24 +1600,33 @@
   const HOSTED_PICS = (() => { try { return SITE ? new URL("card-images/", location.href).href : ""; } catch (e) { return ""; } })();
   const hostedPhoto = key => HOSTED_PICS && key ? "~" + HOSTED_PICS + key + ".jpg" : "";
   const isHostedPhoto = u => !!HOSTED_PICS && String(u).startsWith(HOSTED_PICS) && /^[a-z0-9]{1,150}\.jpg$/.test(String(u).slice(HOSTED_PICS.length));
+  // A card's plain name, without TCGplayer's tags however many ("X (Starlight Rare) (Extended Art)" is X), as a key.
+  const plainName = n => { let s = String(n || "").trim(), t; while ((t = lookupName(s)) !== s) s = t; return s; };
+  const photoKey = n => plainName(n).toLowerCase().normalize("NFKD").replace(/[^a-z0-9]/g, "");
+  function photosByName() {
+    if (!catalog.byPhoto) {
+      catalog.byPhoto = new Map();
+      for (const p of catalog.products) if (!p.sealed) pushMap(catalog.byPhoto, photoKey(p.name), p);
+    }
+    return catalog.byPhoto;
+  }
   const KIND_ONE = {pack: "Booster pack", box: "Booster box", case: "Case", structure: "Structure Deck", se: "Special Edition",
     de: "Deluxe Edition", tin: "Tin", boxset: "Box set", starter: "Starter deck", other: "Sealed product"};
   // Products a sealed product's photo can stand in for, closest first.
   const KIND_NEAR = {case: ["box", "pack"], box: ["case", "pack"], pack: ["box"], se: ["pack", "box"], de: ["box", "pack"], tin: ["pack"]};
-  const nameKey = (name, rarity) => normCardName(cleanName(name, rarity));
-  const anyPrintingPhoto = key => !!catalog && (productsByName().get(key) || []).some(hasPhoto);
+  const anyPrintingPhoto = key => !!catalog && (photosByName().get(key) || []).some(hasPhoto);
   // The same card's other printings with a TCGplayer photo, the same rarity first.
   function printingPhotos(key, rarity, exceptId, size, max) {
     if (!catalog || !key) return [];
     const r = String(rarity || "").toLowerCase();
     const same = q => q.rarity.toLowerCase() === r ? 1 : 0;
-    return (productsByName().get(key) || []).filter(q => q.id !== exceptId && hasPhoto(q))
+    return (photosByName().get(key) || []).filter(q => q.id !== exceptId && hasPhoto(q))
       .sort((a, b) => same(b) - same(a)).slice(0, max || 2).map(q => "~" + tcgImg(q.id, size));
   }
   function sealedPhotos(p, size) {
     const out = [];
     const token = /token:\s*(.+)$/i.exec(p.name);
-    if (token) out.push(...printingPhotos(normCardName(token[1]), "", 0, size, 1));
+    if (token) out.push(...printingPhotos(photoKey(token[1]), "", 0, size, 1));
     const near = [mkKind(p.name)].concat(KIND_NEAR[mkKind(p.name)] || []);
     if (near[0] === "other") return out;
     const words = new Set(p.nameLower.split(/[^a-z0-9]+/));
@@ -1650,7 +1659,7 @@
       const kind = mkKind(p.name);
       return {list: list.concat(sealedPhotos(p, size)), sub: [KIND_ONE[kind], p.group.abbr].filter(Boolean).join(" · "), art: kind === "other" ? "" : setArt(p.group.id)};
     }
-    const key = nameKey(p.name, p.rarity);
+    const key = photoKey(p.name);
     list.push(...printingPhotos(key, p.rarity, p.id, size, 2));
     if (!anyPrintingPhoto(key)) list.push(hostedPhoto(key));
     return {list, sub: [p.number, p.rarity].filter(Boolean).join(" · ")};
@@ -1661,7 +1670,7 @@
     if (p) { const pp = productPics(p, size); return {list: [own].concat(pp.list), sub: pp.sub, art: pp.art}; }
     const list = [own, r.productId ? tcgImg(r.productId, size) : "", ocgImage(r)];
     if (!r.sealed) {
-      const key = nameKey(r.name, r.rarity);
+      const key = photoKey(r.name);
       list.push(...printingPhotos(key, r.rarity, 0, size, 2));
       if (!anyPrintingPhoto(key)) list.push(hostedPhoto(key));
     }
@@ -1675,7 +1684,7 @@
   }
   // A card known only by name (a want without a printing, a deck list line): any printing's photo is its photo.
   function namePics(name, size, rarity) {
-    const key = nameKey(name, rarity);
+    const key = photoKey(name);
     const list = printingPhotos(key, rarity, 0, size, 2);
     if (list.length) list[0] = list[0].slice(1);
     const hosted = anyPrintingPhoto(key) ? "" : hostedPhoto(key);
@@ -6338,7 +6347,7 @@
   const extraFrame = f => /fusion|synchro|xyz|link/.test(String(f || ""));
   const banLimit = b => b === "Banned" ? 0 : b === "Limited" ? 1 : b === "Semi-Limited" ? 2 : 3;
   // The plain card name: TCGplayer adds "(Starlight Rare)", "(Alternate Art)" and the like, sometimes two of them.
-  const ygoName = n => { let s = String(n || "").trim(), t; while ((t = lookupName(s)) !== s) s = t; return s; };
+  const ygoName = plainName;
   const cardKey = n => ygoName(n).toLowerCase();
   function ygoStore(key) { const c = readJSON(key, {}); return c && typeof c === "object" && !Array.isArray(c) ? c : {}; }
   function ygoSave(key, c, max) {

@@ -40,39 +40,28 @@ def say(text):
     print(text, flush=True)
 
 
-# ------------------------------------------------------------- name keys (the website's normCardName(cleanName(...)))
+# ------------------------------------------------------------- name keys (the website's photoKey)
 def lookup_name(name):
     return re.sub(r"\s*\([^()]*\)\s*$", "", name or "").strip()
 
 
-def clean_name(name, rarity, rarity_set):
-    """Drops a trailing "(Starlight Rare)" when it is the rarity, like the website does."""
-    s = (name or "").strip()
-    m = re.match(r"^(.*\S)\s*\(([^()]*)\)$", s)
-    if not m:
-        return s
-    inner = m.group(2).strip().lower()
-    if inner and (inner == (rarity or "").strip().lower() or inner in rarity_set):
-        return m.group(1).strip()
-    return s
-
-
-def loose(text):
-    return re.sub(r"[^a-z0-9]", "", unicodedata.normalize("NFKD", (text or "").lower()))
-
-
-def name_key(name, rarity="", rarity_set=frozenset()):
-    return loose(lookup_name(clean_name(name, rarity, rarity_set)))
-
-
 def plain_name(name):
-    """The card's name without TCGplayer's tags, however many: "X (Alternate Art) (Starlight Rare)" -> "X"."""
+    """The card's name without TCGplayer's tags, however many: "X (Starlight Rare) (Extended Art)" -> "X"."""
     s = (name or "").strip()
     while True:
         t = lookup_name(s)
         if t == s:
             return s
         s = t
+
+
+def loose(text):
+    return re.sub(r"[^a-z0-9]", "", unicodedata.normalize("NFKD", (text or "").lower()))
+
+
+def name_key(name):
+    """The picture's file name: the plain name's letters and digits, like the website's photoKey."""
+    return loose(plain_name(name))
 
 
 # ------------------------------------------------------------------------------------------------ the price data
@@ -88,14 +77,11 @@ def cards_needing_pictures(data):
     """{name key: plain card name} for cards no printing of which has a TCGplayer photo."""
     if (data.get("format") or 0) < 4:
         return {}
-    rarities = data.get("rarities") or []
-    rarity_set = frozenset(r.lower() for r in rarities if r)
     printings = {}
     for row in data.get("products") or []:
         if len(row) > 6 and row[6] == 1:
             continue  # sealed product
-        rarity = rarities[row[4]] if isinstance(row[4], int) and 0 <= row[4] < len(rarities) else ""
-        key = name_key(row[2], rarity, rarity_set)
+        key = name_key(row[2])
         if not key or len(key) > MAX_KEY:
             continue
         has_photo = not (len(row) > 7 and row[7] == 1)
