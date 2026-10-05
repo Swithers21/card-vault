@@ -6206,7 +6206,9 @@
   const ideas = {busy: false, step: "", result: null, error: "", open: new Set(), last: 0};
   const extraFrame = f => /fusion|synchro|xyz|link/.test(String(f || ""));
   const banLimit = b => b === "Banned" ? 0 : b === "Limited" ? 1 : b === "Semi-Limited" ? 2 : 3;
-  const cardKey = n => lookupName(n).toLowerCase();
+  // The plain card name: TCGplayer adds "(Starlight Rare)", "(Alternate Art)" and the like, sometimes two of them.
+  const ygoName = n => { let s = String(n || "").trim(), t; while ((t = lookupName(s)) !== s) s = t; return s; };
+  const cardKey = n => ygoName(n).toLowerCase();
   function ygoStore(key) { const c = readJSON(key, {}); return c && typeof c === "object" && !Array.isArray(c) ? c : {}; }
   function ygoSave(key, c, max) {
     const keys = Object.keys(c);
@@ -6235,7 +6237,7 @@
     const cache = ygoStore(YGO_CARDS_KEY), now = Date.now();
     const fresh = h => h && now - h.t < (h.c ? 30 : 7) * 86400000;
     const need = Array.from(new Set(names.map(cardKey))).filter(k => k && !fresh(cache[k]));
-    const byKey = new Map(names.map(n => [cardKey(n), lookupName(n)]));
+    const byKey = new Map(names.map(n => [cardKey(n), ygoName(n)]));
     for (let i = 0; i < need.length; i += 40) {
       const chunk = need.slice(i, i + 40);
       ideas.step = "Looking up your cards on YGOPRODeck (" + Math.min(i + 40, need.length) + " of " + need.length + ")…";
@@ -6273,7 +6275,7 @@
     for (const r of collection) {
       if (r.sealed || !r.name) continue;
       const k = cardKey(r.name);
-      const o = owned.get(k) || {name: lookupName(r.name), qty: 0};
+      const o = owned.get(k) || {name: ygoName(r.name), qty: 0};
       o.qty += r.qty;
       owned.set(k, o);
     }
@@ -6322,7 +6324,7 @@
     for (const [k, c] of info) {
       if (inDecks.has(k) || !/monster/i.test(c.type) || stapleKeys.has(k)) continue;
       const e = races.get(c.race) || {race: c.race, cards: []};
-      e.cards.push({c, qty: owned.get(k).qty});
+      e.cards.push({c, qty: (owned.get(k) || {}).qty || 0});
       races.set(c.race, e);
     }
     const themes = Array.from(races.values()).filter(e => e.cards.length >= 6).sort((a, b) => b.cards.length - a.cards.length).slice(0, 8);
