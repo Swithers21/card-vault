@@ -1649,6 +1649,8 @@
     const out = (sealedByName().get(sealedKey(p.name)) || []).filter(q => q.id !== p.id && hasPhoto(q))
       .sort((a, b) => sameGroup(b) - sameGroup(a)).slice(0, 2).map(q => "~" + tcgImg(q.id, size));
     out.push(...tokenCardPhotos(p.name, size));
+    // an oversized card or other single-card item named after its card ("Winged Kuriboh LV10")
+    if (!out.length && mkKind(p.name) === "other") out.push(...printingPhotos(photoKey(p.name), "", 0, size, 1));
     const near = [mkKind(p.name)].concat(KIND_NEAR[mkKind(p.name)] || []);
     if (near[0] === "other") return out;
     const words = new Set(p.nameLower.split(/[^a-z0-9]+/));
