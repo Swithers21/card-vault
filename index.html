@@ -6423,10 +6423,11 @@
           (m.best ? (wants.some(w => w.productId === m.best.product.id) ? '<span class="on-list">On want list</span>' : '<button class="btn btn-small" type="button" data-idea-want="' + m.best.product.id + '">Want</button>') : "") + "</td></tr>").join("") + "</tbody></table>" : "") +
         '<div class="btn-row" style="margin-top:12px"><button class="btn btn-primary" type="button" data-idea-build="' + esc(dk.arch) + '">Build a starter list</button>' +
         (dk.missing.some(m => m.best) ? '<button class="btn" type="button" data-idea-wants="' + esc(dk.arch) + '">Add the missing key cards to my want list</button>' : "") + "</div>" +
-        '<p class="small" style="margin:8px 0 0">The starter list puts your ' + esc(dk.arch) + " cards and their support in a deck (up to 3 of each, within the banlist), one of each missing key card, and your staples to make 40. It opens in Check a deck, where you can edit and save it.</p>" +
+        '<p class="small" style="margin:8px 0 0">The starter list makes a 40-card deck from the most-played ' + esc(dk.arch) + " cards: your copies (up to 3 of each, within the banlist) and one of each missing key card, then your staples if it's short. It opens in Check a deck, where you can change it and save it.</p>" +
         "</div>" : "") + "</article>";
   }
-  // A first deck list: your archetype cards and support, one of each missing key card, then your staples up to 40.
+  // A first deck list of 40: the archetype's most-played cards (your copies, up to 3 within the banlist, and one of
+  // each missing key card), then your staples if it's short. Extra Deck up to 15.
   function starterList(dk) {
     const main = new Map(), extra = new Map();
     const add = (c, n) => {
@@ -6436,9 +6437,10 @@
       const take = Math.max(0, Math.min(n, banLimit(c.ban) - cur, room));
       if (take) to.set(c.name, cur + take);
     };
-    dk.mine.concat(dk.support).sort((a, b) => b.c.views - a.c.views).forEach(x => add(x.c, Math.min(x.qty, extraFrame(x.c.frame) ? 1 : 3)));
-    dk.missing.forEach(m => add(m.c, 1));
     const mainCount = () => Array.from(main.values()).reduce((t, v) => t + v, 0);
+    const picks = dk.mine.concat(dk.support).map(x => ({c: x.c, n: Math.min(x.qty, extraFrame(x.c.frame) ? 1 : 3)}))
+      .concat(dk.missing.map(m => ({c: m.c, n: 1}))).sort((a, b) => b.c.views - a.c.views);
+    for (const x of picks) add(x.c, extraFrame(x.c.frame) ? x.n : Math.min(x.n, 40 - mainCount()));
     for (const x of (ideas.result && ideas.result.staples) || []) { if (mainCount() >= 40) break; if (!extraFrame(x.c.frame)) add(x.c, Math.min(x.qty, 40 - mainCount())); }
     const lines = m => Array.from(m.entries()).map(([n, q]) => q + " " + n).join("\n");
     return "Main Deck\n" + lines(main) + (extra.size ? "\n\nExtra Deck\n" + lines(extra) : "") + "\n";
