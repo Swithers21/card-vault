@@ -417,6 +417,23 @@
   .caret{width:10px;height:10px;border-right:2px solid var(--text-dim);border-bottom:2px solid var(--text-dim);transform:rotate(45deg);margin-top:-5px;transition:transform .15s}
   .set-toggle[aria-expanded="true"] .caret{transform:rotate(225deg);margin-top:4px}
   .set-body{padding:4px 16px 16px;border-top:1px solid var(--line)}
+  .mk-filters{display:flex;gap:10px;flex-wrap:wrap;align-items:center;margin:0 0 14px}
+  .mk-filters .search{flex:1 1 220px;max-width:360px}
+  .mk-row .set-toggle{grid-template-columns:minmax(0,1.4fr) minmax(0,1.2fr) minmax(110px,auto) 16px}
+  .mk-top{min-width:0;font-size:13px;color:var(--text-dim);line-height:1.35}
+  .mk-top b{color:var(--text);font-weight:600}
+  .mk-top .gold{color:var(--gold-hi);font-weight:700}
+  .mk-line{display:inline-block;font-size:11px;font-weight:600;padding:1px 7px;border-radius:5px;border:1px solid var(--line-2);color:var(--text-dim);margin-left:6px;vertical-align:1px;white-space:nowrap}
+  .mk-rank{position:absolute;top:6px;left:6px;background:rgba(0,0,0,.72);color:#fff;font-size:11.5px;font-weight:700;padding:1px 7px;border-radius:999px;z-index:1}
+  .mk-prices{display:grid;grid-template-columns:auto 1fr;gap:1px 8px;font-size:12px;margin-top:4px;font-variant-numeric:tabular-nums}
+  .mk-prices dt{color:var(--text-dim)}
+  .mk-prices dd{margin:0;text-align:right;color:var(--text)}
+  .mk-prices dd.low{color:var(--gold-hi);font-weight:700}
+  .mk-deal{display:inline-block;font-size:11px;font-weight:700;padding:1px 6px;border-radius:5px;background:rgba(110,207,154,.14);color:#8fe0b4;border:1px solid rgba(110,207,154,.4);margin-top:4px}
+  .mk-stores{display:flex;flex-wrap:wrap;gap:4px 10px;font-size:12px;margin-top:6px}
+  .mk-h{margin:16px 0 8px;font-size:14px}
+  .mk-more{display:flex;justify-content:center;margin:14px 0 4px}
+  @media (max-width:760px){ .mk-row .set-toggle{grid-template-columns:minmax(0,1fr) auto 16px} .mk-row .mk-top{grid-column:1 / 3;grid-row:2} }
   .set-body .results{margin-top:12px}
   .result-actions{display:flex;gap:6px;margin-top:8px;flex-wrap:wrap}
   .result-actions .btn{padding:4px 9px;font-size:12.5px}
@@ -628,6 +645,7 @@
     <button class="tab" type="button" role="tab" id="tab-wants" aria-controls="panel-wants" aria-selected="false" tabindex="-1" data-tab="wants">Want list<span class="tab-count" id="wantCount"></span></button>
     <button class="tab" type="button" role="tab" id="tab-decks" aria-controls="panel-decks" aria-selected="false" tabindex="-1" data-tab="decks">Deck check</button>
     <button class="tab" type="button" role="tab" id="tab-sales" aria-controls="panel-sales" aria-selected="false" tabindex="-1" data-tab="sales">Sales</button>
+    <button class="tab" type="button" role="tab" id="tab-market" aria-controls="panel-market" aria-selected="false" tabindex="-1" data-tab="market">Market</button>
   </nav>
 
   <section id="panel-collection" role="tabpanel" aria-labelledby="tab-collection">
@@ -692,6 +710,7 @@
   <section id="panel-wants" role="tabpanel" aria-labelledby="tab-wants" hidden></section>
   <section id="panel-decks" role="tabpanel" aria-labelledby="tab-decks" hidden></section>
   <section id="panel-sales" role="tabpanel" aria-labelledby="tab-sales" hidden></section>
+  <section id="panel-market" role="tabpanel" aria-labelledby="tab-market" hidden></section>
 
   <footer>
     <p>Card photos, card numbers, rarities and market prices come from TCGplayer, through TCGCSV (tcgcsv.com), a free daily mirror of TCGplayer's catalog. <span class="local-only">Run "Update TCGplayer Data" to refresh them, or turn on daily updates.</span><span class="site-only">They update every evening.</span> "Other markets" reference prices come from YGOPRODeck. Photos of Japanese and Korean cards come from Yugipedia.</p>
@@ -786,7 +805,7 @@
   };
   // Price history comparisons, matching the older prices the updater saves with each card.
   const PERIODS = [["m1", "Last update"], ["m7", "7 days"], ["m30", "30 days"]];
-  const TABS = ["collection", "history", "sets", "wants", "decks", "sales"];
+  const TABS = ["collection", "history", "sets", "wants", "decks", "sales", "market"];
   const NO_LOCATION = "__none__";
   const SHOW_LABELS = {extras: "Extras beyond 3", graded: "Graded cards", played: "Played condition", manual: "Added manually",
     sealed: "Sealed products", cards: "Single cards only"};
@@ -839,6 +858,7 @@
     condAdjust: true, condPct: Object.assign({}, DEFAULT_COND_PCT), histPeriod: "m7", chartTable: false,
     setsMode: "number", setsSort: "complete", lastBackupAt: null, lastChangeAt: null, backupSnoozeUntil: 0,
     backupRemindDays: 7, wantAlertSeen: "", alertsOn: false, alertMinDollar: 5, alertMinPct: 10, salesYear: "", deckId: null,
+    mkView: "sets", mkLine: "", mkKind: "", mkSortSets: "newest", mkSortSealed: "deal",
     gradedView: false, psa10Mult: 4, psa10Floor: 25, gradePct: Object.assign({}, DEFAULT_GRADE_PCT), pcToken: ""};
   const filters = {q: "", set: "", rarity: "", edition: "", language: "", location: "", show: ""};
   const selected = new Set();
@@ -1688,6 +1708,7 @@
     else if (settings.tab === "wants") renderWants();
     else if (settings.tab === "decks") renderDecks();
     else if (settings.tab === "sales") renderSales();
+    else if (settings.tab === "market") renderMarket();
     else renderCollection();
   }
 
@@ -3428,6 +3449,229 @@
     return {value, copies, unpriced, est};
   }
   const gradedShort = gv => !gv ? "" : gv.from === "estimate" ? "est." : gv.from === "yours" ? "yours" : gv.from === "share" ? "est." : "";
+
+  /* ======================= Market: every set, its chase cards, and sealed products ======================= */
+  // Every set in TCGplayer's catalog with its most valuable cards, and every sealed product with the cheapest
+  // listing on TCGplayer next to its market price, plus one-tap searches at other stores (sorted cheapest first).
+  const MK_LINES = [["core", "Core booster sets"], ["side", "Side sets"], ["dbp", "Deck Build Packs"], ["bol", "Battles of Legend"],
+    ["foil", "All-foil sets"], ["structure", "Structure Decks"], ["speed", "Speed Duel"], ["ots", "OTS Tournament Packs"],
+    ["tins", "Tins and mega packs"], ["boxed", "Starter decks and box sets"], ["promo", "Promos and other"]];
+  const MK_KINDS = [["pack", "Booster packs"], ["box", "Booster boxes"], ["case", "Cases"], ["structure", "Structure Decks"],
+    ["se", "Special Editions"], ["de", "Deluxe Editions"], ["tin", "Tins"], ["boxset", "Box sets and collections"], ["starter", "Starter decks"], ["other", "Tokens and other"]];
+  const mkLineName = k => (MK_LINES.find(x => x[0] === k) || [k, ""])[1];
+  const mkKindName = k => (MK_KINDS.find(x => x[0] === k) || [k, ""])[1];
+  // The English counterparts of the OCG's Deck Build Packs.
+  const MK_DBP = new Set(["spirit warriors", "dark saviors", "shadows in valhalla", "hidden summoners", "the infinity chasers", "fists of the gadgets",
+    "mystic fighters", "secret slayers", "genesis impact", "ancient guardians", "the grand creators", "tactical masters", "amazing defenders",
+    "wild survivors", "valiant smashers", "crossover breakers", "justice hunters"]);
+  // Which line a set belongs to, from its name (TCGplayer doesn't say).
+  function mkSetLine(name, cards, sealed) {
+    const n = String(name || "").toLowerCase();
+    if (/^ots tournament pack/.test(n)) return "ots";
+    if (/speed duel/.test(n)) return "speed";
+    if (/^battles of legend/.test(n)) return "bol";
+    if (MK_DBP.has(n)) return "dbp";
+    if (/ra yellow|anniversary pack/.test(n)) return "side";
+    if (/forbidden legacy/.test(n)) return "promo";
+    if (/all-foil|rarity collection|quarter century (bonanza|stampede)|^maximum gold|^premium gold|ghosts from the past|hidden arsenal: chapter|brothers of legend|^dragons of legend|legendary duelists: season|^gold series|^duel devastator$|^duel overload$|^duel power$|ultimate kaiba set/.test(n)) return "foil";
+    if (/structure deck|egyptian god deck/.test(n)) return "structure";
+    if (/\btins?\b|mega-tins?|mega[- ]?pack|collectors? tins?|collection tin/.test(n)) return "tins";
+    if (/starter|legendary (hero |dragon |modern |5d's |arc-v )?decks|yugi's legendary decks|box set|collector'?s? box|value box|chronicles deck|2-player|^legendary collection|hero collection|pot collection|master collection/.test(n)) return "boxed";
+    if (/promo|prize|championship|hobby league|tournament pack|champion pack|turbo pack|astral pack|duel terminal|demo|\btokens?\b|sneak preview|judge|advent calendar|event pack|winner's pack|limited pack|shonen jump|video game|mcdonald|manga|redemption|gba|ps2|xbox|nintendo|power of chaos|duelist league|lost art|collaboration|ultimate edition|movie exclusive|eternal duelist soul|duelist of the roses|falsebound|reshef|stairway|dawn of destiny|valuable book|duel master's guide|miscellaneous|collector's boxes|world championship|pharaoh tour|power pack/.test(n)) return "promo";
+    if (/legendary duelists|maze of|magnificent|king's court|star pack|battle pack|duelist pack|hidden arsenal|dark revelation|retro pack|movie pack|dark legends|dark beginning|premium pack|ra yellow|duelist saga|world superstars|millennium pack|the secret forces|high-speed riders|wing raiders|fusion enforcers|destiny soldiers|pendulum evolution|toon chaos|legendary collection/.test(n)) return "side";
+    if (cards < 20 && !sealed && !/special edit|super edition|advance|deluxe|\bse\b/.test(n)) return "promo";
+    return "core";
+  }
+  // What kind of sealed product this is, from its name.
+  function mkKind(name) {
+    const n = String(name || "").toLowerCase();
+    if (/field center token|\btokens?\b|oversized|ingot|masterpiece|playmat|game mat|sleeves|card case|deck box(?!.*structure)|protector|figure|calendar/.test(n)) return "other";
+    if (/deluxe edition/.test(n)) return "de";
+    if (/special edition|super edition|advanced? edition|special set|\bse\b display/.test(n)) return "se";
+    if (/\bcase\b/.test(n)) return "case";
+    if (/mega[- ]pack/.test(n) && !/tin(\s*\[[^\]]*\])?\s*$/.test(n)) return "pack";
+    if (/\btins?\b|mega-tins?\b|collectors? tin/.test(n)) return "tin";
+    if (/structure deck|egyptian god deck|speed duel decks?\b|chronicles deck/.test(n)) return "structure";
+    if (/starter (deck|set|display)|super starter|starter deck/.test(n)) return "starter";
+    if (/(^|[^-])box set|collector'?s? (box|set)|collector set|value box|portfolio|gameboard edition|legendary decks|battle kit|binder/.test(n)) return "boxset";
+    if (/booster box|mini[- ]?box|box display|\bdisplay\b/.test(n)) return "box";
+    if (/booster pack|\bpacks?\b|blister|sleeved/.test(n)) return "pack";
+    if (/collection\b/.test(n)) return "boxset";
+    if (/\bbox\b/.test(n)) return "box";
+    return "other";
+  }
+  // A card's best price: the highest market price among its printings (the lowest listing when nothing sold).
+  function mkBest(p) {
+    let best = null;
+    for (const ed in p.prices) {
+      const sub = p.prices[ed];
+      const v = sub.market != null ? sub.market : sub.low;
+      if (v != null && (!best || v > best.price)) best = {price: v, edition: ed, product: p};
+    }
+    return best;
+  }
+  function mkSealedPrice(p) {
+    const sub = catalogPrice(p, "") || {};
+    const low = sub.low != null ? sub.low : null, market = sub.market != null ? sub.market : null;
+    return {low, market, best: low != null ? low : market, under: low != null && market != null && market > 0 && low < market ? (market - low) / market : 0};
+  }
+  function marketData() {
+    if (catalog.market) return catalog.market;
+    const sets = new Map();
+    for (const p of catalog.products) {
+      let s = sets.get(p.group.id);
+      if (!s) sets.set(p.group.id, s = {group: p.group, cards: [], sealed: []});
+      (p.sealed ? s.sealed : s.cards).push(p);
+    }
+    const out = [];
+    for (const s of sets.values()) {
+      s.line = mkSetLine(s.group.name, s.cards.length, s.sealed.length);
+      s.top = null;
+      for (const p of s.cards) { const b = mkBest(p); if (b && (!s.top || b.price > s.top.price)) s.top = b; }
+      s.sealedInfo = s.sealed.map(p => Object.assign({p, kind: mkKind(p.name), set: s}, mkSealedPrice(p)));
+      const boxes = s.sealedInfo.filter(x => x.kind === "box" && x.best != null);
+      s.cheapBox = boxes.length ? boxes.reduce((a, b) => (b.best < a.best ? b : a)) : null;
+      out.push(s);
+    }
+    catalog.market = out;
+    return out;
+  }
+  function mkChase(s, n) { return s.cards.map(mkBest).filter(Boolean).sort((a, b) => b.price - a.price || a.product.name.localeCompare(b.product.name)).slice(0, n || 25); }
+  // Searches at other stores, cheapest first (the sites' own price sorting).
+  function mkStoreLinks(p) {
+    const q = ("Yu-Gi-Oh " + p.name.replace(/\[[^\]]*\]/g, " ").replace(/\s+-\s+/g, " ")).replace(/\s+/g, " ").trim();
+    const e = encodeURIComponent(q);
+    return '<span class="mk-stores">' +
+      '<a target="_blank" rel="noopener" href="' + esc(tcgPage(p.id)) + '">TCGplayer</a>' +
+      '<a target="_blank" rel="noopener" href="https://www.ebay.com/sch/i.html?_nkw=' + e + '&amp;_sop=15&amp;LH_BIN=1&amp;LH_ItemCondition=1000">eBay</a>' +
+      '<a target="_blank" rel="noopener" href="https://www.amazon.com/s?k=' + e + '&amp;s=price-asc-rank">Amazon</a>' +
+      '<a target="_blank" rel="noopener" href="https://www.walmart.com/search?q=' + e + '&amp;sort=price_low">Walmart</a>' +
+      '<a target="_blank" rel="noopener" href="https://www.target.com/s?searchTerm=' + e + '&amp;sortBy=PriceLow">Target</a></span>';
+  }
+  function mkSealedTileHTML(x, showSet) {
+    const p = x.p;
+    const owned = collection.filter(r => r.productId === p.id).reduce((t, r) => t + r.qty, 0);
+    return '<div class="result static"><span class="sleeve boxed">' + imgTag(tcgImg(p.id, "in_400x400"), p.name) + "</span>" +
+      '<span class="result-name">' + esc(p.name) + "</span>" +
+      '<span class="result-meta">' + esc(showSet ? x.set.group.name + " · " : "") + esc(mkKindName(x.kind)) + "</span>" +
+      (x.low == null && x.market == null ? '<span class="result-meta">No listings or recent sales</span>'
+        : '<dl class="mk-prices">' + (x.low != null ? "<dt>Lowest listing</dt><dd class=\"low\">" + esc(usd(x.low)) + "</dd>" : "") +
+          (x.market != null ? "<dt>Market price</dt><dd>" + esc(usd(x.market)) + "</dd>" : "") + "</dl>") +
+      (x.under >= 0.05 ? '<span class="mk-deal">' + Math.round(x.under * 100) + "% under market</span>" : "") +
+      mkStoreLinks(p) +
+      '<span class="result-actions">' + (owned ? '<span class="on-list">You have ' + owned + "</span>" : "") +
+      '<button class="btn" type="button" data-mk-add="' + p.id + '">' + (owned ? "Add more" : "I have it") + "</button></span></div>";
+  }
+  function mkChaseHTML(list) {
+    const wanted = new Set(wants.map(w => w.productId));
+    const owned = new Map();
+    for (const r of collection) if (r.productId) owned.set(r.productId, (owned.get(r.productId) || 0) + r.qty);
+    return '<div class="results">' + list.map((b, i) => {
+      const p = b.product;
+      return '<div class="result static"><span class="sleeve"><span class="mk-rank">#' + (i + 1) + "</span>" + imgTag(tcgImg(p.id, "200w"), p.name) + "</span>" +
+        '<span class="result-name">' + esc(cleanName(p.name, p.rarity)) + "</span>" +
+        '<span class="result-meta">' + esc(p.number) + ", " + esc(p.rarity || "rarity unknown") + "</span>" +
+        '<span class="result-price">' + esc(usd(b.price)) + (Object.keys(p.prices).length > 1 ? ' <span class="small">' + esc(b.edition) + "</span>" : "") + "</span>" +
+        '<span class="result-actions">' + (owned.get(p.id) ? '<span class="on-list">You have ' + owned.get(p.id) + "</span>" : "") +
+        (wanted.has(p.id) ? '<span class="on-list">On want list</span>' : '<button class="btn" type="button" data-mk-want="' + p.id + '">Want</button>') +
+        '<button class="btn" type="button" data-mk-have="' + p.id + '">I have it</button></span></div>';
+    }).join("") + "</div>";
+  }
+  const mk = {q: "", open: new Set(), limit: 40};
+  function renderMarket() {
+    const panel = $("panel-market");
+    if (!catalog) { panel.innerHTML = emptyPanel("The market needs TCGplayer data", SITE ? "Reload the page (it needs an internet connection)." : "Double-click <b>Update TCGplayer Data</b> in the Card Vault folder, then press F5 here."); return; }
+    const sealedView = settings.mkView === "sealed";
+    const sorts = sealedView ? [["deal", "Biggest discount first"], ["low", "Lowest price first"], ["high", "Highest price first"], ["newest", "Newest first"]]
+      : [["newest", "Newest first"], ["oldest", "Oldest first"], ["chase", "Most valuable top card"], ["name", "Set name"]];
+    const sortVal = sealedView ? settings.mkSortSealed : settings.mkSortSets;
+    panel.innerHTML = '<div class="panel-head"><div><h2>Market</h2><p>' + (sealedView
+      ? "Sealed products from every set, with the cheapest listing on TCGplayer next to the market price."
+      : "Every Yu-Gi-Oh! set on TCGplayer, with its 25 most valuable cards and its sealed products.") + "</p></div>" +
+      '<div class="panel-tools"><div class="seg" role="group" aria-label="Show" id="mkView"><button type="button" data-mkview="sets" aria-pressed="' + !sealedView + '">Sets and chase cards</button>' +
+      '<button type="button" data-mkview="sealed" aria-pressed="' + sealedView + '">Sealed products</button></div></div></div>' +
+      '<div class="mk-filters"><input class="search" id="mkQ" type="search" placeholder="' + (sealedView ? "Product or set name" : "Set name or code") + '" aria-label="Search" value="' + esc(mk.q) + '">' +
+      '<select class="select" id="mkLine" aria-label="Set type"><option value="">All set types</option>' + MK_LINES.map(([k, l]) => '<option value="' + k + '"' + (settings.mkLine === k ? " selected" : "") + ">" + esc(l) + "</option>").join("") + "</select>" +
+      (sealedView ? '<select class="select" id="mkKind" aria-label="Product type"><option value="">All products</option>' + MK_KINDS.map(([k, l]) => '<option value="' + k + '"' + (settings.mkKind === k ? " selected" : "") + ">" + esc(l) + "</option>").join("") + "</select>" : "") +
+      '<select class="select" id="mkSort" aria-label="Sort">' + sorts.map(([k, l]) => '<option value="' + k + '"' + (sortVal === k ? " selected" : "") + ">" + esc(l) + "</option>").join("") + "</select></div>" +
+      '<div id="mkList"></div>' +
+      '<p class="small">Prices are TCGplayer\'s, from ' + esc(fmtDate(catalog.generated)) + '. "Lowest listing" is the cheapest seller on TCGplayer before shipping; check the listing\'s condition and shipping. ' +
+      "The other store links search for the product sorted cheapest first: Amazon, Walmart and Target don't share their prices with apps like this one, so compare there in a tap. " +
+      "Set types are worked out from set names, so a few may be in a neighboring group.</p>";
+    renderMarketList();
+  }
+  function renderMarketList() {
+    const box = $("mkList");
+    if (!box || !catalog) return;
+    const data = marketData();
+    const q = mk.q.trim().toLowerCase();
+    const words = q.split(/\s+/).filter(Boolean);
+    const day = s => String(s.group.published || "");
+    if (settings.mkView === "sealed") {
+      let list = [];
+      for (const s of data) if (!settings.mkLine || s.line === settings.mkLine) list = list.concat(s.sealedInfo);
+      list = list.filter(x => (!settings.mkKind || x.kind === settings.mkKind) &&
+        (!words.length || words.every(w => (x.p.name + " " + x.set.group.name + " " + (x.set.group.abbr || "")).toLowerCase().includes(w))));
+      const sorters = {
+        deal: (a, b) => b.under - a.under || (a.best == null) - (b.best == null) || (a.best || 0) - (b.best || 0),
+        low: (a, b) => (a.best == null) - (b.best == null) || (a.best || 0) - (b.best || 0),
+        high: (a, b) => (a.best == null) - (b.best == null) || (b.best || 0) - (a.best || 0),
+        newest: (a, b) => day(b.set).localeCompare(day(a.set)) || a.p.name.localeCompare(b.p.name)
+      };
+      list.sort(sorters[settings.mkSortSealed] || sorters.deal);
+      if (!list.length) {
+        box.innerHTML = '<div class="notice">' + (settings.mkLine === "ots" ? "OTS Tournament Packs aren't sold sealed: stores hand them out at OTS events. Their chase cards are under Sets and chase cards."
+          : "No sealed product matches. Try fewer words, or another type.") + "</div>";
+        return;
+      }
+      box.innerHTML = '<p class="results-head">' + plural(list.length, "product") + (list.length > mk.limit ? ", showing the first " + mk.limit : "") + ".</p>" +
+        '<div class="results">' + list.slice(0, mk.limit).map(x => mkSealedTileHTML(x, true)).join("") + "</div>" +
+        (list.length > mk.limit ? '<div class="mk-more"><button class="btn" type="button" data-mk-more>Show more</button></div>' : "");
+      return;
+    }
+    let list = data.filter(s => (s.cards.length || s.sealed.length) && (!settings.mkLine || s.line === settings.mkLine) &&
+      (!words.length || words.every(w => (s.group.name + " " + (s.group.abbr || "")).toLowerCase().includes(w))));
+    const sorters = {
+      newest: (a, b) => day(b).localeCompare(day(a)) || a.group.name.localeCompare(b.group.name),
+      oldest: (a, b) => day(a).localeCompare(day(b)) || a.group.name.localeCompare(b.group.name),
+      chase: (a, b) => (b.top ? b.top.price : -1) - (a.top ? a.top.price : -1),
+      name: (a, b) => a.group.name.localeCompare(b.group.name)
+    };
+    list.sort(sorters[settings.mkSortSets] || sorters.newest);
+    if (!list.length) { box.innerHTML = '<div class="notice">No set matches. Try fewer words, or another set type.</div>'; return; }
+    box.innerHTML = '<p class="results-head">' + plural(list.length, "set") + (list.length > mk.limit ? ", showing the first " + mk.limit : "") + ".</p>" +
+      list.slice(0, mk.limit).map(mkSetRowHTML).join("") +
+      (list.length > mk.limit ? '<div class="mk-more"><button class="btn" type="button" data-mk-more>Show more</button></div>' : "");
+  }
+  function mkSetRowHTML(s) {
+    const gid = s.group.id, open = mk.open.has(gid);
+    const year = s.group.published ? String(s.group.published).slice(0, 4) : "";
+    const top = s.top;
+    return '<article class="set-row mk-row"><button type="button" class="set-toggle" aria-expanded="' + open + '" data-mk-set="' + gid + '">' +
+      '<span style="min-width:0"><span class="set-name">' + esc(s.group.name) + '</span><span class="set-sub">' + esc([s.group.abbr, year, plural(s.cards.length, "card")].filter(Boolean).join(", ")) +
+      '<span class="mk-line">' + esc(mkLineName(s.line)) + "</span></span></span>" +
+      '<span class="mk-top">' + (top ? "Top card: <b>" + esc(cleanName(top.product.name, top.product.rarity)) + '</b> <span class="gold">' + esc(usd(top.price)) + "</span>" : "No prices yet") + "</span>" +
+      '<span class="set-cost">' + (s.cheapBox ? "<b>" + esc(usd(s.cheapBox.best)) + "</b><small>cheapest box</small>"
+        : s.sealed.length ? "<b>" + s.sealed.length + "</b><small>sealed " + (s.sealed.length === 1 ? "product" : "products") + "</small>" : "<small>not sold sealed</small>") + "</span>" +
+      '<span class="caret" aria-hidden="true"></span></button>' +
+      (open ? '<div class="set-body">' + mkSetBodyHTML(s) + "</div>" : "") + "</article>";
+  }
+  function mkSetBodyHTML(s) {
+    let html = "";
+    if (s.sealedInfo.length) {
+      const order = MK_KINDS.map(k => k[0]);
+      const list = s.sealedInfo.slice().sort((a, b) => order.indexOf(a.kind) - order.indexOf(b.kind) || (a.best == null) - (b.best == null) || (a.best || 0) - (b.best || 0));
+      html += '<h3 class="mk-h">Sealed products</h3><div class="results">' + list.map(x => mkSealedTileHTML(x, false)).join("") + "</div>";
+    } else {
+      html += '<p class="small" style="margin:12px 0 0">' + (s.line === "ots" ? "OTS Tournament Packs aren't sold sealed: stores hand them out at OTS events." : "TCGplayer doesn't list sealed products for this set.") + "</p>";
+    }
+    const chase = mkChase(s, 25);
+    if (chase.length) {
+      const total = chase.reduce((t, b) => t + b.price, 0);
+      html += '<h3 class="mk-h">Top ' + chase.length + " chase cards <span class=\"small\">(one of each: " + esc(usd(total)) + ")</span></h3>" + mkChaseHTML(chase);
+    }
+    return html;
+  }
 
   /* ======================= Want list ======================= */
   // The current TCGplayer market price for the printing you want (the cheapest printing when any will do).
@@ -7105,6 +7349,43 @@
       }
     });
 
+    // ----- market
+    const market = $("panel-market");
+    let mkTimer = null;
+    market.addEventListener("input", e => { if (e.target.id === "mkQ") { mk.q = e.target.value; mk.limit = 40; clearTimeout(mkTimer); mkTimer = setTimeout(renderMarketList, 200); } });
+    market.addEventListener("change", e => {
+      if (e.target.id === "mkLine") { settings.mkLine = e.target.value; mk.limit = 40; saveSettings(); renderMarketList(); }
+      else if (e.target.id === "mkKind") { settings.mkKind = e.target.value; mk.limit = 40; saveSettings(); renderMarketList(); }
+      else if (e.target.id === "mkSort") { if (settings.mkView === "sealed") settings.mkSortSealed = e.target.value; else settings.mkSortSets = e.target.value; mk.limit = 40; saveSettings(); renderMarketList(); }
+    });
+    market.addEventListener("click", e => {
+      const v = e.target.closest("[data-mkview]");
+      if (v) { settings.mkView = v.dataset.mkview; mk.limit = 40; saveSettings(); renderMarket(); return; }
+      if (e.target.closest("[data-mk-more]")) { mk.limit += 40; renderMarketList(); return; }
+      const t = e.target.closest("[data-mk-set]");
+      if (t) {
+        const gid = +t.dataset.mkSet;
+        if (mk.open.has(gid)) mk.open.delete(gid); else mk.open.add(gid);
+        renderMarketList();
+        const again = document.querySelector('#mkList [data-mk-set="' + gid + '"]');
+        if (again) again.focus();
+        return;
+      }
+      const w = e.target.closest("[data-mk-want]");
+      if (w && catalog) {
+        const p = catalog.byId.get(+w.dataset.mkWant);
+        if (!p) return;
+        const res = addWant(Object.assign(wantFromProduct(p), {edition: "Any"}));
+        save(); renderTabs(); renderMarketList();
+        toast("Added " + res.want.name + " to your want list.", {action: "Set a target price", onAction: () => openWantForm(p, res.want)});
+        return;
+      }
+      const h = e.target.closest("[data-mk-have]");
+      if (h && catalog) { const p = catalog.byId.get(+h.dataset.mkHave); if (p) { drawerCtx = null; openPickedForm(p); } return; }
+      const a = e.target.closest("[data-mk-add]");
+      if (a && catalog) { const p = catalog.byId.get(+a.dataset.mkAdd); if (p) openSealedForm(p); }
+    });
+
     // ----- deck check
     const decksPanel = $("panel-decks");
     decksPanel.addEventListener("input", e => {
@@ -7307,7 +7588,7 @@
     openSoldForm, recordSale, saleNumbers, buildReport, openReport, phoneCopyHTML, savePhoneCopy, writePhoneCopy, backupTextFrom,
     matchScanned, numberVariants, openScanner, stopScanner, prepCanvas, openWantForm, resolveLink, chooseBackupFile, linkGoogleDrive, driveToken, openMove, moveCopies,
     searchSealed, openSealedSearch, openSealedForm, ocgCard, bigwebFor, bunjangFor, bigwebPick, bunjangPick, ocgPrice, refreshOcgPrices, fxRates, showOcgLookup,
-    psa10Value, gradedValue, gradedTotals, pcLookup, pcMatch, refreshGradedPrices, gradeShare, koRarity, jaRarity, driveDatedCopy, fillDriveCopies, deckPullPlan, deckPullIntoBox, openShare, shareLink};
+    psa10Value, gradedValue, gradedTotals, pcLookup, pcMatch, refreshGradedPrices, gradeShare, koRarity, jaRarity, driveDatedCopy, fillDriveCopies, deckPullPlan, deckPullIntoBox, openShare, shareLink, marketData, mkSetLine, mkKind, mkChase, renderMarket};
 
   document.addEventListener("DOMContentLoaded", init);
 })();

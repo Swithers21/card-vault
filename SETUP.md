@@ -103,6 +103,11 @@ personal app: click **Continue**.
   Legendary plan, $49 a month as of October 2026). The key is saved with your Card Vault data in your Google Drive.
 - **Dated backups**: every day, the first save also keeps a dated copy in **Card Vault > Backups** in your Google Drive
   (the last 30 days). Settings lists them; Restore puts one back on every device.
+- **Market** tab: every set on TCGplayer with its 25 most valuable cards, and every sealed product (booster packs and
+  boxes, Structure Decks, Special and Deluxe Editions, tins…) with the cheapest TCGplayer listing next to the market price.
+  Filter by set type (core sets, side sets, Deck Build Packs, Battles of Legend, all-foil sets, Speed Duel, OTS
+  Tournament Packs…) and sort by biggest discount. Each product has one-tap searches at eBay, Amazon, Walmart and Target,
+  sorted cheapest first.
 - **Deck check** can move the cards you own for a deck into a location named after it ("Deck: Blue-Eyes").
 - **Share…** (select cards, or Show: Extras > Share trade binder, or the Want list tab) makes a link to a page with those
   cards, their photos and TCGplayer prices. The cards are in the link itself; nothing else of yours is shared.
