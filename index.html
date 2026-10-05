@@ -431,6 +431,7 @@
   .mk-prices dd.low{color:var(--gold-hi);font-weight:700}
   .mk-deal{display:inline-block;font-size:11px;font-weight:700;padding:1px 6px;border-radius:5px;background:rgba(110,207,154,.14);color:#8fe0b4;border:1px solid rgba(110,207,154,.4);margin-top:4px}
   .mk-stores{display:flex;flex-wrap:wrap;gap:4px 10px;font-size:12px;margin-top:6px}
+  .mk-warn{display:inline-block;font-size:11px;font-weight:600;padding:1px 6px;border-radius:5px;border:1px solid rgba(216,173,87,.5);color:var(--gold-hi);margin-top:4px}
   .mk-h{margin:16px 0 8px;font-size:14px}
   .mk-more{display:flex;justify-content:center;margin:14px 0 4px}
   @media (max-width:760px){ .mk-row .set-toggle{grid-template-columns:minmax(0,1fr) auto 16px} .mk-row .mk-top{grid-column:1 / 3;grid-row:2} }
@@ -3510,10 +3511,14 @@
     }
     return best;
   }
+  // A lowest listing under half the market price is usually not what it seems (opened, damaged, mislabeled, a
+  // placeholder price): it's shown with a warning and never counted as a deal.
   function mkSealedPrice(p) {
     const sub = catalogPrice(p, "") || {};
     const low = sub.low != null ? sub.low : null, market = sub.market != null ? sub.market : null;
-    return {low, market, best: low != null ? low : market, under: low != null && market != null && market > 0 && low < market ? (market - low) / market : 0};
+    const suspect = low != null && market != null && low < market * 0.5;
+    return {low, market, suspect, best: suspect ? market : (low != null ? low : market),
+      under: !suspect && low != null && market != null && market > 0 && low < market ? (market - low) / market : 0};
   }
   function marketData() {
     if (catalog.market) return catalog.market;
@@ -3529,8 +3534,11 @@
       s.top = null;
       for (const p of s.cards) { const b = mkBest(p); if (b && (!s.top || b.price > s.top.price)) s.top = b; }
       s.sealedInfo = s.sealed.map(p => Object.assign({p, kind: mkKind(p.name), set: s}, mkSealedPrice(p)));
+      // (a full booster box when the set has one, not a retail mini box)
       const boxes = s.sealedInfo.filter(x => x.kind === "box" && x.best != null);
-      s.cheapBox = boxes.length ? boxes.reduce((a, b) => (b.best < a.best ? b : a)) : null;
+      const full = boxes.filter(x => !/mini/i.test(x.p.name));
+      const pick = full.length ? full : boxes;
+      s.cheapBox = pick.length ? pick.reduce((a, b) => (b.best < a.best ? b : a)) : null;
       out.push(s);
     }
     catalog.market = out;
@@ -3555,9 +3563,10 @@
       '<span class="result-name">' + esc(p.name) + "</span>" +
       '<span class="result-meta">' + esc(showSet ? x.set.group.name + " · " : "") + esc(mkKindName(x.kind)) + "</span>" +
       (x.low == null && x.market == null ? '<span class="result-meta">No listings or recent sales</span>'
-        : '<dl class="mk-prices">' + (x.low != null ? "<dt>Lowest listing</dt><dd class=\"low\">" + esc(usd(x.low)) + "</dd>" : "") +
+        : '<dl class="mk-prices">' + (x.low != null ? "<dt>Lowest listing</dt><dd class=\"" + (x.suspect ? "" : "low") + "\">" + esc(usd(x.low)) + "</dd>" : "") +
           (x.market != null ? "<dt>Market price</dt><dd>" + esc(usd(x.market)) + "</dd>" : "") + "</dl>") +
       (x.under >= 0.05 ? '<span class="mk-deal">' + Math.round(x.under * 100) + "% under market</span>" : "") +
+      (x.suspect ? '<span class="mk-warn" title="Under half the market price: it may be opened, damaged, mislabeled or a placeholder price">Unusually low: check that listing</span>' : "") +
       mkStoreLinks(p) +
       '<span class="result-actions">' + (owned ? '<span class="on-list">You have ' + owned + "</span>" : "") +
       '<button class="btn" type="button" data-mk-add="' + p.id + '">' + (owned ? "Add more" : "I have it") + "</button></span></div>";
@@ -3651,7 +3660,7 @@
       '<span style="min-width:0"><span class="set-name">' + esc(s.group.name) + '</span><span class="set-sub">' + esc([s.group.abbr, year, plural(s.cards.length, "card")].filter(Boolean).join(", ")) +
       '<span class="mk-line">' + esc(mkLineName(s.line)) + "</span></span></span>" +
       '<span class="mk-top">' + (top ? "Top card: <b>" + esc(cleanName(top.product.name, top.product.rarity)) + '</b> <span class="gold">' + esc(usd(top.price)) + "</span>" : "No prices yet") + "</span>" +
-      '<span class="set-cost">' + (s.cheapBox ? "<b>" + esc(usd(s.cheapBox.best)) + "</b><small>cheapest box</small>"
+      '<span class="set-cost">' + (s.cheapBox ? "<b>" + esc(usd(s.cheapBox.best)) + "</b><small>" + (/mini/i.test(s.cheapBox.p.name) ? "mini box" : "booster box") + "</small>"
         : s.sealed.length ? "<b>" + s.sealed.length + "</b><small>sealed " + (s.sealed.length === 1 ? "product" : "products") + "</small>" : "<small>not sold sealed</small>") + "</span>" +
       '<span class="caret" aria-hidden="true"></span></button>' +
       (open ? '<div class="set-body">' + mkSetBodyHTML(s) + "</div>" : "") + "</article>";
