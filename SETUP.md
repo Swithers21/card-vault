@@ -91,6 +91,8 @@ personal app: click **Continue**.
 - **Syncing**: each device checks Google Drive every 15 seconds while Card Vault is open, and before every
   save. If the same card is changed on two devices, the later change wins.
 - **Camera scanning** works on the iPhone (Add card > Scan with camera; allow the camera).
+- **Moving cards** between binders, boxes and decks: open a card and tap **Move** (next to where it's kept), or tick
+  several cards and tap **Move…** in the bar at the bottom. Choose where they're going and how many of each.
 - **Windows notifications** still come from the Card Vault folder on your PC (Turn On Daily Updates). It
   reads your cards from `Card Vault backup.json` in your Google Drive, so install
   [Google Drive for desktop](https://www.google.com/drive/download/) on that PC, signed in to the same

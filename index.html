@@ -289,6 +289,26 @@
     .grid-3{grid-template-columns:1fr}
   }
   .picked h3{margin:0 0 4px;font-size:17px;line-height:1.25}
+  .other-copies{margin:8px 0 0;text-align:center;color:var(--text-dim);font-size:13px;line-height:1.6}
+  .loc-chips{display:flex;flex-wrap:wrap;gap:6px;margin-top:-4px}
+  .loc-chip{border:1px solid var(--line-2);background:var(--surface-2);color:var(--text);border-radius:999px;padding:6px 12px;font:inherit;font-size:13px;cursor:pointer}
+  .loc-chip:hover{border-color:var(--gold)}
+  .loc-chip.on{border-color:var(--gold);color:var(--gold-hi);background:var(--bg-2)}
+  .mv-list{display:flex;flex-direction:column;gap:8px}
+  .mv-row{display:grid;grid-template-columns:38px minmax(0,1fr) auto;grid-template-areas:"img info step";gap:10px;align-items:center;padding:8px 10px;border:1px solid var(--line);border-radius:10px;background:var(--surface-2)}
+  .mv-row > .sleeve{grid-area:img;width:38px;border-radius:3px;box-shadow:none}
+  .mv-row .stepper{grid-area:step}
+  .mv-row .mv-where{color:var(--gold-hi)}
+  .mv-row.here{opacity:.55}
+  .mv-row.here .stepper{visibility:hidden}
+  .stepper{display:flex;align-items:center;gap:4px}
+  .stepper .input{width:50px;text-align:center;padding:6px 2px;font-size:15px;-moz-appearance:textfield}
+  .stepper .input::-webkit-inner-spin-button,.stepper .input::-webkit-outer-spin-button{-webkit-appearance:none;margin:0}
+  .stepper .icon-btn{width:32px;height:32px;font-size:18px}
+  .stepper small{color:var(--text-dim);font-size:12px;margin-left:3px;white-space:nowrap}
+  .mv-total{margin:0;font-size:13.5px;color:var(--text-dim)}
+  .mv-total b{color:var(--text)}
+  @media (max-width:480px){ .mv-row{grid-template-columns:38px minmax(0,1fr);grid-template-areas:"img info" "step step"} .mv-row .stepper{justify-content:flex-end} }
   .picked p{margin:0;color:var(--text-dim);font-size:13px}
   .price-line{margin:2px 0 14px;padding:10px 12px;border-radius:9px;background:var(--bg-2);border:1px solid var(--line);font-size:13.5px}
   .price-line b{color:var(--gold-hi);font-variant-numeric:tabular-nums}
@@ -668,7 +688,7 @@
   <span><b id="bulkCount">0</b> selected</span>
   <button class="btn btn-small" id="bulkAll" type="button">Select all shown</button>
   <button class="btn btn-small" id="bulkClear" type="button">Clear</button>
-  <button class="btn btn-small" id="bulkLocation" type="button">Set location</button>
+  <button class="btn btn-small" id="bulkLocation" type="button">Move…</button>
   <button class="btn btn-small btn-danger" id="bulkDelete" type="button">Delete selected</button>
 </div>
 <input type="file" id="restoreFile" accept=".json,application/json,.html,text/html" hidden>
@@ -2295,6 +2315,16 @@
   }
 
   /* ----- details & edit ----- */
+  // Where your other copies of the same card (same TCGplayer printing, or same number and name) are kept.
+  function otherCopiesHTML(r) {
+    const others = collection.filter(x => x !== r && (r.productId ? x.productId === r.productId
+      : !x.productId && !!r.number && normNumber(x.number) === normNumber(r.number) && x.name.toLowerCase() === r.name.toLowerCase()));
+    if (!others.length) return "";
+    const diff = x => [x.edition !== r.edition ? x.edition : "", gradeLabel(x.grade) !== gradeLabel(r.grade) ? gradeLabel(x.grade) || "ungraded" : "",
+      x.condition !== r.condition && !x.grade ? x.condition : "", x.language !== r.language ? x.language : ""].filter(Boolean).join(", ");
+    return '<p class="other-copies">You also have ' + others.map(x => '<button type="button" class="link-btn" data-other="' + esc(x.id) + '">' +
+      esc(x.qty + " " + (x.location ? "in " + x.location : "with no location")) + "</button>" + (diff(x) ? " (" + esc(diff(x)) + ")" : "")).join(", ") + ".</p>";
+  }
   function openDetails(id) {
     let r = collection.find(x => x.id === id);
     if (!r) return;
@@ -2349,7 +2379,7 @@
       '<span class="sleeve">' + imgTag(big, r.name, true) + "</span></a>" +
       '<h3 class="detail-title">' + esc(r.name) + "</h3>" +
       '<p class="detail-sub">' + esc(r.setName || "Set unknown") + "<br>" + esc(r.number || "No card number") + (r.rarity ? ", " + esc(r.rarity) : "") +
-      (r.location ? "<br>Kept in " + esc(r.location) : "") + "</p>" +
+      "<br>" + (r.location ? "Kept in " + esc(r.location) : "No location") + ' · <button type="button" class="link-btn" id="moveTop">Move</button></p>' + otherCopiesHTML(r) +
       '<div class="links">' + links + "</div>" + priceSection +
       '<div class="section"><h3>Your copy</h3><form id="editForm" class="stack">' +
       '<div class="grid-2"><label class="field"><span>Printing</span><select class="input" id="eEd">' +
@@ -2372,6 +2402,7 @@
       "</details>" +
       '<div class="form-actions"><button class="btn btn-primary" type="submit">Save changes</button>' +
       (r.number ? '<button class="btn" type="button" id="changePrinting">Change printing</button>' : "") +
+      '<button class="btn" type="button" id="moveBtn">Move…</button>' +
       '<button class="btn" type="button" id="soldBtn">Sold…</button>' +
       '<span class="spacer"></span><button class="btn btn-danger" type="button" id="deleteOne">Delete</button></div></form></div>');
 
@@ -2380,6 +2411,8 @@
     if ($("eFind")) $("eFind").addEventListener("click", () => showYugiPicker($("eYugi"), r.number, r.name, $("eRarity").value, url => { $("eImage").value = url; }));
     $("deleteOne").addEventListener("click", () => deleteRecords([r.id]));
     $("soldBtn").addEventListener("click", () => openSoldForm(r.id));
+    ["moveBtn", "moveTop"].forEach(b => $(b).addEventListener("click", () => openMove([r.id], {back: r.id})));
+    $("drawerBody").querySelectorAll("[data-other]").forEach(b => b.addEventListener("click", () => openDetails(b.dataset.other)));
     // Only what you change in the form is saved, so a change that arrives from another computer
     // while the form is open (say, a copy sold there) isn't overwritten.
     const shown = formValues("editForm");
@@ -2703,26 +2736,129 @@
     return {productId: p.id, name: cleanName(p.name, p.rarity), productName: p.name, setName: p.group.name, number: p.number, rarity: p.rarity};
   }
 
-  /* ======================= Bulk location & trade list ======================= */
-  function openBulkLocation() {
-    const recs = collection.filter(r => selected.has(r.id));
+  /* ======================= Moving cards between locations & trade list ======================= */
+  const sameLoc = (a, b) => String(a || "").trim().toLowerCase() === String(b || "").trim().toLowerCase();
+  const locName = l => l || "No location";
+  const whereNow = r => (r.location ? "In " + r.location : "No location") + ": " + r.qty;
+  // Moves copies to another location. plan: [{id, qty}]. Copies that end up matching an entry already kept there
+  // (same printing, condition, language and grading) join it; moving only some copies splits the entry.
+  // Returns what happened, with undo().
+  function moveCopies(plan, dest) {
+    dest = String(dest || "").trim();
+    dest = allLocations().find(l => sameLoc(l, dest)) || dest;   // (keep the spelling the location already has)
+    const beforeIds = collection.map(r => r.id), snaps = new Map(), created = [];
+    const keep = r => { if (!snaps.has(r.id)) snaps.set(r.id, JSON.parse(JSON.stringify(r))); };
+    const res = {dest, cards: 0, printings: 0, joined: 0, missing: 0};
+    for (const step of plan) {
+      const r = collection.find(x => x.id === step.id);
+      if (!r) { res.missing++; continue; }
+      const n = Math.min(Math.max(0, Math.floor(Number(step.qty)) || 0), r.qty);
+      if (!n || sameLoc(r.location, dest)) continue;
+      const target = collection.find(x => x !== r && recordKey(x) === recordKey(Object.assign({}, r, {location: dest})));
+      keep(r);
+      if (target) {
+        keep(target);
+        target.qty += n;
+        for (const f of ["paid", "manualPrice", "jp", "kr", "customImage", "snap"]) if (target[f] == null && r[f] != null) target[f] = JSON.parse(JSON.stringify(r[f]));
+        if (!target.notes && r.notes) target.notes = r.notes;
+        r.qty -= n;
+        if (r.qty <= 0) { collection = collection.filter(x => x !== r); selected.delete(r.id); }
+        res.joined++;
+      } else if (n === r.qty) {
+        r.location = dest;
+      } else {
+        r.qty -= n;
+        const copy = Object.assign(JSON.parse(JSON.stringify(r)), {id: newId(), qty: n, location: dest, mod: 0});
+        collection.splice(collection.indexOf(r) + 1, 0, copy);
+        created.push(copy.id);
+      }
+      res.cards += n; res.printings++;
+    }
+    res.undo = () => {
+      collection = collection.filter(x => !created.includes(x.id));
+      for (const [id, s] of snaps) {
+        const cur = collection.find(x => x.id === id);
+        if (cur) Object.keys(s).forEach(k => { if (k !== "mod") cur[k] = s[k]; });
+        else { const back = upgradeRecord(s); if (back) collection.push(back); }
+      }
+      const order = new Map(beforeIds.map((id, i) => [id, i]));
+      const pos = x => order.has(x.id) ? order.get(x.id) : beforeIds.length;
+      collection.sort((a, b) => pos(a) - pos(b));
+    };
+    return res;
+  }
+  // The Move drawer: where to, and how many of each card. opts.back: the card whose details to go back to.
+  function openMove(ids, opts) {
+    opts = opts || {};
+    const recs = ids.map(id => collection.find(r => r.id === id)).filter(Boolean);
     if (!recs.length) return;
-    const common = recs.every(r => r.location === recs[0].location) ? recs[0].location : "";
-    drawerCtx = {mode: "location"};
-    openDrawer("Set location",
-      '<form id="locForm" class="stack"><p class="small" style="margin:0">For the ' + plural(recs.length, "selected printing") + " (" +
-      plural(recs.reduce((s, r) => s + r.qty, 0), "card") + ").</p>" +
-      locationFieldHTML("bLoc", common).replace('id="bLoc"', 'id="bLoc" autofocus') +
-      '<p class="hint" style="margin:0">Leave it empty to clear the location.</p>' +
-      '<div class="form-actions"><button class="btn btn-primary" type="submit">Save location</button></div></form>');
-    $("locForm").addEventListener("submit", e => {
+    drawerCtx = {mode: "move"};
+    const from = recs.every(r => sameLoc(r.location, recs[0].location)) ? recs[0].location : null;
+    const chips = allLocations().filter(l => from == null || !sameLoc(l, from)).map(l => [l, l]);
+    if (from == null || from) chips.push(["", "No location"]);
+    const row = r => '<div class="mv-row" data-row="' + esc(r.id) + '">' +
+      '<span class="sleeve">' + imgTag(imageFor(r, "200w"), r.name, true) + "</span>" +
+      '<div class="batch-info"><b>' + esc(r.name) + "</b><span>" + esc([r.number, r.rarity].filter(Boolean).join(", ")) + "<br>" +
+      esc([r.edition, r.grade ? gradeLabel(r.grade) : r.condition, r.language !== "English" ? r.language : ""].filter(Boolean).join(", ")) + "</span>" +
+      '<span class="mv-where">' + esc(whereNow(r)) + "</span></div>" +
+      '<div class="stepper"><button type="button" class="icon-btn" data-step="-1" aria-label="One fewer">&minus;</button>' +
+      '<input class="input" type="number" inputmode="numeric" min="0" max="' + r.qty + '" step="1" value="' + r.qty + '" data-qty="' + esc(r.id) + '" aria-label="How many ' + esc(r.name) + ' to move">' +
+      '<button type="button" class="icon-btn" data-step="1" aria-label="One more">+</button><small>of ' + r.qty + "</small></div></div>";
+    openDrawer("Move cards",
+      '<form id="moveForm" class="stack" novalidate>' +
+      '<label class="field"><span>Move to</span><input class="input" id="mvTo" list="locationList" autocomplete="off" placeholder="Binder, box or deck, e.g. Deck box"></label>' +
+      (chips.length ? '<div class="loc-chips" id="mvChips">' + chips.map(([v, label]) =>
+        '<button type="button" class="loc-chip" data-loc="' + esc(v) + '">' + esc(label) + "</button>").join("") + "</div>" : "") +
+      '<div class="mv-list">' + recs.map(row).join("") + "</div>" +
+      '<p class="mv-total" id="mvTotal"></p>' +
+      '<div class="form-actions"><button class="btn btn-primary" type="submit" id="mvGo">Move</button>' +
+      (opts.back ? '<button class="btn" type="button" id="mvBack">Back</button>' : "") + "</div></form>");
+    let picked = false;   // a location was typed or picked (an empty box alone doesn't mean "No location")
+    const form = $("moveForm");
+    const rowFor = id => Array.from(form.querySelectorAll("[data-row]")).find(el => el.dataset.row === id);
+    const qtyOf = id => { const r = collection.find(x => x.id === id), row = rowFor(id), el = row && row.querySelector("[data-qty]");
+      return r && el ? Math.min(Math.max(0, Math.floor(Number(el.value)) || 0), r.qty) : 0; };
+    const update = () => {
+      const dest = $("mvTo").value.trim();
+      let cards = 0, printings = 0;
+      for (const r of recs) {
+        const here = picked && sameLoc(r.location, dest);
+        const rowEl = rowFor(r.id);
+        rowEl.classList.toggle("here", here);
+        rowEl.querySelector(".mv-where").textContent = here ? (r.location ? "Already in " + r.location : "Already has no location") : whereNow(r);
+        const n = qtyOf(r.id);
+        if (!here && n) { cards += n; printings++; }
+      }
+      document.querySelectorAll("#mvChips .loc-chip").forEach(c => c.classList.toggle("on", picked && sameLoc(c.dataset.loc, dest)));
+      $("mvGo").textContent = cards ? "Move " + plural(cards, "card") + (picked ? " to " + locName(dest) : "") : "Move";
+      $("mvGo").disabled = !picked || !cards;
+      $("mvTotal").innerHTML = !picked ? "Type where they're going, or pick a location above." :
+        cards ? "Moving <b>" + plural(cards, "card") + "</b>" + (printings > 1 ? " (" + printings + " different printings)" : "") + " to <b>" + esc(locName(dest)) + "</b>." :
+        "Nothing to move: set how many of each card.";
+    };
+    $("mvTo").addEventListener("input", () => { picked = !!$("mvTo").value.trim(); update(); });
+    form.addEventListener("click", e => {
+      const chip = e.target.closest("[data-loc]");
+      if (chip) { $("mvTo").value = chip.dataset.loc; picked = true; update(); return; }
+      const step = e.target.closest("[data-step]");
+      if (step) {
+        const input = step.parentNode.querySelector("input");
+        input.value = Math.min(Math.max(0, (Math.floor(Number(input.value)) || 0) + Number(step.dataset.step)), Number(input.max));
+        update();
+      }
+    });
+    form.querySelectorAll("[data-qty]").forEach(el => el.addEventListener("input", update));
+    if ($("mvBack")) $("mvBack").addEventListener("click", () => openDetails(opts.back));
+    update();
+    form.addEventListener("submit", e => {
       e.preventDefault();
-      const loc = $("bLoc").value.trim();
-      const before = recs.map(r => [r, r.location]);
-      recs.forEach(r => { r.location = loc; });
+      if (!picked) { toast("Type where the cards are going, or pick a location.", {kind: "error"}); $("mvTo").focus(); return; }
+      const res = moveCopies(recs.map(r => ({id: r.id, qty: qtyOf(r.id)})), $("mvTo").value);
+      if (!res.cards) { toast(res.missing ? "Those cards aren't in your collection anymore." : "Nothing to move.", {kind: "error"}); return; }
+      if (opts.bulk) selected.clear();
       save(); closeDrawer(); render();
-      toast((loc ? "Set the location of " + plural(recs.length, "printing") + " to " + loc : "Cleared the location of " + plural(recs.length, "printing")) + ".",
-        {action: "Undo", onAction: () => { before.forEach(([r, l]) => { r.location = l; }); save(); render(); }});
+      toast("Moved " + plural(res.cards, "card") + " to " + locName(res.dest) + "." + (res.missing ? " (" + plural(res.missing, "card was", "cards were") + " no longer in your collection.)" : ""),
+        {action: "Undo", onAction: () => { res.undo(); save(); render(); }});
     });
   }
   function tradeListText() {
@@ -5874,7 +6010,10 @@
 
     $("bulkAll").addEventListener("click", () => { visibleRecords().forEach(r => selected.add(r.id)); syncSelectionUI(); });
     $("bulkClear").addEventListener("click", () => { selected.clear(); syncSelectionUI(); });
-    $("bulkLocation").addEventListener("click", openBulkLocation);
+    $("bulkLocation").addEventListener("click", () => {
+      const shown = visibleRecords().filter(r => selected.has(r.id));
+      openMove(shown.concat(collection.filter(r => selected.has(r.id) && !shown.includes(r))).map(r => r.id), {bulk: true});
+    });
     $("bulkDelete").addEventListener("click", () => deleteRecords(Array.from(selected)));
 
     // ----- price history
@@ -6127,7 +6266,7 @@
     findYugiImages, rankYugiImages, parseYugiFile, recordValueHistory, niceTicks, dateTicks, checkForNewData, writeBackup, initBackup,
     photoCandidates, findPhotosBatch, tradeListText, parseDeckText, parseYdk, parseYdke, checkDeck, cardNamesFor, runDeckCheck,
     openSoldForm, recordSale, saleNumbers, buildReport, openReport, phoneCopyHTML, savePhoneCopy, writePhoneCopy, backupTextFrom,
-    matchScanned, numberVariants, openScanner, stopScanner, prepCanvas, openWantForm, resolveLink, chooseBackupFile, linkGoogleDrive, driveToken};
+    matchScanned, numberVariants, openScanner, stopScanner, prepCanvas, openWantForm, resolveLink, chooseBackupFile, linkGoogleDrive, driveToken, openMove, moveCopies};
 
   document.addEventListener("DOMContentLoaded", init);
 })();
