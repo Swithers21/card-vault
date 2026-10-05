@@ -1623,10 +1623,32 @@
     return (photosByName().get(key) || []).filter(q => q.id !== exceptId && hasPhoto(q))
       .sort((a, b) => same(b) - same(a)).slice(0, max || 2).map(q => "~" + tcgImg(q.id, size));
   }
+  // The card a token names: "Field Center Token: Dracotail Urgula", "Token: Kaiba & Blue-Eyes Ultimate Dragon",
+  // 'Token: Kite and "Number 62: Galaxy-Eyes Prime Photon Dragon"'. Its photo, if any printing has one.
+  function tokenCardPhotos(name, size) {
+    const m = /token:\s*(.+)$/i.exec(name || "");
+    if (!m) return [];
+    const quoted = /"([^"]+)"/.exec(m[1]), parts = m[1].split(/\s+(?:&|and)\s+/i);
+    for (const card of [quoted && quoted[1], parts.length > 1 && parts.slice(1).join(" & "), m[1]]) {
+      const got = card ? printingPhotos(photoKey(card), "", 0, size, 1) : [];
+      if (got.length) return got;
+    }
+    return [];
+  }
+  // The same product in another print run: "[Unlimited]" for "[1st Edition]", "(2020 Date Reprint)" for the original.
+  const sealedKey = n => photoKey(String(n || "").replace(/\[[^\]]*\]/g, " ").replace(/\s+/g, " "));
+  function sealedByName() {
+    if (!catalog.bySealed) {
+      catalog.bySealed = new Map();
+      for (const p of catalog.products) if (p.sealed) pushMap(catalog.bySealed, sealedKey(p.name), p);
+    }
+    return catalog.bySealed;
+  }
   function sealedPhotos(p, size) {
-    const out = [];
-    const token = /token:\s*(.+)$/i.exec(p.name);
-    if (token) out.push(...printingPhotos(photoKey(token[1]), "", 0, size, 1));
+    const sameGroup = q => q.group.id === p.group.id ? 1 : 0;
+    const out = (sealedByName().get(sealedKey(p.name)) || []).filter(q => q.id !== p.id && hasPhoto(q))
+      .sort((a, b) => sameGroup(b) - sameGroup(a)).slice(0, 2).map(q => "~" + tcgImg(q.id, size));
+    out.push(...tokenCardPhotos(p.name, size));
     const near = [mkKind(p.name)].concat(KIND_NEAR[mkKind(p.name)] || []);
     if (near[0] === "other") return out;
     const words = new Set(p.nameLower.split(/[^a-z0-9]+/));
@@ -1634,7 +1656,7 @@
     const rank = q => near.indexOf(mkKind(q.name));
     const list = (productsByGroup().get(p.group.id) || []).filter(q => q.sealed && q.id !== p.id && hasPhoto(q) && rank(q) >= 0)
       .sort((a, b) => rank(a) - rank(b) || shared(b) - shared(a));
-    return out.concat(list.slice(0, 2).map(q => "~" + tcgImg(q.id, size)));
+    return Array.from(new Set(out.concat(list.slice(0, 3).map(q => "~" + tcgImg(q.id, size))))).slice(0, 3);
   }
   // The set's most valuable card with a photo, for the middle of a drawn box.
   function setArt(groupId) {
@@ -1661,7 +1683,7 @@
     }
     const key = photoKey(p.name);
     list.push(...printingPhotos(key, p.rarity, p.id, size, 2));
-    if (!anyPrintingPhoto(key)) list.push(hostedPhoto(key));
+    if (!anyPrintingPhoto(key)) list.push(...tokenCardPhotos(p.name, size), hostedPhoto(key));
     return {list, sub: [p.number, p.rarity].filter(Boolean).join(" · ")};
   }
   function recordPics(r, size) {
