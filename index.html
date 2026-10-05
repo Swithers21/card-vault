@@ -971,10 +971,12 @@
     return map[l] || String(raw).trim();
   }
 
-  function imgTag(src, name, eager) {
+  // alt: a second photo to try if the first one doesn't load.
+  function imgTag(src, name, eager, alt) {
+    if (!src) src = alt, alt = "";
     if (!src) return placeholder(name);
     return '<img src="' + esc(src) + '" alt="' + esc(name) + '"' + (eager ? "" : ' loading="lazy"') +
-      ' decoding="async" data-fallback="' + esc(name) + '">';
+      ' decoding="async" data-fallback="' + esc(name) + '"' + (alt && alt !== src ? ' data-alt="' + esc(alt) + '"' : "") + ">";
   }
   function placeholder(name) { return '<span class="card-ph"><span>' + esc(name || "No image") + "</span></span>"; }
   function editionBadge(ed) {
@@ -3209,26 +3211,25 @@
       if (m[2] === "JP" && pick && pick.price != null) price = {local: pick.price, cur: "JPY", src: "BIGWEB", note: pick.note};
       const b = m[2] === "KR" ? bunjangPick(bj, rar, rarities.length === 1) : null;
       if (b) price = {local: b.median, cur: "KRW", src: "Bunjang", note: plural(b.n, "listing")};
-      return {rarity: rar, image: pick ? pick.image : "", ja: pick ? pick.name : "", price};
+      return {rarity: rar, image: "", backup: pick ? pick.image : "", ja: pick ? pick.name : "", price};
     });
-    // Photos BIGWEB doesn't have: the closest one on Yugipedia.
-    if (choices.some(c => !c.image)) {
-      try {
-        const res = await findYugiImages(code, card.name);
-        for (const c of choices) if (!c.image) { const rk = rankYugiImages(res.images, code, c.rarity); const im = rk.exact[0] || rk.near[0]; if (im) c.image = im.thumb; }
-      } catch (e) { /* no photo then */ }
-    }
+    // Photos: Yugipedia's scan of this printing (or the closest one), with BIGWEB's photo as the backup.
+    try {
+      const res = await findYugiImages(code, card.name);
+      for (const c of choices) { const rk = rankYugiImages(res.images, code, c.rarity); const im = rk.exact[0] || rk.near[0]; if (im) c.image = im.thumb; }
+    } catch (e) { /* BIGWEB's photo then */ }
+    for (const c of choices) if (!c.image) { c.image = c.backup; c.backup = ""; }
     if (!out.isConnected) return;
     const priceText = pr => pr ? esc(fmtLocal(pr.local, pr.cur)) + (toUSD(pr.local, pr.cur) != null ? " ≈ " + esc(usd(toUSD(pr.local, pr.cur))) : "") +
       '<br><span class="small">' + esc(pr.src) + ", " + esc(pr.note) + "</span>" : '<span class="small">No price found</span>';
     out.innerHTML = '<p class="results-head">' + esc(card.name) + (card.setName ? ", " + esc(card.setName) : "") + " (" + esc(lang) + "). " +
       (choices.length > 1 ? "It was printed in " + choices.length + " rarities: pick yours." : "Pick it to continue.") + "</p>" +
       '<div class="results">' + choices.map((c, i) => '<button type="button" class="result" data-idx="' + i + '">' +
-        '<span class="sleeve">' + imgTag(c.image, card.name) + "</span>" +
+        '<span class="sleeve">' + imgTag(c.image, card.name, false, c.backup) + "</span>" +
         '<span class="result-name">' + esc(card.name) + "</span>" + (c.ja ? '<span class="result-meta">' + esc(c.ja) + "</span>" : "") +
         '<span class="result-meta">' + esc(code) + ", " + esc(c.rarity || "rarity unknown") + "</span>" +
         '<span class="result-price">' + priceText(c.price) + "</span></button>").join("") + "</div>" +
-      '<p class="small">Card details from Yugipedia. ' + (m[2] === "JP" ? "Prices and photos from BIGWEB (Japan)." : "Prices are Bunjang (Korea) asking prices; photos are of the Japanese print.") +
+      '<p class="small">Card details and photos from Yugipedia. ' + (m[2] === "JP" ? "Prices from BIGWEB (Japan)." : "Prices are Bunjang (Korea) asking prices; a missing Korean photo shows the Japanese print.") +
       ' <button type="button" class="link-btn" id="manualOcg">Add it manually instead</button></p>';
     $("manualOcg").addEventListener("click", () => openManual({number: code, language: lang, name: card.name, setName: card.setName}));
     out.querySelectorAll(".result").forEach(btn => btn.addEventListener("click", () => openOcgForm(card, lang, choices[+btn.dataset.idx])));
@@ -3237,7 +3238,7 @@
     drawerCtx = {mode: "ocg"};
     const pr = choice.price;
     openDrawer("Add a card",
-      '<div class="picked"><span class="sleeve">' + imgTag(choice.image, card.name, true) + "</span><div>" +
+      '<div class="picked"><span class="sleeve">' + imgTag(choice.image, card.name, true, choice.backup) + "</span><div>" +
       "<h3>" + esc(card.name) + "</h3>" + (choice.ja ? "<p>" + esc(choice.ja) + "</p>" : "") + "<p>" + esc(card.setName || "") + "</p><p>" + esc(card.code) + ", " +
       esc(choice.rarity || "rarity unknown") + "</p><p>" + esc(lang) + '</p><p style="margin-top:8px"><button type="button" class="link-btn" id="backToSearch">Pick a different rarity</button></p></div></div>' +
       '<form id="ocgForm" class="stack">' +
@@ -7267,6 +7268,7 @@
     document.addEventListener("error", e => {
       const img = e.target;
       if (!img || img.tagName !== "IMG" || img.dataset.fallback === undefined || img.dataset.failed) return;
+      if (img.dataset.alt && img.dataset.alt !== img.getAttribute("src")) { const alt = img.dataset.alt; delete img.dataset.alt; img.src = alt; return; }
       img.dataset.failed = "1";
       img.insertAdjacentHTML("afterend", placeholder(img.dataset.fallback));
       img.remove();
