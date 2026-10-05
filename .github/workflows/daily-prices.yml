@@ -57,12 +57,33 @@ jobs:
             tcgplayer-data-version.js
           key: tcgplayer-${{ github.run_id }}
 
+      # Pictures of cards TCGplayer has no photo of yet (new sets, promos), from YGOPRODeck. YGOPRODeck asks apps to
+      # download each picture once and keep their own copy, so the folder is kept between runs.
+      - name: Bring back the card pictures kept so far
+        uses: actions/cache/restore@v4
+        with:
+          path: card-images
+          key: card-images-${{ github.run_id }}
+          restore-keys: card-images-
+
+      - name: Download pictures of cards TCGplayer has no photo of
+        continue-on-error: true   # the website then shows a drawn stand-in for those cards
+        run: python stand_in_images.py
+
+      - name: Keep the card pictures for tomorrow
+        uses: actions/cache/save@v4
+        with:
+          path: card-images
+          key: card-images-${{ github.run_id }}
+
       - name: Put the website together
         run: |
-          mkdir -p _site/icons
+          mkdir -p _site/icons _site/card-images
           cp index.html config.js manifest.webmanifest oauth.html share.html sw.js _site/
           cp icons/*.png _site/icons/
           if [ -f tcgplayer-data.js ]; then cp tcgplayer-data.js tcgplayer-data-version.js _site/; fi
+          if ls card-images/*.jpg >/dev/null 2>&1; then cp card-images/*.jpg _site/card-images/; fi
+          echo "$(ls _site/card-images | wc -l) card pictures"
           ls -la _site
 
       - uses: actions/upload-pages-artifact@v3

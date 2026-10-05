@@ -49,9 +49,9 @@ import urllib.parse
 import urllib.request
 from datetime import date, datetime, timedelta, timezone
 
-VERSION = "2.2"
-DATA_FORMAT = 3  # tcgplayer-data.js layout; 2 added the older prices for price history, 3 sealed products
-PRODUCT_LIST_VERSION = 2  # cached set lists; 2 keeps sealed products (booster boxes, tins, decks...) too
+VERSION = "2.3"
+DATA_FORMAT = 4  # tcgplayer-data.js layout; 2 added the older prices for price history, 3 sealed products, 4 marks products with no photo
+PRODUCT_LIST_VERSION = 3  # cached set lists; 2 keeps sealed products (booster boxes, tins, decks...) too, 3 notes missing photos
 BASE_URL = os.environ.get("CARDVAULT_TCGCSV_BASE", "https://tcgcsv.com").rstrip("/")
 CATEGORY_ID = 2  # TCGplayer's category ID for Yu-Gi-Oh!
 USER_AGENT = "CardVault/%s (personal Yu-Gi-Oh! collection tracker)" % VERSION
@@ -188,7 +188,8 @@ def progress(done, total, label):
 
 def compact_products(results):
     """Single cards (products with a card number): [id, name, number, rarity].
-    Everything else in a set (booster boxes and packs, tins, structure decks...): [id, name, "", "", 1]."""
+    Everything else in a set (booster boxes and packs, tins, structure decks...): [id, name, "", "", 1].
+    A product TCGplayer has no photo of yet gets one more item: [id, name, number, rarity, 0 or 1, 1]."""
     items = []
     for product in results or []:
         extended = {}
@@ -197,9 +198,14 @@ def compact_products(results):
         number = extended.get("Number", "")
         name = (product.get("name") or "").strip()
         if number:
-            items.append([int(product["productId"]), name, number, extended.get("Rarity", "")])
+            item = [int(product["productId"]), name, number, extended.get("Rarity", "")]
         elif name:
-            items.append([int(product["productId"]), name, "", "", 1])
+            item = [int(product["productId"]), name, "", "", 1]
+        else:
+            continue
+        if product.get("imageCount") == 0:
+            item += [0] * (5 - len(item)) + [1]
+        items.append(item)
     return items
 
 
@@ -624,6 +630,7 @@ def main():
     set_rows = []       # [groupId, name, abbreviation, publishedOn]
     card_rows = []      # [productId, groupIndex, name, number, rarityIndex, prices(, 1 for sealed products)]
     sealed_ids = set()
+    no_photo_ids = set()  # products TCGplayer has no photo of (the website shows a stand-in)
     rarity_index = {}
     rarities = []
     skipped_sets = 0
@@ -693,6 +700,8 @@ def main():
             product_id, name, number, rarity = item[:4]
             if len(item) > 4 and item[4]:
                 sealed_ids.add(product_id)
+            if len(item) > 5 and item[5]:
+                no_photo_ids.add(product_id)
             if rarity not in rarity_index:
                 rarity_index[rarity] = len(rarities)
                 rarities.append(rarity)
@@ -739,7 +748,9 @@ def main():
                            references["d7"].get(subtype, {}).get(key),
                            references["d30"].get(subtype, {}).get(key)])
         row.append(prices)
-        if product_id in sealed_ids:
+        if product_id in sealed_ids or product_id in no_photo_ids:
+            row.append(1 if product_id in sealed_ids else 0)
+        if product_id in no_photo_ids:
             row.append(1)
 
     data = {
@@ -751,7 +762,8 @@ def main():
         "groups": set_rows,
         "rarities": rarities,
         "subtypes": subtypes,
-        # each price entry: subtype, market, low, market at d1, at d7, at d30; a 1 after the prices marks sealed products
+        # each price entry: subtype, market, low, market at d1, at d7, at d30; after the prices, 1 marks a sealed
+        # product, and a second 1 a product TCGplayer has no photo of
         "products": card_rows,
     }
     tmp_path = OUT_FILE + ".tmp"

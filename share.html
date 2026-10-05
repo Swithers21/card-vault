@@ -69,7 +69,10 @@
   const $ = id => document.getElementById(id);
   const esc = v => String(v == null ? "" : v).replace(/[&<>"']/g, c => ({"&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;"}[c]));
   const usd = v => (v == null || !isFinite(v)) ? "" : new Intl.NumberFormat("en-US", {style: "currency", currency: "USD"}).format(v);
-  const safeImg = u => /^https:\/\/(tcgplayer-cdn\.tcgplayer\.com|ms\.yugipedia\.com|image\.bigweb\.co\.jp)\//i.test(String(u || "")) ? String(u) : "";
+  // Photos only from TCGplayer, Yugipedia, BIGWEB, or the card pictures kept with this website.
+  const HOSTED = (() => { try { return new URL("card-images/", location.href).href; } catch (e) { return ""; } })();
+  const hosted = u => !!HOSTED && u.startsWith(HOSTED) && /^[a-z0-9]{1,150}\.jpg$/.test(u.slice(HOSTED.length));
+  const safeImg = u => /^https:\/\/(tcgplayer-cdn\.tcgplayer\.com|ms\.yugipedia\.com|image\.bigweb\.co\.jp)\//i.test(String(u || "")) || hosted(String(u || "")) ? String(u) : "";
   const plural = (n, w, m) => n + " " + (n === 1 ? w : (m || w + "s"));
   let data = null, view = "binder", q = "";
 
@@ -105,9 +108,11 @@
     const needle = q.trim().toLowerCase();
     return data.items.filter(it => !needle || [it.n, it.no, it.s, it.r].join(" ").toLowerCase().includes(needle));
   };
+  // The photo in the link (a stand-in when TCGplayer has none of this printing), then the TCGplayer photo.
   const img = it => {
-    const src = safeImg(it.i) || (it.p ? "https://tcgplayer-cdn.tcgplayer.com/product/" + encodeURIComponent(it.p) + "_in_400x400.jpg" : "");
-    return src ? '<img src="' + esc(src) + '" alt="' + esc(it.n) + '" loading="lazy" decoding="async">' : '<span class="ph">' + esc(it.n) + "</span>";
+    const tcg = it.p ? "https://tcgplayer-cdn.tcgplayer.com/product/" + encodeURIComponent(it.p) + "_in_400x400.jpg" : "";
+    const src = safeImg(it.i) || tcg, alt = src !== tcg ? tcg : "";
+    return src ? '<img src="' + esc(src) + '" alt="' + esc(it.n) + '" loading="lazy" decoding="async"' + (alt ? ' data-alt="' + esc(alt) + '"' : "") + ">" : '<span class="ph">' + esc(it.n) + "</span>";
   };
   function render() {
     const list = shown();
@@ -149,7 +154,12 @@
     $("q").addEventListener("input", () => { q = $("q").value; render(); });
     $("viewSeg").addEventListener("click", e => { const b = e.target.closest("[data-view]"); if (!b) return; view = b.dataset.view;
       document.querySelectorAll("#viewSeg button").forEach(x => x.setAttribute("aria-pressed", String(x === b))); render(); });
-    document.addEventListener("error", e => { const im = e.target; if (im && im.tagName === "IMG") { const ph = document.createElement("span"); ph.className = "ph"; ph.textContent = im.alt; im.replaceWith(ph); } }, true);
+    document.addEventListener("error", e => {
+      const im = e.target;
+      if (!im || im.tagName !== "IMG") return;
+      if (im.dataset.alt) { const next = im.dataset.alt; delete im.dataset.alt; im.src = next; return; }
+      const ph = document.createElement("span"); ph.className = "ph"; ph.textContent = im.alt; im.replaceWith(ph);
+    }, true);
   }
   window.addEventListener("hashchange", () => location.reload());
   init();

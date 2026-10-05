@@ -112,6 +112,10 @@ personal app: click **Continue**.
 - **Decks I can build** (in the Deck check tab): looks up every card you own on YGOPRODeck and shows the archetypes your
   collection is closest to: which of each archetype's key cards you have, your cards that support it, the key cards
   you're missing and their TCGplayer price. "Build a starter list" turns one into a 40-card list you can check and save.
+- **Missing photos**: when TCGplayer has no photo of a printing (new sets, promos, some older box variants), Card Vault
+  shows the closest one it has, tagged "Similar photo": the same card from another set, the 1st Edition box for an
+  Unlimited one, a Field Center Token's card. Cards TCGplayer has no photo of at all get a picture from YGOPRODeck,
+  which the daily update downloads once and publishes with the website. Anything left is drawn as a card or a box.
 - **Share…** (select cards, or Show: Extras > Share trade binder, or the Want list tab) makes a link to a page with those
   cards, their photos and TCGplayer prices. The cards are in the link itself; nothing else of yours is shared.
 - **Moving cards** between binders, boxes and decks: open a card and tap **Move** (next to where it's kept), or tick

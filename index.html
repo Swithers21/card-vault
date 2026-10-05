@@ -164,7 +164,28 @@
   .sleeve img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;display:block}
   .sleeve.boxed{background:#f3efe8}
   .sleeve.boxed img{object-fit:contain}
-  .card-ph{position:absolute;inset:0;display:grid;place-items:center;padding:10px;text-align:center;font:400 12.5px/1.25 "Marcellus SC",Georgia,serif;color:#e7d6b8;background:repeating-linear-gradient(135deg,#3a2616 0 10px,#33210f 10px 20px);border:3px solid #22160c;border-radius:inherit}
+  /* no photo at all: a drawn card with the name (or a box, for sealed products, with the set's top card inside) */
+  .card-ph{position:absolute;inset:0;display:flex;flex-direction:column;gap:6%;padding:8% 8% 9%;text-align:center;color:#efe0c2;overflow:hidden;
+    background:linear-gradient(165deg,#56391f 0%,#2e1e11 55%,#432c18 100%);border:3px solid #1d130a;border-radius:inherit;font:400 12px/1.2 "Marcellus SC",Georgia,serif}
+  .ph-name{flex:none;padding:5px 6px;background:rgba(0,0,0,.32);border:1px solid rgba(241,207,130,.3);border-radius:2px;overflow:hidden;overflow-wrap:anywhere;
+    display:-webkit-box;-webkit-line-clamp:3;-webkit-box-orient:vertical}
+  .ph-mark{flex:1;min-height:0;position:relative;display:grid;place-items:center;overflow:hidden;border:1px solid rgba(241,207,130,.22);
+    background:radial-gradient(circle at 50% 45%,rgba(216,173,87,.25),rgba(0,0,0,.28) 72%)}
+  .ph-mark::before{content:"";width:38%;aspect-ratio:1;border-radius:50%;border:2px solid rgba(241,207,130,.5);box-shadow:inset 0 0 0 6px rgba(241,207,130,.1)}
+  .ph-mark:has(.ph-art)::before{display:none}
+  .card-ph .ph-art{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;object-position:50% 22%}
+  .ph-sub{flex:none;font:600 10px/1.25 system-ui,-apple-system,"Segoe UI",sans-serif;letter-spacing:.02em;color:#dcc59c;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+  .boxed .card-ph{background:linear-gradient(180deg,#efe8db,#ddd2bf);color:#2b1e11;border:0;padding:9%}
+  .boxed .ph-name{background:none;border:0;padding:0}
+  .boxed .ph-mark{border:0;border-radius:4px;background:#2a2119;box-shadow:0 4px 10px rgba(0,0,0,.25)}
+  .boxed .ph-sub{color:#5a4630}
+  /* a photo of something close: the same card's other printing, a similar product from the same set */
+  .sleeve:has(> img[data-stand])::after{content:"Similar photo";position:absolute;left:5px;bottom:5px;padding:3px 6px;border-radius:4px;background:rgba(14,10,7,.82);
+    color:#f1e3c6;font:600 9.5px/1 system-ui,-apple-system,"Segoe UI",sans-serif;letter-spacing:.02em;pointer-events:none}
+  /* small thumbnails: just the shape */
+  :is(.c-thumb,.batch-row,.mover,.preview-table,.mv-row,.mini,.yugi-pick) .card-ph{padding:3px;gap:0;border-width:2px}
+  :is(.c-thumb,.batch-row,.mover,.preview-table,.mv-row,.mini,.yugi-pick) :is(.ph-name,.ph-sub){display:none}
+  :is(.c-thumb,.batch-row,.mover,.preview-table,.mv-row,.mini,.yugi-pick) .sleeve:has(> img[data-stand])::after{display:none}
 
   /* ---------- binder ---------- */
   .binder{display:grid;grid-template-columns:repeat(auto-fill,minmax(158px,1fr));gap:16px}
@@ -213,7 +234,6 @@
   .c-check{width:44px}
   .c-thumb{width:52px}
   .c-thumb .sleeve{width:36px;border-radius:3px;box-shadow:none}
-  .c-thumb .card-ph{font-size:0;border-width:2px}
   .cell-name{font-weight:600;background:none;border:0;padding:0;color:inherit;cursor:pointer;text-align:left}
   .cell-sub{display:block;color:var(--text-dim);font-size:12px}
 
@@ -279,7 +299,6 @@
   .batch-row.has-pick{grid-template-areas:"img info ctl price x" "img pick pick price x"}
   .batch-row .b-pick{grid-area:pick}
   .batch-row.need .b-pick{border-color:var(--gold)}
-  .batch-row .card-ph{font-size:0;border-width:2px}
   .batch-row .input{padding:6px 8px;font-size:13px}
   .batch-row select.input{padding-right:24px;background-position:right 8px center}
   .batch-row .b-ed{grid-area:ed}.batch-row .b-cond{grid-area:cond}.batch-row .b-qty{grid-area:qty}
@@ -396,7 +415,6 @@
   .mover:first-child{border-top:0}
   .mover:hover .mover-name{color:var(--gold-hi)}
   .mover .sleeve{width:34px;border-radius:3px;box-shadow:none}
-  .mover .card-ph{font-size:0;border-width:2px}
   .mover-name{font-weight:600;font-size:13.5px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
   .mover-sub{display:block;color:var(--text-dim);font-size:12px;line-height:1.4}
   .mover-amt{text-align:right;font-size:13.5px;font-variant-numeric:tabular-nums}
@@ -585,7 +603,6 @@
   .preview-table th{color:var(--text-dim);font-weight:500;text-align:left;padding:6px;border-bottom:1px solid var(--line);font-size:12px}
   .preview-table td{padding:6px;border-bottom:1px solid var(--line);vertical-align:middle}
   .preview-table .sleeve{width:30px;border-radius:3px;box-shadow:none}
-  .preview-table .card-ph{font-size:0;border-width:2px}
 
   /* ---------- toasts ---------- */
   .toasts{position:fixed;left:50%;bottom:84px;transform:translateX(-50%);z-index:90;display:grid;gap:8px;width:min(560px,calc(100vw - 24px))}
@@ -1006,14 +1023,28 @@
     return map[l] || String(raw).trim();
   }
 
-  // alt: a second photo to try if the first one doesn't load.
+  // src: a photo URL (alt: a second one to try if it doesn't load), or a photo list from productPics/recordPics/namePics:
+  // {list: URLs to try in order (a "~" in front marks a stand-in photo), sub: a line for the drawn stand-in, art}.
   function imgTag(src, name, eager, alt) {
-    if (!src) src = alt, alt = "";
-    if (!src) return placeholder(name);
-    return '<img src="' + esc(src) + '" alt="' + esc(name) + '"' + (eager ? "" : ' loading="lazy"') +
-      ' decoding="async" data-fallback="' + esc(name) + '"' + (alt && alt !== src ? ' data-alt="' + esc(alt) + '"' : "") + ">";
+    const pics = src && typeof src === "object" ? src : {list: [src, alt]};
+    const seen = new Set(), list = [];
+    for (const u of pics.list || []) {
+      const url = String(u || "").replace(/^~/, "").replace(/ /g, "%20");
+      if (url && !seen.has(url)) { seen.add(url); list.push((String(u)[0] === "~" ? "~" : "") + url); }
+    }
+    if (!list.length) return placeholder(name, pics.sub, pics.art);
+    const stand = list[0][0] === "~";
+    return '<img src="' + esc(list[0].replace(/^~/, "")) + '" alt="' + esc(name) + '"' + (eager ? "" : ' loading="lazy"') +
+      ' decoding="async" data-fallback="' + esc(name) + '"' + (pics.sub ? ' data-sub="' + esc(pics.sub) + '"' : "") + (pics.art ? ' data-art="' + esc(pics.art) + '"' : "") +
+      (stand ? ' data-stand="1"' : "") + (list.length > 1 ? ' data-alt="' + esc(list.slice(1).join(" ")) + '"' : "") + ">";
   }
-  function placeholder(name) { return '<span class="card-ph"><span>' + esc(name || "No image") + "</span></span>"; }
+  // When there's no photo at all: a drawn card (or box, for sealed products) with the name, and for a sealed product
+  // the set's top card in the middle.
+  function placeholder(name, sub, art) {
+    return '<span class="card-ph"><span class="ph-name">' + esc(name || "No photo") + '</span><span class="ph-mark">' +
+      (art ? '<img class="ph-art" src="' + esc(art) + '" alt="" loading="lazy" decoding="async">' : "") + "</span>" +
+      (sub ? '<span class="ph-sub">' + esc(sub) + "</span>" : "") + "</span>";
+  }
   function editionBadge(ed) {
     if (!ed) return "";
     const cls = ed === "1st Edition" ? "ed ed-1st" : ed === "Limited" ? "ed ed-lim" : "ed";
@@ -1346,6 +1377,7 @@
       }
       const p = {id: row[0], group: groups[row[1]] || {id: null, name: "", published: ""}, name: row[2] || "", number: row[3] || "",
         rarity: rarities[row[4]] || "", prices, sealed: row[6] === 1};
+      if (row[7] === 1) p.noImg = true;   // (format 4) TCGplayer has no photo of it
       p.nameLower = p.name.toLowerCase();
       products[i] = p;
       byId.set(p.id, p);
@@ -1558,7 +1590,101 @@
     }
     return pts.sort((a, b) => (a.d < b.d ? -1 : a.d > b.d ? 1 : 0));
   }
-  const imageFor = (r, size) => safeImg(r.customImage) || (r.productId ? tcgImg(r.productId, size) : ocgImage(r));
+  /* ----- Photos ----- */
+  // Every photo slot gets a list to try in order: the item's own photo, then stand-ins (marked with "~"): another
+  // printing of the same card; for a sealed product, a similar one from the same set (the 1st Edition box for an
+  // Unlimited one, the booster box for a case) or, for a Field Center Token, its card; then, on the website, a copy of
+  // the card's picture kept with the site (for cards TCGplayer has no photo of yet). If none loads, imgTag's error
+  // handler draws a card or box with the name. The price data marks the products TCGplayer has no photo of (noImg).
+  const hasPhoto = p => !!p && p.noImg !== true;
+  const HOSTED_PICS = (() => { try { return SITE ? new URL("card-images/", location.href).href : ""; } catch (e) { return ""; } })();
+  const hostedPhoto = key => HOSTED_PICS && key ? "~" + HOSTED_PICS + key + ".jpg" : "";
+  const isHostedPhoto = u => !!HOSTED_PICS && String(u).startsWith(HOSTED_PICS) && /^[a-z0-9]{1,150}\.jpg$/.test(String(u).slice(HOSTED_PICS.length));
+  const KIND_ONE = {pack: "Booster pack", box: "Booster box", case: "Case", structure: "Structure Deck", se: "Special Edition",
+    de: "Deluxe Edition", tin: "Tin", boxset: "Box set", starter: "Starter deck", other: "Sealed product"};
+  // Products a sealed product's photo can stand in for, closest first.
+  const KIND_NEAR = {case: ["box", "pack"], box: ["case", "pack"], pack: ["box"], se: ["pack", "box"], de: ["box", "pack"], tin: ["pack"]};
+  const nameKey = (name, rarity) => normCardName(cleanName(name, rarity));
+  const anyPrintingPhoto = key => !!catalog && (productsByName().get(key) || []).some(hasPhoto);
+  // The same card's other printings with a TCGplayer photo, the same rarity first.
+  function printingPhotos(key, rarity, exceptId, size, max) {
+    if (!catalog || !key) return [];
+    const r = String(rarity || "").toLowerCase();
+    const same = q => q.rarity.toLowerCase() === r ? 1 : 0;
+    return (productsByName().get(key) || []).filter(q => q.id !== exceptId && hasPhoto(q))
+      .sort((a, b) => same(b) - same(a)).slice(0, max || 2).map(q => "~" + tcgImg(q.id, size));
+  }
+  function sealedPhotos(p, size) {
+    const out = [];
+    const token = /token:\s*(.+)$/i.exec(p.name);
+    if (token) out.push(...printingPhotos(normCardName(token[1]), "", 0, size, 1));
+    const near = [mkKind(p.name)].concat(KIND_NEAR[mkKind(p.name)] || []);
+    if (near[0] === "other") return out;
+    const words = new Set(p.nameLower.split(/[^a-z0-9]+/));
+    const shared = q => q.nameLower.split(/[^a-z0-9]+/).filter(w => words.has(w)).length;
+    const rank = q => near.indexOf(mkKind(q.name));
+    const list = (productsByGroup().get(p.group.id) || []).filter(q => q.sealed && q.id !== p.id && hasPhoto(q) && rank(q) >= 0)
+      .sort((a, b) => rank(a) - rank(b) || shared(b) - shared(a));
+    return out.concat(list.slice(0, 2).map(q => "~" + tcgImg(q.id, size)));
+  }
+  // The set's most valuable card with a photo, for the middle of a drawn box.
+  function setArt(groupId) {
+    if (!catalog || groupId == null) return "";
+    const memo = catalog.setArt || (catalog.setArt = new Map());
+    if (!memo.has(groupId)) {
+      let best = 0, top = -1;
+      for (const q of productsByGroup().get(groupId) || []) {
+        if (q.sealed || !hasPhoto(q)) continue;
+        let v = 0;
+        for (const ed in q.prices) v = Math.max(v, q.prices[ed].market || 0);
+        if (v > top) { top = v; best = q.id; }
+      }
+      memo.set(groupId, best);
+    }
+    return memo.get(groupId) ? tcgImg(memo.get(groupId), "200w") : "";
+  }
+  function productPics(p, size) {
+    if (!p) return {list: []};
+    const list = hasPhoto(p) ? [tcgImg(p.id, size)] : [];
+    if (p.sealed) {
+      const kind = mkKind(p.name);
+      return {list: list.concat(sealedPhotos(p, size)), sub: [KIND_ONE[kind], p.group.abbr].filter(Boolean).join(" · "), art: kind === "other" ? "" : setArt(p.group.id)};
+    }
+    const key = nameKey(p.name, p.rarity);
+    list.push(...printingPhotos(key, p.rarity, p.id, size, 2));
+    if (!anyPrintingPhoto(key)) list.push(hostedPhoto(key));
+    return {list, sub: [p.number, p.rarity].filter(Boolean).join(" · ")};
+  }
+  function recordPics(r, size) {
+    const own = safeImg(r.customImage);
+    const p = r.productId && catalog ? catalog.byId.get(r.productId) : null;
+    if (p) { const pp = productPics(p, size); return {list: [own].concat(pp.list), sub: pp.sub, art: pp.art}; }
+    const list = [own, r.productId ? tcgImg(r.productId, size) : "", ocgImage(r)];
+    if (!r.sealed) {
+      const key = nameKey(r.name, r.rarity);
+      list.push(...printingPhotos(key, r.rarity, 0, size, 2));
+      if (!anyPrintingPhoto(key)) list.push(hostedPhoto(key));
+    }
+    return {list, sub: r.sealed ? "Sealed product" : [r.number, r.rarity].filter(Boolean).join(" · ")};
+  }
+  // A sale keeps the photo it had when sold; the product's photos (or the card's) back it up.
+  function salePics(x) {
+    const p = x.productId && catalog ? catalog.byId.get(x.productId) : null;
+    return {list: [x.image].concat(p ? productPics(p, "200w").list : x.record && x.record.sealed ? [] : namePics(x.name, "200w", x.rarity).list),
+      sub: p ? productPics(p, "200w").sub : ""};
+  }
+  // A card known only by name (a want without a printing, a deck list line): any printing's photo is its photo.
+  function namePics(name, size, rarity) {
+    const key = nameKey(name, rarity);
+    const list = printingPhotos(key, rarity, 0, size, 2);
+    if (list.length) list[0] = list[0].slice(1);
+    const hosted = anyPrintingPhoto(key) ? "" : hostedPhoto(key);
+    if (hosted) list.push(list.length ? hosted : hosted.slice(1));
+    return {list};
+  }
+  // The first photo that works outside this page (the phone copy, a sale's record, a printed report).
+  const firstPhoto = pics => (pics.list || []).map(u => String(u || "").replace(/^~/, "")).find(u => /^(https?:|data:image\/)/i.test(u)) || "";
+  const imageFor = (r, size) => firstPhoto(recordPics(r, size));
   function snapFromCatalog(product, edition) {
     const sub = catalogPrice(product, edition);
     return sub ? {market: sub.market, low: sub.low, date: catalog && catalog.generated ? catalog.generated.toISOString() : new Date().toISOString()} : null;
@@ -1841,7 +1967,7 @@
       .sort((a, b) => unitValue(b) - unitValue(a)).slice(0, 5);
     $("topCards").innerHTML = top.length ? '<div class="top-cards-label">Most valuable</div><div class="top-cards-row">' +
       top.map(r => '<button type="button" class="mini" data-open="' + esc(r.id) + '" title="' + esc(r.name) + '">' +
-        '<span class="sleeve' + (r.sealed ? " boxed" : "") + '">' + imgTag(imageFor(r, "200w"), r.name) + "</span><em>" + esc(usd(unitValue(r))) + "</em></button>").join("") +
+        '<span class="sleeve' + (r.sealed ? " boxed" : "") + '">' + imgTag(recordPics(r, "200w"), r.name) + "</span><em>" + esc(usd(unitValue(r))) + "</em></button>").join("") +
       "</div>" : "";
   }
 
@@ -1869,7 +1995,7 @@
     const top = collection.filter(r => unitValue(r) != null).sort((a, b) => unitValue(b) - unitValue(a)).slice(0, 5);
     $("topCards").innerHTML = top.length ? '<div class="top-cards-label">Most valuable as PSA 10</div><div class="top-cards-row">' +
       top.map(r => '<button type="button" class="mini" data-open="' + esc(r.id) + '" title="' + esc(r.name) + '">' +
-        '<span class="sleeve">' + imgTag(imageFor(r, "200w"), r.name) + "</span><em>" + esc(usd(unitValue(r))) + "</em></button>").join("") + "</div>" : "";
+        '<span class="sleeve">' + imgTag(recordPics(r, "200w"), r.name) + "</span><em>" + esc(usd(unitValue(r))) + "</em></button>").join("") + "</div>" : "";
   }
   function renderFilterOptions() {
     const distinct = key => Array.from(new Set(collection.map(r => r[key]).filter(Boolean)))
@@ -1967,7 +2093,7 @@
     const sel = selected.has(r.id);
     const extra = extras ? extras.get(r.id) || 0 : 0;
     return '<article class="tile' + (sel ? " is-selected" : "") + '">' +
-      '<div class="tile-art"><span class="sleeve' + (r.sealed ? " boxed" : "") + '" data-open="' + esc(r.id) + '">' + imgTag(imageFor(r, "in_400x400"), r.name) + "</span>" +
+      '<div class="tile-art"><span class="sleeve' + (r.sealed ? " boxed" : "") + '" data-open="' + esc(r.id) + '">' + imgTag(recordPics(r, "in_400x400"), r.name) + "</span>" +
       '<label class="tile-check"><input type="checkbox" class="check" data-select="' + esc(r.id) + '"' + (sel ? " checked" : "") +
       ' aria-label="Select ' + esc(r.name) + '"></label>' +
       (r.qty > 1 ? '<span class="tile-qty" title="' + r.qty + ' copies">&times;' + r.qty + "</span>" : "") + "</div>" +
@@ -2001,7 +2127,7 @@
         return '<tr data-row="' + esc(r.id) + '"' + (sel ? ' class="is-selected"' : "") + ">" +
           '<td class="c-check"><input type="checkbox" class="check" data-select="' + esc(r.id) + '"' + (sel ? " checked" : "") +
           ' aria-label="Select ' + esc(r.name) + '"></td>' +
-          '<td class="c-thumb"><span class="sleeve' + (r.sealed ? " boxed" : "") + '">' + imgTag(imageFor(r, "200w"), r.name) + "</span></td>" +
+          '<td class="c-thumb"><span class="sleeve' + (r.sealed ? " boxed" : "") + '">' + imgTag(recordPics(r, "200w"), r.name) + "</span></td>" +
           '<td><button type="button" class="cell-name" data-open="' + esc(r.id) + '">' + esc(r.name) + '</button><span class="cell-sub">' + esc(r.number) + "</span></td>" +
           "<td>" + esc(r.setName) + "</td><td>" + esc(r.rarity) + "</td><td>" + esc(r.edition) + "</td><td>" +
           (r.grade ? esc(gradeLabel(r.grade)) + '<span class="cell-sub">graded</span>' : esc(r.condition)) +
@@ -2164,7 +2290,7 @@
   function resultsHTML(list) {
     return '<div class="results">' + list.map((p, i) =>
       '<button type="button" class="result" data-idx="' + i + '">' +
-      '<span class="sleeve">' + imgTag(tcgImg(p.id, "in_400x400"), p.name) + "</span>" +
+      '<span class="sleeve">' + imgTag(productPics(p, "in_400x400"), p.name) + "</span>" +
       '<span class="result-name">' + esc(cleanName(p.name, p.rarity)) + "</span>" +
       '<span class="result-meta">' + esc(p.group.name) + "</span>" +
       '<span class="result-meta">' + esc(p.number) + ", " + esc(p.rarity || "rarity unknown") + "</span>" +
@@ -2220,7 +2346,7 @@
     return company ? normalizeGrade({company, grade: $(prefix + "Grade").value, cert: $(prefix + "Cert").value, value: $(prefix + "GValue").value}) : null;
   }
   const pickedHeadHTML = (p, backLabel) =>
-    '<div class="picked"><span class="sleeve">' + imgTag(tcgImg(p.id, "in_400x400"), p.name, true) + "</span><div>" +
+    '<div class="picked"><span class="sleeve">' + imgTag(productPics(p, "in_400x400"), p.name, true) + "</span><div>" +
     "<h3>" + esc(cleanName(p.name, p.rarity)) + "</h3><p>" + esc(p.group.name) + "</p><p>" + esc(p.number) + ", " + esc(p.rarity) + "</p>" +
     (backLabel ? '<p style="margin-top:8px"><button type="button" class="link-btn" id="backToSearch">' + esc(backLabel) + "</button></p>" : "") + "</div></div>";
   // "Lightly Played at 85% (Settings): $17.91" when played copies are valued below market.
@@ -2398,7 +2524,7 @@
     return '<div class="results">' + list.map((p, i) => {
       const v = firstPrice(catalogPrice(p, ""));
       return '<button type="button" class="result" data-idx="' + i + '">' +
-        '<span class="sleeve boxed">' + imgTag(tcgImg(p.id, "in_400x400"), p.name) + "</span>" +
+        '<span class="sleeve boxed">' + imgTag(productPics(p, "in_400x400"), p.name) + "</span>" +
         '<span class="result-name">' + esc(p.name) + "</span>" +
         '<span class="result-meta">' + esc(p.group.name) + "</span>" +
         '<span class="result-price">' + (v == null ? '<span class="small">No recent sales</span>' : esc(usd(v))) + "</span></button>";
@@ -2434,7 +2560,7 @@
     drawerCtx = {mode: "sealed", product: p};
     const v = firstPrice(catalogPrice(p, ""));
     openDrawer("Add a sealed product",
-      '<div class="picked"><span class="sleeve boxed">' + imgTag(tcgImg(p.id, "in_400x400"), p.name, true) + "</span><div>" +
+      '<div class="picked"><span class="sleeve boxed">' + imgTag(productPics(p, "in_400x400"), p.name, true) + "</span><div>" +
       "<h3>" + esc(p.name) + "</h3><p>" + esc(p.group.name) + "</p>" +
       '<p style="margin-top:8px"><button type="button" class="link-btn" id="backToSearch">Pick a different product</button></p></div></div>' +
       '<form id="sealedForm" class="stack">' +
@@ -2596,7 +2722,7 @@
     const product = catalog && r.productId ? catalog.byId.get(r.productId) : null;
     const pi = priceInfo(r);
     const mv = marketValue(r);
-    const big = imageFor(r, "in_1000x1000");
+    const bigPics = recordPics(r, "in_1000x1000"), big = firstPhoto(bigPics);
     const q = encodeURIComponent((r.number + " " + lookupName(r.name)).trim());
     let links = "";
     if (r.productId) links += '<a target="_blank" rel="noopener" href="' + esc(tcgPage(r.productId)) + '">View on TCGplayer</a>';
@@ -2654,7 +2780,7 @@
     const cardOnly = html => r.sealed ? "" : html;
     openDrawer(r.sealed ? "Sealed product" : "Card details",
       '<a href="' + esc(big || "#") + '" target="_blank" rel="noopener" class="detail-img" title="Open full-size image"' + (big ? "" : ' onclick="return false"') + ">" +
-      '<span class="sleeve' + (r.sealed ? " boxed" : "") + '">' + imgTag(big, r.name, true) + "</span></a>" +
+      '<span class="sleeve' + (r.sealed ? " boxed" : "") + '">' + imgTag(bigPics, r.name, true) + "</span></a>" +
       '<h3 class="detail-title">' + esc(r.name) + "</h3>" +
       '<p class="detail-sub">' + esc(r.setName || "Set unknown") + "<br>" + (r.sealed ? "Sealed product" : esc(r.number || "No card number") + (r.rarity ? ", " + esc(r.rarity) : "")) +
       "<br>" + (r.location ? "Kept in " + esc(r.location) : "No location") + ' · <button type="button" class="link-btn" id="moveTop">Move</button></p>' + otherCopiesHTML(r) +
@@ -3261,7 +3387,7 @@
     out.innerHTML = '<p class="results-head">' + esc(card.name) + (card.setName ? ", " + esc(card.setName) : "") + " (" + esc(lang) + "). " +
       (choices.length > 1 ? "It was printed in " + choices.length + " rarities: pick yours." : "Pick it to continue.") + "</p>" +
       '<div class="results">' + choices.map((c, i) => '<button type="button" class="result" data-idx="' + i + '">' +
-        '<span class="sleeve">' + imgTag(c.image, card.name, false, c.backup) + "</span>" +
+        '<span class="sleeve">' + imgTag({list: [c.image, c.backup].concat(namePics(card.name, "in_400x400").list)}, card.name) + "</span>" +
         '<span class="result-name">' + esc(card.name) + "</span>" + (c.ja ? '<span class="result-meta">' + esc(c.ja) + "</span>" : "") +
         '<span class="result-meta">' + esc(code) + ", " + esc(c.rarity || "rarity unknown") + "</span>" +
         '<span class="result-price">' + priceText(c.price) + "</span></button>").join("") + "</div>" +
@@ -3274,7 +3400,7 @@
     drawerCtx = {mode: "ocg"};
     const pr = choice.price;
     openDrawer("Add a card",
-      '<div class="picked"><span class="sleeve">' + imgTag(choice.image, card.name, true, choice.backup) + "</span><div>" +
+      '<div class="picked"><span class="sleeve">' + imgTag({list: [choice.image, choice.backup].concat(namePics(card.name, "in_400x400").list)}, card.name, true) + "</span><div>" +
       "<h3>" + esc(card.name) + "</h3>" + (choice.ja ? "<p>" + esc(choice.ja) + "</p>" : "") + "<p>" + esc(card.setName || "") + "</p><p>" + esc(card.code) + ", " +
       esc(choice.rarity || "rarity unknown") + "</p><p>" + esc(lang) + '</p><p style="margin-top:8px"><button type="button" class="link-btn" id="backToSearch">Pick a different rarity</button></p></div></div>' +
       '<form id="ocgForm" class="stack">' +
@@ -3573,7 +3699,7 @@
   function mkSealedTileHTML(x, showSet) {
     const p = x.p;
     const owned = collection.filter(r => r.productId === p.id).reduce((t, r) => t + r.qty, 0);
-    return '<div class="result static"><span class="sleeve boxed">' + imgTag(tcgImg(p.id, "in_400x400"), p.name) + "</span>" +
+    return '<div class="result static"><span class="sleeve boxed">' + imgTag(productPics(p, "in_400x400"), p.name) + "</span>" +
       '<span class="result-name">' + esc(p.name) + "</span>" +
       '<span class="result-meta">' + esc(showSet ? x.set.group.name + " · " : "") + esc(mkKindName(x.kind)) + "</span>" +
       (x.low == null && x.market == null ? '<span class="result-meta">No listings or recent sales</span>'
@@ -3591,7 +3717,7 @@
     for (const r of collection) if (r.productId) owned.set(r.productId, (owned.get(r.productId) || 0) + r.qty);
     return '<div class="results">' + list.map((b, i) => {
       const p = b.product;
-      return '<div class="result static"><span class="sleeve"><span class="mk-rank">#' + (i + 1) + "</span>" + imgTag(tcgImg(p.id, "200w"), p.name) + "</span>" +
+      return '<div class="result static"><span class="sleeve"><span class="mk-rank">#' + (i + 1) + "</span>" + imgTag(productPics(p, "200w"), p.name) + "</span>" +
         '<span class="result-name">' + esc(cleanName(p.name, p.rarity)) + "</span>" +
         '<span class="result-meta">' + esc(p.number) + ", " + esc(p.rarity || "rarity unknown") + "</span>" +
         '<span class="result-price">' + esc(usd(b.price)) + (Object.keys(p.prices).length > 1 ? ' <span class="small">' + esc(b.edition) + "</span>" : "") + "</span>" +
@@ -3811,7 +3937,7 @@
     const chips = allLocations().filter(l => from == null || !sameLoc(l, from)).map(l => [l, l]);
     if (from == null || from) chips.push(["", "No location"]);
     const row = r => '<div class="mv-row" data-row="' + esc(r.id) + '">' +
-      '<span class="sleeve' + (r.sealed ? " boxed" : "") + '">' + imgTag(imageFor(r, "200w"), r.name, true) + "</span>" +
+      '<span class="sleeve' + (r.sealed ? " boxed" : "") + '">' + imgTag(recordPics(r, "200w"), r.name, true) + "</span>" +
       '<div class="batch-info"><b>' + esc(r.name) + "</b><span>" + esc(r.sealed ? r.setName || "Sealed product" : [r.number, r.rarity].filter(Boolean).join(", ")) + "<br>" +
       esc(r.sealed ? "Sealed product" : [r.edition, r.grade ? gradeLabel(r.grade) : r.condition, r.language !== "English" ? r.language : ""].filter(Boolean).join(", ")) + "</span>" +
       '<span class="mv-where">' + esc(whereNow(r)) + "</span></div>" +
@@ -3904,13 +4030,15 @@
   // A link to share.html on this website with the cards in the link itself (compressed), so nothing is stored
   // anywhere: whoever gets the link sees those cards, with photos and prices, and nothing else of yours.
   const shareBase = () => SITE ? new URL("share.html", location.href).href : "";
-  const shareImg = u => /^https:\/\/(tcgplayer-cdn\.tcgplayer\.com|ms\.yugipedia\.com|image\.bigweb\.co\.jp)\//i.test(String(u || "")) ? String(u) : "";
+  const shareImg = u => /^https:\/\/(tcgplayer-cdn\.tcgplayer\.com|ms\.yugipedia\.com|image\.bigweb\.co\.jp)\//i.test(String(u || "")) || isHostedPhoto(u) ? String(u) : "";
   function shareItem(r, opts) {
     const it = {n: r.name, no: r.number || "", s: r.setName || "", r: r.rarity || "", e: r.edition || "", q: opts.qty ? opts.qty(r) : (r.qty || 1)};
     if (r.productId) it.p = r.productId;
     if (r.sealed) it.b = 1; else it.c = r.condition || "";
     if (r.grade) it.g = gradeLabel(r.grade);
-    if (!r.productId) { const im = shareImg(r.customImage) || shareImg(ocgImage(r)); if (im) it.i = im; }
+    // the first photo the share page may show; none needed when it's the product's own TCGplayer photo
+    const im = recordPics(r, "in_400x400").list.map(u => shareImg(String(u || "").replace(/^~/, ""))).find(Boolean);
+    if (im && !(r.productId && im === tcgImg(r.productId, "in_400x400"))) it.i = im;
     // Only market prices go out (TCGplayer's, or BIGWEB's/Bunjang's for Japanese and Korean cards): never what you
     // paid, your own estimates or graded values.
     if (opts.prices) { const pi = priceInfo(r); if (pi.unit != null && (pi.from === "tcgplayer" || pi.from === "ocg")) it.v = round2(pi.unit); }
@@ -3919,6 +4047,9 @@
   function shareWant(w, opts) {
     const it = {n: w.name, no: w.number || "", s: w.setName || "", r: w.rarity || "", e: w.edition && w.edition !== "Any" ? w.edition : "", q: w.qty || 1};
     if (w.productId) it.p = w.productId;
+    const wp = w.productId && catalog ? catalog.byId.get(w.productId) : null;
+    const im = (wp ? productPics(wp, "in_400x400") : namePics(w.name, "in_400x400", w.rarity)).list.map(u => shareImg(String(u || "").replace(/^~/, ""))).find(Boolean);
+    if (im && !(w.productId && im === tcgImg(w.productId, "in_400x400"))) it.i = im;
     if (opts.prices) { const v = wantPrice(w); if (v != null) it.v = round2(v); }
     if (opts.targets && w.target != null) it.t = w.target;
     return it;
@@ -5175,7 +5306,7 @@
   function moversHTML(ch, period) {
     const gains = ch.movers.filter(m => m.total > 0).sort((a, b) => b.total - a.total).slice(0, 8);
     const drops = ch.movers.filter(m => m.total < 0).sort((a, b) => a.total - b.total).slice(0, 8);
-    const item = m => '<button type="button" class="mover" data-open="' + esc(m.r.id) + '"><span class="sleeve">' + imgTag(imageFor(m.r, "200w"), m.r.name) + "</span>" +
+    const item = m => '<button type="button" class="mover" data-open="' + esc(m.r.id) + '"><span class="sleeve">' + imgTag(recordPics(m.r, "200w"), m.r.name) + "</span>" +
       '<span style="min-width:0"><span class="mover-name">' + esc(m.r.name) + '</span><span class="mover-sub">' +
       esc([m.r.number, m.r.edition].filter(Boolean).join(", ")) + ": " + esc(usd(m.ch.then)) + " to " + esc(usd(m.ch.now)) +
       (m.r.qty > 1 ? ", " + m.r.qty + " copies" : "") + "</span></span>" +
@@ -5460,7 +5591,7 @@
         const p = it.best ? it.best.product : it.products[0];
         const rarities = Array.from(new Set(it.products.map(x => x.rarity).filter(Boolean)));
         const onList = it.products.some(x => wanted.has(x.id));
-        return '<div class="result static"><span class="sleeve">' + imgTag(tcgImg(p.id, "200w"), p.name) + "</span>" +
+        return '<div class="result static"><span class="sleeve">' + imgTag(productPics(p, "200w"), p.name) + "</span>" +
           '<span class="result-name">' + esc(cleanName(p.name, p.rarity)) + "</span>" +
           '<span class="result-meta">' + esc(p.number) + ", " + esc(rarities.join(" / ") || "rarity unknown") + "</span>" +
           '<span class="result-price">' + (it.best ? esc(usd(it.best.price)) + (Object.keys(it.best.product.prices).length > 1 ? ' <span class="small">' + esc(it.best.edition) + "</span>" : "")
@@ -5499,7 +5630,7 @@
         else if (w.target == null) status = '<span class="small">No target set</span>';
         else status = esc(usd(st.price - w.target)) + ' <span class="small">above target</span>';
         return '<tr class="' + (st.hit ? "hit" : "") + '" data-want-row="' + esc(w.id) + '"><td class="c-thumb"><span class="sleeve">' +
-          imgTag(w.productId ? tcgImg(w.productId, "200w") : "", w.name) + "</span></td>" +
+          imgTag(w.productId && catalog && catalog.byId.get(w.productId) ? productPics(catalog.byId.get(w.productId), "200w") : namePics(w.name, "200w", w.rarity), w.name) + "</span></td>" +
           '<td><button type="button" class="cell-name" data-want-action="edit" data-id="' + esc(w.id) + '">' + esc(w.name) + (w.qty > 1 ? " \u00d7" + w.qty : "") + '</button><span class="cell-sub">' +
           esc([w.setName, w.number, w.rarity].filter(Boolean).join(", ")) + (have ? ". You have " + have : "") + "</span></td>" +
           '<td data-label="Printing">' + esc(w.edition === "Any" ? "Any printing" : w.edition) + '</td><td class="num" data-label="Market price"' +
@@ -5519,7 +5650,7 @@
     drawerCtx = {mode: "sold", id};
     const mv = marketValue(r).unit;
     openDrawer("Record a sale",
-      '<div class="picked"><span class="sleeve">' + imgTag(imageFor(r, "in_400x400"), r.name, true) + "</span><div><h3>" + esc(r.name) + "</h3><p>" +
+      '<div class="picked"><span class="sleeve">' + imgTag(recordPics(r, "in_400x400"), r.name, true) + "</span><div><h3>" + esc(r.name) + "</h3><p>" +
       esc(r.setName) + "</p><p>" + esc([r.number, r.rarity].filter(Boolean).join(", ")) + "</p><p>" +
       esc([r.edition, r.grade ? gradeLabel(r.grade) : r.condition].filter(Boolean).join(", ")) + ". You have " + r.qty + ".</p></div></div>" +
       '<form id="soldForm" class="stack" novalidate>' +
@@ -5610,7 +5741,7 @@
       '<th class="num">Qty</th><th class="num">Sold for, each</th><th class="num">Fees</th><th class="num">Paid, each</th><th class="num">Profit</th><th><span class="sr">Actions</span></th></tr></thead><tbody>' +
       list.map(x => {
         const n = saleNumbers(x);
-        return '<tr><td class="c-thumb"><span class="sleeve">' + imgTag(x.image, x.name) + "</span></td>" +
+        return '<tr><td class="c-thumb"><span class="sleeve">' + imgTag(salePics(x), x.name) + "</span></td>" +
           '<td><b>' + esc(x.name) + '</b><span class="cell-sub">' + esc([x.setName, x.number, x.edition, x.grade ? gradeLabel(x.grade) : x.condition].filter(Boolean).join(", ")) +
           (x.notes ? ". " + esc(x.notes) : "") + "</span></td>" +
           '<td data-label="Date">' + esc(fmtDate(parseDay(x.date))) + '</td><td class="num" data-label="Qty">' + x.qty +
@@ -6580,7 +6711,7 @@
       info = "<b>" + esc(r.input) + "</b><span>" + esc(why) + "</span>" +
         (r.status === "region" ? '<button type="button" class="link-btn" data-b="manual">Add manually</button>' : "");
     }
-    const img = p ? '<span class="sleeve">' + imgTag(tcgImg(p.id, "in_400x400"), p.name) + "</span>" : '<span class="batch-blank" aria-hidden="true"></span>';
+    const img = p ? '<span class="sleeve">' + imgTag(productPics(p, "in_400x400"), p.name) + "</span>" : '<span class="batch-blank" aria-hidden="true"></span>';
     const eds = p ? printingsFor(p).filter(k => k !== "Normal").concat(PRINTINGS) : [];
     const value = batchValue(r);
     return '<div class="' + cls + '" data-row="' + esc(r.key) + '">' + img + '<div class="batch-info">' + info + "</div>" + pick +
@@ -7392,7 +7523,7 @@
         '<div class="table-wrap"><table class="preview-table"><thead><tr><th></th><th>Card</th><th>Set</th><th>Printing</th><th>Condition</th><th class="num">Qty</th><th class="num">Price</th><th class="num">Total</th></tr></thead><tbody>' +
         shown.map(r => {
           const u = priceInfo(r).unit;
-          return '<tr><td><span class="sleeve">' + imgTag(imageFor(r, "200w"), r.name) + "</span></td><td><b>" + esc(r.name) + "</b>" + tag(r) + '<span class="cell-sub">' +
+          return '<tr><td><span class="sleeve">' + imgTag(recordPics(r, "200w"), r.name) + "</span></td><td><b>" + esc(r.name) + "</b>" + tag(r) + '<span class="cell-sub">' +
             esc(r.number) + (r.rarity ? ", " + esc(r.rarity) : "") + "</span></td><td>" + esc(r.setName) + "</td><td>" + esc(r.edition) + "</td><td>" + esc(r.condition) +
             '</td><td class="num">' + r.qty + '</td><td class="num">' + esc(u == null ? "" : usd(u)) + '</td><td class="num">' + esc(u == null ? "" : usd(u * r.qty)) + "</td></tr>";
         }).join("") + "</tbody></table></div>" +
@@ -7865,13 +7996,24 @@
     });
     setInterval(() => { if (document.visibilityState === "visible") checkForNewData(); }, 30 * 60000);
 
-    // Swap a broken or missing card photo for a labelled placeholder.
+    // A photo that doesn't load: try the next one on its list, and when none is left, draw a stand-in.
     document.addEventListener("error", e => {
       const img = e.target;
-      if (!img || img.tagName !== "IMG" || img.dataset.fallback === undefined || img.dataset.failed) return;
-      if (img.dataset.alt && img.dataset.alt !== img.getAttribute("src")) { const alt = img.dataset.alt; delete img.dataset.alt; img.src = alt; return; }
+      if (!img || img.tagName !== "IMG") return;
+      if (img.classList.contains("ph-art")) { img.remove(); return; }
+      if (img.dataset.fallback === undefined || img.dataset.failed) return;
+      while (img.dataset.alt) {
+        const rest = img.dataset.alt.split(" ").filter(Boolean), next = rest.shift() || "";
+        if (rest.length) img.dataset.alt = rest.join(" "); else delete img.dataset.alt;
+        const url = next.replace(/^~/, "");
+        if (url && url !== img.getAttribute("src")) {
+          if (next[0] === "~") img.dataset.stand = "1"; else delete img.dataset.stand;
+          img.src = url;
+          return;
+        }
+      }
       img.dataset.failed = "1";
-      img.insertAdjacentHTML("afterend", placeholder(img.dataset.fallback));
+      img.insertAdjacentHTML("afterend", placeholder(img.dataset.fallback, img.dataset.sub, img.dataset.art));
       img.remove();
     }, true);
   }
@@ -7908,7 +8050,8 @@
     openSoldForm, recordSale, saleNumbers, buildReport, openReport, phoneCopyHTML, savePhoneCopy, writePhoneCopy, backupTextFrom,
     matchScanned, numberVariants, openScanner, stopScanner, prepCanvas, openWantForm, resolveLink, chooseBackupFile, linkGoogleDrive, driveToken, openMove, moveCopies,
     searchSealed, openSealedSearch, openSealedForm, ocgCard, bigwebFor, bunjangFor, bigwebPick, bunjangPick, ocgPrice, refreshOcgPrices, fxRates, showOcgLookup,
-    psa10Value, gradedValue, gradedTotals, pcLookup, pcMatch, refreshGradedPrices, gradeShare, koRarity, jaRarity, driveDatedCopy, fillDriveCopies, deckPullPlan, deckPullIntoBox, openShare, shareLink, marketData, mkSetLine, mkKind, mkChase, renderMarket, analyzeDeckIdeas, runDeckIdeas, starterList, ideasState: () => ideas};
+    psa10Value, gradedValue, gradedTotals, pcLookup, pcMatch, refreshGradedPrices, gradeShare, koRarity, jaRarity, driveDatedCopy, fillDriveCopies, deckPullPlan, deckPullIntoBox, openShare, shareLink, marketData, mkSetLine, mkKind, mkChase, renderMarket, analyzeDeckIdeas, runDeckIdeas, starterList, ideasState: () => ideas,
+    imgTag, productPics, recordPics, namePics, imageFor, shareItem, shareWant};
 
   document.addEventListener("DOMContentLoaded", init);
 })();
