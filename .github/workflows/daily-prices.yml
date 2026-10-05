@@ -60,7 +60,7 @@ jobs:
       - name: Put the website together
         run: |
           mkdir -p _site/icons
-          cp index.html config.js manifest.webmanifest oauth.html sw.js _site/
+          cp index.html config.js manifest.webmanifest oauth.html share.html sw.js _site/
           cp icons/*.png _site/icons/
           if [ -f tcgplayer-data.js ]; then cp tcgplayer-data.js tcgplayer-data-version.js _site/; fi
           ls -la _site

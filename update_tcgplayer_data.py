@@ -49,8 +49,9 @@ import urllib.parse
 import urllib.request
 from datetime import date, datetime, timedelta, timezone
 
-VERSION = "2.1"
-DATA_FORMAT = 2  # tcgplayer-data.js layout; 2 added the older prices for price history
+VERSION = "2.2"
+DATA_FORMAT = 3  # tcgplayer-data.js layout; 2 added the older prices for price history, 3 sealed products
+PRODUCT_LIST_VERSION = 2  # cached set lists; 2 keeps sealed products (booster boxes, tins, decks...) too
 BASE_URL = os.environ.get("CARDVAULT_TCGCSV_BASE", "https://tcgcsv.com").rstrip("/")
 CATEGORY_ID = 2  # TCGplayer's category ID for Yu-Gi-Oh!
 USER_AGENT = "CardVault/%s (personal Yu-Gi-Oh! collection tracker)" % VERSION
@@ -186,22 +187,20 @@ def progress(done, total, label):
 
 
 def compact_products(results):
-    """Keep only single cards (products with a card number): [id, name, number, rarity]."""
-    cards = []
+    """Single cards (products with a card number): [id, name, number, rarity].
+    Everything else in a set (booster boxes and packs, tins, structure decks...): [id, name, "", "", 1]."""
+    items = []
     for product in results or []:
         extended = {}
         for item in product.get("extendedData") or []:
             extended[item.get("name")] = (item.get("value") or "").strip()
         number = extended.get("Number", "")
-        if not number:
-            continue  # sealed product, accessory, etc.
-        cards.append([
-            int(product["productId"]),
-            (product.get("name") or "").strip(),
-            number,
-            extended.get("Rarity", ""),
-        ])
-    return cards
+        name = (product.get("name") or "").strip()
+        if number:
+            items.append([int(product["productId"]), name, number, extended.get("Rarity", "")])
+        elif name:
+            items.append([int(product["productId"]), name, "", "", 1])
+    return items
 
 
 def money(value):
@@ -298,7 +297,10 @@ def backup_search_roots():
     except OSError:
         pass
     roots += [os.path.join(home, name) for name in ("Documents", "Desktop", "Downloads")]
-    roots.append("G:\\My Drive")  # Google Drive for desktop
+    # Google Drive for desktop shows your Drive as a drive letter (G: unless you changed it) with a "My Drive" folder.
+    if os.name == "nt":
+        for letter in "DEFGHIJKLMNOPQRSTUVWXYZ":
+            roots.append(letter + ":\\My Drive")
     out, seen = [], set()
     for root in roots:
         key = os.path.normcase(os.path.abspath(root))
@@ -354,8 +356,9 @@ def find_backup_file(roots=None):
             modified = os.path.getmtime(path)
         except OSError:
             continue
-        # a backup file wins over a phone copy saved at the same time
-        rank = (modified, path.lower().endswith(".json"))
+        # a backup file wins over a phone copy, and the live backup over a dated copy of it (saved seconds apart)
+        base = os.path.basename(path).lower()
+        rank = (int(modified // 600), base == "card vault backup.json", path.lower().endswith(".json"), modified)
         if best is None or rank > best[0]:
             best = (rank, path)
     if not best:
@@ -390,8 +393,10 @@ def to_number(value):
     return number if number == number else None
 
 
-def pick_subtype(subtypes, edition):
+def pick_subtype(subtypes, edition, sealed=False):
     """The TCGplayer price entry for a printing (matches Card Vault's own rule)."""
+    if sealed and "Normal" in subtypes:
+        return "Normal"
     if edition in subtypes:
         return edition
     if edition == "No edition mark" and "Normal" in subtypes:
@@ -456,14 +461,14 @@ def compute_alerts(backup, today_prices, previous):
             continue  # a graded card counts at its own value
         pid = int(pid)
         subs = now_prices(pid)
-        subtype = pick_subtype(subs, record.get("edition") or "")
+        subtype = pick_subtype(subs, record.get("edition") or "", bool(record.get("sealed")))
         if not subtype:
             continue
         now, was = subs[subtype][0], before(pid, subtype)
         if now is None or was is None or was <= 0:
             continue
         factor = 1.0
-        if cond_adjust and not graded:
+        if cond_adjust and not graded and not record.get("sealed"):
             factor = max(0.0, to_number(cond_pct.get(record.get("condition"), 100)) or 0.0) / 100.0
         qty = int(to_number(record.get("qty")) or 1)
         name = record.get("name") or "A card"
@@ -617,7 +622,8 @@ def main():
     now_iso = datetime.now(timezone.utc).isoformat()
     now_ts = time.time()
     set_rows = []       # [groupId, name, abbreviation, publishedOn]
-    card_rows = []      # [productId, groupIndex, name, number, rarityIndex, prices]
+    card_rows = []      # [productId, groupIndex, name, number, rarityIndex, prices(, 1 for sealed products)]
+    sealed_ids = set()
     rarity_index = {}
     rarities = []
     skipped_sets = 0
@@ -634,6 +640,7 @@ def main():
         fresh_enough = (
             not force
             and cached.get("modifiedOn") == group.get("modifiedOn")
+            and cached.get("v") == PRODUCT_LIST_VERSION
             and now_ts - cached.get("fetchedAt", 0) < PRODUCT_CACHE_MAX_AGE_DAYS * 86400
             and os.path.exists(cache_path)
         )
@@ -653,13 +660,13 @@ def main():
             if cards is None:
                 continue
             save_json(cache_path, cards)
-            product_state[str(group_id)] = {"modifiedOn": group.get("modifiedOn"), "fetchedAt": now_ts}
+            product_state[str(group_id)] = {"modifiedOn": group.get("modifiedOn"), "fetchedAt": now_ts, "v": PRODUCT_LIST_VERSION}
             if position % 50 == 0:  # so an interrupted run doesn't re-download finished sets
                 state["products"] = product_state
                 save_json(STATE_FILE, state)
 
         if not cards:
-            continue  # sealed-only set: nothing to price
+            continue  # nothing in this set to price
 
         # 2) Today's prices for the set (always downloaded; they change daily).
         try:
@@ -682,7 +689,10 @@ def main():
         set_rows.append([group_id, (group.get("name") or "").strip(),
                          (group.get("abbreviation") or "").strip(),
                          (group.get("publishedOn") or "")[:10]])
-        for product_id, name, number, rarity in cards:
+        for item in cards:
+            product_id, name, number, rarity = item[:4]
+            if len(item) > 4 and item[4]:
+                sealed_ids.add(product_id)
             if rarity not in rarity_index:
                 rarity_index[rarity] = len(rarities)
                 rarities.append(rarity)
@@ -705,7 +715,7 @@ def main():
     card_ids = {row[0] for row in card_rows}
     for product_id, entries in today_prices.items():
         if product_id not in card_ids:
-            continue  # sealed products aren't tracked
+            continue  # (not in the catalog)
         for subtype, market, _low in entries:
             if market is not None:
                 snapshot.setdefault(subtype, {})[str(product_id)] = market
@@ -729,6 +739,8 @@ def main():
                            references["d7"].get(subtype, {}).get(key),
                            references["d30"].get(subtype, {}).get(key)])
         row.append(prices)
+        if product_id in sealed_ids:
+            row.append(1)
 
     data = {
         "format": DATA_FORMAT,
@@ -739,7 +751,7 @@ def main():
         "groups": set_rows,
         "rarities": rarities,
         "subtypes": subtypes,
-        # each price entry: subtype, market, low, market at d1, at d7, at d30
+        # each price entry: subtype, market, low, market at d1, at d7, at d30; a 1 after the prices marks sealed products
         "products": card_rows,
     }
     tmp_path = OUT_FILE + ".tmp"
@@ -762,8 +774,8 @@ def main():
     save_json(STATE_FILE, state)
 
     size_mb = os.path.getsize(OUT_FILE) / (1024 * 1024)
-    say("  Done! Saved %s card printings from %d sets (%.1f MB)."
-        % (format(len(card_rows), ","), len(set_rows), size_mb))
+    say("  Done! Saved %s card printings and %s sealed products from %d sets (%.1f MB)."
+        % (format(len(card_rows) - len(sealed_ids), ","), format(len(sealed_ids), ","), len(set_rows), size_mb))
     say("  Prices are TCGplayer market prices from %s." % friendly_date(last_updated or now_iso))
     compared = [label for key, label in (("d1", "your last update"), ("d7", "7 days ago"), ("d30", "30 days ago"))
                 if reference_days[key]]

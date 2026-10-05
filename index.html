@@ -107,6 +107,9 @@
   .value-label{color:var(--text-dim);font-size:13.5px}
   .value-number{font-size:clamp(34px,5vw,48px);font-weight:700;line-height:1.05;letter-spacing:-.5px;margin-top:2px}
   .value-sub{color:var(--text-dim);font-size:13px;margin-top:6px}
+  .value-mode{margin-top:10px}
+  .value-mode button{padding:6px 11px;font-size:12.5px}
+  .tile-price .gv,.cell-gv{font-size:10.5px;color:var(--text-dim);font-weight:500;margin-left:4px}
   .facts{display:flex;flex-wrap:wrap;gap:8px 28px;align-self:end;padding-bottom:4px}
   .fact b{display:block;font-size:17px;font-variant-numeric:tabular-nums;font-weight:600}
   .fact > span{color:var(--text-dim);font-size:12.5px}
@@ -159,6 +162,8 @@
   /* ---------- card image (sleeve) ---------- */
   .sleeve{display:block;position:relative;aspect-ratio:59/86;border-radius:6px;overflow:hidden;background:#0c0907;box-shadow:inset 0 0 0 1px rgba(255,255,255,.05),0 6px 14px rgba(0,0,0,.35)}
   .sleeve img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;display:block}
+  .sleeve.boxed{background:#f3efe8}
+  .sleeve.boxed img{object-fit:contain}
   .card-ph{position:absolute;inset:0;display:grid;place-items:center;padding:10px;text-align:center;font:400 12.5px/1.25 "Marcellus SC",Georgia,serif;color:#e7d6b8;background:repeating-linear-gradient(135deg,#3a2616 0 10px,#33210f 10px 20px);border:3px solid #22160c;border-radius:inherit}
 
   /* ---------- binder ---------- */
@@ -175,6 +180,7 @@
   .badges{display:flex;flex-wrap:wrap;gap:4px;min-width:0}
   .ed-grade{border-color:rgba(243,234,223,.45);color:var(--text)}
   .ed-extra{border-color:rgba(76,187,165,.65);color:var(--spell)}
+  .ed-sealed{border-color:rgba(160,140,220,.6);color:#c9bdf0}
   .tile-price{font-weight:600;font-variant-numeric:tabular-nums;font-size:14px;text-align:right}
   .tile-price small{display:block;font-weight:400;font-size:11.5px;color:var(--text-dim)}
   .tile-price.none{color:var(--text-faint);font-weight:400;font-size:12.5px}
@@ -253,6 +259,8 @@
 
   .site-only{display:none}
   html.site .site-only{display:inline}
+  html.site .btn.site-only{display:inline-flex}
+  html.site .site-only[hidden]{display:none}
   html.site .local-only,html.site #phoneBtn{display:none}
   .picked{display:grid;grid-template-columns:96px 1fr;gap:14px;align-items:start;margin-bottom:18px}
   .drawer.wide{width:min(800px,100vw)}
@@ -604,6 +612,10 @@
       <div class="value-label" id="valueLabel">Collection value</div>
       <div class="value-number" id="totalValue">$0.00</div>
       <div class="value-sub" id="valueSub"></div>
+      <div class="seg value-mode" role="group" aria-label="Which value to show" id="valueMode">
+        <button type="button" data-mode="current" aria-pressed="true">Current value</button>
+        <button type="button" data-mode="graded" aria-pressed="false">PSA 10 value</button>
+      </div>
     </div>
     <div class="facts" id="facts"></div>
     <div class="top-cards" id="topCards"></div>
@@ -633,6 +645,8 @@
         <option value="graded">Graded cards</option>
         <option value="played">Played condition</option>
         <option value="manual">Added manually</option>
+        <option value="cards">Single cards only</option>
+        <option value="sealed">Sealed products</option>
       </select>
     </div>
     <div class="controls-row">
@@ -648,6 +662,7 @@
       </div>
       <span class="shown" id="shown"></span>
       <button class="btn btn-small" id="copyTrade" type="button" hidden>Copy trade list</button>
+      <button class="btn btn-small site-only" id="shareTrade" type="button" hidden>Share trade binder…</button>
       <span class="spacer"></span>
       <label class="basis">Value cards by
         <select class="select" id="basis">
@@ -689,6 +704,7 @@
   <button class="btn btn-small" id="bulkAll" type="button">Select all shown</button>
   <button class="btn btn-small" id="bulkClear" type="button">Clear</button>
   <button class="btn btn-small" id="bulkLocation" type="button">Move…</button>
+  <button class="btn btn-small site-only" id="bulkShare" type="button">Share…</button>
   <button class="btn btn-small btn-danger" id="bulkDelete" type="button">Delete selected</button>
 </div>
 <input type="file" id="restoreFile" accept=".json,application/json,.html,text/html" hidden>
@@ -772,7 +788,8 @@
   const PERIODS = [["m1", "Last update"], ["m7", "7 days"], ["m30", "30 days"]];
   const TABS = ["collection", "history", "sets", "wants", "decks", "sales"];
   const NO_LOCATION = "__none__";
-  const SHOW_LABELS = {extras: "Extras beyond 3", graded: "Graded cards", played: "Played condition", manual: "Added manually"};
+  const SHOW_LABELS = {extras: "Extras beyond 3", graded: "Graded cards", played: "Played condition", manual: "Added manually",
+    sealed: "Sealed products", cards: "Single cards only"};
   // Yugipedia's photo file names end in a region and rarity code, e.g. WheelSynchron-DUNE-JP-C.png.
   const YUGI_RARITY = {C: "Common", R: "Rare", SR: "Super Rare", UR: "Ultra Rare", ScR: "Secret Rare", UtR: "Ultimate Rare",
     GR: "Ghost Rare", StR: "Starlight Rare", CR: "Collector's Rare", QCScR: "Quarter Century Secret Rare",
@@ -812,13 +829,17 @@
   // Syncing through the backup file: every card, want, deck and sale carries "mod" (when it last changed), and
   // deleted ones are remembered here by id, so a device can tell "deleted over there" from "not seen yet".
   const SYNC_KINDS = ["collection", "wants", "decks", "sales"];
-  const SHARED_SETTINGS = ["condAdjust", "condPct", "alertsOn", "alertMinDollar", "alertMinPct"];
+  const SHARED_SETTINGS = ["condAdjust", "condPct", "alertsOn", "alertMinDollar", "alertMinPct", "psa10Mult", "psa10Floor", "gradePct", "pcToken"];
+  // Rough starting points for graded values when there's no real graded price: PSA 10 ≈ raw market × 4 + $25
+  // (grading costs money and a gem-mint slab sells for more than raw), and other grades as a share of PSA 10.
+  const DEFAULT_GRADE_PCT = {"10": 100, "9.5": 50, "9": 30, "8": 18, "7": 12, "6": 8};
   let deleted = {collection: {}, wants: {}, decks: {}, sales: {}};
   let prints = null;   // what each entry looked like at the last save, to notice what changed
   let settings = {view: "binder", sortField: "price", sortDir: "desc", basis: "market", tab: "collection",
     condAdjust: true, condPct: Object.assign({}, DEFAULT_COND_PCT), histPeriod: "m7", chartTable: false,
     setsMode: "number", setsSort: "complete", lastBackupAt: null, lastChangeAt: null, backupSnoozeUntil: 0,
-    backupRemindDays: 7, wantAlertSeen: "", alertsOn: false, alertMinDollar: 5, alertMinPct: 10, salesYear: "", deckId: null};
+    backupRemindDays: 7, wantAlertSeen: "", alertsOn: false, alertMinDollar: 5, alertMinPct: 10, salesYear: "", deckId: null,
+    gradedView: false, psa10Mult: 4, psa10Floor: 25, gradePct: Object.assign({}, DEFAULT_GRADE_PCT), pcToken: ""};
   const filters = {q: "", set: "", rarity: "", edition: "", language: "", location: "", show: ""};
   const selected = new Set();
   let catalog = null;
@@ -996,6 +1017,8 @@
       snap: r.snap && typeof r.snap === "object" ? {market: n(r.snap.market), low: n(r.snap.low), date: r.snap.date || null} : null,
       location: String(r.location || "").trim(),
       grade: normalizeGrade(r.grade),
+      sealed: !!r.sealed,
+      g10: n(r.g10),   // your own PSA 10 value for this card, if you entered one
       notes: String(r.notes || ""),
       added: r.added || new Date().toISOString(),
       mod: modTime(r.mod)
@@ -1058,6 +1081,7 @@
       const s = readJSON(SETTINGS_KEY, {});
       if (s && typeof s === "object") settings = Object.assign(settings, s);
       settings.condPct = Object.assign({}, DEFAULT_COND_PCT, s && s.condPct);
+      settings.gradePct = Object.assign({}, DEFAULT_GRADE_PCT, s && s.gradePct);
       if (!TABS.includes(settings.tab)) settings.tab = "collection";
       if (!PERIODS.some(p => p[0] === settings.histPeriod)) settings.histPeriod = "m7";
       if (settings.sort) {  // settings saved by the first version of this sort menu
@@ -1196,6 +1220,10 @@
     if (typeof ds.alertsOn === "boolean") settings.alertsOn = ds.alertsOn;
     if (num(ds.alertMinDollar) != null) settings.alertMinDollar = num(ds.alertMinDollar);
     if (num(ds.alertMinPct) != null) settings.alertMinPct = num(ds.alertMinPct);
+    if (num(ds.psa10Mult) != null) settings.psa10Mult = num(ds.psa10Mult);
+    if (num(ds.psa10Floor) != null) settings.psa10Floor = num(ds.psa10Floor);
+    if (ds.gradePct && typeof ds.gradePct === "object") settings.gradePct = Object.assign({}, DEFAULT_GRADE_PCT, ds.gradePct);
+    if (typeof ds.pcToken === "string") settings.pcToken = ds.pcToken;
   }
   function mergeSummary(res) {
     const names = {collection: "collection", wants: "want list", decks: "decks", sales: "sales"};
@@ -1238,7 +1266,7 @@
     let ok = write();
     if (!ok) {
       // Out of room: the photo-lookup cache is only a convenience, so drop it and try again.
-      try { localStorage.removeItem(YUGI_CACHE_KEY); yugi.cache = {}; } catch (e) { /* ignore */ }
+      try { [YUGI_CACHE_KEY, OCG_CACHE_KEY, PC_CACHE_KEY].forEach(k => localStorage.removeItem(k)); yugi.cache = {}; ocg.cache = {}; pc.cache = {}; } catch (e) { /* ignore */ }
       ok = write();
     }
     storageOK = ok;
@@ -1280,7 +1308,7 @@
         prices[st] = e;
       }
       const p = {id: row[0], group: groups[row[1]] || {id: null, name: "", published: ""}, name: row[2] || "", number: row[3] || "",
-        rarity: rarities[row[4]] || "", prices};
+        rarity: rarities[row[4]] || "", prices, sealed: row[6] === 1};
       p.nameLower = p.name.toLowerCase();
       products[i] = p;
       byId.set(p.id, p);
@@ -1317,6 +1345,7 @@
     if (!catalog || needle.length < 2) return {items: [], more: false};
     const starts = [], contains = [];
     for (const p of catalog.products) {
+      if (p.sealed) continue;
       const at = p.nameLower.indexOf(needle);
       if (at === 0) starts.push(p); else if (at > 0) contains.push(p);
     }
@@ -1338,6 +1367,7 @@
     let sub = product.prices[edition];
     if (!sub && edition === "No edition mark") sub = product.prices.Normal;
     if (!sub && keys.length === 1) sub = product.prices[keys[0]];
+    if (!sub && product.sealed) sub = product.prices.Normal || product.prices[keys[0]];
     return sub || null;
   }
 
@@ -1354,6 +1384,15 @@
         from: "saved", date: parseDate(r.snap.date)};
     }
     if (r.manualPrice != null) return {unit: r.manualPrice, kind: "estimate", from: "manual"};
+    // Japanese and Korean cards: your own ¥/₩ price if you entered one, else BIGWEB's or Bunjang's, in US$.
+    const g = isOcg(r) ? ocgRegion(r.number) : null;
+    if (g) {
+      const cur = g.region === "JP" ? "JPY" : "KRW", mine = g.region === "JP" ? r.jp : r.kr;
+      const u = mine != null ? toUSD(mine, cur) : null;
+      if (u != null) return {unit: u, kind: "estimate", from: "local", local: mine, cur};
+      const op = ocgPrice(r);
+      if (op && op.usd != null) return {unit: op.usd, kind: "market", from: "ocg", local: op.local, cur: op.cur, src: op.src, note: op.note, at: op.at, url: op.url};
+    }
     return {unit: null};
   }
   // TCGplayer's market price reflects Near Mint copies; played copies are valued at a share of it.
@@ -1369,10 +1408,13 @@
     if (r.grade && r.grade.value != null) return {unit: r.grade.value, kind: "graded", from: "graded", raw: r.grade.value, factor: 1};
     const pi = priceInfo(r);
     if (pi.unit == null) return pi;
-    const f = pi.from === "tcgplayer" ? conditionFactor(r) : 1;
+    const f = pi.from === "tcgplayer" || pi.from === "ocg" ? conditionFactor(r) : 1;
     return Object.assign({}, pi, {raw: pi.unit, factor: f, unit: f === 1 ? pi.unit : round2(pi.unit * f)});
   }
-  function unitValue(r) { return settings.basis === "paid" ? (r.paid != null ? r.paid : null) : marketValue(r).unit; }
+  function unitValue(r) {
+    if (settings.gradedView) { const gv = gradedValue(r); return gv ? gv.unit : null; }
+    return settings.basis === "paid" ? (r.paid != null ? r.paid : null) : marketValue(r).unit;
+  }
   // How this copy's value moved since an earlier TCGplayer price day (ref: m1, m7 or m30).
   function changeFor(r, ref) {
     if (!catalog || !r.productId || (r.grade && r.grade.value != null)) return null;
@@ -1395,10 +1437,12 @@
     }
     return {diff: now - then, pct: then > 0 ? (now - then) / then : null, covered, movers};
   }
-  function totals(list) {
+  // valueOf: how one copy is valued (what the collection shows, unless told otherwise).
+  function totals(list, valueOf) {
+    valueOf = valueOf || unitValue;
     let value = 0, cards = 0, unpriced = 0, paid = 0, paidMarket = 0, paidCards = 0, jp = 0, kr = 0;
     for (const r of list) {
-      const u = unitValue(r);
+      const u = valueOf(r);
       cards += r.qty;
       if (u == null) unpriced += r.qty; else value += u * r.qty;
       if (r.paid != null) {
@@ -1477,7 +1521,7 @@
     }
     return pts.sort((a, b) => (a.d < b.d ? -1 : a.d > b.d ? 1 : 0));
   }
-  const imageFor = (r, size) => safeImg(r.customImage) || (r.productId ? tcgImg(r.productId, size) : "");
+  const imageFor = (r, size) => safeImg(r.customImage) || (r.productId ? tcgImg(r.productId, size) : ocgImage(r));
   function snapFromCatalog(product, edition) {
     const sub = catalogPrice(product, edition);
     return sub ? {market: sub.market, low: sub.low, date: catalog && catalog.generated ? catalog.generated.toISOString() : new Date().toISOString()} : null;
@@ -1520,7 +1564,7 @@
   // keeping your 3 most valuable copies. Returns record id -> number of extra copies.
   function extrasMap() {
     const groups = new Map();
-    for (const r of collection) if (!r.grade) pushMap(groups, lookupName(r.name).toLowerCase(), r);
+    for (const r of collection) if (!r.grade && !r.sealed) pushMap(groups, lookupName(r.name).toLowerCase(), r);
     const extra = new Map();
     for (const list of groups.values()) {
       if (list.reduce((s, r) => s + r.qty, 0) <= 3) continue;
@@ -1543,8 +1587,10 @@
     const show = r => !filters.show ||
       (filters.show === "extras" && extras.has(r.id)) ||
       (filters.show === "graded" && !!r.grade) ||
-      (filters.show === "played" && !r.grade && r.condition !== "Near Mint") ||
-      (filters.show === "manual" && !r.productId);
+      (filters.show === "played" && !r.grade && !r.sealed && r.condition !== "Near Mint") ||
+      (filters.show === "manual" && !r.productId) ||
+      (filters.show === "sealed" && r.sealed) ||
+      (filters.show === "cards" && !r.sealed);
     const list = collection.filter(r =>
       (!filters.set || r.setName === filters.set) &&
       (!filters.rarity || r.rarity === filters.rarity) &&
@@ -1565,7 +1611,7 @@
     let key, compare;
     switch (field) {
       case "price": key = r => unitValue(r); break;
-      case "total": key = r => { const u = unitValue(r); return u == null ? null : u * r.qty; }; break;
+      case "total": key = r => { const u = unitValue(r); return u == null ? null : u * (settings.gradedView && !r.grade ? 1 : r.qty); }; break;
       case "name": key = r => r.name || null; compare = byStr; break;
       case "set": key = r => r.setName || null; compare = byStr; break;
       case "number": key = r => r.number || null; compare = byStr; break;
@@ -1593,6 +1639,8 @@
   }
 
   function render() {
+    // (a redraw while you're typing a deck list, say when prices arrive in the background, keeps what's in the boxes)
+    if (settings.tab === "decks" && deckDraft && $("deckText")) { deckDraft.text = $("deckText").value; deckDraft.name = $("deckName").value.trim(); }
     renderDataStatus();
     renderBackupBanner();
     renderWantBanner();
@@ -1708,6 +1756,9 @@
   }
 
   function renderSummary() {
+    document.querySelectorAll("#valueMode button").forEach(b => b.setAttribute("aria-pressed", String((b.dataset.mode === "graded") === !!settings.gradedView)));
+    $("basis").disabled = !!settings.gradedView;
+    if (settings.gradedView) { renderGradedSummary(); return; }
     const t = totals(collection);
     const basisPaid = settings.basis === "paid";
     const adjusted = !basisPaid && settings.condAdjust && collection.some(r => marketValue(r).factor < 1);
@@ -1728,7 +1779,7 @@
     $("valueSub").textContent = parts.join(". ");
 
     let facts = '<div class="fact"><b>' + t.cards.toLocaleString() + '</b><span>cards</span></div>' +
-      '<div class="fact"><b>' + collection.length.toLocaleString() + '</b><span>different printings</span></div>';
+      '<div class="fact"><b>' + collection.length.toLocaleString() + '</b><span>different ' + (collection.some(r => r.sealed) ? "items" : "printings") + "</span></div>";
     if (!basisPaid && catalog && catalog.refDays.m1) {
       const ch = periodChange("m1");
       if (ch.covered) facts += '<div class="fact"><b>' + changeHTML(ch.diff, ch.pct, true) + '</b><span>since ' +
@@ -1739,6 +1790,11 @@
       facts += '<div class="fact"><b>' + usd(t.paid) + '</b><span>paid (for ' + plural(t.paidCards, "card") + ')</span></div>' +
         '<div class="fact"><b>' + changeHTML(gain, null, true) + '</b><span>gain vs. market</span></div>';
     }
+    const sealedList = collection.filter(r => r.sealed);
+    if (sealedList.length) {
+      const st = totals(sealedList);
+      facts += '<div class="fact"><b>' + esc(usd(st.value) || "$0.00") + '</b><span>in sealed products (' + st.cards.toLocaleString() + ")</span></div>";
+    }
     if (t.jp) facts += '<div class="fact"><b>' + fmtJPY.format(t.jp) + '</b><span>Japan prices</span></div>';
     if (t.kr) facts += '<div class="fact"><b>' + fmtKRW.format(t.kr) + '</b><span>Korea prices</span></div>';
     $("facts").innerHTML = facts;
@@ -1747,10 +1803,36 @@
       .sort((a, b) => unitValue(b) - unitValue(a)).slice(0, 5);
     $("topCards").innerHTML = top.length ? '<div class="top-cards-label">Most valuable</div><div class="top-cards-row">' +
       top.map(r => '<button type="button" class="mini" data-open="' + esc(r.id) + '" title="' + esc(r.name) + '">' +
-        '<span class="sleeve">' + imgTag(imageFor(r, "200w"), r.name) + "</span><em>" + esc(usd(unitValue(r))) + "</em></button>").join("") +
+        '<span class="sleeve' + (r.sealed ? " boxed" : "") + '">' + imgTag(imageFor(r, "200w"), r.name) + "</span><em>" + esc(usd(unitValue(r))) + "</em></button>").join("") +
       "</div>" : "";
   }
 
+  // The PSA 10 view of the summary: one gem-mint copy of each printing.
+  function renderGradedSummary() {
+    const g = gradedTotals(collection);
+    $("valueLabel").textContent = "PSA 10 value (one copy of each printing)";
+    $("totalValue").textContent = usd(g.value) || "$0.00";
+    const parts = [];
+    if (filtersActive() && settings.tab === "collection") { const v = gradedTotals(visibleRecords()); parts.push("Shown now: " + usd(v.value) + " for " + plural(v.copies, "copy", "copies")); }
+    if (g.est) parts.push(plural(g.est, "card") + " estimated from the raw price" + (pcOn() ? "" : " (add a PriceCharting key in Settings for real graded prices)"));
+    if (g.unpriced) parts.push(plural(g.unpriced, "card") + " without a price counted as $0");
+    $("valueSub").textContent = parts.join(". ");
+    const graded = collection.filter(r => r.grade);
+    const gt = graded.reduce((acc, r) => { const gv = gradedValue(r); if (gv) acc.v += gv.unit * r.qty; acc.n += r.qty; return acc; }, {v: 0, n: 0});
+    const cur = totals(collection, r => marketValue(r).unit);
+    let facts = '<div class="fact"><b>' + g.copies.toLocaleString() + '</b><span>copies counted</span></div>' +
+      '<div class="fact"><b>' + esc(usd(cur.value) || "$0.00") + '</b><span>current value (all copies)</span></div>';
+    if (gt.n) facts += '<div class="fact"><b>' + esc(usd(gt.v)) + '</b><span>your ' + plural(gt.n, "graded card") + "</span></div>";
+    if (pcOn()) {
+      const known = collection.filter(r => !r.sealed && pcKnown(r)).length, total = collection.filter(r => !r.sealed).length;
+      facts += '<div class="fact"><b>' + known + " of " + total + '</b><span>priced by PriceCharting' + (pc.refreshing ? " (checking…)" : "") + "</span></div>";
+    }
+    $("facts").innerHTML = facts;
+    const top = collection.filter(r => unitValue(r) != null).sort((a, b) => unitValue(b) - unitValue(a)).slice(0, 5);
+    $("topCards").innerHTML = top.length ? '<div class="top-cards-label">Most valuable as PSA 10</div><div class="top-cards-row">' +
+      top.map(r => '<button type="button" class="mini" data-open="' + esc(r.id) + '" title="' + esc(r.name) + '">' +
+        '<span class="sleeve">' + imgTag(imageFor(r, "200w"), r.name) + "</span><em>" + esc(usd(unitValue(r))) + "</em></button>").join("") + "</div>" : "";
+  }
   function renderFilterOptions() {
     const distinct = key => Array.from(new Set(collection.map(r => r[key]).filter(Boolean)))
       .sort((a, b) => a.localeCompare(b, undefined, {numeric: true}));
@@ -1774,6 +1856,7 @@
     $("locationList").innerHTML = locs.map(l => '<option value="' + esc(l) + '"></option>').join("");
     $("fShow").value = filters.show;
     $("copyTrade").hidden = filters.show !== "extras";
+    $("shareTrade").hidden = filters.show !== "extras";
     $("sortField").innerHTML = Object.keys(SORT_FIELDS).filter(k => k !== "location" || locs.length || settings.sortField === "location")
       .map(k => '<option value="' + k + '"' + (k === settings.sortField ? " selected" : "") + ">" + esc(SORT_FIELDS[k].label) + "</option>").join("");
     updateSortDirButton();
@@ -1832,6 +1915,12 @@
   const filtersActiveExceptShow = () => !!(filters.q.trim() || filters.set || filters.rarity || filters.edition || filters.language || filters.location);
   function priceHTML(r, extra) {
     const u = unitValue(r);
+    if (settings.gradedView) {
+      if (u == null) return '<span class="tile-price none">' + (r.sealed ? "Sealed" : "No price yet") + "</span>";
+      const gv = gradedValue(r);
+      return '<span class="tile-price">' + esc(usd(u)) + '<span class="gv">' + esc(gv.grade ? gv.grade : "PSA 10") + (gradedShort(gv) ? ", " + gradedShort(gv) : "") + "</span>" +
+        (r.grade && r.qty > 1 ? "<small>" + esc(usd(u * r.qty)) + " for " + r.qty + "</small>" : "") + "</span>";
+    }
     if (u == null) return '<span class="tile-price none">' + (settings.basis === "paid" ? "No price paid" : "No price yet") + "</span>";
     const note = extra ? "<small>" + esc(usd(u * extra)) + " extra</small>" : r.qty > 1 ? "<small>" + esc(usd(u * r.qty)) + " for " + r.qty + "</small>" : "";
     return '<span class="tile-price">' + esc(usd(u)) + note + "</span>";
@@ -1840,21 +1929,24 @@
     const sel = selected.has(r.id);
     const extra = extras ? extras.get(r.id) || 0 : 0;
     return '<article class="tile' + (sel ? " is-selected" : "") + '">' +
-      '<div class="tile-art"><span class="sleeve" data-open="' + esc(r.id) + '">' + imgTag(imageFor(r, "in_400x400"), r.name) + "</span>" +
+      '<div class="tile-art"><span class="sleeve' + (r.sealed ? " boxed" : "") + '" data-open="' + esc(r.id) + '">' + imgTag(imageFor(r, "in_400x400"), r.name) + "</span>" +
       '<label class="tile-check"><input type="checkbox" class="check" data-select="' + esc(r.id) + '"' + (sel ? " checked" : "") +
       ' aria-label="Select ' + esc(r.name) + '"></label>' +
       (r.qty > 1 ? '<span class="tile-qty" title="' + r.qty + ' copies">&times;' + r.qty + "</span>" : "") + "</div>" +
       '<button type="button" class="tile-open" data-open="' + esc(r.id) + '"' + (r.location ? ' title="Location: ' + esc(r.location) + '"' : "") + ">" +
       '<span class="tile-name">' + esc(r.name) + "</span>" +
-      '<span class="tile-meta">' + esc(r.number || "No card number") + "</span>" +
-      '<span class="tile-meta" title="' + esc(r.rarity) + '">' + esc(r.rarity || " ") + "</span></button>" +
-      '<div class="tile-foot"><span class="badges">' + editionBadge(r.edition) + gradeBadge(r.grade) +
+      (r.sealed ? '<span class="tile-meta" title="' + esc(r.setName) + '">' + esc(r.setName || "Sealed product") + "</span>" +
+        '<span class="tile-meta">Sealed product</span></button>'
+      : '<span class="tile-meta">' + esc(r.number || "No card number") + "</span>" +
+        '<span class="tile-meta" title="' + esc(r.rarity) + '">' + esc(r.rarity || " ") + "</span></button>") +
+      '<div class="tile-foot"><span class="badges">' + (r.sealed ? '<span class="ed ed-sealed">Sealed</span>' : editionBadge(r.edition)) + gradeBadge(r.grade) +
       (extra ? '<span class="ed ed-extra">' + extra + " extra</span>" : "") + "</span>" + priceHTML(r, extra) + "</div></article>";
   }
+  const settingsGradedNote = r => { if (!settings.gradedView) return ""; const gv = gradedValue(r); return gv ? '<span class="cell-gv">' + esc(gv.grade || "PSA 10") + (gradedShort(gv) ? ", " + gradedShort(gv) : "") + "</span>" : ""; };
   function listHTML(list, extras) {
     const showLoc = collection.some(r => r.location);
     const cols = [["name", "Card"], ["set", "Set"], ["rarity", "Rarity"], ["edition", "Printing"], ["condition", "Condition"],
-      ["language", "Language"]].concat(showLoc ? [["location", "Location"]] : [], [["qty", "Qty", true], ["price", "Price", true], ["total", "Total", true]]);
+      ["language", "Language"]].concat(showLoc ? [["location", "Location"]] : [], [["qty", "Qty", true], ["price", settings.gradedView ? "Graded" : "Price", true], ["total", settings.gradedView ? "Counted" : "Total", true]]);
     return '<div class="table-wrap"><table class="table"><thead><tr>' +
       '<th class="c-check"><input type="checkbox" class="check" id="selectAllShown" aria-label="Select all shown"></th>' +
       '<th class="c-thumb"><span class="sr">Image</span></th>' +
@@ -1871,14 +1963,14 @@
         return '<tr data-row="' + esc(r.id) + '"' + (sel ? ' class="is-selected"' : "") + ">" +
           '<td class="c-check"><input type="checkbox" class="check" data-select="' + esc(r.id) + '"' + (sel ? " checked" : "") +
           ' aria-label="Select ' + esc(r.name) + '"></td>' +
-          '<td class="c-thumb"><span class="sleeve">' + imgTag(imageFor(r, "200w"), r.name) + "</span></td>" +
+          '<td class="c-thumb"><span class="sleeve' + (r.sealed ? " boxed" : "") + '">' + imgTag(imageFor(r, "200w"), r.name) + "</span></td>" +
           '<td><button type="button" class="cell-name" data-open="' + esc(r.id) + '">' + esc(r.name) + '</button><span class="cell-sub">' + esc(r.number) + "</span></td>" +
           "<td>" + esc(r.setName) + "</td><td>" + esc(r.rarity) + "</td><td>" + esc(r.edition) + "</td><td>" +
           (r.grade ? esc(gradeLabel(r.grade)) + '<span class="cell-sub">graded</span>' : esc(r.condition)) +
           "</td><td>" + esc(r.language) + "</td>" + (showLoc ? "<td>" + esc(r.location) + "</td>" : "") +
           '<td class="num">' + r.qty + (extra ? '<span class="cell-sub">' + extra + " extra</span>" : "") +
-          '</td><td class="num">' + esc(u == null ? "" : usd(u)) +
-          '</td><td class="num">' + esc(u == null ? "" : usd(u * r.qty)) + "</td></tr>";
+          '</td><td class="num">' + esc(u == null ? "" : usd(u)) + (settingsGradedNote(r)) +
+          '</td><td class="num">' + esc(u == null ? "" : usd(u * (settings.gradedView && !r.grade ? 1 : r.qty))) + "</td></tr>";
       }).join("") + "</tbody></table></div>";
   }
 
@@ -1963,13 +2055,15 @@
       '<div class="lookup-alt"><button type="button" class="link-btn" id="goName">Search by name instead</button>' +
       (opts.replaceId || opts.want ? "" : '<button type="button" class="link-btn" id="goBatch">Add several cards at once</button>' +
         '<button type="button" class="link-btn" id="goScan">Scan with camera</button>' +
-        '<button type="button" class="link-btn" id="goManual">Add manually (Japanese, Korean, or not on TCGplayer)</button>') + "</div>" +
+        '<button type="button" class="link-btn" id="goSealed">Add a sealed product (box, pack, tin, deck…)</button>' +
+        '<button type="button" class="link-btn" id="goManual">Add manually (not on TCGplayer)</button>') + "</div>" +
       '<div id="lookupOut"></div>');
     $("lookupForm").addEventListener("submit", e => { e.preventDefault(); runNumberLookup($("lookupNumber").value); });
     $("goName").addEventListener("click", () => openNameSearch(opts.replaceId, opts.want));
     if ($("goManual")) $("goManual").addEventListener("click", () => openManual({}));
     if ($("goScan")) $("goScan").addEventListener("click", () => openScanner());
     if ($("goBatch")) $("goBatch").addEventListener("click", () => openBatch());
+    if ($("goSealed")) $("goSealed").addEventListener("click", () => openSealedSearch());
     if (opts.number) runNumberLookup(opts.number);
   }
 
@@ -1982,6 +2076,8 @@
     const out = $("lookupOut");
     const q = normNumber(value);
     if (!q) { out.innerHTML = '<div class="notice">Type the card number first, for example MAMO-EN040.</div>'; return; }
+    const ocgM = q.match(/^([A-Z0-9]+)-(JP|KR)([A-Z]?\d+)$/);
+    if (!catalog && ocgM && !(drawerCtx && (drawerCtx.want || drawerCtx.replaceId))) { showOcgLookup(out, q, ocgM); return; }
     if (!catalog) { out.innerHTML = noCatalogNotice(); return; }
     const found = findByNumber(q);
     if (found.length) {
@@ -1993,6 +2089,7 @@
       return;
     }
     const region = q.match(/^([A-Z0-9]+)-(JP|JA|KR|AE|TC|SC)([A-Z]?\d+)$/);
+    if (region && (region[2] === "JP" || region[2] === "KR") && !(drawerCtx && (drawerCtx.want || drawerCtx.replaceId))) { showOcgLookup(out, q, region); return; }
     if (region && region[2] !== "AE" && drawerCtx && drawerCtx.want) {
       out.innerHTML = '<div class="notice"><strong>TCGplayer only sells English cards, so ' + esc(q) + " isn't in its catalog.</strong> The want list tracks TCGplayer prices, so look up the English printing instead: " +
         esc(region[1] + "-EN" + region[3]) + ".</div>";
@@ -2246,6 +2343,84 @@
     });
   }
 
+  /* ----- sealed products ----- */
+  // Booster boxes and packs, tins, structure decks... anything TCGplayer lists in a set without a card number.
+  function searchSealed(q, limit) {
+    const words = String(q || "").toLowerCase().split(/\s+/).filter(Boolean);
+    if (!catalog || !words.length) return {items: [], more: false, total: 0};
+    const hits = catalog.products.filter(p => {
+      if (!p.sealed) return false;
+      const hay = p.nameLower + " " + p.group.name.toLowerCase() + " " + String(p.group.abbr || "").toLowerCase();
+      return words.every(w => hay.includes(w));
+    });
+    hits.sort((a, b) => (b.group.published || "").localeCompare(a.group.published || "") || a.name.localeCompare(b.name));
+    return {items: hits.slice(0, limit), more: hits.length > limit, total: hits.length};
+  }
+  function sealedResultsHTML(list) {
+    return '<div class="results">' + list.map((p, i) => {
+      const v = firstPrice(catalogPrice(p, ""));
+      return '<button type="button" class="result" data-idx="' + i + '">' +
+        '<span class="sleeve boxed">' + imgTag(tcgImg(p.id, "in_400x400"), p.name) + "</span>" +
+        '<span class="result-name">' + esc(p.name) + "</span>" +
+        '<span class="result-meta">' + esc(p.group.name) + "</span>" +
+        '<span class="result-price">' + (v == null ? '<span class="small">No recent sales</span>' : esc(usd(v))) + "</span></button>";
+    }).join("") + "</div>";
+  }
+  function openSealedSearch(q) {
+    drawerCtx = {mode: "sealed-search"};
+    openDrawer("Add a sealed product",
+      '<label class="field"><span>Product name or set</span><input class="input" id="sealedQuery" autofocus autocomplete="off" placeholder="e.g. Rarity Collection booster box" value="' + esc(q || "") + '"></label>' +
+      '<p class="hint">Booster boxes and packs, tins, structure decks, collections: anything TCGplayer sells sealed. Type a few words of the name or the set.</p>' +
+      '<div class="lookup-alt"><button type="button" class="link-btn" id="goCards">Add a card instead</button></div><div id="sealedOut"></div>');
+    $("goCards").addEventListener("click", () => openAdd());
+    let timer = null;
+    const run = () => {
+      const out = $("sealedOut");
+      if (!out) return;
+      if (!catalog) { out.innerHTML = noCatalogNotice(); return; }
+      const text = $("sealedQuery").value;
+      if (text.trim().length < 2) { out.innerHTML = ""; return; }
+      const res = searchSealed(text, 60);
+      if (!res.items.length) {
+        out.innerHTML = '<div class="notice">No sealed product on TCGplayer matches "' + esc(text.trim()) + '". Try fewer words, or the set\'s name.' +
+          (catalog.products.some(p => p.sealed) ? "" : " (The price data doesn't include sealed products yet: they arrive with the next daily update.)") + "</div>";
+        return;
+      }
+      out.innerHTML = '<p class="results-head">' + (res.more ? "First 60 of " + res.total.toLocaleString() + " products. Add more words to narrow it down." : plural(res.items.length, "product") + " found.") + "</p>" + sealedResultsHTML(res.items);
+      out.querySelectorAll(".result").forEach(btn => btn.addEventListener("click", () => openSealedForm(res.items[+btn.dataset.idx], $("sealedQuery").value)));
+    };
+    $("sealedQuery").addEventListener("input", () => { clearTimeout(timer); timer = setTimeout(run, 220); });
+    if (q) run();
+  }
+  function openSealedForm(p, query) {
+    drawerCtx = {mode: "sealed", product: p};
+    const v = firstPrice(catalogPrice(p, ""));
+    openDrawer("Add a sealed product",
+      '<div class="picked"><span class="sleeve boxed">' + imgTag(tcgImg(p.id, "in_400x400"), p.name, true) + "</span><div>" +
+      "<h3>" + esc(p.name) + "</h3><p>" + esc(p.group.name) + "</p>" +
+      '<p style="margin-top:8px"><button type="button" class="link-btn" id="backToSearch">Pick a different product</button></p></div></div>' +
+      '<form id="sealedForm" class="stack">' +
+      '<div class="price-line">' + (v == null ? '<span class="small">TCGplayer has no recent sales for this product.</span>'
+        : "TCGplayer market price: <b>" + esc(usd(v)) + "</b>" + (catalog && catalog.generated ? ' <span class="small">(' + esc(fmtDate(catalog.generated)) + ")</span>" : "")) + "</div>" +
+      '<div class="grid-2"><label class="field"><span>Quantity</span><input class="input" id="sQtyS" type="number" min="1" step="1" value="1"></label>' +
+      '<label class="field"><span>Price you paid, each (optional)</span><input class="input" id="sPaidS" type="number" min="0" step="0.01" placeholder="$"></label></div>' +
+      '<label class="field"><span>Notes (optional)</span><input class="input" id="sNotesS"></label>' +
+      locationFieldHTML("sLocS", "") +
+      '<div class="form-actions"><button class="btn btn-primary" type="submit">Add to collection</button></div></form>');
+    $("backToSearch").addEventListener("click", () => openSealedSearch(query));
+    $("sealedForm").addEventListener("submit", e => {
+      e.preventDefault();
+      const rec = upgradeRecord({id: newId(), productId: p.id, sealed: true, name: p.name, productName: p.name, setName: p.group.name,
+        number: "", rarity: "", edition: "", condition: "Sealed", language: "English", qty: posInt($("sQtyS").value) || 1,
+        paid: num($("sPaidS").value), notes: $("sNotesS").value.trim(), location: $("sLocS").value, snap: snapFromCatalog(p, ""),
+        added: new Date().toISOString()});
+      const res = addOrMerge(rec);
+      save(); render(); closeDrawer();
+      toast(res.merged ? "Added. You now have " + res.record.qty + " of " + rec.name + "." : "Added " + rec.name + ".",
+        {action: "Add another", onAction: () => openSealedSearch()});
+    });
+  }
+
   /* ----- add manually ----- */
   function manualLinks(name, number) {
     const q = encodeURIComponent((name || "").trim());
@@ -2325,6 +2500,57 @@
     return '<p class="other-copies">You also have ' + others.map(x => '<button type="button" class="link-btn" data-other="' + esc(x.id) + '">' +
       esc(x.qty + " " + (x.location ? "in " + x.location : "with no location")) + "</button>" + (diff(x) ? " (" + esc(diff(x)) + ")" : "")).join(", ") + ".</p>";
   }
+  // A Japanese or Korean card's price: from BIGWEB or Bunjang, or yours.
+  function ocgPriceHTML(r) {
+    const pi = priceInfo(r), op = ocgPrice(r), g = ocgRegion(r.number);
+    const fx = fxNow();
+    let html = "";
+    if (op && !op.none) {
+      html += "<p>" + esc(op.src) + ": <b>" + esc(fmtLocal(op.local, op.cur)) + "</b>" + (op.usd != null ? " ≈ <b>" + esc(usd(op.usd)) + "</b>" : "") +
+        ' <span class="small">(' + esc(r.rarity || "") + (r.rarity ? ", " : "") + esc(op.note) + ")</span></p>";
+    } else if (op && op.none) {
+      html += '<p class="small">' + esc(op.src) + " has no price for " + esc(r.rarity || "this card") + (op.note ? " (" + esc(op.note) + ")" : "") + ".</p>";
+    } else {
+      html += '<p class="small">Checking ' + (g.region === "JP" ? "BIGWEB" : "Bunjang") + "…</p>";
+    }
+    if (pi.from === "manual") html += '<p class="price-yours">Your estimate, <b>' + esc(usd(pi.unit)) + '</b>, is used. <span class="small">Clear "Value per card" below to use the price above.</span></p>';
+    else if (pi.from === "local") html += '<p class="price-yours">Your price, <b>' + esc(fmtLocal(pi.local, pi.cur)) + " ≈ " + esc(usd(pi.unit)) +
+      '</b>, is used. <span class="small">Clear the ' + (pi.cur === "JPY" ? "Japan" : "Korea") + " price below to use the one above.</span></p>";
+    else if (pi.from === "ocg" && marketValue(r).factor != null && marketValue(r).factor !== 1) html += '<p class="price-yours">Your copy: <b>' + esc(usd(marketValue(r).unit)) +
+      '</b> <span class="small">(' + esc(r.condition) + " at " + Math.round(marketValue(r).factor * 100) + "% of that price, see Settings)</span></p>";
+    const when = op && op.at ? fmtDateTime(new Date(op.at)) : "";
+    html += '<p class="small">' + (g.region === "JP" ? '<a href="https://bigweb.co.jp/" target="_blank" rel="noopener">BIGWEB</a> is a large Japanese card shop; this is its selling price.'
+      : '<a href="' + esc("https://m.bunjang.co.kr/search/products?q=" + encodeURIComponent(g.code)) + '" target="_blank" rel="noopener">Bunjang</a> is a Korean marketplace; this is the middle of what sellers ask, so treat it as a rough guide.') +
+      (when ? " Checked " + esc(when) + "." : "") + (fx ? " US$ at " + esc(fx.JPY.toFixed(1)) + " yen and " + esc(Math.round(fx.KRW).toLocaleString()) + " won to the dollar." : "") +
+      ' <button type="button" class="link-btn" id="ocgCheck">Check again now</button></p>';
+    return html;
+  }
+  // What this card is worth graded: PriceCharting's prices by grade, or the estimate, plus your own graded copy.
+  function gradedBoxHTML(r) {
+    const ten = psa10Value(r), p = pcKnown(r);
+    let html = "";
+    if (p) {
+      const rows = [["10", "PSA 10"], ["9.5", "Grade 9.5"], ["9", "Grade 9"], ["8", "Grade 8"], ["7", "Grade 7"], ["bgs10", "BGS 10"], ["cgc10", "CGC 10"], ["sgc10", "SGC 10"]].filter(([k]) => p[k] != null);
+      html += '<table class="price-table"><thead><tr><th>Grade</th><th class="num">Sold for</th></tr></thead><tbody>' +
+        '<tr><td>Ungraded</td><td class="num">' + esc(p.raw == null ? "" : usd(p.raw)) + "</td></tr>" +
+        rows.map(([k, label]) => '<tr' + (k === "10" ? ' class="mine"' : "") + "><td>" + label + '</td><td class="num">' + esc(usd(p[k])) + "</td></tr>").join("") + "</tbody></table>" +
+        '<p class="small">PriceCharting (eBay sales' + (p.vol ? ", about " + plural(Math.round(p.vol), "sale") + " a year" : "") + '): <a href="' + esc("https://www.pricecharting.com/game/" + encodeURIComponent(p.id)) + '" target="_blank" rel="noopener">' + esc(p.name) + "</a>.</p>";
+    } else if (ten && ten.from === "estimate") {
+      html += "<p>PSA 10, rough estimate: <b>" + esc(usd(ten.unit)) + '</b> <span class="small">(raw ' + esc(usd(ten.raw)) + " × " + esc(num(settings.psa10Mult) == null ? 4 : settings.psa10Mult) + " + " +
+        esc(usd(num(settings.psa10Floor) == null ? 25 : settings.psa10Floor)) + ", see Settings)</span></p>" +
+        '<p class="small">' + (pcOn() ? (pcBad() ? "PriceCharting didn't accept your key (Settings)." : "PriceCharting has no match for this card yet.") : "For real graded prices, add a PriceCharting key in Settings.") + "</p>";
+    } else if (!ten) {
+      html += '<p class="small">No price to estimate from yet.</p>';
+    }
+    if (ten && ten.from === "yours") html += '<p class="price-yours">Your PSA 10 value: <b>' + esc(usd(ten.unit)) + "</b></p>";
+    if (r.grade) {
+      const gv = gradedValue(r);
+      if (gv) html += '<p class="price-yours">Your ' + esc(gradeLabel(r.grade)) + " copy: <b>" + esc(usd(gv.unit)) + "</b> " +
+        '<span class="small">(' + (gv.from === "yours" ? "the graded value you entered" : gv.from === "pricecharting" ? "PriceCharting, this grade" :
+          gv.share != null ? Math.round(gv.share * 100) + "% of the PSA 10 value, see Settings" : "estimate") + ")</span></p>";
+    }
+    return html;
+  }
   function openDetails(id) {
     let r = collection.find(x => x.id === id);
     if (!r) return;
@@ -2336,13 +2562,23 @@
     const q = encodeURIComponent((r.number + " " + lookupName(r.name)).trim());
     let links = "";
     if (r.productId) links += '<a target="_blank" rel="noopener" href="' + esc(tcgPage(r.productId)) + '">View on TCGplayer</a>';
-    links += '<a target="_blank" rel="noopener" href="https://www.ebay.com/sch/i.html?_nkw=' + q + (r.edition === "1st Edition" ? "+1st" : "") + '">eBay</a>' +
+    if (r.sealed) links += '<a target="_blank" rel="noopener" href="https://www.ebay.com/sch/i.html?_nkw=' + encodeURIComponent(r.name) + '">eBay</a>';
+    else links += '<a target="_blank" rel="noopener" href="https://www.ebay.com/sch/i.html?_nkw=' + q + (r.edition === "1st Edition" ? "+1st" : "") + '">eBay</a>' +
       '<a target="_blank" rel="noopener" href="https://www.cardmarket.com/en/YuGiOh/Products/Search?searchString=' + encodeURIComponent(lookupName(r.name)) + '">Cardmarket</a>' +
       '<a target="_blank" rel="noopener" href="https://auctions.yahoo.co.jp/search/search?p=' + encodeURIComponent(lookupName(r.name)) + '">Yahoo! Auctions JP</a>' +
       '<a target="_blank" rel="noopener" href="https://search.shopping.naver.com/search/all?query=' + encodeURIComponent(lookupName(r.name)) + '">Naver (Korea)</a>';
 
     let priceSection = '<div class="section"><h3>TCGplayer price</h3>';
-    if (product && Object.keys(product.prices).length) {
+    if (r.sealed && product && Object.keys(product.prices).length) {
+      const sub = catalogPrice(product, "");
+      priceSection += sub ? '<table class="price-table"><thead><tr><th>Sealed</th><th class="num">Market</th><th class="num">Lowest listing</th></tr></thead><tbody>' +
+        '<tr class="mine"><td>Yours</td><td class="num">' + esc(sub.market == null ? "no sales" : usd(sub.market)) + '</td><td class="num">' + esc(sub.low == null ? "" : usd(sub.low)) +
+        "</td></tr></tbody></table>" : "";
+      const changes = sub && sub.market != null ? PERIODS.filter(([k]) => sub[k] != null).map(([k]) =>
+        "<span>" + esc(periodLabel(k)) + ": " + changeHTML(sub.market - sub[k], sub[k] > 0 ? (sub.market - sub[k]) / sub[k] : null, true) + "</span>") : [];
+      if (changes.length) priceSection += '<div class="changes" aria-label="Market price change">' + changes.join("") + "</div>";
+      priceSection += '<p class="small">From TCGplayer, ' + esc(fmtDate(catalog.generated)) + ".</p>";
+    } else if (product && Object.keys(product.prices).length) {
       priceSection += '<table class="price-table"><thead><tr><th>Printing</th><th class="num">Market</th><th class="num">Lowest listing</th></tr></thead><tbody>' +
         printingsFor(product).map(k => {
           const s = product.prices[k];
@@ -2355,6 +2591,8 @@
         "<span>" + esc(periodLabel(k)) + ": " + changeHTML(sub.market - sub[k], sub[k] > 0 ? (sub.market - sub[k]) / sub[k] : null, true) + "</span>") : [];
       if (changes.length) priceSection += '<div class="changes" aria-label="Market price change for your printing">' + changes.join("") + "</div>";
       priceSection += '<p class="small">From TCGplayer, ' + esc(fmtDate(catalog.generated)) + ". Market price is what the card has recently sold for.</p>";
+    } else if (isOcg(r)) {
+      priceSection = '<div class="section"><h3>' + (ocgRegion(r.number).region === "JP" ? "Japanese price" : "Korean price") + '</h3><div id="ocgPrice">' + ocgPriceHTML(r) + "</div>";
     } else if (pi.from === "saved") {
       priceSection += "<p>" + esc(usd(pi.unit)) + ' <span class="small">from your CSV' + (pi.date ? ", " + esc(fmtDate(pi.date)) : "") + ".</span></p>" +
         (r.productId && !SITE ? '<p class="small">Run Update TCGplayer Data for today\'s price.</p>' : "");
@@ -2371,30 +2609,35 @@
       priceSection += '<p class="price-yours">Your copy: <b>' + esc(usd(mv.unit)) + '</b> <span class="small">(' + esc(r.condition) + " at " +
         Math.round(mv.factor * 100) + "% of market. You can change the percentages in Settings.)</span></p>";
     }
-    priceSection += '<div id="otherMarkets"><button type="button" class="btn btn-small" id="otherBtn">Check other markets</button></div></div>';
+    priceSection += (r.sealed ? "" : '<div id="otherMarkets"><button type="button" class="btn btn-small" id="otherBtn">Check other markets</button></div>') + "</div>" +
+      (r.sealed ? "" : '<div class="section"><h3>Graded value</h3><div id="gradedBox">' + gradedBoxHTML(r) + "</div></div>");
 
     const photoOpen = r.customImage || (!r.productId && !r.customImage);
-    openDrawer("Card details",
+    const cardOnly = html => r.sealed ? "" : html;
+    openDrawer(r.sealed ? "Sealed product" : "Card details",
       '<a href="' + esc(big || "#") + '" target="_blank" rel="noopener" class="detail-img" title="Open full-size image"' + (big ? "" : ' onclick="return false"') + ">" +
-      '<span class="sleeve">' + imgTag(big, r.name, true) + "</span></a>" +
+      '<span class="sleeve' + (r.sealed ? " boxed" : "") + '">' + imgTag(big, r.name, true) + "</span></a>" +
       '<h3 class="detail-title">' + esc(r.name) + "</h3>" +
-      '<p class="detail-sub">' + esc(r.setName || "Set unknown") + "<br>" + esc(r.number || "No card number") + (r.rarity ? ", " + esc(r.rarity) : "") +
+      '<p class="detail-sub">' + esc(r.setName || "Set unknown") + "<br>" + (r.sealed ? "Sealed product" : esc(r.number || "No card number") + (r.rarity ? ", " + esc(r.rarity) : "")) +
       "<br>" + (r.location ? "Kept in " + esc(r.location) : "No location") + ' · <button type="button" class="link-btn" id="moveTop">Move</button></p>' + otherCopiesHTML(r) +
       '<div class="links">' + links + "</div>" + priceSection +
-      '<div class="section"><h3>Your copy</h3><form id="editForm" class="stack">' +
-      '<div class="grid-2"><label class="field"><span>Printing</span><select class="input" id="eEd">' +
+      '<div class="section"><h3>' + (r.sealed ? "Yours" : "Your copy") + '</h3><form id="editForm" class="stack">' +
+      cardOnly('<div class="grid-2"><label class="field"><span>Printing</span><select class="input" id="eEd">' +
       options((product ? printingsFor(product).filter(k => k !== "Normal") : []).concat(PRINTINGS), r.edition) + "</select></label>" +
-      '<label class="field"><span>Condition</span><select class="input" id="eCond">' + options(CONDITIONS, r.condition) + "</select></label></div>" +
-      '<div class="grid-2"><label class="field"><span>Language</span><select class="input" id="eLang">' + options(LANGUAGES, r.language) + "</select></label>" +
-      '<label class="field"><span>Quantity</span><input class="input" id="eQty" type="number" min="1" step="1" value="' + r.qty + '"></label></div>' +
-      '<div class="grid-2"><label class="field"><span>Rarity</span><select class="input" id="eRarity">' + options(allRarities(), r.rarity, "Unknown") + "</select></label>" +
+      '<label class="field"><span>Condition</span><select class="input" id="eCond">' + options(CONDITIONS, r.condition) + "</select></label></div>") +
+      '<div class="grid-2">' + cardOnly('<label class="field"><span>Language</span><select class="input" id="eLang">' + options(LANGUAGES, r.language) + "</select></label>") +
+      '<label class="field"><span>Quantity</span><input class="input" id="eQty" type="number" min="1" step="1" value="' + r.qty + '"></label>' +
+      (r.sealed ? '<label class="field"><span>Price you paid, each</span><input class="input" id="ePaid" type="number" min="0" step="0.01" value="' + (r.paid == null ? "" : r.paid) + '"></label>' : "") + "</div>" +
+      cardOnly('<div class="grid-2"><label class="field"><span>Rarity</span><select class="input" id="eRarity">' + options(allRarities(), r.rarity, "Unknown") + "</select></label>" +
       '<label class="field"><span>Price you paid, each</span><input class="input" id="ePaid" type="number" min="0" step="0.01" value="' + (r.paid == null ? "" : r.paid) + '"></label></div>' +
       '<div class="grid-2"><label class="field"><span>Japan price (¥)</span><input class="input" id="eJp" type="number" min="0" step="1" value="' + (r.jp == null ? "" : r.jp) + '"></label>' +
-      '<label class="field"><span>Korea price (₩)</span><input class="input" id="eKr" type="number" min="0" step="1" value="' + (r.kr == null ? "" : r.kr) + '"></label></div>' +
+      '<label class="field"><span>Korea price (₩)</span><input class="input" id="eKr" type="number" min="0" step="1" value="' + (r.kr == null ? "" : r.kr) + '"></label></div>') +
       (r.productId ? "" : '<label class="field"><span>Value per card in US$ (your estimate)</span><input class="input" id="eValue" type="number" min="0" step="0.01" value="' + (r.manualPrice == null ? "" : r.manualPrice) + '"></label>') +
+      cardOnly('<label class="field"><span>PSA 10 value, if you know it (US$; shown in the PSA 10 view)</span><input class="input" id="eG10" type="number" min="0" step="0.01" placeholder="' +
+        esc((psa10Value(r) && psa10Value(r).from !== "yours") ? "now " + usd(psa10Value(r).unit) + (psa10Value(r).from === "estimate" ? " (estimate)" : "") : "") + '" value="' + (r.g10 == null ? "" : r.g10) + '"></label>') +
       locationFieldHTML("eLoc", r.location) +
       '<label class="field"><span>Notes</span><textarea class="input" id="eNotes">' + esc(r.notes) + "</textarea></label>" +
-      gradeFieldsHTML("e", r.grade) +
+      cardOnly(gradeFieldsHTML("e", r.grade)) +
       '<details class="more"' + (photoOpen ? " open" : "") + "><summary>" + (r.productId ? "Use my own photo instead" : "Photo") + "</summary>" +
       '<label class="field" style="margin-top:10px"><span>Image link (leave empty to use ' + (r.productId ? "TCGplayer's photo" : "no image") + ")</span>" +
       '<input class="input" id="eImage" type="url" placeholder="https://" value="' + esc(r.customImage || "") + '"></label>' +
@@ -2406,10 +2649,32 @@
       '<button class="btn" type="button" id="soldBtn">Sold…</button>' +
       '<span class="spacer"></span><button class="btn btn-danger" type="button" id="deleteOne">Delete</button></div></form></div>');
 
-    $("otherBtn").addEventListener("click", () => loadOtherMarkets(r));
+    if ($("otherBtn")) $("otherBtn").addEventListener("click", () => loadOtherMarkets(r));
+    if (!r.sealed && pcOn() && !pcBad() && normNumber(r.number)) {
+      const h = pcCache()[pcKey(r)];
+      if (!h || Date.now() - h.t > PC_TTL) pcLookup(r).then(() => { const cur = collection.find(x => x.id === id); if (cur && drawerCtx && drawerCtx.id === id && $("gradedBox")) { $("gradedBox").innerHTML = gradedBoxHTML(cur); if (settings.gradedView) renderSoon(); } }).catch(() => {});
+    }
     if ($("changePrinting")) $("changePrinting").addEventListener("click", () => openAdd({number: r.number, replaceId: r.id}));
     if ($("eFind")) $("eFind").addEventListener("click", () => showYugiPicker($("eYugi"), r.number, r.name, $("eRarity").value, url => { $("eImage").value = url; }));
     $("deleteOne").addEventListener("click", () => deleteRecords([r.id]));
+    if (isOcg(r)) {
+      const g = ocgRegion(r.number);
+      const refresh = async fresh => {
+        const box = () => drawerCtx && drawerCtx.id === id ? $("ocgPrice") : null;
+        try {
+          await fxRates();
+          if (g.region === "JP") await bigwebFor(g.code, fresh); else await bunjangFor(g.code, fresh);
+          await ocgCard(g.code).catch(() => null);
+        } catch (e) { const cur0 = collection.find(x => x.id === id); if (cur0 && box()) { box().innerHTML = ocgPriceHTML(cur0) + '<p class="small">Couldn\'t check right now (it needs an internet connection).</p>'; wireOcgRefresh(); } return; }
+        const cur = collection.find(x => x.id === id);
+        if (cur && box()) { box().innerHTML = ocgPriceHTML(cur); wireOcgRefresh(); }
+        renderSoon();
+      };
+      const wireOcgRefresh = () => { const b = $("ocgCheck"); if (b) b.addEventListener("click", () => { b.disabled = true; b.textContent = "Checking…"; refresh(true); }); };
+      wireOcgRefresh();
+      const key = (g.region === "JP" ? "bw|" : "bj|") + g.code, hit = ocgCache()[key];
+      if (!hit || Date.now() - hit.t > OCG_TTL) refresh(false);
+    }
     $("soldBtn").addEventListener("click", () => openSoldForm(r.id));
     ["moveBtn", "moveTop"].forEach(b => $(b).addEventListener("click", () => openMove([r.id], {back: r.id})));
     $("drawerBody").querySelectorAll("[data-other]").forEach(b => b.addEventListener("click", () => openDetails(b.dataset.other)));
@@ -2434,6 +2699,7 @@
       if (edited("eJp")) r.jp = num($("eJp").value);
       if (edited("eKr")) r.kr = num($("eKr").value);
       if ($("eValue") && edited("eValue")) r.manualPrice = num($("eValue").value);
+      if ($("eG10") && edited("eG10")) r.g10 = num($("eG10").value);
       if (edited("eLoc")) r.location = $("eLoc").value.trim();
       if (edited("eNotes")) r.notes = $("eNotes").value.trim();
       if (edited("eCompany", "eGrade", "eCert", "eGValue")) r.grade = readGradeFields("e");
@@ -2682,6 +2948,486 @@
       (found < list.length ? " For the rest, open the card and paste a photo link, or pick from other printings." : ""));
   }
 
+  /* ======================= Japanese and Korean cards ======================= */
+  // Card numbers like DUNE-JP004 (Japanese) and DUNE-KR004 (Korean). Yugipedia knows the card, its set and
+  // rarities; BIGWEB, a big Japanese card shop, has Japanese prices and photos; Bunjang, a Korean marketplace, has
+  // asking prices for Korean cards. They're read straight from this browser, for your own cards, at most once a day.
+  const OCG_CACHE_KEY = "cardvault.v2.ocg";
+  const FX_KEY = "cardvault.v2.fx";
+  const OCG_TTL = 20 * 3600000;        // prices: about once a day
+  const OCG_CARD_TTL = 30 * 86400000;  // card names and rarities
+  const ocg = {cache: null, queue: Promise.resolve(), last: 0, refreshing: false, timer: null};
+  const ocgRegion = number => { const m = normNumber(number).match(/^([A-Z0-9]+)-(JP|KR)([A-Z]?\d+)$/); return m ? {set: m[1], region: m[2], tail: m[3], code: m[0]} : null; };
+  const isOcg = r => !r.productId && !r.sealed && !!ocgRegion(r.number);
+  function ocgCache() {
+    if (!ocg.cache) { const c = readJSON(OCG_CACHE_KEY, {}); ocg.cache = c && typeof c === "object" && !Array.isArray(c) ? c : {}; }
+    return ocg.cache;
+  }
+  function ocgPut(key, value) {
+    const c = ocgCache();
+    c[key] = value;
+    const keys = Object.keys(c);
+    if (keys.length > 1500) keys.sort((a, b) => (c[a].t || 0) - (c[b].t || 0)).slice(0, keys.length - 1500).forEach(k => delete c[k]);
+    try { localStorage.setItem(OCG_CACHE_KEY, JSON.stringify(c)); } catch (e) { /* the cache is optional */ }
+  }
+  // One request at a time, at most one every 1.2 seconds: these shops aren't ours to load up.
+  function politeJSON(url, gap) {
+    const run = async () => {
+      const wait = ocg.last + (gap == null ? 1200 : gap) - Date.now();
+      if (wait > 0) await new Promise(r => setTimeout(r, wait));
+      ocg.last = Date.now();
+      const ctl = typeof AbortController === "function" ? new AbortController() : null;
+      const timer = ctl ? setTimeout(() => ctl.abort(), 15000) : null;
+      try {
+        const res = await fetch(url, ctl ? {signal: ctl.signal} : {});
+        if (!res.ok) throw new Error(new URL(url).hostname + " answered " + res.status);
+        return await res.json();
+      } finally { clearTimeout(timer); }
+    };
+    const p = ocg.queue.then(run, run);
+    ocg.queue = p.catch(() => {});
+    return p;
+  }
+
+  /* ----- exchange rates (US$ per yen and won) ----- */
+  function fxNow() { const c = readJSON(FX_KEY, null); return c && c.JPY > 0 && c.KRW > 0 ? c : null; }
+  async function fxRates(force) {
+    const c = fxNow();
+    if (!force && c && Date.now() - c.t < 12 * 3600000) return c;
+    const keep = v => { try { localStorage.setItem(FX_KEY, JSON.stringify(v)); } catch (e) { /* optional */ } return v; };
+    try {
+      const j = await politeJSON("https://api.frankfurter.dev/v1/latest?from=USD&to=JPY,KRW", 0);
+      if (j && j.rates && j.rates.JPY > 0 && j.rates.KRW > 0) return keep({t: Date.now(), JPY: j.rates.JPY, KRW: j.rates.KRW, date: j.date || "", src: "European Central Bank, via Frankfurter"});
+    } catch (e) { /* try the other source */ }
+    try {
+      const j = await politeJSON("https://cdn.jsdelivr.net/npm/@fawazahmed0/currency-api@latest/v1/currencies/usd.min.json", 0);
+      if (j && j.usd && j.usd.jpy > 0 && j.usd.krw > 0) return keep({t: Date.now(), JPY: j.usd.jpy, KRW: j.usd.krw, date: j.date || "", src: "fawazahmed0 currency API"});
+    } catch (e) { /* keep the last rates */ }
+    return c;
+  }
+  const toUSD = (amount, cur) => { const fx = fxNow(); const rate = fx && (cur === "JPY" ? fx.JPY : fx.KRW); return amount != null && rate > 0 ? round2(amount / rate) : null; };
+  const fmtLocal = (amount, cur) => amount == null ? "" : (cur === "JPY" ? fmtJPY : fmtKRW).format(amount);
+
+  /* ----- the card: name, set and rarities, from Yugipedia ----- */
+  const sameRarity = (a, b) => String(a || "").toLowerCase().replace(/[^a-z0-9]/g, "") === String(b || "").toLowerCase().replace(/[^a-z0-9]/g, "");
+  async function ocgCard(code, fresh) {
+    code = normNumber(code);
+    const key = "card|" + code, hit = ocgCache()[key];
+    if (hit && !fresh && Date.now() - hit.t < (hit.card ? OCG_CARD_TTL : 7 * 86400000)) return hit.card;
+    const json = await yugiFetch({action: "ask", query: "[[Card number::" + code + "]]|?Card number|?Rarity|?Set contains|limit=20"});
+    const raw = json && json.query && json.query.results;
+    const rows = Array.isArray(raw) ? raw : raw && typeof raw === "object" ? Object.keys(raw).map(k => Object.assign({fulltext: k}, raw[k])) : [];
+    let card = null;
+    for (const row of rows) {
+      const po = (row && row.printouts) || {};
+      if (!(po["Card number"] || []).some(n => normNumber(n) === code)) continue;
+      const name = ((po["Set contains"] || [])[0] || {}).fulltext;
+      if (!name) continue;
+      const set = (String(row.fulltext || "").match(/^Set Card Lists:(.+?) \((?:OCG|TCG)-[A-Z]+\)/) || [])[1] || "";
+      if (!card) card = {code, name, setName: "", sets: [], rarities: []};
+      if (set && !card.sets.includes(set)) card.sets.push(set);
+      for (const r of po.Rarity || []) { const rn = r && (r.fulltext || r); if (rn && !card.rarities.some(x => sameRarity(x, rn))) card.rarities.push(String(rn)); }
+    }
+    if (card) card.setName = card.sets.find(x => !/bonus/i.test(x)) || card.sets[0] || "";
+    ocgPut(key, {t: Date.now(), card});
+    return card;
+  }
+
+  /* ----- Japanese prices and photos: BIGWEB ----- */
+  // BIGWEB names rarities in Japanese; the more specific names come first.
+  const JA_RARITY = [[/クォーターセンチュリー/, "Quarter Century Secret Rare"], [/プリズマティック/, "Prismatic Secret Rare"],
+    [/エクストラシークレット/, "Extra Secret Rare"], [/20th/i, "20th Secret Rare"], [/ホログラフィック|ホロ/, "Holographic Rare"],
+    [/アルティメット|レリーフ/, "Ultimate Rare"], [/コレクターズ/, "Collector's Rare"], [/ゴールドシークレット/, "Gold Secret Rare"],
+    [/プレミアムゴールド/, "Premium Gold Rare"], [/ゴールド/, "Gold Rare"], [/ミレニアム/, "Millennium Rare"],
+    [/シークレットパラレル/, "Secret Parallel Rare"], [/ウルトラパラレル/, "Ultra Parallel Rare"], [/スーパーパラレル/, "Super Parallel Rare"],
+    [/ノーマルパラレル/, "Normal Parallel Rare"], [/ノーマルレア/, "Normal Rare"], [/シークレット/, "Secret Rare"], [/ウルトラ/, "Ultra Rare"],
+    [/スーパー/, "Super Rare"], [/ノーマル/, "Common"], [/レア/, "Rare"]];
+  const jaRarity = web => { const hit = JA_RARITY.find(([re]) => re.test(String(web || ""))); return hit ? hit[1] : String(web || ""); };
+  async function bigwebFor(code, fresh) {
+    code = normNumber(code);
+    const key = "bw|" + code, hit = ocgCache()[key];
+    if (hit && !fresh && Date.now() - hit.t < OCG_TTL) return hit;
+    const j = await politeJSON("https://api.bigweb.co.jp/products?game_id=9&name=" + encodeURIComponent(code));
+    const now = Date.now();
+    const items = (j && Array.isArray(j.items) ? j.items : []).filter(it => it && normNumber(it.fname) === code).map(it => {
+      const x = {rarity: jaRarity(it.rarity && it.rarity.web), ja: String((it.rarity && it.rarity.web) || ""), name: String(it.name || ""),
+        price: num(it.price) || 0, stock: num(it.stock_count) || 0, cond: String((it.condition && it.condition.web) || ""), image: safeImg(it.image) || ""};
+      if (x.price > 0 && x.stock > 0) x.at = now;
+      else {   // sold out now: remember the last price seen
+        const old = ((hit && hit.items) || []).find(o => o.rarity === x.rarity && o.cond === x.cond && (o.at || o.lastAt));
+        if (old) { x.last = old.at ? old.price : old.last; x.lastAt = old.at || old.lastAt; }
+      }
+      return x;
+    });
+    const out = {t: now, items};
+    ocgPut(key, out);
+    return out;
+  }
+  // The price for one rarity: the standard copies ("プレイ用") in stock first, then any undamaged copy in stock,
+  // then the last price seen before it sold out.
+  function bigwebPick(items, rarity) {
+    let list = (items || []).filter(it => !rarity || sameRarity(it.rarity, rarity));
+    if (!rarity && new Set(list.map(it => it.rarity)).size > 1) return null;   // which rarity is yours?
+    if (!list.length) return null;
+    const inStock = list.filter(it => it.price > 0 && it.stock > 0);
+    const min = l => l.reduce((a, b) => (b.price < a.price ? b : a));
+    const pick = inStock.filter(it => /プレイ用/.test(it.cond)).length ? min(inStock.filter(it => /プレイ用/.test(it.cond)))
+      : inStock.filter(it => !/傷|キズ|難/.test(it.cond)).length ? min(inStock.filter(it => !/傷|キズ|難/.test(it.cond)))
+      : inStock.length ? min(inStock) : null;
+    if (pick) return {price: pick.price, stock: pick.stock, image: pick.image, name: pick.name, note: plural(pick.stock, "copy", "copies") + " in stock"};
+    const last = list.filter(it => it.last > 0).sort((a, b) => (b.lastAt || 0) - (a.lastAt || 0))[0];
+    const img = (list.find(it => it.image) || {}).image || "";
+    if (last) return {price: last.last, stock: 0, image: last.image || img, name: last.name, note: "sold out; last seen " + fmtShortDate(new Date(last.lastAt))};
+    return {price: null, stock: 0, image: img, name: list[0].name, note: "sold out"};
+  }
+
+  /* ----- Korean prices: Bunjang asking prices ----- */
+  const KO_RARITY = [[/쿼터\s*센[츄추]리|쿼센|QCSE|QCSR|QC\s*시크|QC\s*SE|25th/i, "Quarter Century Secret Rare"],
+    [/프리즈?[매마]틱|(^|[^A-Z])PSE(?![A-Z])/i, "Prismatic Secret Rare"], [/엑스트라\s*시크|엑시크|(^|[^A-Z])EXSE(?![A-Z])/i, "Extra Secret Rare"],
+    [/20th|20\s*시크/i, "20th Secret Rare"], [/홀로그래픽|홀로/, "Holographic Rare"], [/얼티(밋|메이트)?|얼레|(^|[^A-Z])UL(?![A-Z])/i, "Ultimate Rare"],
+    [/컬렉터즈|콜렉터즈|컬렉|(^|[^A-Z])CR(?![A-Z])/i, "Collector's Rare"], [/골드\s*시크/, "Gold Secret Rare"], [/골드/, "Gold Rare"],
+    [/밀레니엄/, "Millennium Rare"], [/노[멀말]\s*패러렐|노패/, "Normal Parallel Rare"], [/울트라\s*패러렐|울패/, "Ultra Parallel Rare"],
+    [/시크릿|시크|(^|[^A-Z])(SE|SCR)(?![A-Z])/i, "Secret Rare"], [/울트라|울레|(^|[^A-Z])UR(?![A-Z])/i, "Ultra Rare"],
+    [/슈퍼|슈레|(^|[^A-Z])SR(?![A-Z])/i, "Super Rare"], [/노[멀말]/, "Common"], [/레어|(^|[^A-Z])R(?![A-Z0-9])/i, "Rare"]];
+  // (the card code itself is taken out first: "SR01-KR001" isn't a Super Rare)
+  const koRarity = (title, code) => { const t = String(title || "").replace(/[A-Z0-9]{2,5}\s*-?\s*(KR|JP)\s*[A-Z]?\d{3}/gi, " "); const hit = KO_RARITY.find(([re]) => re.test(t)); return hit ? hit[1] : ""; };
+  const median = list => { const a = list.slice().sort((x, y) => x - y); const m = a.length >> 1; return a.length ? (a.length % 2 ? a[m] : Math.round((a[m - 1] + a[m]) / 2)) : null; };
+  async function bunjangFor(code, fresh) {
+    code = normNumber(code);
+    const key = "bj|" + code, hit = ocgCache()[key];
+    if (hit && !fresh && Date.now() - hit.t < OCG_TTL) return hit;
+    const j = await politeJSON("https://api.bunjang.co.kr/api/1/find_v2.json?q=" + encodeURIComponent(code) + "&order=score&page=0&n=60", 1500);
+    const flat = code.replace(/-/g, "");
+    // Listings for this exact card number, not "wanted" posts or bundles of several cards.
+    const list = (j && Array.isArray(j.list) ? j.list : []).map(x => ({name: String((x && x.name) || ""), price: num(x && x.price)}))
+      .filter(x => x.price >= 100 && x.price <= 50000000 && x.name.toUpperCase().replace(/[\s\-_.]/g, "").includes(flat) &&
+        !/삽니다|구매합니다|구합니다|구해요|매입|일괄|묶음/.test(x.name));
+    const groups = {};
+    for (const x of list) { const k = koRarity(x.name, code) || "?"; (groups[k] = groups[k] || []).push(x.price); }
+    const byRarity = {};
+    for (const [k, ps] of Object.entries(groups)) byRarity[k] = {median: median(ps), n: ps.length};
+    const out = {t: Date.now(), byRarity, n: list.length};
+    ocgPut(key, out);
+    return out;
+  }
+  function bunjangPick(entry, rarity, onlyRarity) {
+    if (!entry || !entry.byRarity) return null;
+    const keys = Object.keys(entry.byRarity);
+    const k = keys.find(x => x !== "?" && sameRarity(x, rarity)) ||
+      ((!rarity || onlyRarity) && keys.length === 1 ? keys[0] : (onlyRarity && entry.byRarity["?"] ? "?" : null));
+    return k ? entry.byRarity[k] : null;
+  }
+
+  /* ----- a card's price, photo and source ----- */
+  const ocgTwin = g => g.set + "-JP" + g.tail;   // the Japanese print with the same number (same artwork)
+  function ocgPrice(r) {
+    const g = isOcg(r) ? ocgRegion(r.number) : null;
+    if (!g) return null;
+    const cardHit = ocgCache()["card|" + g.code];
+    const only = !!(cardHit && cardHit.card && cardHit.card.rarities.length === 1);
+    if (g.region === "JP") {
+      const e = ocgCache()["bw|" + g.code];
+      const pick = e && bigwebPick(e.items, r.rarity || (only ? cardHit.card.rarities[0] : ""));
+      if (!pick || pick.price == null) return e ? {none: true, src: "BIGWEB", at: e.t, note: pick ? pick.note : ""} : null;
+      return {local: pick.price, cur: "JPY", usd: toUSD(pick.price, "JPY"), src: "BIGWEB", note: pick.note, at: e.t, url: "https://bigweb.co.jp/"};
+    }
+    const e = ocgCache()["bj|" + g.code];
+    const b = e && bunjangPick(e, r.rarity, only);
+    if (!b) return e ? {none: true, src: "Bunjang", at: e.t, note: e.n ? "no listing for this rarity" : "no listings"} : null;
+    return {local: b.median, cur: "KRW", usd: toUSD(b.median, "KRW"), src: "Bunjang", note: "asking prices, middle of " + plural(b.n, "listing"), at: e.t,
+      url: "https://m.bunjang.co.kr/search/products?q=" + encodeURIComponent(g.code)};
+  }
+  function ocgImage(r) {
+    const g = isOcg(r) ? ocgRegion(r.number) : null;
+    if (!g) return "";
+    const e = ocgCache()["bw|" + (g.region === "JP" ? g.code : ocgTwin(g))];
+    const pick = e && (bigwebPick(e.items, r.rarity) || (e.items || []).find(it => it.image));
+    return (pick && pick.image) || "";
+  }
+  // Brings the prices of your Japanese and Korean cards up to date (once a day), and the photo of the Japanese print
+  // for Korean cards without one. Runs quietly in the background.
+  async function refreshOcgPrices(force) {
+    if (ocg.refreshing) return 0;
+    const codes = new Map();
+    for (const r of collection) if (isOcg(r)) { const g = ocgRegion(r.number); codes.set(g.code, {g, needsPhoto: (codes.get(g.code) || {}).needsPhoto || !safeImg(r.customImage)}); }
+    if (!codes.size) return 0;
+    ocg.refreshing = true;
+    let fetched = 0;
+    try {
+      await fxRates();
+      for (const {g, needsPhoto} of codes.values()) {
+        const stale = key => { const h = ocgCache()[key]; return force || !h || Date.now() - h.t > OCG_TTL; };
+        try {
+          if (g.region === "JP" && stale("bw|" + g.code)) { await bigwebFor(g.code, true); fetched++; }
+          if (g.region === "KR" && stale("bj|" + g.code)) { await bunjangFor(g.code, true); fetched++; }
+          if (g.region === "KR" && needsPhoto && !ocgCache()["bw|" + ocgTwin(g)]) { await bigwebFor(ocgTwin(g)); fetched++; }
+        } catch (e) {
+          if (typeof navigator !== "undefined" && navigator.onLine === false) break;
+        }
+        if (fetched && fetched % 8 === 0) renderSoon();
+      }
+    } finally { ocg.refreshing = false; }
+    if (fetched) renderSoon();
+    return fetched;
+  }
+  function renderSoon() {
+    clearTimeout(ocg.timer);
+    ocg.timer = setTimeout(() => { if (recordValueHistory()) save({quiet: true, noBackup: true}); render(); }, 400);
+  }
+
+  /* ----- adding a Japanese or Korean card by its number ----- */
+  async function showOcgLookup(out, code, m) {
+    const lang = OCG_REGIONS[m[2]];
+    out.innerHTML = '<p class="hint" role="status">Looking up ' + esc(code) + " (" + esc(lang) + ")…</p>";
+    let card = null, failed = false;
+    try { card = await ocgCard(code); } catch (e) { failed = true; }
+    if (!out.isConnected) return;
+    const fallback = why => {
+      const en = m[1] + "-EN" + m[3];
+      out.innerHTML = '<div class="notice"><strong>' + why + "</strong> You can add it manually. To fill in the name for you, Card Vault can look up the English printing with the same number, if one exists." +
+        '<br><button class="btn btn-small" type="button" id="tryEnglish">Look up ' + esc(en) + '</button> <button class="btn btn-small" type="button" id="manualOcg">Add manually</button></div><div id="enOut"></div>';
+      $("manualOcg").addEventListener("click", () => openManual({number: code, language: lang}));
+      $("tryEnglish").addEventListener("click", () => {
+        const list = catalog ? findByNumber(en) : [];
+        const enOut = $("enOut");
+        if (!list.length) { enOut.innerHTML = '<div class="notice">No English printing uses ' + esc(en) + ". Add the card manually instead.</div>"; return; }
+        enOut.innerHTML = '<p class="results-head">English printing with the same number, for reference. Picking it fills in the name and rarity; your card stays ' + esc(lang) + ".</p>" + resultsHTML(list);
+        wireResults(enOut, list, p => openManual({number: code, language: lang, name: cleanName(p.name, p.rarity), rarity: p.rarity, setName: p.group.name}));
+      });
+    };
+    if (!card) { fallback(failed ? "Couldn't reach Yugipedia to look up " + esc(code) + " (it needs an internet connection)." : "Yugipedia doesn't list " + esc(code) + " yet."); return; }
+    out.innerHTML = '<p class="hint" role="status">Found ' + esc(card.name) + ". Getting prices and photos…</p>";
+    let bw = null, bj = null;
+    await fxRates().catch(() => null);
+    try { bw = await bigwebFor(m[2] === "JP" ? code : ocgTwin({set: m[1], tail: m[3]})); } catch (e) { bw = null; }
+    if (m[2] === "KR") { try { bj = await bunjangFor(code); } catch (e) { bj = null; } }
+    if (!out.isConnected) return;
+    const rarities = card.rarities.length ? card.rarities : [""];
+    const choices = rarities.map(rar => {
+      const pick = bw ? bigwebPick(bw.items, rar) : null;
+      let price = null;
+      if (m[2] === "JP" && pick && pick.price != null) price = {local: pick.price, cur: "JPY", src: "BIGWEB", note: pick.note};
+      const b = m[2] === "KR" ? bunjangPick(bj, rar, rarities.length === 1) : null;
+      if (b) price = {local: b.median, cur: "KRW", src: "Bunjang", note: plural(b.n, "listing")};
+      return {rarity: rar, image: pick ? pick.image : "", ja: pick ? pick.name : "", price};
+    });
+    // Photos BIGWEB doesn't have: the closest one on Yugipedia.
+    if (choices.some(c => !c.image)) {
+      try {
+        const res = await findYugiImages(code, card.name);
+        for (const c of choices) if (!c.image) { const rk = rankYugiImages(res.images, code, c.rarity); const im = rk.exact[0] || rk.near[0]; if (im) c.image = im.thumb; }
+      } catch (e) { /* no photo then */ }
+    }
+    if (!out.isConnected) return;
+    const priceText = pr => pr ? esc(fmtLocal(pr.local, pr.cur)) + (toUSD(pr.local, pr.cur) != null ? " ≈ " + esc(usd(toUSD(pr.local, pr.cur))) : "") +
+      '<br><span class="small">' + esc(pr.src) + ", " + esc(pr.note) + "</span>" : '<span class="small">No price found</span>';
+    out.innerHTML = '<p class="results-head">' + esc(card.name) + (card.setName ? ", " + esc(card.setName) : "") + " (" + esc(lang) + "). " +
+      (choices.length > 1 ? "It was printed in " + choices.length + " rarities: pick yours." : "Pick it to continue.") + "</p>" +
+      '<div class="results">' + choices.map((c, i) => '<button type="button" class="result" data-idx="' + i + '">' +
+        '<span class="sleeve">' + imgTag(c.image, card.name) + "</span>" +
+        '<span class="result-name">' + esc(card.name) + "</span>" + (c.ja ? '<span class="result-meta">' + esc(c.ja) + "</span>" : "") +
+        '<span class="result-meta">' + esc(code) + ", " + esc(c.rarity || "rarity unknown") + "</span>" +
+        '<span class="result-price">' + priceText(c.price) + "</span></button>").join("") + "</div>" +
+      '<p class="small">Card details from Yugipedia. ' + (m[2] === "JP" ? "Prices and photos from BIGWEB (Japan)." : "Prices are Bunjang (Korea) asking prices; photos are of the Japanese print.") +
+      ' <button type="button" class="link-btn" id="manualOcg">Add it manually instead</button></p>';
+    $("manualOcg").addEventListener("click", () => openManual({number: code, language: lang, name: card.name, setName: card.setName}));
+    out.querySelectorAll(".result").forEach(btn => btn.addEventListener("click", () => openOcgForm(card, lang, choices[+btn.dataset.idx])));
+  }
+  function openOcgForm(card, lang, choice) {
+    drawerCtx = {mode: "ocg"};
+    const pr = choice.price;
+    openDrawer("Add a card",
+      '<div class="picked"><span class="sleeve">' + imgTag(choice.image, card.name, true) + "</span><div>" +
+      "<h3>" + esc(card.name) + "</h3>" + (choice.ja ? "<p>" + esc(choice.ja) + "</p>" : "") + "<p>" + esc(card.setName || "") + "</p><p>" + esc(card.code) + ", " +
+      esc(choice.rarity || "rarity unknown") + "</p><p>" + esc(lang) + '</p><p style="margin-top:8px"><button type="button" class="link-btn" id="backToSearch">Pick a different rarity</button></p></div></div>' +
+      '<form id="ocgForm" class="stack">' +
+      '<div class="price-line">' + (pr ? esc(pr.src) + ": <b>" + esc(fmtLocal(pr.local, pr.cur)) + "</b>" + (toUSD(pr.local, pr.cur) != null ? " ≈ <b>" + esc(usd(toUSD(pr.local, pr.cur))) + "</b>" : "") +
+        ' <span class="small">(' + esc(pr.note) + ")</span>" : '<span class="small">No price found yet. Card Vault checks again every day; you can also enter your own estimate later.</span>') + "</div>" +
+      '<div class="grid-2"><label class="field"><span>Printing</span><select class="input" id="oEd">' + options(PRINTINGS, "No edition mark") + "</select></label>" +
+      '<label class="field"><span>Condition</span><select class="input" id="oCond">' + options(CONDITIONS, "Near Mint") + "</select></label></div>" +
+      '<div class="grid-2"><label class="field"><span>Quantity</span><input class="input" id="oQty" type="number" min="1" step="1" value="1"></label>' +
+      '<label class="field"><span>Price you paid, each (optional)</span><input class="input" id="oPaid" type="number" min="0" step="0.01" placeholder="$"></label></div>' +
+      '<label class="field"><span>Notes (optional)</span><input class="input" id="oNotes"></label>' +
+      locationFieldHTML("oLoc", "") + gradeFieldsHTML("o", null) +
+      '<div class="form-actions"><button class="btn btn-primary" type="submit">Add to collection</button></div></form>');
+    $("backToSearch").addEventListener("click", () => openAdd({number: card.code}));
+    $("ocgForm").addEventListener("submit", e => {
+      e.preventDefault();
+      const rec = upgradeRecord({id: newId(), productId: null, name: card.name, productName: card.name, setName: card.setName, number: card.code,
+        rarity: choice.rarity, edition: $("oEd").value, condition: $("oCond").value, language: lang, qty: posInt($("oQty").value) || 1,
+        customImage: choice.image || null, paid: num($("oPaid").value), notes: $("oNotes").value.trim(), location: $("oLoc").value,
+        grade: readGradeFields("o"), added: new Date().toISOString()});
+      const res = addOrMerge(rec);
+      save(); render(); closeDrawer();
+      toast(res.merged ? "Added. You now have " + res.record.qty + " of " + rec.name + " (" + rec.number + ")." : "Added " + rec.name + " (" + rec.number + ").",
+        {action: "Add another", onAction: () => openAdd()});
+    });
+  }
+
+  /* ======================= Graded values (PSA 10 and your own grades) ======================= */
+  // "PSA 10 value" shows what one gem-mint copy of each card would be worth. Real graded prices come from
+  // PriceCharting (eBay sales), looked up from this browser with your own PriceCharting key and kept private here.
+  // Without a key, it's an estimate from the raw market price, which you can tune in Settings, and any PSA 10
+  // values you enter on a card yourself.
+  const PC_CACHE_KEY = "cardvault.v2.pricecharting";
+  const PC_TTL = 24 * 3600000;
+  const pc = {cache: null, queue: Promise.resolve(), last: 0, refreshing: false, bad: false};
+  function pcCache() {
+    if (!pc.cache) { const c = readJSON(PC_CACHE_KEY, {}); pc.cache = c && typeof c === "object" && !Array.isArray(c) ? c : {}; }
+    return pc.cache;
+  }
+  function pcPut(key, value) {
+    const c = pcCache();
+    c[key] = value;
+    const keys = Object.keys(c);
+    if (keys.length > 3000) keys.sort((a, b) => (c[a].t || 0) - (c[b].t || 0)).slice(0, keys.length - 3000).forEach(k => delete c[k]);
+    try { localStorage.setItem(PC_CACHE_KEY, JSON.stringify(c)); } catch (e) { /* optional */ }
+  }
+  const pcKey = r => r.productId ? "p|" + r.productId + "|" + (r.edition || "") : "n|" + normNumber(r.number) + "|" + lookupName(r.name).toLowerCase() + "|" + (r.edition || "");
+  const cents = v => { const n = num(v); return n != null && n > 0 ? round2(n / 100) : null; };
+  // PriceCharting's price fields for trading cards (their documentation): ungraded, then each grade.
+  const PC_FIELDS = {raw: "loose-price", "7": "cib-price", "8": "new-price", "9": "graded-price", "9.5": "box-only-price", "10": "manual-only-price",
+    bgs10: "bgs-10-price", cgc10: "condition-17-price", sgc10: "condition-18-price"};
+  // "Yubel [1st Edition] PTDN-EN006" -> which printing that PriceCharting item is
+  const pcEdition = name => /\[1st Edition\]/i.test(name) ? "1st Edition" : /\[Limited Edition\]/i.test(name) ? "Limited" : "";
+  const pcVariant = name => (String(name).match(/\[([^\]]+)\]/g) || []).filter(t => !/edition/i.test(t)).join(" ");
+  function pcFetch(path) {
+    const run = async () => {
+      const wait = pc.last + 1100 - Date.now();   // their limit: one call a second
+      if (wait > 0) await new Promise(r => setTimeout(r, wait));
+      pc.last = Date.now();
+      const ctl = typeof AbortController === "function" ? new AbortController() : null;
+      const timer = ctl ? setTimeout(() => ctl.abort(), 20000) : null;
+      let res;
+      try { res = await fetch("https://www.pricecharting.com/api/" + path + "&t=" + encodeURIComponent(settings.pcToken || ""), ctl ? {signal: ctl.signal} : {}); }
+      finally { clearTimeout(timer); }
+      let json = null;
+      try { json = await res.json(); } catch (e) { json = null; }
+      if (json && /token/i.test(String(json["error-message"] || json.error || ""))) { pc.bad = settings.pcToken; throw named("TokenError", "PriceCharting didn't accept the key"); }
+      if (!res.ok || !json || json.status === "error") throw new Error("PriceCharting answered " + (json && json["error-message"] ? json["error-message"] : res.status));
+      return json;
+    };
+    const p = pc.queue.then(run, run);
+    pc.queue = p.catch(() => {});
+    return p;
+  }
+  // Which of PriceCharting's items is this card? The card number must be in the name, the printing tag must match
+  // (no tag means Unlimited), and the TCGplayer id settles it when PriceCharting has one.
+  function pcMatch(items, r) {
+    const number = normNumber(r.number);
+    if (!number) return null;
+    const wantEd = r.edition === "1st Edition" || r.edition === "Limited" ? r.edition : "";
+    let list = (items || []).filter(it => it && /yu-?gi-?oh/i.test(String(it["console-name"] || "")) && normNumber(String(it["product-name"] || "")).includes(number));
+    if (!list.length) return null;
+    // A variant in brackets ([Starlight Rare], [Misprint]...) is a different item: only the one that is your rarity,
+    // else the plain item.
+    const mine = list.filter(it => { const v = pcVariant(it["product-name"]).replace(/[[\]]/g, ""); return v && r.rarity && sameRarity(v, r.rarity); });
+    const plain = list.filter(it => !pcVariant(it["product-name"]));
+    list = mine.length ? mine : plain;
+    if (!list.length) return null;
+    const byId = r.productId ? list.filter(it => +it["tcg-id"] === r.productId) : [];
+    if (byId.length) list = byId;
+    const eds = list.map(it => pcEdition(it["product-name"]));
+    const exact = list.filter((it, i) => eds[i] === wantEd);
+    if (exact.length) return exact[0];
+    if (list.length === 1 && eds[0] === "") return list[0];   // PriceCharting doesn't split this card by printing
+    return null;
+  }
+  function pcPrices(it) {
+    const out = {id: it.id, name: String(it["product-name"] || ""), set: String(it["console-name"] || ""), vol: num(it["sales-volume"]) || 0};
+    for (const [k, f] of Object.entries(PC_FIELDS)) out[k] = cents(it[f]);
+    return out;
+  }
+  async function pcLookup(r, fresh) {
+    const key = pcKey(r), hit = pcCache()[key];
+    if (hit && !fresh && Date.now() - hit.t < (hit.p ? PC_TTL : 3 * 86400000)) return hit.p;
+    const q = (lookupName(r.name) + " " + (r.number || "")).trim();
+    const json = await pcFetch("products?q=" + encodeURIComponent(q));
+    let it = pcMatch(json.products, r);
+    // (the search list may carry no prices: fetch the item itself)
+    if (it && it[PC_FIELDS["10"]] === undefined && it[PC_FIELDS.raw] === undefined && it.id) it = await pcFetch("product?id=" + encodeURIComponent(it.id));
+    const p = it ? pcPrices(it) : null;
+    pcPut(key, {t: Date.now(), p});
+    return p;
+  }
+  const pcKnown = r => { const h = pcCache()[pcKey(r)]; return h && h.p ? h.p : null; };
+  const pcOn = () => !!(settings.pcToken && settings.pcToken.trim());
+  const pcBad = () => !!pc.bad && pc.bad === settings.pcToken;   // (a key that was refused; a new key starts over)
+  async function refreshGradedPrices(force) {
+    if (!pcOn() || pc.refreshing || pcBad()) return 0;
+    const list = collection.filter(r => !r.sealed && normNumber(r.number)).filter(r => { const h = pcCache()[pcKey(r)]; return force || !h || Date.now() - h.t > (h.p ? PC_TTL : 3 * 86400000); });
+    if (!list.length) return 0;
+    pc.refreshing = true;
+    let done = 0;
+    try {
+      const seen = new Set();
+      for (const r of list) {
+        if (seen.has(pcKey(r))) continue;
+        seen.add(pcKey(r));
+        try { await pcLookup(r, true); done++; }
+        catch (e) { if (e && e.name === "TokenError") break; if (typeof navigator !== "undefined" && navigator.onLine === false) break; }
+        if (done % 10 === 0 && settings.gradedView) renderSoon();
+      }
+    } finally { pc.refreshing = false; }
+    if (done && settings.gradedView) renderSoon();
+    return done;
+  }
+  // The share of a PSA 10 price that another grade gets (Settings), e.g. "9.5" -> 50%.
+  function gradeShare(grade) {
+    const g = num(String(grade || "").replace(/[^0-9.]/g, ""));
+    if (g == null) return null;
+    const key = g >= 10 ? "10" : g >= 9.5 ? "9.5" : g >= 9 ? "9" : g >= 8 ? "8" : g >= 7 ? "7" : "6";
+    const pct = num(settings.gradePct[key]);
+    return (pct == null ? DEFAULT_GRADE_PCT[key] : pct) / 100;
+  }
+  // The raw (Near Mint) market price, before any condition adjustment.
+  const rawMarket = r => { const pi = priceInfo(r); return pi.unit != null && pi.from !== "manual" ? pi.unit : (r.manualPrice != null ? r.manualPrice : null); };
+  // What one PSA 10 copy of this card is worth: your own figure, PriceCharting's, or an estimate.
+  function psa10Value(r) {
+    if (r.sealed) return null;
+    if (r.g10 != null) return {unit: r.g10, from: "yours"};
+    const p = pcKnown(r);
+    if (p && p["10"] != null) return {unit: p["10"], from: "pricecharting", vol: p.vol, pc: p};
+    const raw = rawMarket(r);
+    if (raw == null) return null;
+    const mult = num(settings.psa10Mult), floor = num(settings.psa10Floor);
+    return {unit: round2(raw * (mult == null ? 4 : mult) + (floor == null ? 25 : floor)), from: "estimate", raw};
+  }
+  // The value of one copy as graded: cards you had graded count at their grade (the value you entered, else
+  // PriceCharting's price for that grade, else a share of the PSA 10 value); the rest as PSA 10.
+  function gradedValue(r) {
+    if (r.sealed) return null;
+    if (r.grade) {
+      if (r.grade.value != null) return {unit: r.grade.value, from: "yours", grade: gradeLabel(r.grade)};
+      const p = pcKnown(r), g = num(String(r.grade.grade || "").replace(/[^0-9.]/g, ""));
+      const co = String(r.grade.company || "").toUpperCase();
+      if (p && g != null) {
+        const key = g >= 10 ? (co === "BGS" ? "bgs10" : co === "CGC" ? "cgc10" : co === "SGC" ? "sgc10" : "10") : g >= 9.5 ? "9.5" : g >= 9 ? "9" : g >= 8 ? "8" : g >= 7 ? "7" : null;
+        if (key && p[key] != null) return {unit: p[key], from: "pricecharting", grade: gradeLabel(r.grade), vol: p.vol};
+      }
+      const ten = psa10Value(r), share = gradeShare(r.grade.grade);
+      if (ten && share != null) return {unit: round2(ten.unit * share), from: ten.from === "pricecharting" ? "share" : "estimate", grade: gradeLabel(r.grade), share};
+      return ten ? Object.assign({}, ten, {grade: gradeLabel(r.grade)}) : null;
+    }
+    return psa10Value(r);
+  }
+  // In the PSA 10 view: one copy of each printing (graded copies you own count as they are), so you see what a
+  // gem-mint set of your collection would be worth.
+  function gradedTotals(list) {
+    let value = 0, copies = 0, unpriced = 0, est = 0;
+    const seen = new Set();
+    for (const r of list) {
+      if (r.sealed) continue;
+      const n = r.grade ? r.qty : 1;
+      if (!r.grade) { const k = printingKey(r); if (seen.has(k)) continue; seen.add(k); }
+      const gv = gradedValue(r);
+      copies += n;
+      if (!gv) unpriced += n; else { value += gv.unit * n; if (gv.from === "estimate") est += n; }
+    }
+    return {value, copies, unpriced, est};
+  }
+  const gradedShort = gv => !gv ? "" : gv.from === "estimate" ? "est." : gv.from === "yours" ? "yours" : gv.from === "share" ? "est." : "";
+
   /* ======================= Want list ======================= */
   // The current TCGplayer market price for the printing you want (the cheapest printing when any will do).
   function wantPrice(w) {
@@ -2797,9 +3543,9 @@
     const chips = allLocations().filter(l => from == null || !sameLoc(l, from)).map(l => [l, l]);
     if (from == null || from) chips.push(["", "No location"]);
     const row = r => '<div class="mv-row" data-row="' + esc(r.id) + '">' +
-      '<span class="sleeve">' + imgTag(imageFor(r, "200w"), r.name, true) + "</span>" +
-      '<div class="batch-info"><b>' + esc(r.name) + "</b><span>" + esc([r.number, r.rarity].filter(Boolean).join(", ")) + "<br>" +
-      esc([r.edition, r.grade ? gradeLabel(r.grade) : r.condition, r.language !== "English" ? r.language : ""].filter(Boolean).join(", ")) + "</span>" +
+      '<span class="sleeve' + (r.sealed ? " boxed" : "") + '">' + imgTag(imageFor(r, "200w"), r.name, true) + "</span>" +
+      '<div class="batch-info"><b>' + esc(r.name) + "</b><span>" + esc(r.sealed ? r.setName || "Sealed product" : [r.number, r.rarity].filter(Boolean).join(", ")) + "<br>" +
+      esc(r.sealed ? "Sealed product" : [r.edition, r.grade ? gradeLabel(r.grade) : r.condition, r.language !== "English" ? r.language : ""].filter(Boolean).join(", ")) + "</span>" +
       '<span class="mv-where">' + esc(whereNow(r)) + "</span></div>" +
       '<div class="stepper"><button type="button" class="icon-btn" data-step="-1" aria-label="One fewer">&minus;</button>' +
       '<input class="input" type="number" inputmode="numeric" min="0" max="' + r.qty + '" step="1" value="' + r.qty + '" data-qty="' + esc(r.id) + '" aria-label="How many ' + esc(r.name) + ' to move">' +
@@ -2864,7 +3610,7 @@
   function tradeListText() {
     const extras = extrasMap();
     return visibleRecords().filter(r => extras.has(r.id)).map(r => {
-      const u = unitValue(r);
+      const u = marketValue(r).unit;
       return extras.get(r.id) + "x " + r.name + " (" + [r.number, r.rarity, r.edition, r.condition].filter(Boolean).join(", ") + ")" +
         (u != null ? " - " + usd(u) + " each" : "");
     });
@@ -2884,6 +3630,80 @@
     };
     if (navigator.clipboard && navigator.clipboard.writeText) navigator.clipboard.writeText(text).then(done, fallback);
     else fallback();
+  }
+
+  /* ======================= Share links ======================= */
+  // A link to share.html on this website with the cards in the link itself (compressed), so nothing is stored
+  // anywhere: whoever gets the link sees those cards, with photos and prices, and nothing else of yours.
+  const shareBase = () => SITE ? new URL("share.html", location.href).href : "";
+  const shareImg = u => /^https:\/\/(tcgplayer-cdn\.tcgplayer\.com|ms\.yugipedia\.com|image\.bigweb\.co\.jp)\//i.test(String(u || "")) ? String(u) : "";
+  function shareItem(r, opts) {
+    const it = {n: r.name, no: r.number || "", s: r.setName || "", r: r.rarity || "", e: r.edition || "", q: opts.qty ? opts.qty(r) : (r.qty || 1)};
+    if (r.productId) it.p = r.productId;
+    if (r.sealed) it.b = 1; else it.c = r.condition || "";
+    if (r.grade) it.g = gradeLabel(r.grade);
+    if (!r.productId) { const im = shareImg(r.customImage) || shareImg(ocgImage(r)); if (im) it.i = im; }
+    // Only market prices go out (TCGplayer's, or BIGWEB's/Bunjang's for Japanese and Korean cards): never what you
+    // paid, your own estimates or graded values.
+    if (opts.prices) { const pi = priceInfo(r); if (pi.unit != null && (pi.from === "tcgplayer" || pi.from === "ocg")) it.v = round2(pi.unit); }
+    return it;
+  }
+  function shareWant(w, opts) {
+    const it = {n: w.name, no: w.number || "", s: w.setName || "", r: w.rarity || "", e: w.edition && w.edition !== "Any" ? w.edition : "", q: w.qty || 1};
+    if (w.productId) it.p = w.productId;
+    if (opts.prices) { const v = wantPrice(w); if (v != null) it.v = round2(v); }
+    if (opts.targets && w.target != null) it.t = w.target;
+    return it;
+  }
+  async function shareLink(payload) {
+    const text = JSON.stringify(payload);
+    const b64 = bytes => btoa(Array.from(bytes, b => String.fromCharCode(b)).join("")).replace(/\+/g, "-").replace(/\//g, "_").replace(/=+$/, "");
+    const utf8 = t => typeof TextEncoder === "function" ? new TextEncoder().encode(t) : Uint8Array.from(unescape(encodeURIComponent(t)), c => c.charCodeAt(0));
+    let tag = "j", bytes = utf8(text);
+    if (typeof CompressionStream === "function") {
+      try {
+        const cs = new CompressionStream("deflate-raw");
+        const w = cs.writable.getWriter(); w.write(bytes); w.close();
+        bytes = new Uint8Array(await new Response(cs.readable).arrayBuffer());
+        tag = "z";
+      } catch (e) { tag = "j"; bytes = utf8(text); }
+    }
+    return shareBase() + "#" + tag + "." + b64(bytes);
+  }
+  // kind: "cards" (the records given) or "wants". opts.extras: the extras map, to share only the spare copies.
+  function openShare(kind, ids, opts) {
+    opts = opts || {};
+    const recs = kind === "wants" ? wants.slice() : ids.map(id => collection.find(r => r.id === id)).filter(Boolean);
+    if (!recs.length) { toast(kind === "wants" ? "Your want list is empty." : "Nothing to share."); return; }
+    drawerCtx = {mode: "share"};
+    const defTitle = kind === "wants" ? "My want list" : opts.extras ? "My trade binder" : "Cards for trade";
+    const qtyOf = opts.extras ? (r => opts.extras.get(r.id) || r.qty) : null;
+    openDrawer("Share a link",
+      '<form id="shareForm" class="stack">' +
+      '<p class="small" style="margin:0">A link to a page on this website showing ' + (kind === "wants" ? "your want list" : plural(recs.length, "card")) +
+      " with photos. The cards are in the link itself: nothing is stored anywhere, and the page shows nothing else of yours.</p>" +
+      '<label class="field"><span>Title</span><input class="input" id="shTitle" value="' + esc(defTitle) + '"></label>' +
+      '<label class="check-row"><input type="checkbox" class="check" id="shPrices" checked><span>Include TCGplayer market prices</span></label>' +
+      (kind === "wants" ? '<label class="check-row"><input type="checkbox" class="check" id="shTargets"><span>Include the prices I\'d pay</span></label>' : "") +
+      '<div class="price-line" id="shOut"><span class="small">Making the link…</span></div>' +
+      '<div class="form-actions"><button class="btn btn-primary" type="button" id="shCopy">Copy link</button>' +
+      (navigator.share ? '<button class="btn" type="button" id="shShare">Share…</button>' : "") +
+      '<a class="btn" id="shOpen" target="_blank" rel="noopener" href="#">Open it</a></div></form>');
+    let link = "";
+    const build = async () => {
+      const o = {prices: $("shPrices").checked, targets: !!($("shTargets") && $("shTargets").checked), qty: qtyOf};
+      const payload = {app: "Card Vault", v: 1, kind, title: $("shTitle").value.trim().slice(0, 80), at: new Date().toISOString(), prices: o.prices,
+        priceDate: catalog && catalog.generated ? fmtDate(catalog.generated) : "", items: recs.map(x => kind === "wants" ? shareWant(x, o) : shareItem(x, o))};
+      link = await shareLink(payload);
+      if (!$("shOut")) return;
+      $("shOpen").href = link;
+      $("shOut").innerHTML = "Link ready: " + plural(recs.length, "card") + ', <span class="small">' + esc(Math.round(link.length / 1024 * 10) / 10 + " KB") + "</span>" +
+        (link.length > 30000 ? '<br><span class="small">A long link: some messaging apps cut links this long. Share fewer cards if it doesn\'t open.</span>' : "");
+    };
+    ["shTitle", "shPrices", "shTargets"].forEach(k => { if ($(k)) $(k).addEventListener("change", build); });
+    $("shCopy").addEventListener("click", () => { if (link) copyText(link, () => toast("Link copied. Paste it in a message to share it.")); });
+    if ($("shShare")) $("shShare").addEventListener("click", () => { if (link) navigator.share({title: $("shTitle").value.trim() || "Card Vault", url: link}).catch(() => {}); });
+    build();
   }
 
   /* ======================= Backups ======================= */
@@ -2920,7 +3740,8 @@
     return {app: "Card Vault", kind: "backup", format: 1, savedAt: stamp || new Date().toISOString(),
       collection, wants, valueHistory, decks, sales, deleted, syncId: settings.syncId || null,
       settings: {condAdjust: settings.condAdjust, condPct: settings.condPct,
-        alertsOn: settings.alertsOn, alertMinDollar: settings.alertMinDollar, alertMinPct: settings.alertMinPct, sharedMod: settings.sharedMod || 0}};
+        alertsOn: settings.alertsOn, alertMinDollar: settings.alertMinDollar, alertMinPct: settings.alertMinPct,
+        psa10Mult: settings.psa10Mult, psa10Floor: settings.psa10Floor, gradePct: settings.gradePct, pcToken: settings.pcToken || "", sharedMod: settings.sharedMod || 0}};
   }
   const hasUnbackedChanges = () => !!settings.lastChangeAt && (!settings.lastBackupAt || settings.lastChangeAt > settings.lastBackupAt);
   const pause = ms => new Promise(r => setTimeout(r, ms));
@@ -3063,6 +3884,111 @@
         };
       }
     };
+  }
+  /* ----- dated copies in Google Drive ----- */
+  // Syncing spreads a mistake to every device, so once a day the first save also leaves a dated copy in a
+  // "Backups" folder next to the backup file. The last 30 are kept; any of them can be restored from Settings.
+  const DRIVE_KEEP_DAYS = 30;
+  const DATED_RE = /^Card Vault backup (\d{4}-\d{2}-\d{2})\.json$/;
+  const dated = {day: "", busy: false, list: null};
+  async function driveFolder(name, parentId, create) {
+    const q = "name = '" + name + "' and mimeType = 'application/vnd.google-apps.folder' and trashed = false" + (parentId ? " and '" + parentId + "' in parents" : "");
+    const found = await (await driveFetch("files?q=" + encodeURIComponent(q) + "&pageSize=1&fields=files(id)")).json();
+    if (found && found.files && found.files[0]) return found.files[0].id;
+    if (!create) return null;
+    const made = await (await driveFetch("files?fields=id", {method: "POST", headers: {"Content-Type": "application/json"},
+      body: JSON.stringify({name, mimeType: "application/vnd.google-apps.folder", parents: parentId ? [parentId] : undefined})})).json();
+    return made.id;
+  }
+  const rememberFolder = (fileId, folderId) => {
+    // (re-read first: Drive may have been set up again on this device while we were waiting)
+    const link = readJSON(GDRIVE_KEY, null) || {};
+    if (link.fileId !== fileId) return;
+    try { localStorage.setItem(GDRIVE_KEY, JSON.stringify(Object.assign({}, link, {backupsFolderId: folderId || undefined}))); } catch (e) { /* found again next time */ }
+  };
+  async function driveBackupsFolder(h, create) {
+    const link = readJSON(GDRIVE_KEY, null) || {};
+    if (link.backupsFolderId && link.fileId === h.fileId) {
+      // (still there and not in the trash?)
+      try {
+        const meta = await (await driveFetch("files/" + encodeURIComponent(link.backupsFolderId) + "?fields=id,trashed")).json();
+        if (meta && meta.id && !meta.trashed) return link.backupsFolderId;
+      } catch (e) { if (e && e.name !== "NotFoundError") throw e; }
+      rememberFolder(h.fileId, null);
+    }
+    // Next to the backup file when that's a folder Card Vault made; otherwise in Card Vault's own folder (Google
+    // only lets Card Vault see and use folders it created itself).
+    let parent = null;
+    try { const meta = await (await driveFetch("files/" + encodeURIComponent(h.fileId) + "?fields=parents")).json(); parent = meta && meta.parents && meta.parents[0] || null; }
+    catch (e) { parent = null; }
+    let id = null;
+    if (parent) { try { id = await driveFolder("Backups", parent, create); } catch (e) { id = null; } }
+    if (!id) {
+      const own = await driveFolder("Card Vault", null, create);
+      if (own) id = await driveFolder("Backups", own, create);
+    }
+    if (id) rememberFolder(h.fileId, id);
+    return id;
+  }
+  async function driveDatedCopy(h, stamp) {
+    const day = localDay(new Date());
+    if (dated.busy || dated.day === day || !driveToken()) return;
+    dated.busy = true;
+    try {
+      const folderId = await driveBackupsFolder(h, true);
+      if (!folderId) throw new Error("no folder");
+      const name = "Card Vault backup " + day + ".json";
+      const q = "name = '" + name + "' and '" + folderId + "' in parents and trashed = false";
+      const same = await (await driveFetch("files?q=" + encodeURIComponent(q) + "&pageSize=1&fields=files(id)")).json();
+      if (!(same && same.files && same.files.length)) {
+        const body = dated.body || JSON.stringify(backupPayload(stamp));
+        const boundary = "cardvault" + Date.now();
+        const multipart = "--" + boundary + "\r\nContent-Type: application/json; charset=UTF-8\r\n\r\n" +
+          JSON.stringify({name, mimeType: "application/json", parents: [folderId]}) + "\r\n--" + boundary + "\r\nContent-Type: application/json\r\n\r\n" + body + "\r\n--" + boundary + "--";
+        await driveFetch(GDRIVE_UPLOAD + "files?uploadType=multipart&fields=id", {method: "POST", headers: {"Content-Type": "multipart/related; boundary=" + boundary}, body: multipart});
+        // the oldest beyond 30 go to the trash
+        const all = await driveDatedList(folderId);
+        for (const f of all.slice(DRIVE_KEEP_DAYS)) await driveFetch("files/" + encodeURIComponent(f.id), {method: "PATCH", headers: {"Content-Type": "application/json"}, body: JSON.stringify({trashed: true})});
+        dated.list = null;
+      }
+      dated.day = day;
+      dated.error = "";
+    } catch (e) {
+      // a copy is a bonus; the main backup went through. Try again at the next save, and say so in Settings.
+      dated.error = (e && e.message) || String(e);
+    }
+    dated.busy = false;
+  }
+  async function driveDatedList(folderId) {
+    const q = "'" + folderId + "' in parents and trashed = false and name contains 'Card Vault backup'";
+    const res = await (await driveFetch("files?q=" + encodeURIComponent(q) + "&pageSize=100&fields=files(id,name,size,modifiedTime)")).json();
+    return (res && res.files ? res.files : []).filter(f => DATED_RE.test(f.name)).sort((a, b) => b.name.localeCompare(a.name));
+  }
+  async function fillDriveCopies() {
+    const box = document.getElementById("driveCopies");
+    if (!box) return;
+    if (!(backup.handle && backup.handle.kind === "gdrive")) { box.hidden = true; return; }
+    box.hidden = false;
+    if (!driveToken()) { box.innerHTML = '<p class="small" style="margin:0">Sign in to Google Drive again (Resume, above) to see them.</p>'; return; }
+    box.innerHTML = '<p class="small" style="margin:0">Looking in your Google Drive…</p>';
+    let list;
+    try { const folderId = await driveBackupsFolder(backup.handle, false); list = folderId ? await driveDatedList(folderId) : []; }
+    catch (e) { if (box.isConnected) box.innerHTML = '<p class="small" style="margin:0">Couldn\'t look in Google Drive right now.</p>'; return; }
+    if (!box.isConnected) return;
+    dated.list = list;
+    if (!list.length) { box.innerHTML = '<p class="small" style="margin:0">' + (dated.error ? "The last try didn't work (" + esc(dated.error) + "). Card Vault tries again with the next save." : "None yet: the first dated copy is kept with the next save.") + "</p>"; return; }
+    box.innerHTML = '<table class="data-table"><tbody>' + list.map(f => "<tr><td>" + esc(fmtDate(parseDay(f.name.match(DATED_RE)[1]))) + '</td><td class="num">' +
+      esc(Math.round((+f.size || 0) / 1024) + " KB") + '</td><td class="num"><button class="btn btn-small" type="button" data-dcopy="' + esc(f.id) + '">Restore</button></td></tr>').join("") +
+      "</tbody></table>";
+    box.querySelectorAll("[data-dcopy]").forEach(b => b.addEventListener("click", async () => {
+      const f = list.find(x => x.id === b.dataset.dcopy);
+      b.disabled = true;
+      let text;
+      try { text = await (await driveFetch("files/" + encodeURIComponent(f.id) + "?alt=media")).text(); }
+      catch (e) { b.disabled = false; toast("Couldn't download that copy: " + e.message + ".", {kind: "error"}); return; }
+      b.disabled = false;
+      if (restoreBackup(text, "the copy from " + fmtDate(parseDay(f.name.match(DATED_RE)[1])))) { closeDrawer(); if (backup.state === "active") scheduleBackup(true); }
+    }));
   }
   // Finds "Card Vault backup.json" that Card Vault made in this Google account (from any device), or makes one.
   async function driveFindOrCreate() {
@@ -3375,6 +4301,7 @@
         backup.error = "";
       }
       ok = true;
+      if (h.kind === "gdrive") { dated.body = JSON.stringify(backupPayload(stamp)); driveDatedCopy(h, stamp).then(() => { dated.body = null; }); }
     } catch (e) {
       if (w) { try { await w.abort(); } catch (e2) { /* nothing more to undo */ } }
       if (backup.handle === h) {  // (ignore a write that finished after backups were turned off or moved)
@@ -3572,7 +4499,8 @@
     const recs = data.collection.map(upgradeRecord).filter(Boolean);
     const ws = Array.isArray(data.wants) ? data.wants.map(upgradeWant).filter(Boolean) : [];
     const before = {collection, wants, decks, sales, valueHistory: valueHistory.slice(), condAdjust: settings.condAdjust, condPct: Object.assign({}, settings.condPct),
-      alertsOn: settings.alertsOn, alertMinDollar: settings.alertMinDollar, alertMinPct: settings.alertMinPct};
+      alertsOn: settings.alertsOn, alertMinDollar: settings.alertMinDollar, alertMinPct: settings.alertMinPct,
+      psa10Mult: settings.psa10Mult, psa10Floor: settings.psa10Floor, gradePct: Object.assign({}, settings.gradePct), pcToken: settings.pcToken};
     collection = recs;
     wants = ws;
     // (Backups from before decks and sales existed leave the current ones alone.)
@@ -3596,6 +4524,7 @@
       settings.alertsOn = before.alertsOn;
       settings.alertMinDollar = before.alertMinDollar;
       settings.alertMinPct = before.alertMinPct;
+      settings.psa10Mult = before.psa10Mult; settings.psa10Floor = before.psa10Floor; settings.gradePct = before.gradePct; settings.pcToken = before.pcToken;
       save(); render(); toast("Restore undone.");
     }});
   }
@@ -3766,6 +4695,9 @@
       '<h3 style="margin:16px 0 6px;font-size:13.5px">Earlier versions kept in this browser</h3>' +
       '<p class="small" style="margin:0 0 8px">Your collection as it was when you first opened Card Vault on each of the last 7 days you used it.</p>' +
       '<div id="snapList"><p class="small" style="margin:0">Loading…</p></div>' +
+      (backup.drive ? '<div id="driveCopiesWrap"' + (backup.handle && backup.handle.kind === "gdrive" ? "" : " hidden") + '><h3 style="margin:16px 0 6px;font-size:13.5px">Dated copies in your Google Drive</h3>' +
+        '<p class="small" style="margin:0 0 8px">One copy a day, kept for 30 days in the Backups folder next to your backup file, in case a mistake syncs to every device. Restoring one replaces what\'s here (and syncs).</p>' +
+        '<div id="driveCopies"></div></div>' : "") +
       '<label class="field" style="margin-top:14px"><span>When automatic backup is off, remind me to back up</span><select class="input" id="sRemind">' +
       remind.map(([v, l]) => '<option value="' + v + '"' + ((num(settings.backupRemindDays) || 0) === v ? " selected" : "") + ">" + l + "</option>").join("") +
       "</select></label></div>" +
@@ -3793,6 +4725,20 @@
         esc(c) + '" value="' + esc(settings.condPct[c]) + '"' + (settings.condAdjust ? "" : " disabled") + ">%</span></label>").join("") + "</div>" +
       '<p style="margin:10px 0 0"><button class="link-btn" type="button" id="sCondReset">Reset to 100, 85, 70, 50 and 30%</button></p></div>' +
 
+      '<div class="section"><h3>Graded values (the PSA 10 view)</h3>' +
+      '<p class="small" style="margin:0 0 10px">The <b>PSA 10 value</b> switch above your collection shows what one gem-mint copy of each card would be worth. ' +
+      "Real graded prices come from PriceCharting (eBay sales by grade), looked up from this device with your own PriceCharting key (their Legendary plan) and kept private here. " +
+      "Without one, it's a rough estimate from the raw market price, plus any PSA 10 values you type on a card.</p>" +
+      '<label class="field"><span>PriceCharting key (optional; from pricecharting.com, Subscriptions > API)</span><input class="input" id="sPcToken" type="password" autocomplete="off" value="' + esc(settings.pcToken || "") + '"></label>' +
+      '<div id="pcNote">' + pcNoteHTML() + "</div>" +
+      '<p class="small" style="margin:12px 0 6px">Estimate when there\'s no real price: PSA 10 ≈ raw market price × factor + fee</p>' +
+      '<div class="alert-grid"><label class="field"><span>Factor</span><span class="pct">×<input class="input" type="number" min="1" max="100" step="0.5" id="sPsaMult" value="' + esc(settings.psa10Mult) + '"></span></label>' +
+      '<label class="field"><span>Fee</span><span class="pct">$<input class="input" type="number" min="0" max="500" step="1" id="sPsaFloor" value="' + esc(settings.psa10Floor) + '"></span></label></div>' +
+      '<p class="small" style="margin:12px 0 6px">Other grades, as a share of the PSA 10 value (for cards you\'ve had graded, when there\'s no price for that grade)</p>' +
+      '<div class="cond-grid">' + Object.keys(DEFAULT_GRADE_PCT).map(g => '<label class="field"><span>' + (g === "6" ? "6 or below" : "Grade " + g) + '</span><span class="pct"><input class="input" type="number" min="0" max="200" step="1" data-gpct="' +
+        g + '" value="' + esc(settings.gradePct[g]) + '"' + (g === "10" ? " disabled" : "") + ">%</span></label>").join("") + "</div>" +
+      '<p class="small" style="margin:8px 0 0">These are rough starting points: a PSA 10 of a cheap modern card often sells for 5 to 30 times the raw price, and a vintage 1st Edition for far more. Real prices from PriceCharting replace them.</p></div>' +
+
       '<div class="section"><h3>Daily price updates</h3>' +
       (SITE ? '<p style="margin:0">New TCGplayer prices arrive every evening on their own: GitHub runs the update for this website.</p>'
       : '<p style="margin:0">To get new TCGplayer prices every day without doing anything, double-click <b>Turn On Daily Updates</b> in the Card Vault folder once. ' +
@@ -3811,6 +4757,7 @@
     drawerCtx = {mode: "settings"};
     openDrawer("Settings", settingsHTML());
     fillSnapshots();
+    fillDriveCopies();
     $("sRemind").addEventListener("change", () => {
       settings.backupRemindDays = num($("sRemind").value) || 0;
       settings.backupSnoozeUntil = 0;
@@ -3842,6 +4789,36 @@
       pctInputs().forEach(i => { i.value = settings.condPct[i.dataset.cond]; });
       valuesChanged();
     });
+    const pcWire = () => { const b = $("pcRefresh"); if (b) b.addEventListener("click", () => { b.disabled = true; refreshGradedPrices(true).then(() => { if ($("pcNote")) { $("pcNote").innerHTML = pcNoteHTML(); pcWire(); } }); }); };
+    pcWire();
+    $("sPcToken").addEventListener("change", () => {
+      settings.pcToken = $("sPcToken").value.trim();
+      save({quiet: true});
+      if ($("pcNote")) { $("pcNote").innerHTML = pcNoteHTML(); pcWire(); }
+      if (pcOn()) refreshGradedPrices().then(() => { if ($("pcNote")) { $("pcNote").innerHTML = pcNoteHTML(); pcWire(); } });
+    });
+    const gradedChange = () => {
+      const m = num($("sPsaMult").value), f = num($("sPsaFloor").value);
+      settings.psa10Mult = m == null ? 4 : Math.min(Math.max(m, 1), 100);
+      settings.psa10Floor = f == null ? 25 : Math.min(Math.max(f, 0), 500);
+      $("sPsaMult").value = settings.psa10Mult; $("sPsaFloor").value = settings.psa10Floor;
+      document.querySelectorAll("#drawerBody [data-gpct]").forEach(i => {
+        const v = num(i.value);
+        settings.gradePct[i.dataset.gpct] = v == null ? DEFAULT_GRADE_PCT[i.dataset.gpct] : Math.min(Math.max(Math.round(v), 0), 200);
+        i.value = settings.gradePct[i.dataset.gpct];
+      });
+      settings.gradePct["10"] = 100;
+      valuesChanged();
+    };
+    ["sPsaMult", "sPsaFloor"].forEach(k => $(k).addEventListener("change", gradedChange));
+    document.querySelectorAll("#drawerBody [data-gpct]").forEach(i => i.addEventListener("change", gradedChange));
+  }
+  function pcNoteHTML() {
+    if (!pcOn()) return "";
+    if (pcBad()) return '<div class="status-line off" style="margin-top:8px"><span class="dot" aria-hidden="true"></span><span>PriceCharting didn\'t accept this key. Check it on pricecharting.com (Subscriptions > API).</span></div>';
+    const known = collection.filter(r => !r.sealed && pcKnown(r)).length, total = collection.filter(r => !r.sealed).length;
+    return '<div class="status-line on" style="margin-top:8px"><span class="dot" aria-hidden="true"></span><span>Graded prices from PriceCharting: ' + known + " of " + plural(total, "card") + " matched so far" +
+      (pc.refreshing ? " (checking…)" : "") + '. Prices refresh about once a day. <button type="button" class="link-btn" id="pcRefresh">Check all now</button></span></div>';
   }
   // The daily update reads your want list and cards from the backup file to send notifications.
   function alertNoteHTML() {
@@ -4118,7 +5095,7 @@
     const owned = new Map();
     for (const r of collection) {
       const p = r.productId ? catalog.byId.get(r.productId) : null;
-      if (!p || !p.group.id) continue;
+      if (!p || !p.group.id || p.sealed) continue;
       let o = owned.get(p.group.id);
       if (!o) owned.set(p.group.id, o = {ids: new Set(), numbers: new Set()});
       o.ids.add(p.id);
@@ -4126,7 +5103,7 @@
     }
     const out = [];
     for (const [gid, o] of owned) {
-      const prods = byGroup.get(gid) || [];
+      const prods = (byGroup.get(gid) || []).filter(p => !p.sealed);
       if (!prods.length) continue;
       const items = new Map();
       for (const p of prods) {
@@ -4236,7 +5213,8 @@
     const head = '<div class="panel-head"><div><h2>Want list</h2><p>' + (wants.length
       ? plural(wants.length, "card") + (catalog ? ", " + esc(usd(total)) + " at today's prices" : "") + (hits ? ", " + hits + " at or below your target" : "")
       : "Cards you're looking for, with the price you'd pay.") + "</p></div>" +
-      '<div class="panel-tools"><button class="btn btn-primary" type="button" data-want-action="add">Add a card</button></div></div>';
+      '<div class="panel-tools">' + (SITE && wants.length ? '<button class="btn" type="button" data-want-action="share">Share…</button>' : "") +
+      '<button class="btn btn-primary" type="button" data-want-action="add">Add a card</button></div></div>';
     if (!wants.length) {
       panel.innerHTML = head + emptyPanel("Your want list is empty", "Add the cards you're looking for and the price you'd pay. Card Vault flags them when TCGplayer's market price reaches your target. " +
         "You can also add missing cards from the Sets tab.");
@@ -4563,7 +5541,9 @@
           (w.target != null ? "target " + esc(usd(w.target)) : "")) + "</small></span></summary><dl>" + dl("Set", w.setName) + dl("Card number", w.number) +
         dl("Your target", w.target == null ? "" : usd(w.target)) + dl("Notes", w.notes) + "</dl></details>";
     };
-    const data = JSON.stringify(backupPayload(now.toISOString())).replace(/</g, "\\u003c").replace(/\u2028/g, "\\u2028").replace(/\u2029/g, "\\u2029");
+    const phonePayload = backupPayload(now.toISOString());
+    phonePayload.settings = Object.assign({}, phonePayload.settings, {pcToken: ""});   // (the phone copy is just for looking)
+    const data = JSON.stringify(phonePayload).replace(/</g, "\\u003c").replace(/\u2028/g, "\\u2028").replace(/\u2029/g, "\\u2029");
     return '<!doctype html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">' +
       "<title>Card Vault phone copy</title><style>" + PHONE_CSS + "</style></head><body><header><h1>Card Vault</h1>" +
       '<p class="m">Phone copy saved ' + esc(fmtDateTime(now)) + (catalog ? ". TCGplayer prices from " + esc(fmtDate(catalog.generated)) : "") + ".</p>" +
@@ -4672,7 +5652,7 @@
   function productsByName() {
     if (!catalog.byName) {
       catalog.byName = new Map();
-      for (const p of catalog.products) pushMap(catalog.byName, normCardName(cleanName(p.name, p.rarity)), p);
+      for (const p of catalog.products) if (!p.sealed) pushMap(catalog.byName, normCardName(cleanName(p.name, p.rarity)), p);
     }
     return catalog.byName;
   }
@@ -4772,7 +5752,7 @@
   }
   function checkDeck(parsed) {
     const owned = new Map();   // copies not yet counted toward an earlier part of the deck
-    for (const r of collection) { const k = normCardName(r.name); if (k) owned.set(k, (owned.get(k) || 0) + r.qty); }
+    for (const r of collection) { const k = r.sealed ? "" : normCardName(r.name); if (k) owned.set(k, (owned.get(k) || 0) + r.qty); }
     let need = 0, have = 0, cost = 0, unpriced = 0;
     const sections = parsed.sections.map(sec => {
       const rows = sec.cards.map(c => {
@@ -4821,12 +5801,16 @@
     if (!res.need) return '<div class="notice" style="margin:0">No cards found in that list. Put one card per line, like "3 Ash Blossom &amp; Joyous Spring".</div>';
     const lines = res.sections.map(s => "<li><b>" + esc(s.name) + ":</b> you have " + s.have + " of " + s.need + "</li>").join("");
     const wantable = res.sections.reduce((n, s) => n + s.rows.filter(r => r.missing && r.best).length, 0);
+    const pull = deckPullPlan();
     let html = '<div class="box"><ul class="deck-sum">' + lines + "</ul>" +
       (res.missing ? '<p style="margin:10px 0 0">You need <b>' + plural(res.missing, "more card") + "</b>" +
         (res.cost ? ", about <b>" + esc(usd(res.cost)) + "</b> at the cheapest TCGplayer prices" : "") +
-        (res.unpriced ? " (" + plural(res.unpriced, "card") + " without a price)" : "") + ".</p>" +
-        (wantable ? '<div class="btn-row"><button class="btn btn-primary" type="button" data-deck="wants">Add the missing cards to my want list</button></div>' : "")
-        : '<p style="margin:10px 0 0"><span class="status"><span class="status-icon good" aria-hidden="true">&#10003;</span>You have every card for this deck.</span></p>') + "</div>";
+        (res.unpriced ? " (" + plural(res.unpriced, "card") + " without a price)" : "") + ".</p>"
+        : '<p style="margin:10px 0 0"><span class="status"><span class="status-icon good" aria-hidden="true">&#10003;</span>You have every card for this deck.</span></p>') +
+      ((res.missing && wantable) || pull.cards ? '<div class="btn-row">' +
+        (res.missing && wantable ? '<button class="btn btn-primary" type="button" data-deck="wants">Add the missing cards to my want list</button>' : "") +
+        (pull.cards ? '<button class="btn' + (res.missing && wantable ? "" : " btn-primary") + '" type="button" data-deck="pull">Move the ' + plural(pull.cards, "card") + " I have into " + esc(pull.dest) + "</button>" : "") + "</div>" : "") +
+      (res.have && !pull.cards && pull.dest ? '<p class="small" style="margin:8px 0 0">Your copies are already in ' + esc(pull.dest) + " (graded cards stay where they are).</p>" : "") + "</div>";
     for (const s of res.sections) {
       html += '<div class="table-wrap deck-table"><table class="data-table"><caption>' + esc(s.name) + " (" + s.need + ")</caption><thead><tr><th>Card</th>" +
         '<th class="num">Need</th><th class="num">Have</th><th class="num">Cheapest</th><th class="num">To buy</th></tr></thead><tbody>' +
@@ -4889,6 +5873,38 @@
       if (showing && deckDraft === draft && !draft.id) { draft.id = id; settings.deckId = id; }
       save(); renderDecks();
     }});
+  }
+  // The copies you have of this deck's cards, and where they'd go: a location named after the deck.
+  function deckPullPlan() {
+    const res = deckResult;
+    const liveName = $("deckName") ? $("deckName").value.trim() : ((deckDraft && deckDraft.name) || "").trim();
+    const dest = liveName ? "Deck: " + liveName : "";
+    if (!res || !res.sections || !dest) return {cards: 0, dest, plan: []};
+    const need = new Map();
+    for (const s of res.sections) for (const r of s.rows) if (r.have) need.set(r.key, (need.get(r.key) || 0) + r.have);
+    const plan = [];
+    let cards = 0;
+    // copies already in the deck's box count first; the rest come from wherever they are (cheapest copies first)
+    for (const [key, n] of need) {
+      const mine = collection.filter(r => !r.sealed && !r.grade && normCardName(r.name) === key);   // (graded slabs stay where they are)
+      let left = n - mine.filter(r => sameLoc(r.location, dest)).reduce((s, r) => s + r.qty, 0);
+      const from = mine.filter(r => !sameLoc(r.location, dest)).sort((a, b) => (marketValue(a).unit || 0) - (marketValue(b).unit || 0) || (!!a.grade - !!b.grade));
+      for (const r of from) {
+        if (left <= 0) break;
+        const take = Math.min(left, r.qty);
+        plan.push({id: r.id, qty: take});
+        cards += take; left -= take;
+      }
+    }
+    return {cards, dest, plan};
+  }
+  function deckPullIntoBox() {
+    const pull = deckPullPlan();
+    if (!pull.cards) { toast(pull.dest ? "Those cards are already in " + pull.dest + "." : "Give the deck a name first: the cards go into a location named after it."); return; }
+    const res = moveCopies(pull.plan, pull.dest);
+    save(); render();
+    toast("Moved " + plural(res.cards, "card") + " into " + res.dest + ". Find them under that location in your collection.",
+      {action: "Undo", onAction: () => { res.undo(); save(); render(); }});
   }
   function deckMissingToWants() {
     if (!deckResult || !deckResult.sections) return;
@@ -5620,7 +6636,9 @@
     gradedBy: ["gradedby", "gradingcompany", "grader"],
     grade: ["grade"],
     cert: ["certnumber", "cert", "certificationnumber"],
-    gradedValue: ["gradedvalueusd", "gradedvalue"]
+    gradedValue: ["gradedvalueusd", "gradedvalue"],
+    sealed: ["sealed", "sealedproduct"],
+    g10: ["psa10valueusd", "psa10value", "psa10"]
   };
   function mapHeaders(headers) {
     const norm = headers.map(h => String(h || "").toLowerCase().replace(/[^a-z0-9]/g, ""));
@@ -5670,6 +6688,7 @@
       snap: (market != null || low != null) ? {market, low, date: importedAt} : null,
       location: get("location"),
       grade: get("gradedBy") ? {company: get("gradedBy"), grade: get("grade"), cert: get("cert"), value: get("gradedValue")} : null,
+      sealed: /^(yes|true|1|sealed)$/i.test(get("sealed")) || (!!product && product.sealed), g10: num(get("g10")),
       notes: get("notes"), added: added ? added.toISOString() : importedAt
     })};
   }
@@ -5762,7 +6781,7 @@
       foot.innerHTML = '<button class="btn" type="button" data-imp="cancel">Close</button>';
     } else {
       const recs = analysis.records;
-      const t = totals(recs);
+      const t = totals(recs, r => marketValue(r).unit);
       const linked = catalog ? recs.filter(r => r.productId && catalog.byId.has(r.productId)).length : 0;
       const plan = importPlan(recs);
       analysis.plan = plan;
@@ -5882,6 +6901,7 @@
       ["Image URL", r => r.customImage || ""], ["Location", r => r.location], ["Graded By", r => r.grade ? r.grade.company : ""],
       ["Grade", r => r.grade ? r.grade.grade : ""], ["Cert Number", r => r.grade ? r.grade.cert : ""],
       ["Graded Value (USD)", r => r.grade && r.grade.value != null ? r.grade.value : ""],
+      ["PSA 10 Value (USD)", r => r.g10 == null ? "" : r.g10], ["Sealed", r => r.sealed ? "yes" : ""],
       ["Notes", r => r.notes], ["Date Added", r => r.added]];
     const cell = v => { const s = String(v == null ? "" : v); return /[",\n\r]/.test(s) ? '"' + s.replace(/"/g, '""') + '"' : s; };
     const lines = [cols.map(c => cell(c[0])).join(",")].concat(collection.map(r => cols.map(c => cell(c[1](r))).join(",")));
@@ -6004,12 +7024,24 @@
       saveSettings(); updateSortDirButton(); renderCollection();
     });
     $("basis").addEventListener("change", () => { settings.basis = $("basis").value; saveSettings(); render(); });
+    $("valueMode").addEventListener("click", e => {
+      const b = e.target.closest("[data-mode]");
+      if (!b) return;
+      settings.gradedView = b.dataset.mode === "graded";
+      saveSettings(); render();
+      if (settings.gradedView) refreshGradedPrices();
+    });
     document.querySelectorAll("#viewSeg button").forEach(b => b.addEventListener("click", () => {
       settings.view = b.dataset.view; saveSettings(); renderFilterOptions(); renderCollection();
     }));
 
     $("bulkAll").addEventListener("click", () => { visibleRecords().forEach(r => selected.add(r.id)); syncSelectionUI(); });
     $("bulkClear").addEventListener("click", () => { selected.clear(); syncSelectionUI(); });
+    $("bulkShare").addEventListener("click", () => {
+      const shown = visibleRecords().filter(r => selected.has(r.id));
+      openShare("cards", shown.concat(collection.filter(r => selected.has(r.id) && !shown.includes(r))).map(r => r.id));
+    });
+    $("shareTrade").addEventListener("click", () => { const ex = extrasMap(); openShare("cards", visibleRecords().filter(r => ex.has(r.id)).map(r => r.id), {extras: ex}); });
     $("bulkLocation").addEventListener("click", () => {
       const shown = visibleRecords().filter(r => selected.has(r.id));
       openMove(shown.concat(collection.filter(r => selected.has(r.id) && !shown.includes(r))).map(r => r.id), {bulk: true});
@@ -6099,6 +7131,7 @@
       else if (a === "file") $("deckFile").click();
       else if (a === "save") saveDeck();
       else if (a === "wants") deckMissingToWants();
+      else if (a === "pull") deckPullIntoBox();
       else if (a === "new") { deckDraft = {id: null, name: "", text: ""}; deckResult = null; settings.deckId = null; saveSettings(); renderDecks(); $("deckName").focus(); }
     });
     decksPanel.addEventListener("change", e => {
@@ -6132,6 +7165,7 @@
       if (!b) return;
       const a = b.dataset.wantAction, w = wants.find(x => x.id === b.dataset.id);
       if (a === "add") { openAdd({want: true}); return; }
+      if (a === "share") { openShare("wants"); return; }
       if (!w) return;
       if (a === "remove") removeWant(w.id);
       else if (a === "got") gotWant(w.id);
@@ -6218,13 +7252,13 @@
       if (![STORE_KEY, WANTS_KEY, HISTORY_KEY, DECKS_KEY, SALES_KEY].includes(e.key)) return;
       // What this tab is showing stays as it is; only the cards, lists and values come from the other tab.
       const view = {};
-      ["tab", "view", "sortField", "sortDir", "basis", "histPeriod", "chartTable", "setsMode", "setsSort", "salesYear", "deckId"]
+      ["tab", "view", "sortField", "sortDir", "basis", "histPeriod", "chartTable", "setsMode", "setsSort", "salesYear", "deckId", "gradedView"]
         .forEach(k => { view[k] = settings[k]; });
       loadState();
       Object.assign(settings, view);
       // An Undo offered here would put this tab's older copy back over what the other tab just saved.
       document.querySelectorAll("#toasts .toast.has-action").forEach(t => t.remove());
-      yugi.cache = null;
+      yugi.cache = null; ocg.cache = null; pc.cache = null;
       render();
     });
     setInterval(() => { if (document.visibilityState === "visible") checkForNewData(); }, 30 * 60000);
@@ -6253,6 +7287,9 @@
     render();
     initBackup();
     snapshotToday();
+    // Japanese/Korean and graded prices refresh in the background, about once a day, when online.
+    setTimeout(() => { refreshOcgPrices(); if (settings.gradedView) refreshGradedPrices(); }, 2500);
+    window.addEventListener("online", () => { refreshOcgPrices(); if (settings.gradedView) refreshGradedPrices(); });
     if (loadProblem) toast("Card Vault couldn't read your saved collection, so it started empty. Your backup file wasn't changed: restore it from Settings.", {kind: "error", sticky: true});
     if (!storageOK) toast("This browser is blocking storage, so changes won't be kept after you close the page. Use Export CSV to keep a copy.", {kind: "error", sticky: true});
     if (linked) toast("Linked " + plural(linked, "card") + " to TCGplayer printings by card number.");
@@ -6266,7 +7303,9 @@
     findYugiImages, rankYugiImages, parseYugiFile, recordValueHistory, niceTicks, dateTicks, checkForNewData, writeBackup, initBackup,
     photoCandidates, findPhotosBatch, tradeListText, parseDeckText, parseYdk, parseYdke, checkDeck, cardNamesFor, runDeckCheck,
     openSoldForm, recordSale, saleNumbers, buildReport, openReport, phoneCopyHTML, savePhoneCopy, writePhoneCopy, backupTextFrom,
-    matchScanned, numberVariants, openScanner, stopScanner, prepCanvas, openWantForm, resolveLink, chooseBackupFile, linkGoogleDrive, driveToken, openMove, moveCopies};
+    matchScanned, numberVariants, openScanner, stopScanner, prepCanvas, openWantForm, resolveLink, chooseBackupFile, linkGoogleDrive, driveToken, openMove, moveCopies,
+    searchSealed, openSealedSearch, openSealedForm, ocgCard, bigwebFor, bunjangFor, bigwebPick, bunjangPick, ocgPrice, refreshOcgPrices, fxRates, showOcgLookup,
+    psa10Value, gradedValue, gradedTotals, pcLookup, pcMatch, refreshGradedPrices, gradeShare, koRarity, jaRarity, driveDatedCopy, fillDriveCopies, deckPullPlan, deckPullIntoBox, openShare, shareLink};
 
   document.addEventListener("DOMContentLoaded", init);
 })();

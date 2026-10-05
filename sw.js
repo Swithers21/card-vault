@@ -28,7 +28,7 @@ self.addEventListener("fetch", event => {
   const scope = new URL(self.registration.scope).pathname;
   if (!url.pathname.startsWith(scope)) return;
   // Always fresh: the "are there new prices?" check and the Google sign-in page.
-  if (/tcgplayer-data-version\.js$|oauth\.html$/.test(url.pathname)) return;
+  if (/tcgplayer-data-version\.js$|oauth\.html$|share\.html$/.test(url.pathname)) return;
   event.respondWith(fromNetworkOrSaved(request, event));
 });
 

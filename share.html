@@ -1,0 +1,159 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="robots" content="noindex">
+<title>Shared from Card Vault</title>
+<link rel="icon" href="icons/icon-192.png">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Archivo:wght@400;500;600;700&family=Marcellus+SC&display=swap" rel="stylesheet">
+<style>
+  :root{--bg:#14100d;--surface:#211a14;--surface-2:#2a2119;--line:#3b3026;--line-2:#4d3f32;--text:#f3eadf;--text-dim:#baab99;--gold:#d8ad57;--gold-hi:#f1cf82;--good:#6ecf9a}
+  *{box-sizing:border-box}
+  body{margin:0;min-height:100vh;color:var(--text);font:14.5px/1.5 "Archivo",system-ui,-apple-system,"Segoe UI",Roboto,sans-serif;
+    background:radial-gradient(1100px 460px at 80% -140px,rgba(216,173,87,.09),transparent 65%),var(--bg)}
+  a{color:var(--gold-hi)}
+  .app{max-width:1080px;margin:0 auto;padding:22px 16px 40px}
+  h1{font:400 30px/1.1 "Marcellus SC",Georgia,serif;margin:0;letter-spacing:.3px}
+  .sub{color:var(--text-dim);margin:6px 0 0;font-size:13.5px}
+  .tools{display:flex;flex-wrap:wrap;gap:10px;align-items:center;margin:18px 0 14px}
+  .search{flex:1 1 220px;max-width:360px;background:#1a1511;border:1px solid var(--line-2);border-radius:8px;padding:9px 10px;font:inherit;color:inherit}
+  .seg{display:inline-flex;border:1px solid var(--line-2);border-radius:8px;overflow:hidden}
+  .seg button{background:var(--surface);border:0;padding:8px 13px;font:inherit;font-size:13.5px;cursor:pointer;color:var(--text-dim)}
+  .seg button[aria-pressed="true"]{background:#342920;color:var(--text);font-weight:600}
+  .count{color:var(--text-dim);font-size:13px}
+  .binder{display:grid;grid-template-columns:repeat(auto-fill,minmax(150px,1fr));gap:14px}
+  .tile{background:var(--surface);border:1px solid var(--line);border-radius:12px;padding:10px;display:flex;flex-direction:column;gap:6px}
+  .sleeve{display:block;position:relative;aspect-ratio:59/86;border-radius:6px;overflow:hidden;background:#0c0907;box-shadow:inset 0 0 0 1px rgba(255,255,255,.05),0 6px 14px rgba(0,0,0,.35)}
+  .sleeve img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;display:block}
+  .sleeve.boxed{background:#f3efe8}.sleeve.boxed img{object-fit:contain}
+  .ph{position:absolute;inset:0;display:grid;place-items:center;padding:10px;text-align:center;color:var(--text-dim);font-size:12px;border:1px dashed var(--line-2);border-radius:6px}
+  .name{font-weight:600;font-size:13.5px;line-height:1.3}
+  .meta{color:var(--text-dim);font-size:12px;line-height:1.35}
+  .foot{display:flex;justify-content:space-between;align-items:flex-end;gap:6px;margin-top:auto}
+  .ed{display:inline-block;font-size:11px;font-weight:600;padding:2px 7px;border-radius:5px;border:1px solid var(--line-2);color:var(--text-dim);white-space:nowrap}
+  .ed-1st{border-color:rgba(216,173,87,.7);color:var(--gold-hi)}
+  .price{color:var(--gold-hi);font-weight:700;font-size:14px;text-align:right;font-variant-numeric:tabular-nums}
+  .price small{display:block;color:var(--text-dim);font-weight:500;font-size:11px}
+  .qty{position:absolute;top:6px;left:6px;background:rgba(0,0,0,.72);color:#fff;font-size:12px;font-weight:700;padding:2px 7px;border-radius:999px}
+  .table-wrap{overflow:auto;border:1px solid var(--line);border-radius:12px;background:var(--surface)}
+  table{border-collapse:collapse;width:100%;font-size:13.5px}
+  th,td{padding:9px 10px;border-bottom:1px solid var(--line);text-align:left;vertical-align:middle}
+  th{color:var(--text-dim);font-weight:600;font-size:12.5px;position:sticky;top:0;background:var(--surface)}
+  td.num,th.num{text-align:right;font-variant-numeric:tabular-nums;white-space:nowrap}
+  .thumb{width:34px;border-radius:3px;box-shadow:none}
+  .empty{padding:40px 16px;text-align:center;color:var(--text-dim)}
+  footer{margin-top:28px;color:var(--text-dim);font-size:12.5px;line-height:1.6}
+  @media (max-width:560px){.binder{grid-template-columns:repeat(2,minmax(0,1fr));gap:10px}}
+</style>
+</head>
+<body>
+<div class="app">
+  <header>
+    <h1 id="title">Shared from Card Vault</h1>
+    <p class="sub" id="sub"></p>
+  </header>
+  <div class="tools" id="tools" hidden>
+    <input class="search" id="q" type="search" placeholder="Search name, number or set" aria-label="Search">
+    <div class="seg" role="group" aria-label="View" id="viewSeg"><button type="button" data-view="binder" aria-pressed="true">Binder</button><button type="button" data-view="list" aria-pressed="false">List</button></div>
+    <span class="count" id="count"></span>
+  </div>
+  <div id="out"><div class="empty">Loading…</div></div>
+  <footer id="foot"></footer>
+</div>
+<script>
+(function () {
+  "use strict";
+  const $ = id => document.getElementById(id);
+  const esc = v => String(v == null ? "" : v).replace(/[&<>"']/g, c => ({"&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;"}[c]));
+  const usd = v => (v == null || !isFinite(v)) ? "" : new Intl.NumberFormat("en-US", {style: "currency", currency: "USD"}).format(v);
+  const safeImg = u => /^https:\/\/(tcgplayer-cdn\.tcgplayer\.com|ms\.yugipedia\.com|image\.bigweb\.co\.jp)\//i.test(String(u || "")) ? String(u) : "";
+  const plural = (n, w, m) => n + " " + (n === 1 ? w : (m || w + "s"));
+  let data = null, view = "binder", q = "";
+
+  async function decode(hash) {
+    const m = hash.match(/^#?(z|j)\.([A-Za-z0-9\-_]+)$/);
+    if (!m) throw new Error("no data");
+    const b64 = m[2].replace(/-/g, "+").replace(/_/g, "/");
+    if (b64.length > 400000) throw new Error("not a Card Vault share");
+    const bin = atob(b64 + "===".slice((b64.length + 3) % 4));
+    const bytes = Uint8Array.from(bin, c => c.charCodeAt(0));
+    let text;
+    if (m[1] === "z") {
+      if (typeof DecompressionStream !== "function") throw new Error("This browser can't open compressed links. Try Chrome, Safari or Edge.");
+      const ds = new DecompressionStream("deflate-raw");
+      const w = ds.writable.getWriter(); w.write(bytes); w.close();
+      // (read at most 4 MB, so a tiny link can't unpack into something huge)
+      const reader = ds.readable.getReader();
+      const chunks = []; let size = 0;
+      for (;;) { const {done, value} = await reader.read(); if (done) break; size += value.length; if (size > 4e6) { reader.cancel(); throw new Error("not a Card Vault share"); } chunks.push(value); }
+      text = new TextDecoder().decode(new Blob(chunks).size ? await new Blob(chunks).arrayBuffer() : new Uint8Array());
+    } else text = new TextDecoder().decode(bytes);
+    let d = null;
+    try { d = JSON.parse(text); } catch (e) { throw new Error("not a Card Vault share"); }
+    if (!d || d.app !== "Card Vault" || !Array.isArray(d.items)) throw new Error("not a Card Vault share");
+    // Everything in the link is untrusted: keep only the fields the page knows, as plain text and numbers.
+    const str = v => (typeof v === "string" ? v : v == null ? "" : String(v)).slice(0, 300);
+    const money = v => { const n = Number(v); return typeof v === "number" && isFinite(n) && n >= 0 ? n : null; };
+    return {kind: d.kind === "wants" ? "wants" : "cards", title: str(d.title).slice(0, 80), at: str(d.at), prices: !!d.prices, priceDate: str(d.priceDate),
+      items: d.items.filter(it => it && typeof it === "object").slice(0, 2000).map(it => ({n: str(it.n) || "Card", no: str(it.no), s: str(it.s), r: str(it.r), e: str(it.e), c: str(it.c), g: str(it.g),
+        q: Math.min(Math.max(1, Math.floor(Number(it.q)) || 1), 9999), p: /^\d{1,9}$/.test(String(it.p)) ? String(it.p) : "", b: it.b ? 1 : 0, i: safeImg(it.i), v: money(it.v), t: money(it.t)}))};
+  }
+  const shown = () => {
+    const needle = q.trim().toLowerCase();
+    return data.items.filter(it => !needle || [it.n, it.no, it.s, it.r].join(" ").toLowerCase().includes(needle));
+  };
+  const img = it => {
+    const src = safeImg(it.i) || (it.p ? "https://tcgplayer-cdn.tcgplayer.com/product/" + encodeURIComponent(it.p) + "_in_400x400.jpg" : "");
+    return src ? '<img src="' + esc(src) + '" alt="' + esc(it.n) + '" loading="lazy" decoding="async">' : '<span class="ph">' + esc(it.n) + "</span>";
+  };
+  function render() {
+    const list = shown();
+    $("count").textContent = list.length === data.items.length ? plural(list.length, data.kind === "wants" ? "card" : "item") : list.length + " of " + data.items.length;
+    if (!list.length) { $("out").innerHTML = '<div class="empty">Nothing matches.</div>'; return; }
+    const priceCell = it => data.kind === "wants"
+      ? (it.t != null ? '<span class="price">' + esc(usd(it.t)) + "<small>would pay</small></span>" : it.v != null ? '<span class="price">' + esc(usd(it.v)) + "<small>market</small></span>" : "")
+      : it.v != null ? '<span class="price">' + esc(usd(it.v)) + (it.q > 1 ? "<small>each</small>" : "") + "</span>" : "";
+    if (view === "binder") {
+      $("out").innerHTML = '<div class="binder">' + list.map(it => '<article class="tile"><span class="sleeve' + (it.b ? " boxed" : "") + '">' + img(it) +
+        (it.q > 1 ? '<span class="qty">&times;' + it.q + "</span>" : "") + "</span>" +
+        '<span class="name">' + esc(it.n) + "</span>" +
+        '<span class="meta">' + esc(it.b ? it.s : it.no || it.s) + (it.r && !it.b ? "<br>" + esc(it.r) : "") + (it.c && !it.b ? "<br>" + esc(it.c) : "") + "</span>" +
+        '<div class="foot"><span>' + (it.e ? '<span class="ed' + (it.e === "1st Edition" ? " ed-1st" : "") + '">' + esc(it.e) + "</span>" : "") +
+        (it.g ? ' <span class="ed">' + esc(it.g) + "</span>" : "") + "</span>" + priceCell(it) + "</div></article>").join("") + "</div>";
+    } else {
+      $("out").innerHTML = '<div class="table-wrap"><table><thead><tr><th></th><th>Card</th><th>Set</th><th>Rarity</th><th>Printing</th><th>Condition</th><th class="num">Qty</th><th class="num">' +
+        (data.kind === "wants" ? "Would pay" : "Price") + "</th></tr></thead><tbody>" +
+        list.map(it => "<tr><td>" + '<span class="sleeve thumb' + (it.b ? " boxed" : "") + '">' + img(it) + "</span></td><td>" + esc(it.n) + (it.no ? '<br><span class="meta">' + esc(it.no) + "</span>" : "") +
+          "</td><td>" + esc(it.s) + "</td><td>" + esc(it.r) + "</td><td>" + esc(it.e) + "</td><td>" + esc(it.g || it.c) + '</td><td class="num">' + (it.q || 1) +
+          '</td><td class="num">' + esc(usd(data.kind === "wants" ? (it.t != null ? it.t : it.v) : it.v)) + "</td></tr>").join("") + "</tbody></table></div>";
+    }
+  }
+  async function init() {
+    try { data = await decode(location.hash); }
+    catch (e) {
+      $("out").innerHTML = '<div class="empty">' + (/^(no data|not a Card Vault share)$/.test(e.message) ? "This link doesn't hold a Card Vault share. Ask for the link again." : esc(e.message)) + "</div>";
+      return;
+    }
+    document.title = (data.title || "Shared from Card Vault") + " – Card Vault";
+    $("title").textContent = data.title || (data.kind === "wants" ? "Want list" : "Cards");
+    const when = data.at ? new Date(data.at) : null;
+    $("sub").textContent = (data.kind === "wants" ? "Cards someone is looking for" : "Cards someone is offering") + (when && !isNaN(when) ? ", shared " + when.toLocaleDateString("en-US", {month: "short", day: "numeric", year: "numeric"}) : "") +
+      (data.prices ? ". Prices are TCGplayer market prices from " + (data.priceDate || "that day") + "." : ".");
+    $("tools").hidden = false;
+    $("foot").innerHTML = "Shared from Card Vault, a personal Yu-Gi-Oh! collection tracker. Card photos and market prices come from TCGplayer (through TCGCSV). " +
+      "Nothing here is stored on a server: everything is in the link itself.";
+    render();
+    $("q").addEventListener("input", () => { q = $("q").value; render(); });
+    $("viewSeg").addEventListener("click", e => { const b = e.target.closest("[data-view]"); if (!b) return; view = b.dataset.view;
+      document.querySelectorAll("#viewSeg button").forEach(x => x.setAttribute("aria-pressed", String(x === b))); render(); });
+    document.addEventListener("error", e => { const im = e.target; if (im && im.tagName === "IMG") { const ph = document.createElement("span"); ph.className = "ph"; ph.textContent = im.alt; im.replaceWith(ph); } }, true);
+  }
+  window.addEventListener("hashchange", () => location.reload());
+  init();
+})();
+</script>
+</body>
+</html>

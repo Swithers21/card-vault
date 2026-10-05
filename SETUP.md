@@ -91,6 +91,21 @@ personal app: click **Continue**.
 - **Syncing**: each device checks Google Drive every 15 seconds while Card Vault is open, and before every
   save. If the same card is changed on two devices, the later change wins.
 - **Camera scanning** works on the iPhone (Add card > Scan with camera; allow the camera).
+- **Sealed products**: Add card > **Add a sealed product** (booster boxes and packs, tins, structure decks). They're priced
+  with TCGplayer's market price like cards, and listed under **Sealed products** in the Show menu.
+- **Japanese and Korean cards**: type the card number (like `DUNE-JP004` or `DUNE-KR004`) in Add card. Card Vault looks the
+  card up on Yugipedia and shows each rarity it was printed in. Japanese prices and photos come from BIGWEB (a large
+  Japanese card shop); Korean prices are Bunjang (a Korean marketplace) asking prices, so treat them as a rough guide.
+  Both are converted to US$ and refreshed once a day. A ¥ or ₩ price you type on a card wins over them.
+- **PSA 10 value**: the switch under your collection's value shows what one gem-mint copy of each card would be worth,
+  and cards you've had graded at their grade. Without more, it's a rough estimate from the raw price (Settings > Graded
+  values). For real graded prices from eBay sales, add a PriceCharting key in Settings (it needs PriceCharting's
+  Legendary plan, $49 a month as of October 2026). The key is saved with your Card Vault data in your Google Drive.
+- **Dated backups**: every day, the first save also keeps a dated copy in **Card Vault > Backups** in your Google Drive
+  (the last 30 days). Settings lists them; Restore puts one back on every device.
+- **Deck check** can move the cards you own for a deck into a location named after it ("Deck: Blue-Eyes").
+- **Share…** (select cards, or Show: Extras > Share trade binder, or the Want list tab) makes a link to a page with those
+  cards, their photos and TCGplayer prices. The cards are in the link itself; nothing else of yours is shared.
 - **Moving cards** between binders, boxes and decks: open a card and tap **Move** (next to where it's kept), or tick
   several cards and tap **Move…** in the bar at the bottom. Choose where they're going and how many of each.
 - **Windows notifications** still come from the Card Vault folder on your PC (Turn On Daily Updates). It
