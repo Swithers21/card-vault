@@ -1303,7 +1303,7 @@
     let ok = write();
     if (!ok) {
       // Out of room: the photo-lookup cache is only a convenience, so drop it and try again.
-      try { [YUGI_CACHE_KEY, OCG_CACHE_KEY, PC_CACHE_KEY].forEach(k => localStorage.removeItem(k)); yugi.cache = {}; ocg.cache = {}; pc.cache = {}; } catch (e) { /* ignore */ }
+      try { [YUGI_CACHE_KEY, OCG_CACHE_KEY, PC_CACHE_KEY, "cardvault.v2.ygocards", "cardvault.v2.ygoarch"].forEach(k => localStorage.removeItem(k)); yugi.cache = {}; ocg.cache = {}; pc.cache = {}; } catch (e) { /* ignore */ }
       ok = write();
     }
     storageOK = ok;
@@ -6246,6 +6246,21 @@
       const found = new Map((json.data || []).map(x => [x.name.toLowerCase(), x]));
       for (const k of chunk) cache[k] = {t: now, c: found.has(k) ? ygoSlim(found.get(k)) : null};
     }
+    // Names that differ only in punctuation ("Mystical Elf White Lightning" for "Mystical Elf - White Lightning",
+    // "Evil Twin Challenge" for "Evil★Twin Challenge"): search by the name's longest word and compare letters and digits.
+    const loose = n => String(n || "").toLowerCase().normalize("NFKD").replace(/[^a-z0-9]/g, "");
+    let misses = need.filter(k => !cache[k].c && !/^token\b|"/.test(k)).slice(0, 40);
+    for (let i = 0; i < misses.length; i++) {
+      const k = misses[i];
+      if (cache[k].c) continue;
+      const word = (byKey.get(k).match(/[A-Za-z0-9]{4,}/g) || []).sort((a, b) => b.length - a.length)[0];
+      if (!word) continue;
+      ideas.step = "Looking up cards with unusual names (" + (i + 1) + " of " + misses.length + ")…";
+      refreshIdeasStatus();
+      const json = await ygoJSON("misc=yes&fname=" + encodeURIComponent(word));
+      const byLoose = new Map((json.data || []).map(x => [loose(x.name), x]));
+      for (const m of misses) if (!cache[m].c && byLoose.has(loose(m))) cache[m] = {t: now, c: ygoSlim(byLoose.get(loose(m)))};
+    }
     ygoSave(YGO_CARDS_KEY, cache, 4000);
     const out = new Map();
     for (const n of names) { const h = cache[cardKey(n)]; if (h && h.c) out.set(cardKey(n), h.c); }
@@ -6280,14 +6295,24 @@
       owned.set(k, o);
     }
     const info = await ygoCards(Array.from(owned.values()).map(o => o.name));
+    // your cards by their YGOPRODeck name (two spellings of one card count together)
+    const mineBy = new Map();   // YGOPRODeck name (lower) -> {c, qty}
+    for (const [k, o] of owned) {
+      const c = info.get(k);
+      if (!c) continue;
+      const e = mineBy.get(c.name.toLowerCase()) || {c, qty: 0};
+      e.qty += o.qty;
+      mineBy.set(c.name.toLowerCase(), e);
+    }
+    const have = k => mineBy.has(k) ? mineBy.get(k).qty : 0;
     // archetypes: the ones your cards belong to, and the ones your cards' text names
     const counts = new Map();
     const bump = (a, k, how) => { let e = counts.get(a); if (!e) counts.set(a, e = {members: new Set(), support: new Set()}); e[how].add(k); };
-    for (const [k, c] of info) {
+    for (const [k, {c}] of mineBy) {
       if (c.arch) bump(c.arch, k, "members");
     }
     const known = new Set(counts.keys());
-    for (const [k, c] of info) for (const ref of c.refs || []) if (known.has(ref) && ref !== c.arch) bump(ref, k, "support");
+    for (const [k, {c}] of mineBy) for (const ref of c.refs || []) if (known.has(ref) && ref !== c.arch) bump(ref, k, "support");
     const candidates = Array.from(counts.entries()).map(([a, e]) => ({arch: a, members: e.members, support: e.support, n: e.members.size + e.support.size}))
       .filter(x => x.members.size >= 2 || x.n >= 3).sort((a, b) => b.n - a.n).slice(0, 25);
     const staples = await ygoStaples().catch(() => []);
@@ -6304,10 +6329,9 @@
       if (!list.length) continue;
       const byViews = list.slice().sort((a, b) => b.views - a.views);
       const core = byViews.slice(0, Math.min(15, list.length));
-      const have = k => owned.has(k) ? owned.get(k).qty : 0;
       const coreOwned = core.filter(c => have(c.name.toLowerCase()) > 0);
       const mine = list.filter(c => have(c.name.toLowerCase()) > 0).map(c => ({c, qty: have(c.name.toLowerCase())}));
-      const support = Array.from(cand.support).filter(k => info.has(k)).map(k => ({c: info.get(k), qty: have(k)}));
+      const support = Array.from(cand.support).map(k => ({c: mineBy.get(k).c, qty: have(k)}));
       const playable = mine.concat(support).reduce((t, x) => t + Math.min(x.qty, banLimit(x.c.ban)), 0);
       const missing = core.filter(c => !have(c.name.toLowerCase())).map(c => {
         const best = catalog ? cheapestByName(normCardName(c.name)) : null;
@@ -6316,19 +6340,21 @@
       decks.push({arch: cand.arch, list, core, coreOwned: coreOwned.length, mine, support, playable, missing,
         score: coreOwned.length / core.length, cost: missing.reduce((t, m) => t + (m.best ? m.best.price : 0), 0), unpriced: missing.filter(m => !m.best).length});
     }
-    decks.sort((a, b) => b.score - a.score || b.playable - a.playable);
+    // closest first; an archetype with only a handful of cards can't fill a deck alone, so it ranks a little lower
+    const rank = d => d.score * Math.min(1, d.core.length / 12);
+    decks.sort((a, b) => rank(b) - rank(a) || b.playable - a.playable);
     // Monster types you have a lot of, outside the archetypes above (a Zombie or Dragon deck, say)
     const inDecks = new Set();
     for (const d of decks) { d.mine.forEach(x => inDecks.add(x.c.name.toLowerCase())); d.support.forEach(x => inDecks.add(x.c.name.toLowerCase())); }
     const races = new Map();
-    for (const [k, c] of info) {
+    for (const [k, {c, qty}] of mineBy) {
       if (inDecks.has(k) || !/monster/i.test(c.type) || stapleKeys.has(k)) continue;
       const e = races.get(c.race) || {race: c.race, cards: []};
-      e.cards.push({c, qty: (owned.get(k) || {}).qty || 0});
+      e.cards.push({c, qty});
       races.set(c.race, e);
     }
     const themes = Array.from(races.values()).filter(e => e.cards.length >= 6).sort((a, b) => b.cards.length - a.cards.length).slice(0, 8);
-    const myStaples = staples.filter(c => owned.has(c.name.toLowerCase())).map(c => ({c, qty: owned.get(c.name.toLowerCase()).qty})).sort((a, b) => b.c.views - a.c.views);
+    const myStaples = staples.filter(c => have(c.name.toLowerCase())).map(c => ({c, qty: have(c.name.toLowerCase())})).sort((a, b) => b.c.views - a.c.views);
     const unknown = Array.from(owned.keys()).filter(k => !info.has(k)).length;
     return {decks, themes, staples: myStaples, unknown, cards: owned.size, at: Date.now()};
   }
