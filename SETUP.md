@@ -13,7 +13,8 @@ In this guide, `YOUR-USERNAME` is your GitHub username. The website's address wi
 - **Your Google Drive**: `Card Vault/Card Vault backup.json`, which every device syncs with. Card Vault can
   only see files it created itself in your Drive.
 - **GitHub Actions**: every evening it downloads the day's TCGplayer prices (through TCGCSV) and publishes
-  the website with them.
+  the website with them. It checks again overnight in case TCGCSV was late. An open Card Vault picks up new
+  prices by itself (within half an hour, or as soon as you switch back to it): nothing to reload or tap.
 
 ## 1. GitHub: the website
 
@@ -85,8 +86,14 @@ personal app: click **Continue**.
 
 ## Good to know
 
-- **Google's sign-in lasts an hour.** After that, Card Vault shows "Sign in to Google Drive again": tap
-  **Resume** (usually no typing). Until then, changes are kept on the device and sync afterwards.
+- **Google's sign-in lasts an hour, and Card Vault renews it by itself.** When the hour has run out, Card
+  Vault goes to Google and straight back (it looks like a quick reload) the next time you open it or switch back
+  to it, or when it has sat untouched for a few minutes. It never does this while you're in the middle of
+  something (a card's details open, a search showing, a deck list not yet saved). This works as long as you're
+  still signed in to Google in that browser or home-screen app. If Google wants you to sign in yourself (say you
+  signed out of Google), Card Vault shows "Sign in to Google Drive again": tap **Resume** (usually no typing).
+  Until then, changes are kept on the device and sync afterwards. To turn the automatic part off:
+  **Settings** > **Backup** > untick "Renew the Google Drive sign-in by itself".
 - **No internet** (at a card shop, say): Card Vault opens and works; changes sync when you're back online.
 - **Syncing**: each device checks Google Drive every 15 seconds while Card Vault is open, and before every
   save. If the same card is changed on two devices, the later change wins.

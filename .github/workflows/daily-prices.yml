@@ -8,6 +8,7 @@ name: Daily TCGplayer prices
 on:
   schedule:
     - cron: "40 21 * * *"   # 21:40 UTC: 5:40 PM New York time in summer, 4:40 PM in winter (TCGCSV refreshes before that)
+    - cron: "10 4 * * *"    # and again overnight, in case TCGCSV was late or down (if nothing changed, it just republishes)
   workflow_dispatch:
   push:
     branches: [main]
@@ -109,7 +110,7 @@ jobs:
   # A one-line note twice a month keeps the daily prices coming.
   keep-schedule-running:
     needs: deploy
-    if: github.event_name == 'schedule'
+    if: github.event_name == 'schedule' && github.event.schedule == '40 21 * * *'
     runs-on: ubuntu-latest
     permissions:
       contents: write
@@ -123,5 +124,6 @@ jobs:
           git config user.name "Card Vault daily prices"
           git config user.email "github-actions[bot]@users.noreply.github.com"
           git add .github/last-price-update.txt
+          if git diff --cached --quiet; then echo "Already noted today."; exit 0; fi
           git commit -m "Daily prices are running ($(date -u +%F))"
           git push

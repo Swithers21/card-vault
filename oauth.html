@@ -26,7 +26,20 @@
 (function () {
   "use strict";
   var TOKEN_KEY = "cardvault.v2.gdriveToken", STATE_KEY = "cardvault.v2.gdriveState";
+  var PENDING_KEY = "cardvault.v2.gdrivePending", SILENT_KEY = "cardvault.v2.gdriveSilent";
   var params = new URLSearchParams(location.hash.replace(/^#/, ""));
+  // Card Vault renewing an hour-long sign-in by itself (nothing shown, nothing to tap): it goes straight back either way
+  // (it's the answer to that quiet sign-in when it carries the state Card Vault noted for it)
+  var pending = "", silentState = "";
+  try {
+    pending = localStorage.getItem(PENDING_KEY) || "";
+    silentState = (JSON.parse(localStorage.getItem(SILENT_KEY) || "null") || {}).state || "";
+  } catch (e) {}
+  var silent = pending === "silent" && !!silentState && params.get("state") === silentState;
+  if (silent) {
+    document.getElementById("title").textContent = "Syncing with Google Drive…";
+    document.getElementById("text").textContent = "";
+  }
   // the token never stays in the address bar or the history
   try { history.replaceState(null, "", location.pathname); } catch (e) {}
   var expected = null;
@@ -44,11 +57,22 @@
   } else {
     msg = {error: params.get("error") || (params.get("access_token") ? "state" : "no_token")};
   }
+  // How the quiet sign-in went: after Google says no, Card Vault leaves it to the Resume button for a while.
+  // (Any sign-in that worked means you're signed in to Google here again, so the quiet one can try again.)
+  try {
+    var quiet = JSON.parse(localStorage.getItem(SILENT_KEY) || "null") || {};
+    if (msg.ok) quiet.failedAt = 0; else if (silent) quiet.failedAt = Date.now();
+    if (msg.ok || silent) localStorage.setItem(SILENT_KEY, JSON.stringify(quiet));
+  } catch (e) {}
+  if (silent) {
+    if (msg.ok) { try { var ch0 = new BroadcastChannel("cardvault-google"); ch0.postMessage(msg); ch0.close(); } catch (e) {} }
+    location.replace("./");
+    return;
+  }
   try { var ch = new BroadcastChannel("cardvault-google"); ch.postMessage(msg); ch.close(); } catch (e) {}
   var title = document.getElementById("title"), text = document.getElementById("text"), back = document.getElementById("back");
   // Card Vault notes when it signed in in its own window (not a separate sign-in window): then go straight back.
-  var sameWindow = false;
-  try { sameWindow = !!localStorage.getItem("cardvault.v2.gdrivePending"); } catch (e) {}
+  var sameWindow = !!pending;
   var reasons = {
     access_denied: "Google Drive access wasn't allowed. Card Vault keeps working on this device; you can try again from Settings.",
     state: "This sign-in didn't come from Card Vault on this device, so it wasn't used. Go back to Card Vault and try again.",

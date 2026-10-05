@@ -296,6 +296,9 @@
 
   /* ---------- drawer & modal ---------- */
   .scrim{position:fixed;inset:0;background:rgba(8,6,4,.62);z-index:50}
+  /* on the way to Google and straight back (renewing the Drive sign-in) */
+  .leaving{position:fixed;inset:0;z-index:200;display:grid;place-items:center;background:rgba(20,16,13,.86);color:var(--text);font-size:15px;letter-spacing:.01em;animation:fade-in .25s ease-out}
+  @keyframes fade-in{from{opacity:0}}
   .drawer{position:fixed;top:0;right:0;bottom:0;width:min(480px,100vw);z-index:60;background:var(--surface);border-left:1px solid var(--line-2);display:flex;flex-direction:column;box-shadow:-20px 0 50px rgba(0,0,0,.45);animation:slide-in .18s ease-out}
   @keyframes slide-in{from{transform:translateX(24px);opacity:.4}to{transform:none;opacity:1}}
   .drawer-head,.modal-head{display:flex;align-items:center;justify-content:space-between;gap:12px;padding:16px 20px;border-bottom:1px solid var(--line)}
@@ -1184,7 +1187,7 @@
     backupRemindDays: 7, wantAlertSeen: "", alertsOn: false, alertMinDollar: 5, alertMinPct: 10, salesYear: "", deckId: null,
     deckView: "check", mkView: "sets", mkLine: "", mkKind: "", mkSortSets: "newest", mkSortSealed: "deal",
     gradedView: false, psa10Mult: 4, psa10Floor: 25, gradePct: Object.assign({}, DEFAULT_GRADE_PCT), pcToken: "",
-    insightView: "history", salesView: "trade", gradingCost: 30, gradingMin: 50, ntfyTopic: "", siteUrl: ""};
+    insightView: "history", salesView: "trade", gradingCost: 30, gradingMin: 50, ntfyTopic: "", siteUrl: "", autoSignIn: true};
   const filters = {q: "", set: "", rarity: "", edition: "", language: "", location: "", show: ""};
   const selected = new Set();
   let selectMode = false;   // "Select" on: tapping a card ticks it instead of opening it (phones show no checkboxes otherwise)
@@ -2242,16 +2245,101 @@
       const v = window.TCG_DATA_VERSION;
       if (!v || !v.builtAt || (catalog && v.builtAt === catalog.builtAt)) return;
       if (catalog && catalog.builtAt && v.builtAt < catalog.builtAt) return;
-      const when = parseDate(v.generated);
-      const b = $("updateBanner");
-      b.hidden = false;
-      b.innerHTML = "<strong>" + (catalog ? "New TCGplayer prices are ready" : "TCGplayer data is ready") + "</strong>" +
-        (when ? " (from " + esc(fmtDate(when)) + ")." : ".") +
-        '<div class="banner-actions"><button class="btn btn-small btn-primary" type="button" data-banner="reload">Load them now</button></div>';
-      syncBanners();
+      loadNewData(v);
     };
     s.onerror = () => s.remove();
     document.head.appendChild(s);
+  }
+  // (only if the new prices couldn't be loaded in place: then a reload does it)
+  function showDataBanner(v) {
+    const when = parseDate(v.generated);
+    const b = $("updateBanner");
+    b.hidden = false;
+    b.innerHTML = "<strong>" + (catalog ? "New TCGplayer prices are ready" : "TCGplayer data is ready") + "</strong>" +
+      (when ? " (from " + esc(fmtDate(when)) + ")." : ".") +
+      '<div class="banner-actions"><button class="btn btn-small btn-primary" type="button" data-banner="reload">Load them now</button></div>';
+    syncBanners();
+  }
+
+  // New prices are put in place as they arrive: no reload and nothing to tap. If you're in the middle of something
+  // (a card's details, a form, typing), they wait until you're done, so nothing moves under your finger.
+  const dataLoad = {raw: null, loading: false, tries: 0, timer: null, version: ""};
+  function viewBusy() {
+    if (!$("drawer").hidden || !$("importModal").hidden || scan) return true;
+    // (typing somewhere that's redrawn, like a deck list; the search box at the top isn't, so it doesn't count)
+    const a = document.activeElement;
+    return !!(a && a !== document.body && a.id !== "q" && a.matches &&
+      a.matches("textarea, select, [contenteditable=true], input:not([type=checkbox]):not([type=radio]):not([type=button]):not([type=file])"));
+  }
+  function readDataText(text) {
+    const at = text.indexOf("window.TCG_DATA");
+    if (at < 0) return null;
+    let body = text.slice(text.indexOf("=", at) + 1).trim();
+    if (body.endsWith(";")) body = body.slice(0, -1);
+    return JSON.parse(body);
+  }
+  function fetchData() {
+    // (on the website: without the browser's saved copy; the offline copy, sw.js, is replaced along the way)
+    if (/^https?:$/.test(location.protocol)) {
+      return fetch("tcgplayer-data.js", {cache: "no-store"}).then(res => {
+        if (!res.ok) throw new Error("TCGplayer data: " + res.status);
+        return res.text();
+      }).then(readDataText);
+    }
+    // Card Vault.html opened from this computer: the browser won't read files here, but it runs scripts.
+    return new Promise((resolve, reject) => {
+      const s = document.createElement("script");
+      s.src = "tcgplayer-data.js?t=" + Date.now();
+      s.onload = () => { const raw = window.TCG_DATA; window.TCG_DATA = null; s.remove(); resolve(raw); };
+      s.onerror = () => { s.remove(); reject(new Error("TCGplayer data didn't load")); };
+      document.head.appendChild(s);
+    });
+  }
+  async function loadNewData(v) {
+    if (dataLoad.loading || dataLoad.raw) return;
+    if (dataLoad.version !== v.builtAt) { dataLoad.version = v.builtAt; dataLoad.tries = 0; }
+    if (dataLoad.tries > 3) { showDataBanner(v); return; }   // (gave up on this one: the banner's reload does it)
+    dataLoad.loading = true;
+    let raw = null;
+    try { raw = await fetchData(); } catch (e) { raw = null; }
+    dataLoad.loading = false;
+    const newer = !!(raw && Array.isArray(raw.products) && raw.products.length &&
+      (!catalog || !catalog.builtAt || String(raw.builtAt || raw.generated || "") > catalog.builtAt));
+    if (!newer) {
+      // An older copy came back: the website was still being updated, or a slow connection got the saved copy
+      // (which is replaced meanwhile). Try again in a couple of minutes; after a few tries, offer a reload.
+      clearTimeout(dataLoad.timer);
+      if (++dataLoad.tries <= 3) dataLoad.timer = setTimeout(() => checkForNewData(true), 2 * 60000);
+      else showDataBanner(v);
+      return;
+    }
+    dataLoad.tries = 0;
+    dataLoad.raw = raw;
+    applyNewData();
+  }
+  function applyNewData() {
+    if (!dataLoad.raw) return;
+    clearTimeout(dataLoad.timer);
+    if (viewBusy()) { dataLoad.timer = setTimeout(applyNewData, 15000); return; }
+    let next = null;
+    try { next = buildCatalog(dataLoad.raw); } catch (e) { next = null; }
+    dataLoad.raw = null;
+    if (!next) return;
+    const had = !!catalog;
+    catalog = next;   // (lookups made from the old prices, like the sets list and the Market tab, are kept on it and go with it)
+    setsCache = null;
+    histFiles.clear();
+    $("updateBanner").hidden = true;
+    $("updateBanner").innerHTML = "";
+    const linked = autoLink();
+    if (linked) save(); else if (recordValueHistory()) save({quiet: true});
+    schedulePhoneCopy(true);
+    // (what a deck would cost, and the deck ideas, were worked out with the old prices)
+    if (deckResult && deckDraft && deckDraft.text.trim() && !looksLikeIds(deckDraft.text)) deckResult = checkDeck(parseDeckText(deckDraft.text));
+    if (ideas.result && !ideas.busy) runDeckIdeas();
+    render();
+    toast((had ? "New TCGplayer prices are in" : "TCGplayer data loaded") + (catalog.generated ? " (from " + fmtDate(catalog.generated) + ")" : "") + "." +
+      (linked ? " Linked " + plural(linked, "card") + " to TCGplayer printings by card number." : ""));
   }
 
   function renderSummary() {
@@ -2558,6 +2646,7 @@
     if ($("importModal").hidden) { $("scrim").hidden = true; document.body.classList.remove("no-scroll"); }
     drawerCtx = null;
     if (lastFocus && document.contains(lastFocus)) lastFocus.focus();
+    if (dataLoad.raw) setTimeout(applyNewData, 400);   // new prices that waited for this
   }
 
   /* ----- add a card: search ----- */
@@ -4545,19 +4634,28 @@
     opts = opts || {};
     const state = Array.from(crypto.getRandomValues(new Uint8Array(16)), b => b.toString(16).padStart(2, "0")).join("");
     const before = (readJSON(GTOKEN_KEY, null) || {}).token || "";
-    try { localStorage.setItem(GSTATE_KEY, state); } catch (e) { /* storage blocked: sign-in can't finish */ }
+    try {
+      localStorage.setItem(GSTATE_KEY, state);
+      // (the quiet sign-in notes its own state, so oauth.html knows the answer is to that one)
+      if (opts.silent) localStorage.setItem(GSILENT_KEY, JSON.stringify(Object.assign(readJSON(GSILENT_KEY, {}) || {}, {state})));
+    } catch (e) { /* storage blocked: sign-in can't finish */ }
     const link = readJSON(GDRIVE_KEY, null) || {};
     const params = new URLSearchParams({client_id: SITE.googleClientId, redirect_uri: new URL("oauth.html", location.href).href,
       response_type: "token", scope: "https://www.googleapis.com/auth/drive.file", include_granted_scopes: "true", state});
     if (link.email && !opts.choose) params.set("login_hint", link.email);
     if (opts.choose) params.set("prompt", "select_account");
+    else if (opts.silent) params.set("prompt", "none");   // (Google comes straight back, signed in or not, without showing anything)
     const url = "https://accounts.google.com/o/oauth2/v2/auth?" + params;
     const win = opts.sameWindow ? null : window.open(url, "cardvault-google", "popup,width=480,height=680");
     if (!win) {   // popups blocked (or asked for): sign in in this window; oauth.html comes back here afterwards
       try { localStorage.setItem(GPENDING_KEY, opts.purpose || "resume"); } catch (e) { /* ignore */ }
-      location.assign(url);
+      if (opts.silent) location.replace(url);   // (no extra entry in the history: Back still leaves Card Vault)
+      else location.assign(url);
       return new Promise(() => {});
     }
+    // A sign-in window is open: the quiet sign-in mustn't start meanwhile (in this tab or another), or it would
+    // replace this one's state and the window would come back with "didn't come from Card Vault".
+    try { localStorage.setItem(GSIGNING_KEY, String(Date.now())); } catch (e) { /* ignore */ }
     return new Promise(resolve => {
       let done = false, channel = null, focusTimer = null, waitNote = null;
       const fresh = () => { const t = driveToken(); return !!t && t !== before; };
@@ -4569,6 +4667,7 @@
         window.removeEventListener("focus", onFocus);
         try { if (channel) channel.close(); } catch (e) { /* closed already */ }
         if (waitNote) waitNote.remove();
+        try { localStorage.removeItem(GSIGNING_KEY); } catch (e) { /* ignore */ }
         resolve(ok);
       };
       const onStorage = e => { if (e.key === GTOKEN_KEY && fresh()) finish(true); };
@@ -4591,6 +4690,112 @@
       const poll = setInterval(() => { if (fresh()) finish(true); }, 600);
       const giveUp = setTimeout(() => finish(fresh()), 5 * 60000);
     });
+  }
+
+  // Google's sign-in lasts an hour. When it runs out, Card Vault signs back in by itself: it goes to Google and
+  // straight back (prompt=none), with nothing to tap, as long as you're still signed in to Google in this browser
+  // or home-screen app. If Google wants you to choose or type something, it comes back without a sign-in and
+  // Resume does it the usual way. It's done when Card Vault opens, when you come back to it, and when it has sat
+  // untouched for a few minutes; never while you're in the middle of something.
+  const GSILENT_KEY = "cardvault.v2.gdriveSilent";   // {at, failedAt, state}: the last quiet sign-in, and the last one that didn't work
+  const GSIGNING_KEY = "cardvault.v2.gdriveSigningIn"; // when a sign-in window was opened (cleared when it's done)
+  const RETURN_KEY = "cardvault.v2.returnTo";        // (this tab only) where you were, to come back to afterwards
+  const SILENT_GAP = 3 * 60000;                      // never more often than this
+  const SILENT_BACKOFF = 12 * 3600000;               // after one didn't work: until then, Resume
+  // How long ago a saved time was; a time in the future (the clock was set back since) counts as long ago.
+  const since = t => { const d = Date.now() - (+t || 0); return d < -60000 ? Infinity : d; };
+  function tokenLeft() {
+    const t = readJSON(GTOKEN_KEY, null);
+    return t && t.token ? t.expiresAt - Date.now() : 0;
+  }
+  // opts.early: also when the sign-in has less than this long left (ms)
+  function silentSignInDue(opts) {
+    if (!DRIVE || navigator.onLine === false) return false;
+    const link = readJSON(GDRIVE_KEY, null);
+    if (!(link && link.fileId)) return false;
+    if (tokenLeft() > Math.max(20000, (opts && opts.early) || 0)) return false;
+    if ((readJSON(SETTINGS_KEY, {}) || {}).autoSignIn === false) return false;
+    let signing = 0;
+    try { signing = localStorage.getItem(GSIGNING_KEY); } catch (e) { return false; }
+    if (since(signing) < 5 * 60000) return false;   // a sign-in window is open
+    const s = readJSON(GSILENT_KEY, {}) || {};
+    return since(s.at) >= SILENT_GAP && since(s.failedAt) >= SILENT_BACKOFF;
+  }
+  function silentTurnedDown() {
+    const s = readJSON(GSILENT_KEY, {}) || {};
+    return !!s.failedAt && since(s.failedAt) < SILENT_BACKOFF;
+  }
+  // A quick look that Google answers at all, so a bad connection (a card shop, say) doesn't leave you on an error page.
+  function googleReachable(ms) {
+    return new Promise(resolve => {
+      const timer = setTimeout(() => resolve(false), ms);
+      fetch("https://www.google.com/generate_204", {mode: "no-cors", cache: "no-store"})
+        .then(() => { clearTimeout(timer); resolve(true); }, () => { clearTimeout(timer); resolve(false); });
+    });
+  }
+  // onStay: if Google hasn't answered within a few seconds, it stops waiting and carries on here instead.
+  function silentSignIn(onStay) {
+    const s = readJSON(GSILENT_KEY, {}) || {};
+    try {
+      localStorage.setItem(GSILENT_KEY, JSON.stringify({at: Date.now(), failedAt: +s.failedAt || 0}));
+      sessionStorage.setItem(RETURN_KEY, JSON.stringify({y: Math.round(window.scrollY || 0), at: Date.now()}));
+    } catch (e) {
+      return false;   // (storage blocked: the sign-in couldn't be kept anyway)
+    }
+    // (nothing can be tapped on the way out, so nothing half done is lost)
+    const cover = document.createElement("div");
+    cover.className = "leaving";
+    cover.setAttribute("role", "status");
+    cover.textContent = "Syncing with Google Drive…";
+    if (document.body) document.body.appendChild(cover);
+    setTimeout(() => {
+      try { window.stop(); } catch (e) { /* ignore */ }
+      try { localStorage.removeItem(GPENDING_KEY); } catch (e) { /* ignore */ }
+      cover.remove();
+      if (onStay) onStay();
+    }, 8000);
+    driveSignIn({silent: true, sameWindow: true, purpose: "silent"});
+    return true;
+  }
+  // Back from a quiet sign-in without one (Google said no, showed its own page, or something went wrong on the
+  // way): leave it to Resume for a while. (oauth.html notes this too, when it gets the chance.)
+  (function () {
+    let pending = "";
+    try { pending = localStorage.getItem(GPENDING_KEY) || ""; } catch (e) { return; }
+    if (pending !== "silent" || driveToken()) return;
+    const s = readJSON(GSILENT_KEY, {}) || {};
+    if (since(s.failedAt) > since(s.at)) { s.failedAt = Date.now(); try { localStorage.setItem(GSILENT_KEY, JSON.stringify(s)); } catch (e) { /* ignore */ } }
+  })();
+  // When Card Vault opens with the sign-in run out, this goes to Google as soon as it can (even before the price
+  // data has finished loading); init() starts Card Vault only if it stays.
+  const opening = {domReady: false, started: false, stayed: false};
+  function startOnce() {
+    if (opening.domReady && !opening.started) { opening.started = true; startApp(); }
+  }
+  const openSignIn = silentSignInDue() ? googleReachable(1500).then(ok => !!(ok && silentSignInDue() &&
+    silentSignIn(() => { opening.stayed = true; startOnce(); }))) : null;
+  // Going to Google reloads Card Vault. What it remembers anyway: your cards, the tab, the trade checker's cards and
+  // where you'd scrolled to. What it wouldn't: anything open, typed or half done, so then it waits.
+  function pageBusy() {
+    return viewBusy() || filtersActive() || selected.size > 0 || deckUnsaved() || !!pendingImport || ideas.busy || yugiBatch.running ||
+      backup.busy || phone.busy || !!setsQuery.trim() || !!(trade && (trade.q1 || trade.q2)) ||
+      !!document.querySelector("#toasts .toast.has-action");
+  }
+  function deckUnsaved() {
+    if (!deckDraft) return false;
+    const box = document.getElementById("deckText"), nameBox = document.getElementById("deckName");
+    const text = box ? box.value : deckDraft.text, name = (nameBox ? nameBox.value : deckDraft.name).trim();
+    const k = deckDraft.id && decks.find(x => x.id === deckDraft.id);
+    return k ? k.text !== text || k.name !== name : !!(text.trim() || name);
+  }
+  let lastInput = Date.now();
+  // opts.idle: only once Card Vault has sat untouched this long (ms). Resolves true when it's off to Google.
+  function maybeSilentSignIn(opts) {
+    opts = opts || {};
+    const ready = () => document.visibilityState === "visible" && !pageBusy() && silentSignInDue({early: opts.early}) &&
+      !(opts.idle && Date.now() - lastInput < opts.idle);
+    if (!ready()) return Promise.resolve(false);
+    return googleReachable(1500).then(ok => !!(ok && ready() && silentSignIn()));
   }
   async function driveFetch(url, opts) {
     const token = driveToken();
@@ -5304,8 +5509,9 @@
     let html = "";
     const onDrive = !!(backup.handle && backup.handle.kind === "gdrive");
     if (backup.state === "paused" && onDrive) {
-      html = "<strong>Sign in to Google Drive again to keep syncing.</strong> Google's sign-in lasts an hour at a time. Until you do, " +
-        "changes are kept on this device, and changes from your other devices wait." +
+      html = "<strong>Sign in to Google Drive again to keep syncing.</strong> " + (silentTurnedDown() && settings.autoSignIn !== false
+        ? "Card Vault usually renews Google's hour-long sign-in by itself, but this time Google wants you to. Until then, changes stay on this device."
+        : "Google's sign-in lasts an hour at a time. Until you do, changes are kept on this device, and changes from your other devices wait.") +
         '<div class="banner-actions"><button class="btn btn-small btn-primary" type="button" data-banner="resume">Resume</button></div>';
     } else if (backup.state === "error" && onDrive) {
       html = "<strong>Card Vault couldn't reach your backup file in Google Drive.</strong> " + esc(backup.error ? backup.error.charAt(0).toUpperCase() + backup.error.slice(1) + "." : "") +
@@ -5398,7 +5604,9 @@
         (backup.offline ? " <b>No internet right now:</b> changes are kept on this device and saved once you're back online." : "") + " " + lastText;
       buttons = btn("now", "Back up now") + btn("sync", "Check for changes now") + btn("stop", "Turn off");
     } else if (onDrive && backup.state === "paused") {
-      cls = "warn"; text = "Google Drive sign-in has expired (it lasts an hour at a time). Tap Resume to sign in again; you usually won't need to type anything. " + lastText;
+      cls = "warn"; text = "Google Drive sign-in has expired (it lasts an hour at a time). " + (settings.autoSignIn !== false && !silentTurnedDown()
+        ? "Card Vault renews it by itself when you next open it or come back to it; tap Resume to do it now. "
+        : "Tap Resume to sign in again; you usually won't need to type anything. ") + lastText;
       buttons = btn("resume", "Resume", true) + btn("stop", "Turn off");
     } else if (onDrive && backup.state === "error") {
       cls = "off"; text = "Couldn't reach " + name + " (" + esc(backup.error) + "). " + lastText;
@@ -5452,6 +5660,9 @@
       : '<p class="small" style="margin:0 0 10px">Your collection is saved in this browser. A backup file keeps it safe if the browser\'s data is ever cleared, and lets you move it to another computer. ' +
         "Save it in a folder that syncs, like OneDrive, Google Drive or Dropbox, for a copy that's off this computer too.</p>") +
       '<div id="backupSection">' + backupSectionHTML() + "</div>" + '<div id="syncNote">' + syncNoteHTML() + "</div>" +
+      (backup.drive ? '<label class="check-row" style="margin:10px 0 0"><input type="checkbox" class="check" id="sAutoSignIn"' + (settings.autoSignIn !== false ? " checked" : "") +
+        "><span>Renew the Google Drive sign-in by itself when its hour runs out. Card Vault goes to Google and straight back, which looks like a quick reload; " +
+        "it waits if you're in the middle of something.</span></label>" : "") +
       '<div class="btn-row"><button class="btn btn-small" type="button" data-bk="download">Download a backup file</button>' +
       '<button class="btn btn-small" type="button" data-bk="restore">Restore from a backup…</button></div>' +
       '<h3 style="margin:16px 0 6px;font-size:13.5px">Earlier versions kept in this browser</h3>' +
@@ -5549,6 +5760,14 @@
     };
     ["sAlerts", "sAlertDollar", "sAlertPct"].forEach(k => $(k).addEventListener("change", alertChange));
     wirePhoneAlerts();
+    if ($("sAutoSignIn")) $("sAutoSignIn").addEventListener("change", () => {
+      settings.autoSignIn = $("sAutoSignIn").checked;
+      // (turned back on: give it a fresh go, even if Google said no earlier today)
+      if (settings.autoSignIn) { try { localStorage.removeItem(GSILENT_KEY); } catch (e) { /* ignore */ } }
+      saveSettings();
+      refreshBackupSection();
+      renderBackupBanner();
+    });
     $("sCondReset").addEventListener("click", () => {
       settings.condPct = Object.assign({}, DEFAULT_COND_PCT);
       pctInputs().forEach(i => { i.value = settings.condPct[i.dataset.cond]; });
@@ -8600,6 +8819,7 @@
     pendingImport = null;
     if ($("drawer").hidden) { $("scrim").hidden = true; document.body.classList.remove("no-scroll"); }
     if (lastFocus && document.contains(lastFocus)) lastFocus.focus();
+    if (dataLoad.raw) setTimeout(applyNewData, 400);
   }
   function commitImport(mode, opts) {
     opts = opts || {};
@@ -9026,15 +9246,24 @@
     menu.addEventListener("click", e => { if (e.target.closest("[role=menuitem]")) closeMenu(false); });
     document.addEventListener("click", e => { if (!menu.hidden && !e.target.closest(".menu-wrap")) closeMenu(false); });
 
-    // Save a pending backup right away when the page is hidden or closed; look for new prices when it comes back.
+    // Save a pending backup right away when the page is hidden or closed; when it comes back, look for new prices
+    // and changes from your other devices (signing back in to Google Drive first, if that has run out).
     document.addEventListener("visibilitychange", () => {
       if (document.visibilityState === "hidden") { if (backup.timer) writeBackup(); }
-      else { checkForNewData(); checkBackupFile(); }
+      else maybeSilentSignIn().then(away => { if (!away) { checkForNewData(); checkBackupFile(); } });
     });
     // Changes made on your other computers arrive through the backup file.
     window.addEventListener("focus", () => checkBackupFile());
-    window.addEventListener("online", () => { if (backup.state === "active") { scheduleBackup(true); refreshBackupSection(); } });
-    setInterval(() => { if (document.visibilityState === "visible") checkBackupFile(); }, SYNC_EVERY);
+    window.addEventListener("online", () => { if (backup.state === "active") { scheduleBackup(true); refreshBackupSection(); } else maybeSilentSignIn({idle: 60000}); });
+    // (left open and untouched for a few minutes: renew the Google sign-in shortly before it runs out)
+    setInterval(() => {
+      if (document.visibilityState === "visible") maybeSilentSignIn({idle: 4 * 60000, early: 6 * 60000}).then(away => { if (!away) checkBackupFile(); });
+    }, SYNC_EVERY);
+    // Brought back from the browser's back/forward memory (after a trip to Google, say): it may be out of date.
+    window.addEventListener("pageshow", e => { if (e.persisted) location.reload(); });
+    ["pointerdown", "keydown", "wheel", "touchstart"].forEach(t => document.addEventListener(t, () => { lastInput = Date.now(); }, {capture: true, passive: true}));
+    // New prices that waited while you typed
+    document.addEventListener("focusout", () => { if (dataLoad.raw) setTimeout(applyNewData, 400); });
     window.addEventListener("pagehide", () => { if (backup.timer) writeBackup(); });
     // Card Vault open in two tabs: show what the other tab saved instead of overwriting it later.
     window.addEventListener("storage", e => {
@@ -9088,6 +9317,12 @@
     // The website works offline once opened (sw.js), and asks the browser to keep its data.
     if (SITE && "serviceWorker" in navigator && window.isSecureContext && /^https?:$/.test(location.protocol)) navigator.serviceWorker.register("sw.js").catch(() => {});
     if (SITE && navigator.storage && navigator.storage.persist) navigator.storage.persist().catch(() => {});
+    // (the Google Drive sign-in had run out: Card Vault may be on its way to Google and straight back; see openSignIn)
+    opening.domReady = true;
+    if (openSignIn) openSignIn.then(away => { if (!away || opening.stayed) startOnce(); });
+    else startOnce();
+  }
+  function startApp() {
     try { catalog = buildCatalog(window.TCG_DATA); } catch (e) { catalog = null; }
     window.TCG_DATA = null; // free the raw copy; the catalog keeps what it needs
     loadState();
@@ -9096,6 +9331,10 @@
     else if (recordValueHistory()) save({quiet: true});  // today's value-history point
     wire();
     render();
+    // back from signing in to Google while Card Vault was open: where you'd scrolled to
+    let back = null;
+    try { back = JSON.parse(sessionStorage.getItem(RETURN_KEY) || "null"); sessionStorage.removeItem(RETURN_KEY); } catch (e) { back = null; }
+    if (back && back.y > 0 && Date.now() - back.at < 2 * 60000) window.scrollTo(0, back.y);
     initBackup();
     snapshotToday();
     // Japanese/Korean and graded prices refresh in the background, about once a day, when online.
@@ -9117,7 +9356,8 @@
     matchScanned, numberVariants, openScanner, stopScanner, prepCanvas, openWantForm, resolveLink, chooseBackupFile, linkGoogleDrive, driveToken, openMove, moveCopies,
     searchSealed, openSealedSearch, openSealedForm, ocgCard, bigwebFor, bunjangFor, bigwebPick, bunjangPick, ocgPrice, refreshOcgPrices, fxRates, showOcgLookup,
     psa10Value, gradedValue, gradedTotals, pcLookup, pcMatch, refreshGradedPrices, gradeShare, koRarity, jaRarity, driveDatedCopy, fillDriveCopies, deckPullPlan, deckPullIntoBox, openShare, shareLink, marketData, mkSetLine, mkKind, mkChase, renderMarket, analyzeDeckIdeas, runDeckIdeas, starterList, ideasState: () => ideas,
-    imgTag, productPics, recordPics, namePics, imageFor, shareItem, shareWant};
+    imgTag, productPics, recordPics, namePics, imageFor, shareItem, shareWant,
+    silentSignInDue, maybeSilentSignIn, pageBusy, viewBusy, loadNewData, applyNewData, readDataText, dataLoad: () => dataLoad};
 
   document.addEventListener("DOMContentLoaded", init);
 })();
