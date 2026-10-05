@@ -109,6 +109,9 @@ personal app: click **Continue**.
   Tournament Packs…) and sort by biggest discount. Each product has one-tap searches at eBay, Amazon, Walmart and Target,
   sorted cheapest first.
 - **Deck check** can move the cards you own for a deck into a location named after it ("Deck: Blue-Eyes").
+- **Decks I can build** (in the Deck check tab): looks up every card you own on YGOPRODeck and shows the archetypes your
+  collection is closest to: which of each archetype's key cards you have, your cards that support it, the key cards
+  you're missing and their TCGplayer price. "Build a starter list" turns one into a deck list you can check and save.
 - **Share…** (select cards, or Show: Extras > Share trade binder, or the Want list tab) makes a link to a page with those
   cards, their photos and TCGplayer prices. The cards are in the link itself; nothing else of yours is shared.
 - **Moving cards** between binders, boxes and decks: open a card and tap **Move** (next to where it's kept), or tick
