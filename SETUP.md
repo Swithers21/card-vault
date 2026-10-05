@@ -116,6 +116,16 @@ personal app: click **Continue**.
   shows the closest one it has, tagged "Similar photo": the same card from another set, the 1st Edition box for an
   Unlimited one, a Field Center Token's card. Cards TCGplayer has no photo of at all get a picture from YGOPRODeck,
   which the daily update downloads once and publishes with the website. Anything left is drawn as a card or a box.
+- **Trades & sales** tab: the trade checker adds up both sides of a trade at TCGplayer prices (cards from your collection
+  against any TCGplayer printing, plus cash) and, when you complete it, moves the cards in and out. The sales log is next to it.
+- **Insights** tab: price history, where your value is (by set, rarity, location), cards worth grading, and Tidy up
+  (duplicates to merge, cards with no printing, price, location or TCGplayer link).
+- **Get it graded** (in a card's details): links to start a submission at PSA, Beckett, CGC, SGC and TAG, the card's
+  details to paste into their form, and tracking while it's away ("I sent it", then "It's back" with the grade).
+- **Price over time** (in a card's details): a chart of its TCGplayer market price. The daily update keeps every
+  evening's prices (120 days, then monthly) and publishes them with the website, so the charts fill in day by day.
+- **Phone alerts** (Settings): the want-list and big-move alerts on your iPhone through the free ntfy app. Your PC's
+  daily update sends them, so that PC needs the latest Card Vault folder.
 - **Share…** (select cards, or Show: Extras > Share trade binder, or the Want list tab) makes a link to a page with those
   cards, their photos and TCGplayer prices. The cards are in the link itself; nothing else of yours is shared.
 - **Moving cards** between binders, boxes and decks: open a card and tap **Move** (next to where it's kept), or tick

@@ -84,6 +84,7 @@ jobs:
           if [ -f tcgplayer-data.js ]; then cp tcgplayer-data.js tcgplayer-data-version.js _site/; fi
           if ls card-images/*.jpg >/dev/null 2>&1; then cp card-images/*.jpg _site/card-images/; fi
           echo "$(ls _site/card-images | wc -l) card pictures"
+          python card_history.py _site/history || echo "No price history files this time."
           ls -la _site
 
       - uses: actions/upload-pages-artifact@v3

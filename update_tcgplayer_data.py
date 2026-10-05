@@ -55,9 +55,11 @@ PRODUCT_LIST_VERSION = 3  # cached set lists; 2 keeps sealed products (booster b
 BASE_URL = os.environ.get("CARDVAULT_TCGCSV_BASE", "https://tcgcsv.com").rstrip("/")
 CATEGORY_ID = 2  # TCGplayer's category ID for Yu-Gi-Oh!
 USER_AGENT = "CardVault/%s (personal Yu-Gi-Oh! collection tracker)" % VERSION
+# Phone alerts go through ntfy (a free notification app): the website's Settings picks a private topic name.
+NTFY_URL = os.environ.get("CARDVAULT_NTFY", "https://ntfy.sh/")
 PAUSE_SECONDS = float(os.environ.get("CARDVAULT_PAUSE", "0.15"))
 PRODUCT_CACHE_MAX_AGE_DAYS = 30
-HISTORY_KEEP_ALL_DAYS = 40      # keep every daily snapshot this recent...
+HISTORY_KEEP_ALL_DAYS = 120     # keep every daily snapshot this recent (the website charts each card's price)...
 HISTORY_KEEP_MONTHLY_DAYS = 400  # ...then one per month back this far
 
 HERE = os.path.dirname(os.path.abspath(__file__))
@@ -567,6 +569,38 @@ def send_notification(title, lines):
     return True
 
 
+def alert_lines(alerts):
+    """Every alert as a line, for the phone (which has room for more than two)."""
+    lines = ["%s: %s (your target %s)" % (w["name"], dollars(w["price"]), dollars(w["target"])) for w in alerts["wants"]]
+    lines += ["%s %s%s (%.0f%%)" % (m["name"], "up" if m["change"] > 0 else "down", " " + dollars(m["change"]), abs(m["pct"]))
+              for m in alerts["movers"]]
+    return lines
+
+
+def send_phone_alert(settings, title, lines):
+    """Sends the alert to the phone through ntfy, if phone alerts are set up in the website's Settings."""
+    topic = str((settings or {}).get("ntfyTopic") or "")
+    if not re.match(r"^[A-Za-z0-9_-]{8,64}$", topic):
+        return False
+    site = str((settings or {}).get("siteUrl") or "")
+    shown = list(lines)[:12]
+    if len(lines) > len(shown):
+        shown.append("%d more in Card Vault" % (len(lines) - len(shown)))
+    message = {"topic": topic, "title": title[:200], "message": "\n".join(shown)[:3500], "tags": ["moneybag"]}
+    if re.match(r"^https://[^\s\"<>]+$", site):
+        message["click"] = site
+    request = urllib.request.Request(NTFY_URL, data=json.dumps(message).encode("utf-8"), method="POST",
+                                     headers={"User-Agent": USER_AGENT, "Content-Type": "application/json"})
+    try:
+        with urllib.request.urlopen(request, timeout=20) as response:
+            ok = 200 <= response.status < 300
+    except (OSError, urllib.error.URLError) as error:
+        say("  (Couldn't send the phone alert: %s)" % error)
+        return False
+    say("  Phone alert sent." if ok else "  (The phone alert service didn't accept the alert.)")
+    return ok
+
+
 def notify_about_changes(today_prices, previous):
     path = find_backup_file()
     if not path:
@@ -578,9 +612,11 @@ def notify_about_changes(today_prices, previous):
         return
     if not backup:
         return
-    message = alert_message(compute_alerts(backup, today_prices, previous))
+    alerts = compute_alerts(backup, today_prices, previous)
+    message = alert_message(alerts)
     if message:
         send_notification(*message)
+        send_phone_alert(backup.get("settings"), message[0], alert_lines(alerts))
 
 
 
@@ -589,6 +625,14 @@ def main():
     if "--test-notification" in sys.argv:
         shown = send_notification("Card Vault notifications are working",
                                   ["You'll see messages like this after the daily price update."])
+        path = find_backup_file()
+        try:
+            settings = (read_backup(path) or {}).get("settings") if path else None
+        except (OSError, ValueError):
+            settings = None
+        if settings and settings.get("ntfyTopic"):
+            send_phone_alert(settings, "Card Vault phone alerts are working",
+                             ["You'll get alerts like this after the daily price update."])
         if not shown and os.name == "nt":
             return 1
         return 0

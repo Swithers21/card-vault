@@ -606,6 +606,127 @@
   .scan-box{position:absolute;left:10%;right:10%;top:38%;height:24%;border:2px solid var(--gold-hi);border-radius:8px;box-shadow:0 0 0 999px rgba(0,0,0,.38)}
   .scan-status{margin:12px 0 0;font-size:14px;font-weight:600}
 
+
+  /* ---------- sub-views (Insights, Trades & sales) ---------- */
+  .panel-tools{min-width:0;max-width:100%}
+  .seg-scroll{max-width:100%;overflow-x:auto;scrollbar-width:none}
+  .seg-scroll::-webkit-scrollbar{display:none}
+  .seg-scroll button{white-space:nowrap}
+  .sub-head{margin-top:2px}
+  .sub-h{margin:0;font:400 19px/1.2 "Marcellus SC",Georgia,serif;letter-spacing:.03em}
+  .seg .tab-count{margin-left:6px}
+  .ed-away{border-color:rgba(76,187,165,.65);color:var(--spell)}
+
+  /* ---------- Where your value is ---------- */
+  .vb-top{margin-bottom:16px}
+  .share-bar{height:12px;border-radius:999px;background:var(--surface-3);overflow:hidden;margin:2px 0 14px}
+  .share-bar > span{display:block;height:100%;background:var(--series);border-radius:999px 0 0 999px;box-shadow:2px 0 0 var(--surface)}
+  .vb-cards{list-style:none;margin:0;padding:0;display:grid;grid-template-columns:repeat(auto-fill,minmax(260px,1fr));gap:2px 24px}
+  .vb-cards li,.away-list li{display:grid;grid-template-columns:34px minmax(0,1fr) auto;gap:10px;align-items:center;padding:7px 0;border-top:1px solid var(--line)}
+  .ins-thumb{background:none;border:0;padding:0;cursor:pointer;width:34px}
+  .ins-thumb .sleeve{border-radius:3px;box-shadow:none}
+  .vb-card-name{min-width:0}
+  .vb-card-name .cell-name{display:block;max-width:100%;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+  .vb-val{text-align:right;font-weight:650;font-stretch:var(--num-stretch);font-variant-numeric:tabular-nums;white-space:nowrap}
+  .vb-val small{display:block;font-weight:500;font-size:11.5px;color:var(--text-dim)}
+  .vb-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,330px),1fr));gap:16px}
+  .vb-h{margin:0 0 10px;font-size:15px}
+  .vb-list{list-style:none;margin:0;padding:0;display:grid;gap:9px}
+  .vb-row{display:grid;grid-template-columns:minmax(0,1fr) auto;gap:3px 12px;align-items:baseline}
+  .vb-label{min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;font-size:13.5px}
+  .vb-row .vb-val{font-size:13.5px}
+  .vb-row .vb-val small{display:inline;margin-left:4px}
+  .vb-track{grid-column:1 / -1;height:8px;border-radius:999px;background:var(--surface-3);overflow:hidden}
+  .vb-track > span{display:block;height:100%;border-radius:999px;background:var(--series)}
+  .vb-row.other .vb-label{color:var(--text-dim)}
+  .vb-row.other .vb-track > span{background:var(--line-2)}
+
+  /* ---------- Worth grading, tidy up ---------- */
+  .wg-controls{display:flex;flex-wrap:wrap;gap:10px 22px;margin:0 0 14px}
+  .wg-controls .input{width:84px;margin-left:6px}
+  .table.wg-table{min-width:760px}
+  .table.wg-table tbody tr{cursor:default}
+  .away-list{list-style:none;margin:0;padding:0}
+  .away-list li{grid-template-columns:34px minmax(0,1fr) auto}
+  .away-list li:first-child{border-top:0}
+  .away-list .select{max-width:150px}
+  .tidy-box{margin-bottom:14px}
+  .tidy-box .box-head{align-items:center}
+
+  /* ---------- phone alerts ---------- */
+  .pa-steps{margin:0;padding-left:20px;display:grid;gap:10px;font-size:13.5px}
+  .pa-topic{display:flex;gap:8px;align-items:center;margin-top:6px;flex-wrap:wrap}
+  .pa-topic code{font:13px/1.4 ui-monospace,SFMono-Regular,Consolas,monospace;background:var(--bg-2);border:1px solid var(--line-2);border-radius:6px;padding:5px 8px;word-break:break-all}
+
+  /* ---------- getting a card graded ---------- */
+  .gi-math{margin:0 0 12px;font-size:13.5px;line-height:1.55}
+  .gi-math b{font-stretch:var(--num-stretch);font-variant-numeric:tabular-nums}
+  .grader-list{list-style:none;margin:0 0 12px;padding:0;border:1px solid var(--line);border-radius:10px;overflow:hidden}
+  .grader-list li{display:grid;grid-template-columns:minmax(0,1fr) auto auto;gap:12px;align-items:center;padding:8px 12px;border-top:1px solid var(--line)}
+  .grader-list li:first-child{border-top:0}
+  .grade-status{padding:12px 14px;border-radius:10px;background:var(--bg-2);border:1px solid rgba(76,187,165,.4);font-size:13.5px}
+  .card-hist .box-head{align-items:center;margin-bottom:6px}
+  .card-hist .seg button{padding:5px 10px;font-size:12.5px}
+
+  /* ---------- trade checker ---------- */
+  .trade{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:16px;align-items:start}
+  .trade-side{background:var(--surface);border:1px solid var(--line);border-radius:14px;padding:14px;min-width:0}
+  .trade-side h3{margin:0 0 10px;font:400 18px/1.2 "Marcellus SC",Georgia,serif;letter-spacing:.03em}
+  .trade-side .search-wrap{max-width:none}
+  .trade-results:empty{display:none}
+  .tr-results{list-style:none;margin:8px 0 0;padding:4px;border:1px solid var(--line-2);border-radius:10px;background:var(--bg-2);max-height:340px;overflow:auto}
+  .tr-pick{width:100%;display:grid;grid-template-columns:30px minmax(0,1fr) auto;gap:10px;align-items:center;padding:6px 8px;border:0;border-radius:8px;background:none;color:inherit;text-align:left;cursor:pointer}
+  .tr-pick:hover,.tr-pick:focus-visible{background:var(--surface-2)}
+  .tr-pick .sleeve,.trade-item > .sleeve{width:30px;border-radius:3px;box-shadow:none}
+  .trade-item > .sleeve{width:38px}
+  .ti-main{min-width:0;display:flex;flex-direction:column;gap:2px;font-size:13.5px}
+  .ti-main b{overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+  .ti-pick{display:flex;flex-wrap:wrap;gap:6px;margin-top:4px}
+  .ti-pick .select{padding:4px 26px 4px 8px;font-size:12.5px;max-width:150px}
+  .ti-val{text-align:right;font-weight:650;font-stretch:var(--num-stretch);font-variant-numeric:tabular-nums;white-space:nowrap;font-size:13.5px}
+  .ti-val small{display:block;font-weight:500;font-size:11px;color:var(--text-dim)}
+  .trade-list{list-style:none;margin:12px 0 0;padding:0}
+  .trade-item{display:grid;grid-template-columns:38px minmax(0,1fr) auto auto 30px;gap:8px 10px;align-items:center;padding:9px 0;border-top:1px solid var(--line)}
+  .trade-item:first-child{border-top:0}
+  .ti-qty .icon-btn{width:28px;height:28px;font-size:16px}
+  .ti-n{min-width:20px;text-align:center;font-weight:650;font-variant-numeric:tabular-nums}
+  .ti-x{width:30px;height:30px;font-size:17px}
+  .trade-empty{margin:14px 0 4px;color:var(--text-dim);font-size:13px}
+  .trade-sum{margin-top:16px}
+  .trade-totals{display:grid;grid-template-columns:auto minmax(0,1fr) auto;gap:12px;align-items:end}
+  .trade-totals b{display:block;font-size:24px;font-weight:700;font-stretch:115%;font-variant-numeric:tabular-nums;line-height:1.1}
+  .tt-right{text-align:right}
+  .trade-verdict{text-align:center;font-size:14px;color:var(--text-dim);padding-bottom:3px}
+  .trade-verdict b{color:var(--text)}
+  .trade-verdict.uneven b{color:var(--gold-hi)}
+  .trade-scale{display:flex;justify-content:center;align-items:center;height:10px;margin:10px 0 2px}
+  .trade-scale span{display:block;height:100%}
+  .ts-give{background:var(--text-faint);border-radius:999px 0 0 999px}
+  .ts-get{background:var(--series);border-radius:0 999px 999px 0}
+  .ts-mid{width:2px;height:16px;background:var(--text);margin:0 2px}
+  .trade-extra{display:flex;flex-wrap:wrap;gap:10px 20px;margin:14px 0 4px}
+  .trade-extra .input{width:120px;margin-left:6px}
+  .trade-extra #tradeLoc{width:170px}
+  @media (max-width:700px){ .table.stack-table.wg-table{min-width:0} }
+  @media (max-width:760px){
+    .trade{grid-template-columns:1fr}
+    .trade-item{grid-template-columns:38px minmax(0,1fr) auto 30px;grid-template-areas:"img main main x" "img qty val val"}
+    .trade-item > .sleeve{grid-area:img;align-self:start}
+    .trade-item .ti-main{grid-area:main}
+    .trade-item .ti-val{grid-area:val;align-self:center}
+    .trade-item .ti-qty{grid-area:qty;justify-self:start}
+    .trade-item .ti-x{grid-area:x;align-self:start}
+    .ti-pick .select{flex:1 1 40%;max-width:none;min-width:0}
+    .trade-totals{grid-template-columns:1fr 1fr;grid-template-areas:"verdict verdict" "give get"}
+    .trade-totals > div:first-child{grid-area:give}
+    .trade-totals .trade-verdict{grid-area:verdict;text-align:left;padding:0}
+    .trade-totals .trade-verdict b{display:inline;font-size:inherit;font-stretch:inherit}
+    .trade-totals .tt-right{grid-area:get}
+    .trade-totals b{font-size:20px}
+    .grader-list li{grid-template-columns:minmax(0,1fr) auto;row-gap:4px}
+    .grader-list li .small{grid-column:2;justify-self:end}
+    .vb-cards{grid-template-columns:1fr}
+  }
   /* ---------- printed report (only when printing) ---------- */
   .report{display:none}
   @media print{
@@ -678,6 +799,23 @@
     .summary{grid-template-columns:minmax(0,1fr) minmax(240px,380px);gap:16px 24px;padding:26px 26px 22px}
     .fan{--w:96px}
   }
+  /* ---------- below a wide screen, the filters fold behind one button: one row of search, Filters and view ---------- */
+  @media (max-width:1279px){
+    .controls{display:grid;grid-template-columns:minmax(220px,1fr) auto;gap:10px 14px;align-items:center}
+    .controls-main{grid-column:1;grid-row:1;flex-wrap:nowrap;max-width:none}
+    .controls-view{grid-column:2;grid-row:1;margin-left:0;flex-wrap:nowrap}
+    .search-wrap{flex:1 1 auto;max-width:none}
+    .filters-btn{display:inline-flex;flex:none;padding:9px 12px}
+    .filters-btn.on{border-color:var(--gold)}
+    .filter-panel{display:none;grid-column:1 / -1;grid-row:2}
+    .filter-panel.open{display:grid;gap:10px;padding:12px;border:1px solid var(--line-2);border-radius:14px;background:var(--surface)}
+    .filter-panel .spacer{display:none}
+  }
+  @media (max-width:900px){
+    .controls{grid-template-columns:minmax(0,1fr)}
+    .controls-view{grid-column:1;grid-row:3;flex-wrap:wrap}
+    .filter-panel{grid-row:2}
+  }
   /* ---------- phones: one row of controls, the views in a tab bar at the bottom ---------- */
   @media (max-width:640px){
     body{font-size:14px}
@@ -726,21 +864,16 @@
     .tab-icon,.tab-short{display:block}
     .tab-label{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0);white-space:nowrap}
     .tab-count{position:absolute;top:1px;left:calc(50% + 5px);min-width:17px;padding:0 4px;font-size:10px;line-height:16px;background:var(--gold);color:var(--gold-ink)}
+    .seg .tab-count{position:static;background:var(--surface-3);color:var(--text-dim)}
     [role="tabpanel"]{background:none;border:0;border-radius:0;padding:16px 0 0}
     .panel-head h2{font-size:22px}
 
-    .controls{display:grid;gap:10px;margin-bottom:14px}
-    .controls-main{flex-wrap:nowrap}
-    .search-wrap{flex:1 1 auto;max-width:none}
-    .filters-btn{display:inline-flex;flex:none;padding:9px 12px}
-    .filters-btn.on{border-color:var(--gold)}
-    .filter-panel{display:none}
-    .filter-panel.open{display:grid;gap:10px;padding:12px;border:1px solid var(--line-2);border-radius:14px;background:var(--surface)}
+    .controls{grid-template-columns:minmax(0,1fr);margin-bottom:14px}
+    .controls-view{grid-column:1;grid-row:3}
+    .filter-panel{grid-row:2}
     .filter-panel .select{max-width:none;flex:1 1 45%;min-width:0}
     .filter-panel .basis{flex:1 1 100%;justify-content:space-between}
     .filter-panel .basis .select{flex:0 1 auto}
-    .filter-panel .spacer{display:none}
-    .controls-view{margin-left:0;flex-wrap:nowrap}
     .controls-view .shown{min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
 
     .binder{grid-template-columns:repeat(2,minmax(0,1fr));gap:10px}
@@ -815,11 +948,11 @@
 
   <nav class="tabs" role="tablist" aria-label="Card Vault views">
     <button class="tab" type="button" role="tab" id="tab-collection" aria-controls="panel-collection" aria-selected="true" data-tab="collection"><svg class="tab-icon" width="20" height="20" viewBox="0 0 20 20" aria-hidden="true"><rect x="6" y="2.5" width="10" height="14" rx="1.6"/><path d="M3.5 5.5v10.8A1.7 1.7 0 0 0 5.2 18h7.3"/></svg><span class="tab-label">Collection</span><span class="tab-short" aria-hidden="true">Cards</span></button>
-    <button class="tab" type="button" role="tab" id="tab-history" aria-controls="panel-history" aria-selected="false" tabindex="-1" data-tab="history"><svg class="tab-icon" width="20" height="20" viewBox="0 0 20 20" aria-hidden="true"><path d="M2.5 17.5h15"/><path d="M3.5 14l4-5 3.2 3 5.8-7.5"/></svg><span class="tab-label">Price history</span><span class="tab-short" aria-hidden="true">History</span></button>
+    <button class="tab" type="button" role="tab" id="tab-history" aria-controls="panel-history" aria-selected="false" tabindex="-1" data-tab="history"><svg class="tab-icon" width="20" height="20" viewBox="0 0 20 20" aria-hidden="true"><path d="M2.5 17.5h15"/><path d="M3.5 14l4-5 3.2 3 5.8-7.5"/></svg><span class="tab-label">Insights</span><span class="tab-short" aria-hidden="true">Insights</span></button>
     <button class="tab" type="button" role="tab" id="tab-sets" aria-controls="panel-sets" aria-selected="false" tabindex="-1" data-tab="sets"><svg class="tab-icon" width="20" height="20" viewBox="0 0 20 20" aria-hidden="true"><rect x="2.5" y="2.5" width="6.5" height="6.5" rx="1.2"/><rect x="11" y="2.5" width="6.5" height="6.5" rx="1.2"/><rect x="2.5" y="11" width="6.5" height="6.5" rx="1.2"/><rect x="11" y="11" width="6.5" height="6.5" rx="1.2"/></svg><span class="tab-label">Sets</span><span class="tab-short" aria-hidden="true">Sets</span></button>
     <button class="tab" type="button" role="tab" id="tab-wants" aria-controls="panel-wants" aria-selected="false" tabindex="-1" data-tab="wants"><svg class="tab-icon" width="20" height="20" viewBox="0 0 20 20" aria-hidden="true"><path d="M10 2.6l2.2 4.6 5 .7-3.6 3.5.9 5-4.5-2.4-4.5 2.4.9-5L2.8 7.9l5-.7z"/></svg><span class="tab-label">Want list</span><span class="tab-short" aria-hidden="true">Wants</span><span class="tab-count" id="wantCount"></span></button>
     <button class="tab" type="button" role="tab" id="tab-decks" aria-controls="panel-decks" aria-selected="false" tabindex="-1" data-tab="decks"><svg class="tab-icon" width="20" height="20" viewBox="0 0 20 20" aria-hidden="true"><rect x="7.5" y="2.5" width="9" height="13" rx="1.4" transform="rotate(12 12 9)"/><rect x="3.5" y="4.5" width="9" height="13" rx="1.4" transform="rotate(-8 8 11)"/></svg><span class="tab-label">Deck check</span><span class="tab-short" aria-hidden="true">Decks</span></button>
-    <button class="tab" type="button" role="tab" id="tab-sales" aria-controls="panel-sales" aria-selected="false" tabindex="-1" data-tab="sales"><svg class="tab-icon" width="20" height="20" viewBox="0 0 20 20" aria-hidden="true"><path d="M2.8 10.2V3.8a1 1 0 0 1 1-1h6.4l7.3 7.3-7.4 7.4z"/><circle cx="6.8" cy="6.8" r="1.4"/></svg><span class="tab-label">Sales</span><span class="tab-short" aria-hidden="true">Sales</span></button>
+    <button class="tab" type="button" role="tab" id="tab-sales" aria-controls="panel-sales" aria-selected="false" tabindex="-1" data-tab="sales"><svg class="tab-icon" width="20" height="20" viewBox="0 0 20 20" aria-hidden="true"><path d="M2.8 10.2V3.8a1 1 0 0 1 1-1h6.4l7.3 7.3-7.4 7.4z"/><circle cx="6.8" cy="6.8" r="1.4"/></svg><span class="tab-label">Trades &amp; sales</span><span class="tab-short" aria-hidden="true">Trades</span></button>
     <button class="tab" type="button" role="tab" id="tab-market" aria-controls="panel-market" aria-selected="false" tabindex="-1" data-tab="market"><svg class="tab-icon" width="20" height="20" viewBox="0 0 20 20" aria-hidden="true"><path d="M3 7.5 4.6 3h10.8L17 7.5"/><path d="M3 7.5h14v1.2a2.4 2.4 0 0 1-4.7.6 2.4 2.4 0 0 1-4.6 0A2.4 2.4 0 0 1 3 8.7z"/><path d="M4.5 11v6.5h11V11"/></svg><span class="tab-label">Market</span><span class="tab-short" aria-hidden="true">Market</span></button>
   </nav>
 
@@ -960,7 +1093,7 @@
   const CARD_IDS_KEY = "cardvault.v2.cardids";   // Konami card IDs (from deck files) -> card names
   const HISTORY_KEY = "cardvault.v2.valueHistory";
   const YUGI_CACHE_KEY = "cardvault.v2.yugipedia";
-  const GRADERS = ["PSA", "BGS", "CGC", "SGC", "Other"];
+  const GRADERS = ["PSA", "BGS", "CGC", "SGC", "TAG", "Other"];
   // Rough starting points for what a played copy sells for, as a share of TCGplayer's market price.
   const DEFAULT_COND_PCT = {"Near Mint": 100, "Lightly Played": 85, "Moderately Played": 70, "Heavily Played": 50, "Damaged": 30};
   const YGOPRODECK = "https://db.ygoprodeck.com/api/v7";
@@ -1038,7 +1171,8 @@
   // Syncing through the backup file: every card, want, deck and sale carries "mod" (when it last changed), and
   // deleted ones are remembered here by id, so a device can tell "deleted over there" from "not seen yet".
   const SYNC_KINDS = ["collection", "wants", "decks", "sales"];
-  const SHARED_SETTINGS = ["condAdjust", "condPct", "alertsOn", "alertMinDollar", "alertMinPct", "psa10Mult", "psa10Floor", "gradePct", "pcToken"];
+  const SHARED_SETTINGS = ["condAdjust", "condPct", "alertsOn", "alertMinDollar", "alertMinPct", "psa10Mult", "psa10Floor", "gradePct", "pcToken",
+    "gradingCost", "gradingMin", "ntfyTopic", "siteUrl"];
   // Rough starting points for graded values when there's no real graded price: PSA 10 ≈ raw market × 4 + $25
   // (grading costs money and a gem-mint slab sells for more than raw), and other grades as a share of PSA 10.
   const DEFAULT_GRADE_PCT = {"10": 100, "9.5": 50, "9": 30, "8": 18, "7": 12, "6": 8};
@@ -1049,7 +1183,8 @@
     setsMode: "number", setsSort: "complete", lastBackupAt: null, lastChangeAt: null, backupSnoozeUntil: 0,
     backupRemindDays: 7, wantAlertSeen: "", alertsOn: false, alertMinDollar: 5, alertMinPct: 10, salesYear: "", deckId: null,
     deckView: "check", mkView: "sets", mkLine: "", mkKind: "", mkSortSets: "newest", mkSortSealed: "deal",
-    gradedView: false, psa10Mult: 4, psa10Floor: 25, gradePct: Object.assign({}, DEFAULT_GRADE_PCT), pcToken: ""};
+    gradedView: false, psa10Mult: 4, psa10Floor: 25, gradePct: Object.assign({}, DEFAULT_GRADE_PCT), pcToken: "",
+    insightView: "history", salesView: "trade", gradingCost: 30, gradingMin: 50, ntfyTopic: "", siteUrl: ""};
   const filters = {q: "", set: "", rarity: "", edition: "", language: "", location: "", show: ""};
   const selected = new Set();
   let selectMode = false;   // "Select" on: tapping a card ticks it instead of opening it (phones show no checkboxes otherwise)
@@ -1246,6 +1381,7 @@
       grade: normalizeGrade(r.grade),
       sealed: !!r.sealed,
       g10: n(r.g10),   // your own PSA 10 value for this card, if you entered one
+      grading: normGrading(r.grading),   // at a grading company: {company, sent, order, cost}
       notes: String(r.notes || ""),
       added: r.added || new Date().toISOString(),
       mod: modTime(r.mod)
@@ -1277,7 +1413,7 @@
       fees: n(x.fees) || 0, notes: String(x.notes || ""), name: String(x.name), productId: idOrNull(x.productId), number: String(x.number || ""),
       setName: String(x.setName || ""), rarity: String(x.rarity || ""), edition: String(x.edition || ""), condition: String(x.condition || ""),
       language: String(x.language || ""), grade: normalizeGrade(x.grade), paid: n(x.paid), market: n(x.market), image: safeImg(x.image),
-      record: x.record && typeof x.record === "object" ? x.record : null, mod: modTime(x.mod)};
+      record: x.record && typeof x.record === "object" ? x.record : null, traded: !!x.traded, mod: modTime(x.mod)};
   }
   function readJSON(key, fallback) {
     try { const v = JSON.parse(localStorage.getItem(key) || "null"); return v == null ? fallback : v; } catch (e) { return fallback; }
@@ -1451,6 +1587,10 @@
     if (num(ds.psa10Floor) != null) settings.psa10Floor = num(ds.psa10Floor);
     if (ds.gradePct && typeof ds.gradePct === "object") settings.gradePct = Object.assign({}, DEFAULT_GRADE_PCT, ds.gradePct);
     if (typeof ds.pcToken === "string") settings.pcToken = ds.pcToken;
+    if (num(ds.gradingCost) != null) settings.gradingCost = num(ds.gradingCost);
+    if (num(ds.gradingMin) != null) settings.gradingMin = num(ds.gradingMin);
+    if (typeof ds.ntfyTopic === "string") settings.ntfyTopic = ds.ntfyTopic;
+    if (typeof ds.siteUrl === "string") settings.siteUrl = ds.siteUrl;
   }
   function mergeSummary(res) {
     const names = {collection: "collection", wants: "want list", decks: "decks", sales: "sales"};
@@ -1692,7 +1832,8 @@
       ? ["p", r.productId, r.edition, r.condition, r.language]
       : ["n", normNumber(r.number), r.name.toLowerCase(), r.rarity, r.edition, r.condition, r.language];
     return base.concat([(r.location || "").toLowerCase(),
-      r.grade ? [r.grade.company, r.grade.grade, r.grade.cert].join("/").toLowerCase() : ""]).join("|");
+      r.grade ? [r.grade.company, r.grade.grade, r.grade.cert].join("/").toLowerCase() : "",
+      r.grading ? "away:" + r.id : ""]).join("|");   // (a copy at the grader stays on its own line)
   }
   const allLocations = () => Array.from(new Set(collection.map(r => r.location).filter(Boolean)))
     .sort((a, b) => a.localeCompare(b, undefined, {numeric: true, sensitivity: "base"}));
@@ -2038,11 +2179,11 @@
     if (focus) $("tab-" + tab).focus();
   }
   function renderPanel() {
-    if (settings.tab === "history") renderHistory();
+    if (settings.tab === "history") renderInsights();
     else if (settings.tab === "sets") renderSets();
     else if (settings.tab === "wants") renderWants();
     else if (settings.tab === "decks") renderDecks();
-    else if (settings.tab === "sales") renderSales();
+    else if (settings.tab === "sales") renderSalesTab();
     else if (settings.tab === "market") renderMarket();
     else renderCollection();
   }
@@ -2305,6 +2446,7 @@
       : '<span class="tile-meta">' + esc(r.number || "No card number") + "</span>" +
         '<span class="tile-meta" title="' + esc(r.rarity) + '">' + esc(r.rarity || " ") + "</span></button>") +
       '<div class="tile-foot"><span class="badges">' + (r.sealed ? '<span class="ed ed-sealed">Sealed</span>' : editionBadge(r.edition)) + gradeBadge(r.grade) +
+      (r.grading ? '<span class="ed ed-away">At ' + esc(r.grading.company) + "</span>" : "") +
       (extra ? '<span class="ed ed-extra">' + extra + " extra</span>" : "") + "</span>" + priceHTML(r, extra) + "</div></article>";
   }
   const settingsGradedNote = r => { if (!settings.gradedView) return ""; const gv = gradedValue(r); return gv ? '<span class="cell-gv">' + esc(gv.grade || "PSA 10") + (gradedShort(gv) ? ", " + gradedShort(gv) : "") + "</span>" : ""; };
@@ -2928,7 +3070,8 @@
     }
     return html;
   }
-  function openDetails(id) {
+  function openDetails(id, opts) {
+    opts = opts || {};
     let r = collection.find(x => x.id === id);
     if (!r) return;
     drawerCtx = {mode: "details", id};
@@ -2987,7 +3130,10 @@
         Math.round(mv.factor * 100) + "% of market. You can change the percentages in Settings.)</span></p>";
     }
     priceSection += (r.sealed ? "" : '<div id="otherMarkets"><button type="button" class="btn btn-small" id="otherBtn">Check other markets</button></div>') + "</div>" +
-      (r.sealed ? "" : '<div class="section"><h3>Graded value</h3><div id="gradedBox">' + gradedBoxHTML(r) + "</div></div>");
+      (product && SITE ? '<div class="section"><h3>Price over time</h3><div id="cardHist" class="card-hist"><p class="small">Loading…</p></div></div>' : "") +
+      (r.sealed ? "" : '<div class="section"><h3>Graded value</h3><div id="gradedBox">' + gradedBoxHTML(r) + "</div></div>" +
+        '<div class="section" id="gradeItSec"><h3>' + (r.grading ? "At the grader" : r.grade ? "Graded" : "Get it graded") + '</h3><div id="gradeIt">' +
+        gradeItHTML(r, opts.grading === "back" ? "back" : opts.grading === "sent" ? "sent" : "") + "</div></div>");
 
     const photoOpen = r.customImage || (!r.productId && !r.customImage);
     const cardOnly = html => r.sealed ? "" : html;
@@ -3027,6 +3173,9 @@
       '<span class="spacer"></span><button class="btn btn-danger" type="button" id="deleteOne">Delete</button></div></form></div>');
 
     if ($("otherBtn")) $("otherBtn").addEventListener("click", () => loadOtherMarkets(r));
+    wireGradeIt(r.id);
+    if (opts.grading && $("gradeItSec") && $("gradeItSec").scrollIntoView) $("gradeItSec").scrollIntoView({block: "start"});
+    if (product && SITE) loadCardHistory(r, product);
     if (!r.sealed && pcOn() && !pcBad() && normNumber(r.number)) {
       const h = pcCache()[pcKey(r)];
       if (!h || Date.now() - h.t > PC_TTL) pcLookup(r).then(() => { const cur = collection.find(x => x.id === id); if (cur && drawerCtx && drawerCtx.id === id && $("gradedBox")) { $("gradedBox").innerHTML = gradedBoxHTML(cur); if (settings.gradedView) renderSoon(); } }).catch(() => {});
@@ -4353,7 +4502,8 @@
       collection, wants, valueHistory, decks, sales, deleted, syncId: settings.syncId || null,
       settings: {condAdjust: settings.condAdjust, condPct: settings.condPct,
         alertsOn: settings.alertsOn, alertMinDollar: settings.alertMinDollar, alertMinPct: settings.alertMinPct,
-        psa10Mult: settings.psa10Mult, psa10Floor: settings.psa10Floor, gradePct: settings.gradePct, pcToken: settings.pcToken || "", sharedMod: settings.sharedMod || 0}};
+        psa10Mult: settings.psa10Mult, psa10Floor: settings.psa10Floor, gradePct: settings.gradePct, pcToken: settings.pcToken || "",
+        gradingCost: settings.gradingCost, gradingMin: settings.gradingMin, ntfyTopic: settings.ntfyTopic || "", siteUrl: settings.siteUrl || "", sharedMod: settings.sharedMod || 0}};
   }
   const hasUnbackedChanges = () => !!settings.lastChangeAt && (!settings.lastBackupAt || settings.lastChangeAt > settings.lastBackupAt);
   const pause = ms => new Promise(r => setTimeout(r, ms));
@@ -5328,6 +5478,8 @@
       '<p class="small" style="margin:8px 0 0">Counted for all your copies of a card together, since the last update.</p>' +
       '<div id="alertNote">' + alertNoteHTML() + "</div></div>" +
 
+      '<div class="section"><h3>Phone alerts</h3><div id="phoneAlerts">' + phoneAlertsHTML() + "</div></div>" +
+
       '<div class="section"><h3>Played cards</h3>' +
       '<label class="check-row"><input type="checkbox" class="check" id="sCondAdjust"' + (settings.condAdjust ? " checked" : "") +
       "><span>Value played cards below the market price</span></label>" +
@@ -5396,6 +5548,7 @@
       refreshBackupSection();
     };
     ["sAlerts", "sAlertDollar", "sAlertPct"].forEach(k => $(k).addEventListener("change", alertChange));
+    wirePhoneAlerts();
     $("sCondReset").addEventListener("click", () => {
       settings.condPct = Object.assign({}, DEFAULT_COND_PCT);
       pctInputs().forEach(i => { i.value = settings.condPct[i.dataset.cond]; });
@@ -5433,6 +5586,55 @@
       (pc.refreshing ? " (checking…)" : "") + '. Prices refresh about once a day. <button type="button" class="link-btn" id="pcRefresh">Check all now</button></span></div>';
   }
   // The daily update reads your want list and cards from the backup file to send notifications.
+  // Phone alerts: the same alerts as the Windows notifications, sent to the ntfy app (free, iPhone and Android) under a
+  // private topic name. The daily update on the PC sends them; this page only sets them up and sends a test.
+  const NTFY = "https://ntfy.sh/";
+  const NTFY_APP = "https://apps.apple.com/us/app/ntfy/id1625396347";
+  function newTopic() {
+    const a = new Uint8Array(16);
+    if (window.crypto && window.crypto.getRandomValues) window.crypto.getRandomValues(a); else for (let i = 0; i < a.length; i++) a[i] = Math.floor(Math.random() * 256);
+    return "cardvault-" + Array.from(a, b => (b % 36).toString(36)).join("");
+  }
+  const siteAddress = () => SITE && /^https:/.test(location.protocol) ? location.origin + location.pathname.replace(/[^/]*$/, "") : "";
+  function phoneAlertsHTML() {
+    const t = settings.ntfyTopic;
+    if (!t) return '<p class="small" style="margin:0 0 10px">Get the same alerts on your iPhone: a want-list card at your target price, or a big price move. ' +
+      "They come through ntfy, a free notification app, and are sent by the daily update on your Windows PC.</p>" +
+      '<button type="button" class="btn btn-small" data-pa="on">Set up phone alerts</button>';
+    return '<ol class="pa-steps"><li>Install <a href="' + NTFY_APP + '" target="_blank" rel="noopener">ntfy</a> from the App Store (it\'s free).</li>' +
+      "<li>In ntfy, tap <b>+</b>, type this topic name and tap <b>Subscribe</b>:" +
+      '<div class="pa-topic"><code id="paTopic">' + esc(t) + '</code><button type="button" class="btn btn-small" data-pa="copy">Copy</button></div></li>' +
+      '<li><button type="button" class="btn btn-small" data-pa="test">Send a test alert</button> <span class="small" id="paResult" role="status"></span></li></ol>' +
+      (settings.alertsOn ? "" : '<div class="status-line warn" style="margin-top:8px"><span class="dot" aria-hidden="true"></span><span>Turn on the notifications above too: phone alerts follow the same settings.</span></div>') +
+      '<p class="small" style="margin:10px 0 0">The daily update on your PC sends them, so it needs the latest Card Vault folder (October 2026 or later). ' +
+      "Keep the topic name to yourself: anyone who knows it could read your alerts. " +
+      '<button type="button" class="link-btn" data-pa="new">New topic name</button> · <button type="button" class="link-btn" data-pa="off">Turn off phone alerts</button></p>';
+  }
+  function wirePhoneAlerts() {
+    const box = $("phoneAlerts");
+    if (!box) return;
+    box.addEventListener("click", async e => {
+      const b = e.target.closest("[data-pa]");
+      if (!b) return;
+      const a = b.dataset.pa;
+      if (a === "on" || a === "new") { settings.ntfyTopic = newTopic(); if (siteAddress()) settings.siteUrl = siteAddress(); }
+      else if (a === "off") settings.ntfyTopic = "";
+      else if (a === "copy") { copyText(settings.ntfyTopic, () => toast("Copied the topic name. Paste it into ntfy.")); return; }
+      else if (a === "test") {
+        const out = $("paResult");
+        b.disabled = true; out.textContent = "Sending…";
+        try {
+          const res = await fetch(NTFY, {method: "POST", body: JSON.stringify({topic: settings.ntfyTopic, title: "Card Vault phone alerts are working",
+            message: "You'll get alerts like this after the daily price update.", tags: ["moneybag"], click: settings.siteUrl || siteAddress() || undefined})});
+          out.textContent = res.ok ? "Sent. It should show on your phone in a few seconds." : "ntfy didn't accept it (" + res.status + "). Try again in a minute.";
+        } catch (err) { out.textContent = "Couldn't reach ntfy. Check your internet connection."; }
+        b.disabled = false;
+        return;
+      }
+      save({quiet: true});  // the daily update reads the topic from the backup file
+      box.innerHTML = phoneAlertsHTML();
+    });
+  }
   function alertNoteHTML() {
     if (!settings.alertsOn) return "";
     if (SITE) {
@@ -5476,7 +5678,7 @@
     return avail.includes(settings.histPeriod) ? settings.histPeriod : avail.includes("m7") ? "m7" : avail[0] || null;
   }
   function renderHistory() {
-    const panel = $("panel-history");
+    const panel = insightBody();
     if (!collection.length) {
       panel.innerHTML = emptyPanel("Nothing to chart yet", "Add cards or import your TCGplayer CSV, and Card Vault keeps track of what your collection is worth over time.");
       return;
@@ -5612,7 +5814,9 @@
   }
   // A single-series line with a light area wash, hairline grid, an end marker, and a crosshair
   // tooltip that works with the mouse and with the arrow keys.
-  function renderChart(el, pts) {
+  function renderChart(el, pts, opts) {
+    opts = opts || {};
+    const tipFor = opts.tip || tipHTML;
     const W = Math.max(280, Math.round(el.getBoundingClientRect().width || el.clientWidth || 640));
     const H = W < 520 ? 210 : 250;
     const yt = niceTicks(Math.min(...pts.map(p => p.v)), Math.max(...pts.map(p => p.v)));
@@ -5659,7 +5863,7 @@
       cross.setAttribute("x2", f(q.x));
       dot.setAttribute("cx", f(q.x));
       dot.setAttribute("cy", f(q.y));
-      tip.innerHTML = tipHTML(pts, i);
+      tip.innerHTML = tipFor(pts, i);
       tip.hidden = false;
       const scale = (svgEl.getBoundingClientRect().width || W) / W;
       const tw = tip.offsetWidth, th = tip.offsetHeight, cw = el.clientWidth || W;
@@ -5692,9 +5896,649 @@
       else return;
       e.preventDefault();
       show(i);
-      const p = pts[i];
-      $("chartLive").textContent = usd(p.v) + " on " + fmtDate(p.date) + ", " + plural(p.c, "card") + (p.est ? ", estimated" : "");
+      const p = pts[i], live = $(opts.live || "chartLive");
+      if (live) live.textContent = opts.liveText ? opts.liveText(p) : usd(p.v) + " on " + fmtDate(p.date) + ", " + plural(p.c, "card") + (p.est ? ", estimated" : "");
     });
+  }
+
+  /* ======================= Insights: price history, where your value is, worth grading, tidy up ======================= */
+  const INSIGHT_VIEWS = [["history", "Price history"], ["value", "Where your value is"], ["grading", "Worth grading"], ["tidy", "Tidy up"]];
+  function renderInsights() {
+    const panel = $("panel-history");
+    const view = INSIGHT_VIEWS.some(v => v[0] === settings.insightView) ? settings.insightView : "history";
+    panel.innerHTML = '<div class="panel-head"><div><h2>Insights</h2></div><div class="panel-tools"><div class="seg seg-scroll" role="group" aria-label="Insights" id="insightSeg">' +
+      INSIGHT_VIEWS.map(([k, l]) => '<button type="button" data-insight="' + k + '" aria-pressed="' + (k === view) + '">' + esc(l) + "</button>").join("") +
+      '</div></div></div><div id="insightBody"></div>';
+    if (view === "value") renderValueBreakdown();
+    else if (view === "grading") renderWorthGrading();
+    else if (view === "tidy") renderTidy();
+    else renderHistory();
+  }
+  const insightBody = () => $("insightBody") || $("panel-history");
+  const miniThumb = r => '<button type="button" class="ins-thumb" data-open="' + esc(r.id) + '" aria-label="Open ' + esc(r.name) + '"><span class="sleeve' + (r.sealed ? " boxed" : "") + '">' +
+    imgTag(recordPics(r, "200w"), r.name) + "</span></button>";
+
+  // ----- Where your value is: by set, rarity and location, and how much rides on the top cards
+  // How many copies count: all of them, or in the PSA 10 view one of each ungraded printing (like the summary).
+  function countedCopies() {
+    if (!settings.gradedView) return collection.map(r => ({r, n: r.qty}));
+    const seen = new Set(), out = [];
+    for (const r of collection) {
+      if (r.sealed) continue;
+      if (!r.grade) { const k = printingKey(r); if (seen.has(k)) continue; seen.add(k); }
+      out.push({r, n: r.grade ? r.qty : 1});
+    }
+    return out;
+  }
+  function valueBy(keyOf) {
+    const m = new Map();
+    let total = 0;
+    for (const {r, n} of countedCopies()) {
+      const u = unitValue(r);
+      if (u == null) continue;
+      const v = u * n, k = keyOf(r);
+      total += v;
+      const e = m.get(k) || {label: k, value: 0, cards: 0};
+      e.value += v; e.cards += n;
+      m.set(k, e);
+    }
+    return {total, rows: Array.from(m.values()).filter(e => e.value > 0).sort((a, b) => b.value - a.value)};
+  }
+  // A list of bars, one hue, longest first, each with its amount and share written out.
+  function barListHTML(title, g, limit) {
+    if (!g.rows.length) return "";
+    const rows = g.rows.slice(0, limit), rest = g.rows.slice(limit);
+    if (rest.length) rows.push({label: plural(rest.length, "other"), value: rest.reduce((t, e) => t + e.value, 0), cards: rest.reduce((t, e) => t + e.cards, 0), other: true});
+    const max = Math.max(...rows.map(e => e.value));
+    return '<div class="box vb-box"><h3 class="vb-h">' + esc(title) + '</h3><ul class="vb-list">' + rows.map(e => {
+      const share = g.total ? e.value / g.total : 0;
+      return '<li class="vb-row' + (e.other ? " other" : "") + '" title="' + esc(e.label + ": " + usd(e.value) + ", " + plural(e.cards, "card")) + '">' +
+        '<span class="vb-label">' + esc(e.label) + '</span><span class="vb-val">' + esc(usd(e.value)) + " <small>" + (share * 100).toFixed(share < 0.1 ? 1 : 0) + "%</small></span>" +
+        '<span class="vb-track" aria-hidden="true"><span style="width:' + Math.max(1, e.value / max * 100).toFixed(1) + '%"></span></span></li>';
+    }).join("") + "</ul></div>";
+  }
+  function renderValueBreakdown() {
+    const el = insightBody();
+    if (!collection.length) { el.innerHTML = emptyPanel("Nothing here yet", "Add cards and Card Vault shows where your collection's value sits."); return; }
+    const items = countedCopies().map(({r, n}) => ({r, n, v: (unitValue(r) || 0) * n})).filter(x => x.v > 0).sort((a, b) => b.v - a.v);
+    const total = items.reduce((t, x) => t + x.v, 0);
+    if (!total) { el.innerHTML = '<div class="notice">None of your cards have a price yet, so there\'s nothing to break down.</div>'; return; }
+    const top = items.slice(0, 10), topV = top.reduce((t, x) => t + x.v, 0), share = topV / total;
+    const basis = settings.gradedView ? "PSA 10 values" : settings.basis === "paid" ? "what you paid" : "TCGplayer market prices";
+    const byLoc = valueBy(r => r.location || "No location");
+    el.innerHTML = '<p class="small" style="margin:0 0 14px">Your collection is worth <b>' + esc(usd(total)) + "</b> at " + basis + ". Here's where that sits.</p>" +
+      '<div class="box vb-top"><div class="box-head"><h3>Your ' + (top.length < 10 ? top.length : 10) + " most valuable printings</h3>" +
+      '<span class="small">' + esc(usd(topV)) + ", " + Math.round(share * 100) + "% of the total</span></div>" +
+      '<div class="share-bar" role="img" aria-label="' + Math.round(share * 100) + "% of your collection's value is in these " + top.length + ' printings"><span style="width:' + (share * 100).toFixed(1) + '%"></span></div>' +
+      '<ol class="vb-cards">' + top.map(x => '<li>' + miniThumb(x.r) + '<span class="vb-card-name"><button type="button" class="cell-name" data-open="' + esc(x.r.id) + '">' + esc(x.r.name) + "</button>" +
+        '<span class="cell-sub">' + esc([x.r.number, x.r.rarity].filter(Boolean).join(", ") || x.r.setName) + (x.n > 1 ? ", " + x.n + " copies" : "") + "</span></span>" +
+        '<span class="vb-val">' + esc(usd(x.v)) + " <small>" + (x.v / total * 100).toFixed(1) + "%</small></span></li>").join("") + "</ol></div>" +
+      '<div class="vb-grid">' + barListHTML("By set", valueBy(r => r.setName || "Set unknown"), 10) +
+      barListHTML("By rarity", valueBy(r => r.sealed ? "Sealed products" : r.rarity || "Rarity unknown"), 8) +
+      (byLoc.rows.some(e => e.label !== "No location") ? barListHTML("By location", byLoc, 8) : "") +
+      barListHTML("By printing", valueBy(r => r.sealed ? "Sealed products" : r.grade ? "Graded" : r.edition || "Printing unknown"), 6) + "</div>";
+  }
+
+  // ----- Worth grading: cards where a PSA 10 (or 9) beats the raw price by more than grading costs
+  const gradingCostEach = () => { const n = num(settings.gradingCost); return n == null ? 30 : Math.max(0, n); };
+  const gradingMinGain = () => { const n = num(settings.gradingMin); return n == null ? 50 : n; };
+  function gradingEstimate(r) {
+    if (r.sealed || r.grade) return null;
+    const raw = rawMarket(r), ten = psa10Value(r);
+    if (raw == null || !ten) return null;
+    const cost = gradingCostEach(), nine = round2(ten.unit * (gradeShare("9") || 0.3));
+    return {raw, ten, nine, cost, gain10: round2(ten.unit - raw - cost), gain9: round2(nine - raw - cost)};
+  }
+  const tenSource = ten => ten.from === "pricecharting" ? "PriceCharting" : ten.from === "yours" ? "your value" : "estimate";
+  function renderWorthGrading() {
+    const el = insightBody();
+    const away = collection.filter(r => r.grading);
+    const min = gradingMinGain();
+    const list = collection.filter(r => !r.grading && /^near mint/i.test(r.condition || "Near Mint"))
+      .map(r => ({r, e: gradingEstimate(r)})).filter(x => x.e && x.e.gain10 >= min).sort((a, b) => b.e.gain10 - a.e.gain10);
+    const estimates = list.filter(x => x.e.ten.from === "estimate").length;
+    const sign = v => (v >= 0 ? "+" : "−") + usd(Math.abs(v));
+    el.innerHTML = (away.length ? '<div class="box" style="margin-bottom:16px"><div class="box-head"><h3>At the grader</h3><span class="small">' + plural(away.length, "card") + "</span></div>" +
+      '<ul class="away-list">' + away.map(r => {
+        const days = Math.max(0, Math.round((Date.now() - (parseDay(r.grading.sent) || new Date()).getTime()) / 86400000));
+        return "<li>" + miniThumb(r) + '<span><button type="button" class="cell-name" data-open="' + esc(r.id) + '">' + esc(r.name) + '</button><span class="cell-sub">' +
+          esc(r.grading.company) + ", sent " + esc(fmtDate(parseDay(r.grading.sent))) + " (" + plural(days, "day") + " ago)" + (r.grading.order ? ", order " + esc(r.grading.order) : "") +
+          '</span></span><button type="button" class="btn btn-small" data-grade-back="' + esc(r.id) + '">It\'s back</button></li>';
+      }).join("") + "</ul></div>" : "") +
+      '<div class="wg-controls"><label class="basis">Grading cost per card (fees and shipping) <input class="input" id="wgCost" type="number" min="0" step="1" value="' + gradingCostEach() + '"></label>' +
+      '<label class="basis">Show cards that gain at least <input class="input" id="wgMin" type="number" step="5" value="' + min + '"> at a 10</label></div>' +
+      (!list.length ? '<div class="notice">No ungraded Near Mint card gains ' + esc(usd(min)) + " or more at a PSA 10 after " + esc(usd(gradingCostEach())) + " in grading costs. Try a lower amount.</div>"
+      : '<div class="table-wrap"><table class="table stack-table wg-table"><thead><tr><th class="c-thumb"><span class="sr">Image</span></th><th>Card</th><th class="num">Raw</th><th class="num">PSA 10</th>' +
+        '<th class="num">If it gets a 10</th><th class="num">If it gets a 9</th><th><span class="sr">Actions</span></th></tr></thead><tbody>' +
+        list.slice(0, 100).map(({r, e}) => '<tr><td class="c-thumb"><span class="sleeve">' + imgTag(recordPics(r, "200w"), r.name) + "</span></td>" +
+          '<td><button type="button" class="cell-name" data-open="' + esc(r.id) + '">' + esc(r.name) + '</button><span class="cell-sub">' + esc([r.number, r.rarity, r.edition].filter(Boolean).join(", ")) +
+          (r.qty > 1 ? ". You have " + r.qty : "") + "</span></td>" +
+          '<td class="num" data-label="Raw">' + esc(usd(e.raw)) + '</td><td class="num" data-label="PSA 10">' + esc(usd(e.ten.unit)) + '<span class="cell-sub">' + tenSource(e.ten) + "</span></td>" +
+          '<td class="num" data-label="If it gets a 10"><b>' + esc(sign(e.gain10)) + '</b></td><td class="num" data-label="If it gets a 9">' + esc(sign(e.gain9)) + "</td>" +
+          '<td><button type="button" class="btn btn-small" data-grade-it="' + esc(r.id) + '">Grade it…</button></td></tr>').join("") + "</tbody></table></div>" +
+        (list.length > 100 ? '<p class="small">Showing the top 100 of ' + list.length + ".</p>" : "")) +
+      '<p class="small" style="margin-top:12px">"If it gets a 10" is the PSA 10 value minus the raw price and your grading cost; a 9 counts at ' +
+      Math.round((gradeShare("9") || 0.3) * 100) + "% of a 10 (Settings &gt; Graded values). Played cards and cards already graded are left out." +
+      (estimates ? " " + plural(estimates, "PSA 10 value is an estimate", "PSA 10 values are estimates") + " (raw × " + esc(String(num(settings.psa10Mult) == null ? 4 : num(settings.psa10Mult))) +
+        " + " + esc(usd(num(settings.psa10Floor) == null ? 25 : num(settings.psa10Floor))) + "); a PriceCharting key in Settings gives real sold prices." : "") + "</p>";
+  }
+
+  // ----- Tidy up: entries with no price, the same card in two entries, a missing printing or location, cards not linked to TCGplayer
+  const dupKey = r => [r.productId ? "p" + r.productId : "n" + String(r.name).toLowerCase() + "|" + normNumber(r.number) + "|" + String(r.rarity || "").toLowerCase(), r.edition, r.condition, r.language,
+    String(r.location || "").trim().toLowerCase(), r.sealed ? 1 : 0].join("|");
+  function tidyData() {
+    const groups = new Map();
+    for (const r of collection) {
+      if (r.grade || r.grading) continue;
+      const k = dupKey(r);
+      if (!groups.has(k)) groups.set(k, []);
+      groups.get(k).push(r);
+    }
+    const product = r => catalog && r.productId ? catalog.byId.get(r.productId) : null;
+    const dups = Array.from(groups.values()).filter(g => g.length > 1);
+    return {
+      noPrice: collection.filter(r => marketValue(r).unit == null),
+      dups, mergeable: dups.filter(canMerge),
+      noEdition: collection.filter(r => !r.sealed && !r.edition && product(r) && printingsFor(product(r)).some(k => k !== "Normal")),
+      unlinked: collection.filter(r => !r.productId && !r.sealed && !isOcg(r)),
+      noLocation: collection.some(r => r.location) ? collection.filter(r => !r.location) : []
+    };
+  }
+  function tidyListHTML(list, extra) {
+    const shown = list.slice(0, 12);
+    return '<ul class="away-list">' + shown.map(r => "<li>" + miniThumb(r) + '<span><button type="button" class="cell-name" data-open="' + esc(r.id) + '">' + esc(r.name) + '</button><span class="cell-sub">' +
+      esc([r.setName, r.number, r.edition, r.condition !== "Near Mint" ? r.condition : "", r.location].filter(Boolean).join(", ")) + (r.qty > 1 ? " (×" + r.qty + ")" : "") + "</span></span>" +
+      (extra ? extra(r) : "") + "</li>").join("") + "</ul>" + (list.length > shown.length ? '<p class="small">And ' + (list.length - shown.length) + " more.</p>" : "");
+  }
+  function renderTidy() {
+    const el = insightBody();
+    if (!collection.length) { el.innerHTML = emptyPanel("Nothing to tidy", "Add cards and Card Vault points out entries that need a look."); return; }
+    const t = tidyData();
+    const box = (title, why, body, actions) => '<div class="box tidy-box"><div class="box-head"><h3>' + title + "</h3>" + (actions || "") + '</div><p class="small" style="margin:0 0 6px">' + why + "</p>" + body + "</div>";
+    const parts = [];
+    if (t.dups.length) {
+      const held = t.dups.length - t.mergeable.length;
+      parts.push(box("The same card in two entries (" + t.dups.length + ")", "Same printing, condition, language and location, kept as separate entries. Merging adds up the copies." +
+        (held ? " " + (held === 1 ? "One of them has" : held + " of them have") + " a different price paid or your own value on each entry, so open " + (held === 1 ? "it" : "them") + " to merge by hand." : ""),
+        tidyListHTML(t.dups.map(g => g[0]), r => '<span class="small">' + plural(t.dups.find(g => g[0] === r).length, "entry", "entries") +
+          (canMerge(t.dups.find(g => g[0] === r)) ? "" : ", details differ") + "</span>"),
+        t.mergeable.length ? '<button type="button" class="btn btn-small" data-tidy="merge">Merge ' + (held ? "the " + t.mergeable.length : "them") + "</button>" : ""));
+    }
+    if (t.noEdition.length) {
+      const single = t.noEdition.filter(r => printingsFor(catalog.byId.get(r.productId)).filter(k => k !== "Normal").length === 1);
+      parts.push(box("No printing (" + t.noEdition.length + ")", "1st Edition and Unlimited copies can have very different prices. Pick the printing so the right one counts.",
+        tidyListHTML(t.noEdition, r => '<select class="select" data-tidy-ed="' + esc(r.id) + '" aria-label="Printing of ' + esc(r.name) + '">' +
+          options(printingsFor(catalog.byId.get(r.productId)).filter(k => k !== "Normal"), "", "Choose…") + "</select>"),
+        single.length ? '<button type="button" class="btn btn-small" data-tidy="edition">Fill in the ' + plural(single.length, "card") + " with only one printing</button>" : ""));
+    }
+    if (t.noPrice.length) parts.push(box("No price (" + t.noPrice.length + ")", "These count as $0. Open one to link it to a TCGplayer printing or enter your own estimate.", tidyListHTML(t.noPrice)));
+    if (t.unlinked.length) parts.push(box("Not linked to TCGplayer (" + t.unlinked.length + ")", "Added by hand, so there's no TCGplayer photo or price. Card Vault can link the ones whose card number and rarity match exactly one printing.",
+      tidyListHTML(t.unlinked), catalog ? '<button type="button" class="btn btn-small" data-tidy="link">Link automatically</button>' : ""));
+    if (t.noLocation.length) parts.push(box("No location (" + t.noLocation.length + ")", "Everything else has a binder or box. Give these one too.",
+      tidyListHTML(t.noLocation), '<button type="button" class="btn btn-small" data-tidy="move">Move them…</button>'));
+    el.innerHTML = parts.length ? parts.join("") : '<div class="notice"><strong>All tidy.</strong> Every card has a price, a printing and ' + (collection.some(r => r.location) ? "a location" : "one entry") + ", and nothing is entered twice.</div>";
+  }
+  // Entries merge only when nothing would be lost or made up: the same price paid (known for all copies or for none),
+  // and the same own estimate, photo, PSA 10 value and Japan/Korea prices where both have one.
+  const MERGE_FIELDS = ["manualPrice", "customImage", "g10", "jp", "kr"];
+  function canMerge(g) {
+    const paidKnown = g.filter(r => r.paid != null).length;
+    if (paidKnown && paidKnown < g.length) return false;
+    return MERGE_FIELDS.every(f => new Set(g.map(r => r[f]).filter(v => v != null && v !== "")).size <= 1);
+  }
+  function mergeDuplicates() {
+    const t = tidyData();
+    if (!t.mergeable.length) return;
+    const before = collection.map(r => Object.assign({}, r));
+    const gone = new Set();
+    let merged = 0;
+    for (const g of t.mergeable) {
+      const keep = g[0];
+      for (const r of g.slice(1)) {
+        if (r.paid != null && keep.paid != null) keep.paid = round2((keep.paid * keep.qty + r.paid * r.qty) / (keep.qty + r.qty));
+        for (const f of MERGE_FIELDS.concat(["snap", "sku"])) if ((keep[f] == null || keep[f] === "") && r[f] != null && r[f] !== "") keep[f] = r[f];
+        keep.qty += r.qty;
+        if (r.notes && !keep.notes.includes(r.notes)) keep.notes = (keep.notes ? keep.notes + " " : "") + r.notes;
+        if (r.added < keep.added) keep.added = r.added;
+        gone.add(r.id);
+        merged++;
+      }
+    }
+    collection = collection.filter(r => !gone.has(r.id));
+    gone.forEach(id => selected.delete(id));
+    save(); render();
+    toast("Merged " + plural(merged, "entry", "entries") + " into the matching ones.", {action: "Undo", onAction: () => { collection = before; save(); render(); }});
+  }
+  function fillSingleEditions() {
+    const t = tidyData();
+    let n = 0;
+    for (const r of t.noEdition) {
+      const eds = printingsFor(catalog.byId.get(r.productId)).filter(k => k !== "Normal");
+      if (eds.length === 1) { r.edition = eds[0]; n++; }
+    }
+    if (n) { save(); render(); toast("Filled in the printing of " + plural(n, "card") + "."); }
+  }
+  function wireInsights(panel) {
+    panel.addEventListener("click", e => {
+      if (settings.tab !== "history") return;
+      const v = e.target.closest("[data-insight]");
+      if (v) { settings.insightView = v.dataset.insight; saveSettings(); renderInsights(); const b = document.querySelector('[data-insight="' + v.dataset.insight + '"]'); if (b) b.focus(); return; }
+      const back = e.target.closest("[data-grade-back]");
+      if (back) { openDetails(back.dataset.gradeBack, {grading: "back"}); return; }
+      const g = e.target.closest("[data-grade-it]");
+      if (g) { openDetails(g.dataset.gradeIt, {grading: "start"}); return; }
+      const td = e.target.closest("[data-tidy]");
+      if (td) {
+        const a = td.dataset.tidy;
+        if (a === "merge") mergeDuplicates();
+        else if (a === "edition") fillSingleEditions();
+        else if (a === "link") { const n = autoLink(); if (n) { save(); render(); } toast(n ? "Linked " + plural(n, "card") + " to TCGplayer." : "None of them match exactly one TCGplayer printing. Open a card to pick its printing."); }
+        else if (a === "move") openMove(tidyData().noLocation.map(r => r.id));
+      }
+    });
+    panel.addEventListener("change", e => {
+      if (settings.tab !== "history") return;
+      const ed = e.target.closest("[data-tidy-ed]");
+      if (ed && ed.value) { const r = collection.find(x => x.id === ed.dataset.tidyEd); if (r) { r.edition = ed.value; save(); render(); toast("Saved " + r.name + " as " + ed.value + "."); } return; }
+      if (e.target.id === "wgCost" || e.target.id === "wgMin") {
+        const v = num(e.target.value);
+        if (e.target.id === "wgCost") settings.gradingCost = v == null ? 30 : Math.max(0, v); else settings.gradingMin = v == null ? 50 : v;
+        saveSettings(); save({quiet: true}); renderWorthGrading();
+        const again = $(e.target.id); if (again) again.focus();
+      }
+    });
+  }
+
+  /* ======================= Getting a card graded ======================= */
+  // Each company's own pages: the "start a submission" link needs an account there; fees and turnaround change often,
+  // so Card Vault links to their price list instead of repeating it.
+  const GRADING_COS = [
+    {id: "PSA", name: "PSA", start: "https://www.psacard.com/startsubmission", prices: "https://www.psacard.com/pricing"},
+    {id: "BGS", name: "Beckett (BGS)", start: "https://www.beckett.com/grading/submit", prices: "https://www.beckett.com/grading"},
+    {id: "CGC", name: "CGC Cards", start: "https://www.cgccards.com/account/my-submissions/", prices: "https://www.cgccards.com/submit/services-fees/"},
+    {id: "SGC", name: "SGC", start: "https://www.gosgc.com/card-grading", prices: "https://www.gosgc.com/card-grading/services-pricing"},
+    {id: "TAG", name: "TAG", start: "https://my.taggrading.com/", prices: "https://taggrading.com/pages/pricing"}
+  ];
+  function normGrading(g) {
+    if (!g || typeof g !== "object" || !String(g.company || "").trim()) return null;
+    return {company: String(g.company).trim(), sent: parseDay(g.sent) ? g.sent : localDay(new Date()), order: String(g.order || "").trim(), cost: g.cost === "" || g.cost == null ? null : num(g.cost)};
+  }
+  // What the grading forms ask for, ready to paste.
+  function gradingDetailsText(r) {
+    const p = catalog && r.productId ? catalog.byId.get(r.productId) : null;
+    const year = p && p.group.published ? p.group.published.slice(0, 4) : "";
+    const mv = marketValue(r).unit;
+    return ["Card: " + lookupName(r.name), "Game: Yu-Gi-Oh! (" + (r.language || "English") + ")", "Set: " + (r.setName || "") + (year ? " (" + year + ")" : ""),
+      "Card number: " + (r.number || ""), "Rarity: " + (r.rarity || ""), "Printing: " + (r.edition || ""),
+      mv != null ? "Value: " + usd(mv) + " (TCGplayer market" + (catalog ? ", " + fmtDate(catalog.generated) : "") + ")" : ""].filter(l => !/: $/.test(l)).join("\n");
+  }
+  function gradeItHTML(r, mode) {
+    if (r.sealed) return "";
+    if (r.grade && !r.grading) return '<p class="small">Graded ' + esc(gradeLabel(r.grade)) + (r.grade.cert ? ", certification " + esc(r.grade.cert) : "") + ".</p>";
+    if (r.grading && mode !== "back") {
+      const g = r.grading;
+      return '<div class="grade-status"><b>At ' + esc(g.company) + "</b> since " + esc(fmtDate(parseDay(g.sent))) + (g.order ? ", order " + esc(g.order) : "") +
+        (g.cost != null ? ", " + esc(usd(g.cost)) + " to grade" : "") + '.<div class="btn-row"><button type="button" class="btn btn-small btn-primary" data-gi="back">It\'s back</button>' +
+        '<button type="button" class="btn btn-small" data-gi="unsend">I didn\'t send it after all</button></div></div>';
+    }
+    if (mode === "back") {
+      const g = r.grading || {};
+      return '<form class="stack" id="giBackForm"><p class="small" style="margin:0">Record the grade it got. It then counts at that grade in the PSA 10 view' + (g.cost != null && r.paid != null ? ", and the grading cost is added to what you paid" : "") + ".</p>" +
+        '<div class="grid-2"><label class="field"><span>Graded by</span><select class="input" id="giCo">' + options(GRADERS, g.company || "PSA") + "</select></label>" +
+        '<label class="field"><span>Grade</span><input class="input" id="giGrade" placeholder="e.g. 10 or 9.5" required></label></div>' +
+        '<div class="grid-2"><label class="field"><span>Certification number</span><input class="input" id="giCert"></label>' +
+        '<label class="field"><span>Graded value, if you know it (US$)</span><input class="input" id="giValue" type="number" min="0" step="0.01"></label></div>' +
+        '<div class="btn-row"><button class="btn btn-primary" type="submit">Save the grade</button><button class="btn" type="button" data-gi="cancel">Cancel</button></div></form>';
+    }
+    if (mode === "sent") {
+      return '<form class="stack" id="giSentForm"><p class="small" style="margin:0">' + (r.qty > 1 ? "One of your " + r.qty + " copies goes on its own line while it's away; the others stay as they are. " : "") +
+        "Card Vault keeps it in your collection, marked as at the grader.</p>" +
+        '<div class="grid-2"><label class="field"><span>Sent to</span><select class="input" id="giCo">' + options(GRADING_COS.map(c => c.id).concat(["Other"]), "PSA") + "</select></label>" +
+        '<label class="field"><span>Date sent</span><input class="input" id="giSent" type="date" value="' + localDay(new Date()) + '"></label></div>' +
+        '<div class="grid-2"><label class="field"><span>Order or submission number</span><input class="input" id="giOrder"></label>' +
+        '<label class="field"><span>Cost for this card (US$)</span><input class="input" id="giCost" type="number" min="0" step="0.01" value="' + gradingCostEach() + '"></label></div>' +
+        '<div class="btn-row"><button class="btn btn-primary" type="submit">Mark as sent</button><button class="btn" type="button" data-gi="cancel">Cancel</button></div></form>';
+    }
+    const e = gradingEstimate(r);
+    const sign = v => (v >= 0 ? "+" : "−") + usd(Math.abs(v));
+    return (e ? '<p class="gi-math">Raw <b>' + esc(usd(e.raw)) + "</b>, PSA 10 <b>" + esc(usd(e.ten.unit)) + '</b> <span class="small">(' + tenSource(e.ten) + ")</span>. After " + esc(usd(e.cost)) +
+        " to grade: <b>" + esc(sign(e.gain10)) + "</b> if it gets a 10, " + esc(sign(e.gain9)) + " at a 9.</p>" : "") +
+      '<ul class="grader-list">' + GRADING_COS.map(c => '<li><b>' + esc(c.name) + '</b><a class="btn btn-small" target="_blank" rel="noopener" href="' + esc(c.start) + '">Start a submission</a>' +
+        '<a class="small" target="_blank" rel="noopener" href="' + esc(c.prices) + '">Prices</a></li>').join("") + "</ul>" +
+      '<div class="btn-row"><button type="button" class="btn btn-small" data-gi="copy">Copy card details for the form</button><button type="button" class="btn btn-small" data-gi="sent">I sent it…</button></div>' +
+      '<p class="small" style="margin:8px 0 0">Each link opens that company\'s site, where you sign in, choose a service and pay them. Their fees and wait times change often, so check their prices.</p>';
+  }
+  function wireGradeIt(id) {
+    const box = $("gradeIt");
+    if (!box) return;
+    const cur = () => collection.find(x => x.id === id);
+    const show = mode => { const r = cur(); if (r && $("gradeIt")) { $("gradeIt").innerHTML = gradeItHTML(r, mode); } };
+    box.addEventListener("click", e => {
+      const b = e.target.closest("[data-gi]");
+      if (!b) return;
+      const r = cur();
+      if (!r) return;
+      const a = b.dataset.gi;
+      if (a === "copy") copyText(gradingDetailsText(r), () => toast("Copied the card's details. Paste them into the grading form."));
+      else if (a === "sent" || a === "back") show(a);
+      else if (a === "cancel") show("");
+      else if (a === "unsend") { r.grading = null; save(); render(); show(""); toast("It's no longer marked as at the grader."); }
+    });
+    box.addEventListener("submit", e => {
+      e.preventDefault();
+      const r = cur();
+      if (!r) return;
+      if (e.target.id === "giSentForm") {
+        const g = normGrading({company: $("giCo").value, sent: $("giSent").value, order: $("giOrder").value, cost: $("giCost").value});
+        let target = r;
+        if (r.qty > 1) {   // one copy goes; the rest stay on their own line
+          r.qty -= 1;
+          target = upgradeRecord(Object.assign({}, r, {id: newId(), qty: 1, mod: 0}));
+          collection.push(target);
+        }
+        target.grading = g;
+        save(); render();
+        toast("Marked " + r.name + " as sent to " + g.company + ".");
+        openDetails(target.id, {grading: ""});
+      } else if (e.target.id === "giBackForm") {
+        const grade = normalizeGrade({company: $("giCo").value, grade: $("giGrade").value, cert: $("giCert").value, value: $("giValue").value});
+        if (!grade || !grade.grade) { toast("Enter the grade it got.", {kind: "error"}); return; }
+        const cost = r.grading && r.grading.cost;
+        r.grade = grade;
+        if (cost != null && r.paid != null) r.paid = round2(r.paid + cost);
+        r.grading = null;
+        save(); render();
+        toast("Saved: " + r.name + " is a " + gradeLabel(grade) + ".");
+        openDetails(r.id);
+      }
+    });
+  }
+
+  /* ======================= Trades & sales: the trade checker ======================= */
+  // Put a trade together: the cards you'd give (from your collection) and the cards you'd get (any TCGplayer printing),
+  // each at TCGplayer's market price, plus any cash. "Complete trade" takes your cards out (into the sales log, marked
+  // as traded) and adds the ones you get. The trade in progress is kept on this device until you finish or clear it.
+  const SALES_VIEWS = [["trade", "Trade checker"], ["log", "Sales log"]];
+  const TRADE_KEY = "cardvault.v2.trade";
+  let trade = null;
+  function tradeState() {
+    if (!trade) {
+      const t = readJSON(TRADE_KEY, null) || {};
+      trade = {give: Array.isArray(t.give) ? t.give.filter(x => x && x.id).map(x => ({id: String(x.id), qty: posInt(x.qty) || 1})) : [],
+        get: Array.isArray(t.get) ? t.get.filter(x => x && idOrNull(x.productId)).map(x => ({key: String(x.key || newId()), productId: idOrNull(x.productId),
+          edition: String(x.edition || ""), condition: CONDITIONS.includes(x.condition) ? x.condition : "Near Mint", qty: posInt(x.qty) || 1})) : [],
+        cash: Math.max(0, num(t.cash) || 0), cashDir: t.cashDir === "give" ? "give" : "get", loc: String(t.loc || ""), q1: "", q2: ""};
+    }
+    // (a card sold or deleted meanwhile drops out; you can't give more copies than you have)
+    trade.give = trade.give.filter(x => collection.some(r => r.id === x.id));
+    trade.give.forEach(x => { const r = collection.find(y => y.id === x.id); x.qty = Math.min(x.qty, r.qty); });
+    return trade;
+  }
+  function saveTrade() {
+    try { localStorage.setItem(TRADE_KEY, JSON.stringify({give: trade.give, get: trade.get, cash: trade.cash, cashDir: trade.cashDir, loc: trade.loc})); } catch (e) { /* optional */ }
+  }
+  const giveLine = it => { const r = collection.find(x => x.id === it.id); const u = r ? marketValue(r).unit : null; return {r, unit: u, total: u == null ? 0 : u * it.qty}; };
+  function getLine(it) {
+    const p = catalog ? catalog.byId.get(it.productId) : null;
+    const sub = p ? catalogPrice(p, it.edition) : null;
+    const m = firstPrice(sub);
+    const u = m == null ? null : round2(m * conditionFactor({condition: it.condition}));
+    return {p, unit: u, total: u == null ? 0 : u * it.qty};
+  }
+  function tradeTotals() {
+    const t = tradeState();
+    let give = t.give.reduce((s, it) => s + giveLine(it).total, 0), get = t.get.reduce((s, it) => s + getLine(it).total, 0);
+    const unpriced = t.give.filter(it => giveLine(it).unit == null).length + t.get.filter(it => getLine(it).unit == null).length;
+    const cardsGive = give, cardsGet = get;
+    if (t.cash) { if (t.cashDir === "get") get += t.cash; else give += t.cash; }
+    return {give, get, cardsGive, cardsGet, diff: round2(get - give), unpriced};
+  }
+  function renderSalesTab() {
+    const panel = $("panel-sales");
+    const view = settings.salesView === "log" ? "log" : "trade";
+    panel.innerHTML = '<div class="panel-head"><div><h2>Trades &amp; sales</h2></div><div class="panel-tools"><div class="seg" role="group" aria-label="Trades and sales" id="salesSeg">' +
+      SALES_VIEWS.map(([k, l]) => '<button type="button" data-salesview="' + k + '" aria-pressed="' + (k === view) + '">' + l + (k === "log" && sales.length ? ' <span class="tab-count">' + sales.length + "</span>" : "") + "</button>").join("") +
+      '</div></div></div><div id="salesBody"></div>';
+    if (view === "log") renderSales(); else renderTrade();
+  }
+  const tradeThumb = (pics, name) => '<span class="sleeve">' + imgTag(pics, name) + "</span>";
+  function tradeRowsHTML(side) {
+    const t = tradeState();
+    const list = side === "give" ? t.give : t.get;
+    if (!list.length) return '<p class="trade-empty">' + (side === "give" ? "Search your collection above to add the cards you'd trade away." : "Search TCGplayer above to add the cards you'd get.") + "</p>";
+    return '<ul class="trade-list">' + list.map((it, i) => {
+      if (side === "give") {
+        const {r, unit, total} = giveLine(it);
+        return '<li class="trade-item">' + tradeThumb(recordPics(r, "200w"), r.name) + '<div class="ti-main"><b>' + esc(r.name) + '</b><span class="cell-sub">' +
+          esc([r.number, r.edition, r.grade ? gradeLabel(r.grade) : r.condition].filter(Boolean).join(", ")) + ". You have " + r.qty + "</span></div>" +
+          '<div class="ti-qty stepper"><button type="button" class="icon-btn" data-tq="give:' + i + ':-1" aria-label="One fewer">&minus;</button><span class="ti-n">' + it.qty + '</span>' +
+          '<button type="button" class="icon-btn" data-tq="give:' + i + ':1" aria-label="One more"' + (it.qty >= r.qty ? " disabled" : "") + ">+</button></div>" +
+          '<div class="ti-val">' + (unit == null ? '<span class="small">no price</span>' : esc(usd(total)) + (it.qty > 1 ? "<small>" + esc(usd(unit)) + " each</small>" : "")) + "</div>" +
+          '<button type="button" class="icon-btn ti-x" data-tx="give:' + i + '" aria-label="Remove ' + esc(r.name) + '">&times;</button></li>';
+      }
+      const {p, unit, total} = getLine(it);
+      const eds = p ? printingsFor(p).filter(k => k !== "Normal") : [];
+      return '<li class="trade-item">' + tradeThumb(productPics(p, "200w"), p ? p.name : "") + '<div class="ti-main"><b>' + esc(p ? cleanName(p.name, p.rarity) : "Unknown card") + '</b><span class="cell-sub">' +
+        esc(p ? [p.number, p.rarity].filter(Boolean).join(", ") : "") + "</span>" +
+        '<span class="ti-pick">' + (eds.length ? '<select class="select" data-tg="ed:' + i + '" aria-label="Printing">' + options(eds, it.edition) + "</select>" : "") +
+        '<select class="select" data-tg="cond:' + i + '" aria-label="Condition">' + options(CONDITIONS, it.condition) + "</select></span></div>" +
+        '<div class="ti-qty stepper"><button type="button" class="icon-btn" data-tq="get:' + i + ':-1" aria-label="One fewer">&minus;</button><span class="ti-n">' + it.qty + '</span>' +
+        '<button type="button" class="icon-btn" data-tq="get:' + i + ':1" aria-label="One more">+</button></div>' +
+        '<div class="ti-val">' + (unit == null ? '<span class="small">no price</span>' : esc(usd(total)) + (it.qty > 1 ? "<small>" + esc(usd(unit)) + " each</small>" : "")) + "</div>" +
+        '<button type="button" class="icon-btn ti-x" data-tx="get:' + i + '" aria-label="Remove">&times;</button></li>';
+    }).join("") + "</ul>";
+  }
+  function tradeSummaryHTML() {
+    const t = tradeState(), s = tradeTotals();
+    const big = Math.max(s.give, s.get), pct = big ? Math.abs(s.diff) / big : 0;
+    const verdict = !t.give.length && !t.get.length ? "Add cards to both sides to compare."
+      : Math.abs(s.diff) < 0.01 ? "An even trade."
+      : s.diff > 0 ? "You get <b>" + esc(usd(s.diff)) + "</b> more in value (" + Math.round(pct * 100) + "%)."
+      : "You give <b>" + esc(usd(-s.diff)) + "</b> more in value (" + Math.round(pct * 100) + "%).";
+    const giveW = big ? s.give / big * 100 : 0, getW = big ? s.get / big * 100 : 0;
+    return '<div class="trade-totals"><div><span class="small">You give</span><b>' + esc(usd(s.give)) + "</b></div>" +
+      '<div class="trade-verdict' + (Math.abs(s.diff) >= 0.01 && pct > 0.1 ? " uneven" : "") + '" role="status">' + verdict + "</div>" +
+      '<div class="tt-right"><span class="small">You get</span><b>' + esc(usd(s.get)) + "</b></div></div>" +
+      '<div class="trade-scale" aria-hidden="true"><span class="ts-give" style="width:' + (giveW / 2).toFixed(1) + '%"></span><span class="ts-mid"></span><span class="ts-get" style="width:' + (getW / 2).toFixed(1) + '%"></span></div>' +
+      (s.unpriced ? '<p class="small" style="margin:6px 0 0">' + plural(s.unpriced, "card") + " without a price count as $0.</p>" : "");
+  }
+  function renderTrade() {
+    const el = $("salesBody") || $("panel-sales");
+    const t = tradeState();
+    el.innerHTML = '<p class="small" style="margin:0 0 14px">Check a trade before you make it: both sides at TCGplayer\'s market prices' +
+      (settings.condAdjust ? ", played cards at your condition percentages" : "") + ".</p>" +
+      (!catalog ? '<div class="notice" style="margin:0 0 14px">TCGplayer\'s card list isn\'t loaded, so you can only add cards from your collection.</div>' : "") +
+      '<div class="trade">' +
+      '<section class="trade-side" aria-labelledby="tradeGiveH"><h3 id="tradeGiveH">You give</h3>' +
+      '<div class="search-wrap"><svg class="search-icon" width="16" height="16" viewBox="0 0 16 16" aria-hidden="true"><circle cx="7" cy="7" r="4.8" fill="none" stroke="currentColor" stroke-width="1.6"/><path d="M10.6 10.6 14 14" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/></svg>' +
+      '<input class="search" id="tradeGiveQ" type="search" placeholder="Find a card in your collection" autocomplete="off" aria-label="Find a card you\'d give" value="' + esc(t.q1) + '"></div>' +
+      '<div class="trade-results" id="tradeGiveResults"></div><div id="tradeGiveList">' + tradeRowsHTML("give") + "</div></section>" +
+      '<section class="trade-side" aria-labelledby="tradeGetH"><h3 id="tradeGetH">You get</h3>' +
+      '<div class="search-wrap"><svg class="search-icon" width="16" height="16" viewBox="0 0 16 16" aria-hidden="true"><circle cx="7" cy="7" r="4.8" fill="none" stroke="currentColor" stroke-width="1.6"/><path d="M10.6 10.6 14 14" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/></svg>' +
+      '<input class="search" id="tradeGetQ" type="search" placeholder="Card name or number" autocomplete="off" aria-label="Find a card you\'d get"' + (catalog ? "" : " disabled") + ' value="' + esc(t.q2) + '"></div>' +
+      '<div class="trade-results" id="tradeGetResults"></div><div id="tradeGetList">' + tradeRowsHTML("get") + "</div></section></div>" +
+      '<div class="box trade-sum"><div id="tradeSummary">' + tradeSummaryHTML() + "</div>" +
+      '<div class="trade-extra"><label class="basis">Cash <select class="select" id="tradeCashDir"><option value="get"' + (t.cashDir === "get" ? " selected" : "") + '>they pay me</option>' +
+      '<option value="give"' + (t.cashDir === "give" ? " selected" : "") + '>I pay them</option></select>' +
+      '<input class="input" id="tradeCash" type="number" min="0" step="0.01" placeholder="$0" value="' + (t.cash || "") + '"></label>' +
+      '<label class="basis">Put the cards I get in <input class="input" id="tradeLoc" list="locationList" autocomplete="off" placeholder="No location" value="' + esc(t.loc) + '"></label></div>' +
+      '<div class="btn-row"><button class="btn btn-primary" type="button" id="tradeDo"' + (t.give.length || t.get.length ? "" : " disabled") + ">Complete trade</button>" +
+      '<button class="btn" type="button" id="tradeClear"' + (t.give.length || t.get.length || t.cash ? "" : " disabled") + ">Clear</button></div>" +
+      '<p class="small" style="margin:10px 0 0">Complete trade takes the cards you give out of your collection (they show in the sales log as traded, at their market value) and adds the cards you get, with their market value as what you paid.</p></div>';
+    if (t.q1) showTradeResults("give");
+    if (t.q2) showTradeResults("get");
+  }
+  function refreshTrade(side) {
+    if (side) { const box = $(side === "give" ? "tradeGiveList" : "tradeGetList"); if (box) box.innerHTML = tradeRowsHTML(side); }
+    const sum = $("tradeSummary");
+    if (sum) sum.innerHTML = tradeSummaryHTML();
+    const t = tradeState();
+    if ($("tradeDo")) $("tradeDo").disabled = !(t.give.length || t.get.length);
+    if ($("tradeClear")) $("tradeClear").disabled = !(t.give.length || t.get.length || t.cash);
+    saveTrade();
+  }
+  function showTradeResults(side) {
+    const t = tradeState();
+    const q = (side === "give" ? t.q1 : t.q2).trim().toLowerCase();
+    const box = $(side === "give" ? "tradeGiveResults" : "tradeGetResults");
+    if (!box) return;
+    if (q.length < 2) { box.innerHTML = ""; return; }
+    let rows = [];
+    if (side === "give") {
+      rows = collection.filter(r => [r.name, r.number, r.setName].join(" ").toLowerCase().includes(q))
+        .sort((a, b) => (marketValue(b).unit || 0) - (marketValue(a).unit || 0)).slice(0, 8)
+        .map(r => ({key: r.id, pics: recordPics(r, "200w"), name: r.name, sub: [r.number, r.edition, r.grade ? gradeLabel(r.grade) : r.condition].filter(Boolean).join(", ") + " (you have " + r.qty + ")",
+          price: marketValue(r).unit}));
+    } else if (catalog) {
+      const byNum = findByNumber(q);
+      const found = (byNum.length ? byNum : searchByName(q, 8).items).slice(0, 8);
+      rows = found.map(p => ({key: String(p.id), pics: productPics(p, "200w"), name: cleanName(p.name, p.rarity), sub: [p.number, p.rarity, p.group.name].filter(Boolean).join(", "),
+        price: firstPrice(catalogPrice(p, printingsFor(p).filter(k => k !== "Normal")[0] || ""))}));
+    }
+    box.innerHTML = rows.length ? '<ul class="tr-results">' + rows.map(x => '<li><button type="button" class="tr-pick" data-tadd="' + side + ":" + esc(x.key) + '">' +
+      '<span class="sleeve">' + imgTag(x.pics, x.name) + '</span><span class="ti-main"><b>' + esc(x.name) + '</b><span class="cell-sub">' + esc(x.sub) + "</span></span>" +
+      '<span class="ti-val">' + (x.price == null ? "" : esc(usd(x.price))) + "</span></button></li>").join("") + "</ul>"
+      : '<p class="small" style="margin:6px 0 0">Nothing matches "' + esc(q) + '".</p>';
+  }
+  function completeTrade() {
+    const t = tradeState();
+    if (!t.give.length && !t.get.length) return;
+    const s = tradeTotals();
+    if (!confirm("Complete this trade? You give " + usd(s.give) + " and get " + usd(s.get) + ".")) return;
+    const beforeCollection = collection.map(r => Object.assign({}, r)), beforeSales = sales.slice(), beforeTrade = JSON.parse(JSON.stringify(t));
+    const day = localDay(new Date());
+    const note = "Traded" + (t.get.length ? " for " + t.get.map(it => { const p = catalog && catalog.byId.get(it.productId); return (it.qty > 1 ? it.qty + " × " : "") + (p ? cleanName(p.name, p.rarity) : "a card"); }).join(", ") : "") +
+      (t.cash ? (t.cashDir === "get" ? " plus " : " and ") + usd(t.cash) + " cash" + (t.cashDir === "get" ? " to me" : " from me") : "");
+    for (const it of t.give) {
+      const r = collection.find(x => x.id === it.id);
+      if (!r) continue;
+      const qty = Math.min(it.qty, r.qty), u = marketValue(r).unit;
+      sales.push(upgradeSale({id: newId(), date: day, qty, price: u == null ? 0 : u, fees: 0, notes: note.slice(0, 400), traded: true,
+        name: r.name, productId: r.productId, number: r.number, setName: r.setName, rarity: r.rarity, edition: r.edition, condition: r.condition,
+        language: r.language, grade: r.grade, paid: r.paid, market: u, image: imageFor(r, "200w"), record: JSON.parse(JSON.stringify(Object.assign({}, r, {qty})))}));
+      r.qty -= qty;
+      if (r.qty <= 0) { collection = collection.filter(x => x !== r); selected.delete(r.id); }
+    }
+    let added = 0;
+    for (const it of t.get) {
+      const p = catalog && catalog.byId.get(it.productId);
+      if (!p) continue;
+      const u = getLine(it).unit;
+      addOrMerge(upgradeRecord({id: newId(), productId: p.id, productName: p.name, name: cleanName(p.name, p.rarity), setName: p.group.name, number: p.number, rarity: p.rarity,
+        edition: it.edition || printingsFor(p).filter(k => k !== "Normal")[0] || "", condition: it.condition, language: "English", qty: it.qty, paid: u,
+        location: t.loc, notes: "From a trade on " + fmtDate(parseDay(day)), added: new Date().toISOString()}));
+      added += it.qty;
+    }
+    const gave = t.give.reduce((n, it) => n + it.qty, 0);
+    trade = {give: [], get: [], cash: 0, cashDir: "get", loc: t.loc, q1: "", q2: ""};
+    saveTrade();
+    save(); render();
+    toast("Trade done: " + plural(gave, "card") + " out, " + plural(added, "card") + " in.", {action: "Undo", onAction: () => {
+      collection = beforeCollection; sales = beforeSales; trade = Object.assign(beforeTrade, {q1: "", q2: ""}); saveTrade(); save(); render();
+    }});
+  }
+  function wireTrade(panel) {
+    panel.addEventListener("click", e => {
+      if (settings.tab !== "sales") return;
+      const v = e.target.closest("[data-salesview]");
+      if (v) { settings.salesView = v.dataset.salesview; saveSettings(); renderSalesTab(); const b = document.querySelector('[data-salesview="' + v.dataset.salesview + '"]'); if (b) b.focus(); return; }
+      if (settings.salesView === "log") return;
+      const t = tradeState();
+      const add = e.target.closest("[data-tadd]");
+      if (add) {
+        const [side, key] = add.dataset.tadd.split(/:(.*)/s);
+        if (side === "give") {
+          const r = collection.find(x => x.id === key);
+          const it = t.give.find(x => x.id === key);
+          if (it) it.qty = Math.min(r.qty, it.qty + 1); else t.give.push({id: key, qty: 1});
+          t.q1 = ""; $("tradeGiveQ").value = ""; $("tradeGiveResults").innerHTML = "";
+        } else {
+          const p = catalog.byId.get(+key);
+          t.get.push({key: newId(), productId: p.id, edition: printingsFor(p).filter(k => k !== "Normal")[0] || "", condition: "Near Mint", qty: 1});
+          t.q2 = ""; $("tradeGetQ").value = ""; $("tradeGetResults").innerHTML = "";
+        }
+        refreshTrade(side);
+        $(side === "give" ? "tradeGiveQ" : "tradeGetQ").focus();
+        return;
+      }
+      const q = e.target.closest("[data-tq]");
+      if (q) {
+        const [side, i, d] = q.dataset.tq.split(":");
+        const list = side === "give" ? t.give : t.get, it = list[+i];
+        if (!it) return;
+        const max = side === "give" ? (collection.find(r => r.id === it.id) || {qty: 1}).qty : 999;
+        it.qty = Math.max(1, Math.min(max, it.qty + +d));
+        refreshTrade(side);
+        const again = document.querySelector('[data-tq="' + q.dataset.tq + '"]'); if (again && !again.disabled) again.focus();
+        return;
+      }
+      const x = e.target.closest("[data-tx]");
+      if (x) { const [side, i] = x.dataset.tx.split(":"); (side === "give" ? t.give : t.get).splice(+i, 1); refreshTrade(side); return; }
+      if (e.target.closest("#tradeDo")) { completeTrade(); return; }
+      if (e.target.closest("#tradeClear")) { trade = {give: [], get: [], cash: 0, cashDir: "get", loc: t.loc, q1: "", q2: ""}; saveTrade(); renderTrade(); }
+    });
+    panel.addEventListener("input", e => {
+      if (settings.tab !== "sales" || settings.salesView === "log") return;
+      const t = tradeState();
+      if (e.target.id === "tradeGiveQ") { t.q1 = e.target.value; showTradeResults("give"); }
+      else if (e.target.id === "tradeGetQ") { t.q2 = e.target.value; showTradeResults("get"); }
+      else if (e.target.id === "tradeCash") { t.cash = Math.max(0, num(e.target.value) || 0); refreshTrade(); }
+      else if (e.target.id === "tradeLoc") { t.loc = e.target.value.trim(); saveTrade(); }
+    });
+    panel.addEventListener("change", e => {
+      if (settings.tab !== "sales" || settings.salesView === "log") return;
+      const t = tradeState();
+      if (e.target.id === "tradeCashDir") { t.cashDir = e.target.value === "give" ? "give" : "get"; refreshTrade(); return; }
+      const g = e.target.closest("[data-tg]");
+      if (g) { const [what, i] = g.dataset.tg.split(":"); const it = t.get[+i]; if (!it) return; if (what === "ed") it.edition = g.value; else it.condition = g.value; refreshTrade("get"); }
+    });
+  }
+
+  /* ----- One card's price over time: the website keeps every evening's TCGplayer prices, a file per set */
+  const histFiles = new Map();   // set (group) id -> promise of {days: [...], p: {productId: {printing: [cents or null per day]}}}
+  function setHistory(groupId) {
+    if (!histFiles.has(groupId)) histFiles.set(groupId, fetch("history/" + groupId + ".json").then(res => res.ok ? res.json() : null).catch(() => null));
+    return histFiles.get(groupId);
+  }
+  function cardSeries(h, p, edition) {
+    const sub = h && h.p && h.p[p.id];
+    if (!sub || !Array.isArray(h.days)) return [];
+    const keys = Object.keys(sub), printings = printingsFor(p);
+    const key = keys.includes(edition) ? edition
+      : (!edition || edition === "No edition mark") && keys.includes("Normal") ? "Normal"
+      : printings.length <= 1 && keys.length === 1 ? keys[0]       // (a card printed only one way)
+      : !edition ? printings.find(k => keys.includes(k)) : null;
+    const arr = (key && sub[key]) || [];
+    return h.days.map((d, i) => ({date: parseDay(d), v: typeof arr[i] === "number" ? arr[i] / 100 : null})).filter(x => x.date && x.v != null);
+  }
+  const HIST_RANGES = [["30", "30 days"], ["90", "90 days"], ["all", "All"]];
+  async function loadCardHistory(r, p) {
+    const h = await setHistory(p.group.id);
+    const box = $("cardHist");
+    if (!box || !drawerCtx || drawerCtx.id !== r.id) return;
+    const all = cardSeries(h, p, r.edition);
+    const sub = catalogPrice(p, r.edition), today = catalog && catalog.priceDay;
+    if (sub && sub.market != null && today && !all.some(x => localDay(x.date) === today)) all.push({date: parseDay(today), v: sub.market});
+    all.sort((a, b) => a.date - b.date);
+    if (all.length < 2) {
+      box.innerHTML = '<p class="small">Card Vault saves TCGplayer\'s market price every evening' + (h && h.days && h.days.length ? " (since " + esc(fmtDate(parseDay(h.days[0]))) + ")" : "") +
+        ". The chart appears once this printing has prices from two days.</p>";
+      return;
+    }
+    const draw = range => {
+      const cut = range === "all" ? 0 : Date.now() - (+range) * 86400000;
+      let pts = all.filter(x => x.date.getTime() >= cut);
+      if (pts.length < 2) pts = all.slice(-2);
+      const first = pts[0].v, last = pts[pts.length - 1].v;
+      box.innerHTML = '<div class="box-head"><span class="small">' + esc(r.edition || printingsFor(p)[0] || "") + ", market price. " + esc(fmtShortDate(pts[0].date)) + " to " + esc(fmtShortDate(pts[pts.length - 1].date)) + ": " +
+        changeHTML(last - first, first > 0 ? (last - first) / first : null, true) + '</span><div class="seg" role="group" aria-label="Time range">' +
+        HIST_RANGES.map(([k, l]) => '<button type="button" data-hr="' + k + '" aria-pressed="' + (k === range) + '">' + l + "</button>").join("") + "</div></div>" +
+        '<div class="chart" id="cardChart" tabindex="0" role="img" aria-label="Market price over time, ' + esc(usd(first)) + " to " + esc(usd(last)) + '. Use the arrow keys to read each day."></div><p class="sr" id="cardChartLive" aria-live="polite"></p>';
+      renderChart($("cardChart"), pts, {tip: (ps, i) => "<b>" + esc(usd(ps[i].v)) + "</b><span>" + esc(fmtDate(ps[i].date)) + "</span>", live: "cardChartLive",
+        liveText: q => usd(q.v) + " on " + fmtDate(q.date)});
+      box.querySelectorAll("[data-hr]").forEach(b => b.addEventListener("click", () => { settings.cardHistRange = b.dataset.hr; saveSettings(); draw(b.dataset.hr); }));
+    };
+    draw(HIST_RANGES.some(x => x[0] === settings.cardHistRange) ? settings.cardHistRange : "90");
   }
 
   /* ======================= Sets tab ======================= */
@@ -5923,7 +6767,7 @@
       .sort((a, b) => b.date.localeCompare(a.date) || a.name.localeCompare(b.name));
   }
   function renderSales() {
-    const panel = $("panel-sales");
+    const panel = $("salesBody") || $("panel-sales");
     const years = Array.from(new Set(sales.map(x => x.date.slice(0, 4)))).sort().reverse();
     if (settings.salesYear && !years.includes(settings.salesYear)) settings.salesYear = "";
     const list = salesShown();
@@ -5934,7 +6778,7 @@
       if (n.profit != null) { profit += n.profit; profitCards += x.qty; }
       if (n.vsMarket != null) { vsMarket += n.vsMarket; marketCards += x.qty; }
     }
-    const head = '<div class="panel-head"><div><h2>Sales</h2><p>' + (sales.length
+    const head = '<div class="panel-head sub-head"><div><h3 class="sub-h">Sales log</h3><p>' + (sales.length
       ? "Cards you've sold or traded away" + (settings.salesYear ? " in " + esc(settings.salesYear) : "") + "."
       : "Cards you've sold or traded away, and what you made on them.") + "</p></div>" +
       (sales.length ? '<div class="panel-tools"><label class="basis">Year <select class="select" id="salesYear"><option value="">All years</option>' +
@@ -8059,6 +8903,8 @@
     // ----- deck check
     const decksPanel = $("panel-decks");
     wireDeckIdeas(decksPanel);
+    wireInsights($("panel-history"));
+    wireTrade($("panel-sales"));
     decksPanel.addEventListener("input", e => {
       if (!deckDraft) return;
       if (e.target.id === "deckText") deckDraft.text = e.target.value;
