@@ -114,7 +114,13 @@ personal app: click **Continue**.
   boxes, Structure Decks, Special and Deluxe Editions, tins…) with the cheapest TCGplayer listing next to the market price.
   Filter by set type (core sets, side sets, Deck Build Packs, Battles of Legend, all-foil sets, Speed Duel, OTS
   Tournament Packs…) and sort by biggest discount. Each product has one-tap searches at eBay, Amazon, Walmart and Target,
-  sorted cheapest first.
+  sorted cheapest first. **Want** puts a card or sealed product on your want list.
+- **Want list** sections: cards, booster boxes, booster packs, and other sealed products (decks, tins, collections), each
+  with its count and total, and a switch at the top to show just one. Add from the Market (English sealed products,
+  Yugi-Market's Japanese boxes and packs, a Korean set's booster box), or with **Add sealed** on the want list. A
+  Yugi-Market item follows that shop's price; a Korean box follows the middle of the Bunjang boxes; if the shop stops
+  listing it, the price when you added it shows, marked "when added". **I got it** adds it to your collection as a sealed
+  product (valued at that price unless you enter your own) and takes it off the list.
 - **Japanese and Korean sets** (Market tab > **Japanese** or **Korean**): every OCG set with its most valuable cards, by
   English name, rarity and price in US$ (with the yen or won price), and its sealed products. **Want** and **I have it**
   work as for English cards. Where the numbers come from:

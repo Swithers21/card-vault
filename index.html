@@ -524,6 +524,29 @@
   .table.want-table{min-width:820px}
   .table.want-table tbody tr{cursor:default}
   .table.want-table tr.hit{background:rgba(12,163,12,.06)}
+  .want-view{margin:0 0 4px;max-width:100%}
+  .want-view .seg{max-width:100%}
+  .want-view .seg button{display:inline-flex;align-items:center}
+  /* (the sections' columns line up) */
+  @media (min-width:701px){
+    .table.want-table{table-layout:fixed;min-width:960px}
+    .want-table th:nth-child(1){width:56px}
+    .want-table th:nth-child(3){width:130px}
+    .want-table th:nth-child(4),.want-table th:nth-child(5){width:108px}
+    .want-table th:nth-child(6){width:168px}
+    .want-table th:nth-child(7){width:244px}
+  }
+  @media (max-width:700px){
+    .want-view .seg{display:flex;width:100%}
+    .want-view .seg button{flex:1 1 auto;justify-content:center;padding:8px 6px;font-size:13px}
+    .want-view .seg .tab-count{min-width:18px;padding:0 5px;margin-left:5px}
+    .want-view .long{display:none}
+  }
+  @media (max-width:380px){ .want-view .seg .tab-count{display:none} }
+  @media (min-width:701px){ .want-view .short{display:none} }
+  .want-group + .want-group{margin-top:24px}
+  .want-h{display:flex;flex-wrap:wrap;align-items:baseline;gap:2px 10px;margin:14px 0 8px;font-family:"Cinzel",Georgia,serif;font-size:17px;font-weight:700;letter-spacing:.03em;color:#f6e6c4}
+  .want-h .small{font:400 12.5px/1.4 "Archivo",system-ui,-apple-system,"Segoe UI",Roboto,sans-serif;letter-spacing:0}
   @media (max-width:700px){
     .table.want-table{min-width:0}
     .want-table thead{display:none}
@@ -1334,7 +1357,7 @@
     condAdjust: true, condPct: Object.assign({}, DEFAULT_COND_PCT), histPeriod: "m7", chartTable: false,
     setsMode: "number", setsSort: "complete", lastBackupAt: null, lastChangeAt: null, backupSnoozeUntil: 0,
     backupRemindDays: 7, wantAlertSeen: "", alertsOn: false, alertMinDollar: 5, alertMinPct: 10, salesYear: "", deckId: null,
-    deckView: "check", mkView: "sets", mkLine: "", mkKind: "", mkSortSets: "newest", mkSortSealed: "deal", mkRegion: "en", mkLineOcg: "", mkKindOcg: "",
+    deckView: "check", mkView: "sets", mkLine: "", mkKind: "", mkSortSets: "newest", mkSortSealed: "deal", mkRegion: "en", mkLineOcg: "", mkKindOcg: "", wantsView: "",
     gradedView: false, psa10Mult: 4, psa10Floor: 25, gradePct: Object.assign({}, DEFAULT_GRADE_PCT), pcToken: "",
     insightView: "history", salesView: "trade", gradingCost: 30, gradingMin: 50, gradingFees: {}, gradingCo: "PSA", ntfyTopic: "", siteUrl: "", autoSignIn: true};
   const filters = {q: "", set: "", rarity: "", edition: "", language: "", location: "", show: ""};
@@ -1546,12 +1569,26 @@
       value: (g.value === "" || g.value == null) ? null : num(g.value)};
   }
   const gradeLabel = g => g ? (g.company + (g.grade ? " " + g.grade : "")).trim() : "";
+  // Want list entries are cards, or sealed products: kind "box", "pack" or "sealed" (decks, tins, collections...).
+  // Ones added from a shop in the Market (Yugi-Market, Bunjang) keep where they're from: ref (which product), a link,
+  // a photo and the shop's price when added.
+  const WANT_KINDS = ["card", "box", "pack", "sealed"];
   function upgradeWant(w) {
     if (!w || typeof w !== "object" || !w.name) return null;
-    return {id: w.id || newId(), productId: idOrNull(w.productId), name: String(w.name), productName: String(w.productName || w.name),
+    const out = {id: w.id || newId(), productId: idOrNull(w.productId), name: String(w.name), productName: String(w.productName || w.name),
       setName: String(w.setName || ""), number: String(w.number || ""), rarity: String(w.rarity || ""),
       edition: String(w.edition || "Any"), target: (w.target === "" || w.target == null) ? null : num(w.target),
       qty: posInt(w.qty) || 1, notes: String(w.notes || ""), added: w.added || new Date().toISOString(), mod: modTime(w.mod)};
+    if (WANT_KINDS.includes(w.kind) && w.kind !== "card") out.kind = w.kind;
+    if (w.ref) {
+      out.ref = String(w.ref).slice(0, 300);
+      out.shop = String(w.shop || "").slice(0, 60);
+      out.link = /^https:\/\/[^\s"'<>]+$/i.test(String(w.link || "")) ? String(w.link) : "";
+      out.image = safeImg(w.image);
+      const sp = (w.shopPrice === "" || w.shopPrice == null) ? null : num(w.shopPrice);
+      out.shopPrice = sp != null && sp > 0 ? sp : null;
+    }
+    return out;
   }
   function upgradeDeck(k) {
     if (!k || typeof k !== "object" || !String(k.text || "").trim()) return null;
@@ -1696,7 +1733,10 @@
         }
         const pm = printOf(mine), pr = printOf(r);
         if (pm === pr) { if (r.mod > mine.mod || fileWins) { if (mine.mod !== r.mod) { mine.mod = r.mod; res.touched = true; } } else if (mine.mod > r.mod) res.behind = true; continue; }
-        if (fileWins || r.mod > mine.mod || (r.mod === mine.mod && pr > pm)) {
+        // (same time on both: the fuller one, since an older Card Vault leaves out fields it doesn't know, like a
+        // want list box's shop and link; else either, the same on every device)
+        const fuller = Object.keys(r).length - Object.keys(mine).length;
+        if (fileWins || r.mod > mine.mod || (r.mod === mine.mod && (fuller > 0 || (fuller === 0 && pr > pm)))) {
           // updated in place, so a form that's open on it keeps working
           for (const key of Object.keys(mine)) delete mine[key];
           Object.assign(mine, r);
@@ -2316,8 +2356,8 @@
     });
     const hits = wants.filter(w => wantStatus(w).hit).length;
     $("wantCount").textContent = wants.length ? String(wants.length) : "";
-    $("wantCount").title = hits ? plural(hits, "card") + " at or below your target price" : "";
-    $("tab-wants").setAttribute("aria-label", "Want list" + (wants.length ? ", " + plural(wants.length, "card") : "") +
+    $("wantCount").title = hits ? wantCount(hits) + " at or below your target price" : "";
+    $("tab-wants").setAttribute("aria-label", "Want list" + (wants.length ? ", " + wantCount(wants.length) : "") +
       (hits ? ", " + hits + " at or below your target price" : ""));
   }
   function setTab(tab, focus) {
@@ -2833,6 +2873,7 @@
       '<button class="btn btn-primary" type="submit">Find</button></div>' +
       '<p class="hint">It\'s printed just under the artwork, on the right side of the card.</p></form>' +
       '<div class="lookup-alt"><button type="button" class="link-btn" id="goName">Search by name instead</button>' +
+      (opts.want ? '<button type="button" class="link-btn" id="goSealedWant">Add a sealed product instead (box, pack, tin, deck…)</button>' : "") +
       (opts.replaceId || opts.want ? "" : '<button type="button" class="link-btn" id="goBatch">Add several cards at once</button>' +
         '<button type="button" class="link-btn" id="goScan">Scan with camera</button>' +
         '<button type="button" class="link-btn" id="goSealed">Add a sealed product (box, pack, tin, deck…)</button>' +
@@ -2844,6 +2885,7 @@
     if ($("goScan")) $("goScan").addEventListener("click", () => openScanner());
     if ($("goBatch")) $("goBatch").addEventListener("click", () => openBatch());
     if ($("goSealed")) $("goSealed").addEventListener("click", () => openSealedSearch());
+    if ($("goSealedWant")) $("goSealedWant").addEventListener("click", () => openSealedSearch("", {want: true}));
     if (opts.number) runNumberLookup(opts.number);
   }
 
@@ -2962,8 +3004,9 @@
     return company ? normalizeGrade({company, grade: $(prefix + "Grade").value, cert: $(prefix + "Cert").value, value: $(prefix + "GValue").value}) : null;
   }
   const pickedHeadHTML = (p, backLabel) =>
-    '<div class="picked"><span class="sleeve">' + imgTag(productPics(p, "in_400x400"), p.name, true) + "</span><div>" +
-    "<h3>" + esc(cleanName(p.name, p.rarity)) + "</h3><p>" + esc(p.group.name) + "</p><p>" + esc(p.number) + ", " + esc(p.rarity) + "</p>" +
+    '<div class="picked"><span class="sleeve' + (p.sealed ? " boxed" : "") + '">' + imgTag(productPics(p, "in_400x400"), p.name, true) + "</span><div>" +
+    "<h3>" + esc(p.sealed ? p.name : cleanName(p.name, p.rarity)) + "</h3><p>" + esc(p.group.name) + "</p>" +
+    "<p>" + (p.sealed ? esc(KIND_ONE[mkKind(p.name)] || "Sealed product") : esc(p.number) + ", " + esc(p.rarity)) + "</p>" +
     (backLabel ? '<p style="margin-top:8px"><button type="button" class="link-btn" id="backToSearch">' + esc(backLabel) + "</button></p>" : "") + "</div></div>";
   // "Lightly Played at 85% (Settings): $17.91" when played copies are valued below market.
   function condNote(market, condition) {
@@ -3057,27 +3100,32 @@
   }
 
   /* ----- want list: add or edit one card ----- */
+  // pre.query: the sealed-product search it came from
   function openWantForm(p, existing, pre) {
     pre = pre || {};
-    const available = printingsFor(p).filter(k => k !== "Normal");
+    const sealed = !!p.sealed;
+    const available = sealed ? [] : printingsFor(p).filter(k => k !== "Normal");
     const w = existing || {edition: pre.edition && available.includes(pre.edition) ? pre.edition : "Any", target: null, notes: pre.notes || "", qty: pre.qty || 1};
     drawerCtx = {mode: "want", product: p, wantId: existing ? existing.id : null};
     const edOpts = ["Any"].concat(available);
     if (w.edition && !edOpts.includes(w.edition)) edOpts.push(w.edition);
     const owned = collection.filter(r => r.productId === p.id).reduce((s, r) => s + r.qty, 0);
-    openDrawer(existing ? "Want list card" : "Add to want list",
-      pickedHeadHTML(p, existing ? "" : "Pick a different printing") +
+    const targetField = '<label class="field"><span>Your target price (optional)</span><input class="input" id="wTarget" type="number" min="0" step="0.01" placeholder="$" value="' +
+      (w.target == null ? "" : w.target) + '"></label>';
+    const qtyField = '<label class="field"><span>How many you want</span><input class="input" id="wQty" type="number" min="1" step="1" value="' + (w.qty || 1) + '"></label>';
+    const notesField = '<label class="field"><span>Notes (optional)</span><input class="input" id="wNotes" value="' + esc(w.notes || "") + '"></label>';
+    openDrawer(existing ? (sealed ? "Want list item" : "Want list card") : "Add to want list",
+      pickedHeadHTML(p, existing ? "" : sealed ? "Pick a different product" : "Pick a different printing") +
       '<form id="wantForm" class="stack">' +
-      '<div class="grid-2"><label class="field"><span>Printing you want</span><select class="input" id="wEd">' +
-      edOpts.map(k => '<option value="' + esc(k) + '"' + (k === w.edition ? " selected" : "") + ">" + esc(k === "Any" ? "Any printing (cheapest)" : k) + "</option>").join("") +
-      "</select></label>" +
-      '<label class="field"><span>Your target price (optional)</span><input class="input" id="wTarget" type="number" min="0" step="0.01" placeholder="$" value="' +
-      (w.target == null ? "" : w.target) + '"></label></div>' +
-      '<div class="price-line" id="wantPrice"></div>' +
-      '<div class="grid-2"><label class="field"><span>How many you want</span><input class="input" id="wQty" type="number" min="1" step="1" value="' + (w.qty || 1) + '"></label>' +
-      '<label class="field"><span>Notes (optional)</span><input class="input" id="wNotes" value="' + esc(w.notes || "") + '"></label></div>' +
-      '<p class="hint" style="margin:0">Card Vault flags the card when TCGplayer\'s market price is at or below your target.' +
-      (owned ? " You already have " + plural(owned, "copy", "copies") + " of this printing." : "") + "</p>" +
+      (sealed
+        ? '<input type="hidden" id="wEd" value="Any"><div class="grid-2">' + targetField + qtyField + "</div>" + '<div class="price-line" id="wantPrice"></div>' + notesField
+        : '<div class="grid-2"><label class="field"><span>Printing you want</span><select class="input" id="wEd">' +
+          edOpts.map(k => '<option value="' + esc(k) + '"' + (k === w.edition ? " selected" : "") + ">" + esc(k === "Any" ? "Any printing (cheapest)" : k) + "</option>").join("") +
+          "</select></label>" + targetField + "</div>" +
+          '<div class="price-line" id="wantPrice"></div>' +
+          '<div class="grid-2">' + qtyField + notesField + "</div>") +
+      '<p class="hint" style="margin:0">Card Vault flags ' + (sealed ? "it" : "the card") + " when TCGplayer's market price is at or below your target." +
+      (owned ? " You already have " + (sealed ? owned : plural(owned, "copy", "copies") + " of this printing") + "." : "") + "</p>" +
       '<div class="form-actions"><button class="btn btn-primary" type="submit">' + (existing ? "Save" : "Add to want list") + "</button>" +
       (existing ? '<button class="btn" type="button" id="wGot">I got it</button><span class="spacer"></span><button class="btn btn-danger" type="button" id="wRemove">Remove</button>' : "") +
       "</div></form>");
@@ -3085,8 +3133,8 @@
       const ed = $("wEd").value;
       const price = wantPrice({productId: p.id, edition: ed});
       const target = num($("wTarget").value);
-      let html = price == null ? '<span class="small">TCGplayer has no recent price for ' + (ed === "Any" ? "this card" : "this printing") + ".</span>"
-        : "TCGplayer market price" + (ed === "Any" ? " (cheapest printing)" : " for " + esc(ed)) + ": <b>" + esc(usd(price)) + "</b>";
+      let html = price == null ? '<span class="small">TCGplayer has no recent price for ' + (sealed ? "this product" : ed === "Any" ? "this card" : "this printing") + ".</span>"
+        : "TCGplayer market price" + (sealed ? "" : ed === "Any" ? " (cheapest printing)" : " for " + esc(ed)) + ": <b>" + esc(usd(price)) + "</b>";
       if (price != null && target != null) {
         html += "<br>" + (price <= target ? '<span class="status"><span class="status-icon good" aria-hidden="true">&#10003;</span>At or below your target</span>'
           : '<span class="small">' + esc(usd(price - target)) + " above your target</span>");
@@ -3096,7 +3144,7 @@
     $("wEd").addEventListener("change", update);
     $("wTarget").addEventListener("input", update);
     update();
-    if ($("backToSearch")) $("backToSearch").addEventListener("click", () => openAdd({number: p.number, want: true}));
+    if ($("backToSearch")) $("backToSearch").addEventListener("click", () => sealed ? openSealedSearch(pre.query || "", {want: true}) : openAdd({number: p.number, want: true}));
     if ($("wGot")) $("wGot").addEventListener("click", () => gotWant(existing.id));
     if ($("wRemove")) $("wRemove").addEventListener("click", () => removeWant(existing.id));
     const shownWant = formValues("wantForm");
@@ -3105,7 +3153,7 @@
       const fields = {edition: $("wEd").value, target: num($("wTarget").value), notes: $("wNotes").value.trim(), qty: posInt($("wQty").value) || 1};
       if (existing) {
         const cur = wants.find(x => x.id === existing.id);
-        if (!cur) { closeDrawer(); toast("That card isn't on your want list anymore, so nothing was saved.", {kind: "error"}); return; }
+        if (!cur) { closeDrawer(); toast("That isn't on your want list anymore, so nothing was saved.", {kind: "error"}); return; }
         const now = formValues("wantForm");
         if (now.wEd !== shownWant.wEd) cur.edition = fields.edition;
         if (now.wTarget !== shownWant.wTarget) cur.target = fields.target;
@@ -3115,8 +3163,8 @@
         toast("Saved " + cur.name + ".");
         return;
       }
-      const name = cleanName(p.name, p.rarity);
-      const res = addWant(Object.assign({productId: p.id, name, productName: p.name, setName: p.group.name, number: p.number, rarity: p.rarity}, fields));
+      const base = wantFromProduct(p), name = base.name;
+      const res = addWant(Object.assign(base, fields));
       save(); render(); closeDrawer();
       toast(res.merged ? name + " was already on your want list, so it was updated." : "Added " + name + " to your want list.",
         settings.tab === "wants" ? {} : {action: "Show want list", onAction: () => setTab("wants")});
@@ -3146,13 +3194,16 @@
         '<span class="result-price">' + (v == null ? '<span class="small">No recent sales</span>' : esc(usd(v))) + "</span></button>";
     }).join("") + "</div>";
   }
-  function openSealedSearch(q) {
-    drawerCtx = {mode: "sealed-search"};
-    openDrawer("Add a sealed product",
+  // opts.want: for the want list
+  function openSealedSearch(q, opts) {
+    const forWant = !!(opts && opts.want);
+    drawerCtx = {mode: "sealed-search", want: forWant};
+    openDrawer(forWant ? "Add to want list" : "Add a sealed product",
       '<label class="field"><span>Product name or set</span><input class="input" id="sealedQuery" autofocus autocomplete="off" placeholder="e.g. Rarity Collection booster box" value="' + esc(q || "") + '"></label>' +
-      '<p class="hint">Booster boxes and packs, tins, structure decks, collections: anything TCGplayer sells sealed. Type a few words of the name or the set.</p>' +
+      '<p class="hint">Booster boxes and packs, tins, structure decks, collections: anything TCGplayer sells sealed. Type a few words of the name or the set.' +
+      (forWant ? " Japanese and Korean boxes and packs are in the Market tab." : "") + "</p>" +
       '<div class="lookup-alt"><button type="button" class="link-btn" id="goCards">Add a card instead</button></div><div id="sealedOut"></div>');
-    $("goCards").addEventListener("click", () => openAdd());
+    $("goCards").addEventListener("click", () => openAdd({want: forWant}));
     let timer = null;
     const run = () => {
       const out = $("sealedOut");
@@ -3167,27 +3218,33 @@
         return;
       }
       out.innerHTML = '<p class="results-head">' + (res.more ? "First 60 of " + res.total.toLocaleString() + " products. Add more words to narrow it down." : plural(res.items.length, "product") + " found.") + "</p>" + sealedResultsHTML(res.items);
-      out.querySelectorAll(".result").forEach(btn => btn.addEventListener("click", () => openSealedForm(res.items[+btn.dataset.idx], $("sealedQuery").value)));
+      out.querySelectorAll(".result").forEach(btn => btn.addEventListener("click", () => {
+        const p = res.items[+btn.dataset.idx], query = $("sealedQuery").value;
+        if (forWant) openWantForm(p, null, {query}); else openSealedForm(p, query);
+      }));
     };
     $("sealedQuery").addEventListener("input", () => { clearTimeout(timer); timer = setTimeout(run, 220); });
     if (q) run();
   }
-  function openSealedForm(p, query) {
+  // opts.fromWant: the want-list entry this product came from (it's taken off once the product is added)
+  function openSealedForm(p, query, opts) {
+    const want = opts && opts.fromWant ? wants.find(w => w.id === opts.fromWant) : null;
     drawerCtx = {mode: "sealed", product: p};
     const v = firstPrice(catalogPrice(p, ""));
     openDrawer("Add a sealed product",
       '<div class="picked"><span class="sleeve boxed">' + imgTag(productPics(p, "in_400x400"), p.name, true) + "</span><div>" +
       "<h3>" + esc(p.name) + "</h3><p>" + esc(p.group.name) + "</p>" +
-      '<p style="margin-top:8px"><button type="button" class="link-btn" id="backToSearch">Pick a different product</button></p></div></div>' +
+      (want ? "" : '<p style="margin-top:8px"><button type="button" class="link-btn" id="backToSearch">Pick a different product</button></p>') + "</div></div>" +
+      (want ? fromWantNotice : "") +
       '<form id="sealedForm" class="stack">' +
       '<div class="price-line">' + (v == null ? '<span class="small">TCGplayer has no recent sales for this product.</span>'
         : "TCGplayer market price: <b>" + esc(usd(v)) + "</b>" + (catalog && catalog.generated ? ' <span class="small">(' + esc(fmtDate(catalog.generated)) + ")</span>" : "")) + "</div>" +
-      '<div class="grid-2"><label class="field"><span>Quantity</span><input class="input" id="sQtyS" type="number" min="1" step="1" value="1"></label>' +
+      '<div class="grid-2"><label class="field"><span>Quantity</span><input class="input" id="sQtyS" type="number" min="1" step="1" value="' + (want ? want.qty : 1) + '"></label>' +
       '<label class="field"><span>Price you paid, each (optional)</span><input class="input" id="sPaidS" type="number" min="0" step="0.01" placeholder="$"></label></div>' +
       '<label class="field"><span>Notes (optional)</span><input class="input" id="sNotesS"></label>' +
       locationFieldHTML("sLocS", "") +
       '<div class="form-actions"><button class="btn btn-primary" type="submit">Add to collection</button></div></form>');
-    $("backToSearch").addEventListener("click", () => openSealedSearch(query));
+    if ($("backToSearch")) $("backToSearch").addEventListener("click", () => openSealedSearch(query));
     $("sealedForm").addEventListener("submit", e => {
       e.preventDefault();
       const rec = upgradeRecord({id: newId(), productId: p.id, sealed: true, name: p.name, productName: p.name, setName: p.group.name,
@@ -3195,9 +3252,46 @@
         paid: num($("sPaidS").value), notes: $("sNotesS").value.trim(), location: $("sLocS").value, snap: snapFromCatalog(p, ""),
         added: new Date().toISOString()});
       const res = addOrMerge(rec);
+      const took = want ? tookWant(want.id, rec.qty) : "";
       save(); render(); closeDrawer();
+      if (want) { toast("Added " + rec.name + took); return; }
       toast(res.merged ? "Added. You now have " + res.record.qty + " of " + rec.name + "." : "Added " + rec.name + ".",
         {action: "Add another", onAction: () => openSealedSearch()});
+    });
+  }
+  // "I got it" for a Japanese or Korean sealed product on the want list (from Yugi-Market or Bunjang): it goes in
+  // the collection as a sealed product, valued at the shop's price unless you enter your own.
+  function openShopGotForm(w) {
+    drawerCtx = {mode: "shop-got"};
+    const price = wantPrice(w);
+    const lang = /korean/i.test(w.notes) || String(w.ref || "").startsWith("krbox:") ? "Korean" : "Japanese";
+    openDrawer("Add a sealed product",
+      '<div class="picked"><span class="sleeve boxed">' + imgTag(wantPics(w, "in_400x400"), w.name, true) + "</span><div>" +
+      "<h3>" + esc(w.name) + "</h3><p>" + esc(w.setName) + "</p><p>" + esc(WANT_ONE[wantKind(w)] + ", " + lang) + "</p></div></div>" +
+      fromWantNotice +
+      '<form id="shopGotForm" class="stack">' +
+      '<div class="price-line">' + (price != null ? esc(wantSource(w) || "Price") + ": <b>" + esc(usd(price)) + "</b>" : '<span class="small">No price yet.</span>') + "</div>" +
+      '<div class="grid-2"><label class="field"><span>Quantity</span><input class="input" id="gQty" type="number" min="1" step="1" value="' + (w.qty || 1) + '"></label>' +
+      '<label class="field"><span>Price you paid, each (optional)</span><input class="input" id="gPaid" type="number" min="0" step="0.01" placeholder="$"></label></div>' +
+      '<label class="field"><span>Value each in US$ (optional)</span><input class="input" id="gValue" type="number" min="0" step="0.01" placeholder="' +
+      (price != null ? esc(price.toFixed(2)) : "$") + '"></label>' +
+      '<p class="hint" style="margin:-6px 0 0">Left empty, ' + (price != null ? "the " + esc(wantSource(w) || "shop") + " price above is used." : "it has no value until you enter one.") + "</p>" +
+      '<label class="field"><span>Notes (optional)</span><input class="input" id="gNotes" value="' + esc(/^(japanese|korean)$/i.test(w.notes) ? "" : w.notes || "") + '"></label>' +
+      locationFieldHTML("gLoc", "") +
+      '<div class="form-actions"><button class="btn btn-primary" type="submit">Add to collection</button></div></form>');
+    $("shopGotForm").addEventListener("submit", e => {
+      e.preventDefault();
+      const cur = wants.find(x => x.id === w.id);
+      if (!cur) { closeDrawer(); toast("That isn't on your want list anymore, so nothing was added.", {kind: "error"}); return; }
+      const value = num($("gValue").value);
+      const rec = upgradeRecord({id: newId(), productId: null, sealed: true, name: cur.name, productName: cur.name, setName: cur.setName,
+        number: "", rarity: "", edition: "", condition: "Sealed", language: lang, qty: posInt($("gQty").value) || 1,
+        paid: num($("gPaid").value), manualPrice: value != null ? value : price, customImage: cur.image || null,
+        notes: $("gNotes").value.trim(), location: $("gLoc").value, added: new Date().toISOString()});
+      addOrMerge(rec);
+      const took = tookWant(cur.id, rec.qty);
+      save(); render(); closeDrawer();
+      toast("Added " + rec.name + took);
     });
   }
 
@@ -3216,7 +3310,7 @@
     drawerCtx = {mode: "manual"};
     const rarities = allRarities();
     openDrawer("Add manually",
-      '<p class="small" style="margin:0 0 14px">For Japanese and Korean cards, or anything TCGplayer doesn\'t list. Only the name is required.</p>' +
+      (pre.fromWant ? fromWantNotice : '<p class="small" style="margin:0 0 14px">For Japanese and Korean cards, or anything TCGplayer doesn\'t list. Only the name is required.</p>') +
       '<form id="manualForm" class="stack">' +
       '<label class="field"><span>Card name</span><input class="input" id="mName" required autofocus value="' + esc(pre.name || "") + '"></label>' +
       '<div class="grid-2"><label class="field"><span>Card number</span><input class="input" id="mNumber" value="' + esc(pre.number || "") + '" style="text-transform:uppercase"></label>' +
@@ -3238,6 +3332,8 @@
       '<label class="field"><span>Notes (optional)</span><input class="input" id="mNotes"></label></div>' +
       locationFieldHTML("mLoc", "") + gradeFieldsHTML("m", null) +
       '<div class="form-actions"><button class="btn btn-primary" type="submit">Add to collection</button></div></form>');
+    const fromWant = pre.fromWant ? wants.find(w => w.id === pre.fromWant) : null;
+    if (fromWant) $("mQty").value = String(fromWant.qty || 1);
     const refreshLinks = () => { $("mLinks").innerHTML = manualLinks($("mName").value, $("mNumber").value); };
     $("mName").addEventListener("input", refreshLinks);
     $("mNumber").addEventListener("input", refreshLinks);
@@ -3257,7 +3353,9 @@
         jp: num($("mJp").value), kr: num($("mKr").value), customImage: image, paid: num($("mPaid").value),
         notes: $("mNotes").value.trim(), location: $("mLoc").value, grade: readGradeFields("m"), added: new Date().toISOString()});
       const res = addOrMerge(rec);
+      const took = pre.fromWant ? tookWant(pre.fromWant, rec.qty) : "";
       save(); render(); closeDrawer();
+      if (took) { toast("Added " + name + took); return; }
       toast(res.merged ? "Added. You now have " + res.record.qty + " of " + name + "." : "Added " + name + ".");
     });
   }
@@ -4020,13 +4118,18 @@
     $("manualOcg").addEventListener("click", () => openManual({number: code, language: lang, name: card.name, setName: card.setName}));
     out.querySelectorAll(".result").forEach(btn => btn.addEventListener("click", () => openOcgForm(card, lang, choices[+btn.dataset.idx])));
   }
-  function openOcgForm(card, lang, choice) {
+  // opts.fromWant: the want-list entry this card came from (it's taken off once the card is added)
+  function openOcgForm(card, lang, choice, opts) {
+    opts = opts || {};
     drawerCtx = {mode: "ocg"};
     const pr = choice.price;
+    const want = opts.fromWant ? wants.find(w => w.id === opts.fromWant) : null;
     openDrawer("Add a card",
       '<div class="picked"><span class="sleeve">' + imgTag({list: [choice.image, choice.backup].concat(namePics(card.name, "in_400x400").list)}, card.name, true) + "</span><div>" +
       "<h3>" + esc(card.name) + "</h3>" + (choice.ja ? "<p>" + esc(choice.ja) + "</p>" : "") + "<p>" + esc(card.setName || "") + "</p><p>" + esc(card.code) + ", " +
-      esc(choice.rarity || "rarity unknown") + "</p><p>" + esc(lang) + '</p><p style="margin-top:8px"><button type="button" class="link-btn" id="backToSearch">Pick a different rarity</button></p></div></div>' +
+      esc(choice.rarity || "rarity unknown") + "</p><p>" + esc(lang) + "</p>" +
+      (want ? "" : '<p style="margin-top:8px"><button type="button" class="link-btn" id="backToSearch">Pick a different rarity</button></p>') + "</div></div>" +
+      (want ? fromWantNotice : "") +
       '<form id="ocgForm" class="stack">' +
       '<div class="price-line">' + (pr ? esc(pr.src) + ": <b>" + esc(fmtLocal(pr.local, pr.cur)) + "</b>" + (toUSD(pr.local, pr.cur) != null ? " ≈ <b>" + esc(usd(toUSD(pr.local, pr.cur))) + "</b>" : "") +
         ' <span class="small">(' + esc(pr.note) + ")</span>" : '<span class="small">No price found yet. Card Vault checks again every day; you can also enter your own estimate later.</span>') + "</div>" +
@@ -4037,7 +4140,8 @@
       '<label class="field"><span>Notes (optional)</span><input class="input" id="oNotes"></label>' +
       locationFieldHTML("oLoc", "") + gradeFieldsHTML("o", null) +
       '<div class="form-actions"><button class="btn btn-primary" type="submit">Add to collection</button></div></form>');
-    $("backToSearch").addEventListener("click", () => openAdd({number: card.code}));
+    if (want) $("oQty").value = String(want.qty || 1);
+    if ($("backToSearch")) $("backToSearch").addEventListener("click", () => openAdd({number: card.code}));
     $("ocgForm").addEventListener("submit", e => {
       e.preventDefault();
       const rec = upgradeRecord({id: newId(), productId: null, name: card.name, productName: card.name, setName: card.setName, number: card.code,
@@ -4045,7 +4149,9 @@
         customImage: choice.image || null, paid: num($("oPaid").value), notes: $("oNotes").value.trim(), location: $("oLoc").value,
         grade: readGradeFields("o"), added: new Date().toISOString()});
       const res = addOrMerge(rec);
+      const took = want ? tookWant(want.id, rec.qty) : "";
       save(); render(); closeDrawer();
+      if (want) { toast("Added " + rec.name + " (" + rec.number + ")" + took); return; }
       toast(res.merged ? "Added. You now have " + res.record.qty + " of " + rec.name + " (" + rec.number + ")." : "Added " + rec.name + " (" + rec.number + ").",
         {action: "Add another", onAction: () => openAdd()});
     });
@@ -4333,6 +4439,7 @@
       (x.suspect ? '<span class="mk-warn" title="Under half the market price: it may be opened, damaged, mislabeled or a placeholder price">Unusually low: check that listing</span>' : "") +
       mkStoreLinks(p) +
       '<span class="result-actions">' + (owned ? '<span class="on-list">You have ' + owned + "</span>" : "") +
+      (wants.some(w => w.productId === p.id) ? '<span class="on-list">On want list</span>' : '<button class="btn" type="button" data-mk-want="' + p.id + '">Want</button>') +
       '<button class="btn" type="button" data-mk-add="' + p.id + '">' + (owned ? "Add more" : "I have it") + "</button></span></div>";
   }
   function mkChaseHTML(list) {
@@ -4602,6 +4709,7 @@
       }
       ymk.loading = null;
       if (settings.tab === "market" && settings.mkRegion === "jp") renderMarketList();
+      else if (settings.tab === "wants") { renderWants(); renderTabs(); }
       return ymk.list;
     })();
     return ymk.loading;
@@ -4643,8 +4751,10 @@
       '<dl class="mk-prices"><dt>Yugi-Market</dt><dd class="low">' + esc(usd(x.price)) + "</dd>" +
       x.variants.filter(v => v.price !== x.price).map(v => "<dt>" + esc(v.title) + "</dt><dd>" + esc(usd(v.price)) + "</dd>").join("") + "</dl>" +
       (x.pre ? '<span class="mk-deal">Pre-order</span>' : !x.available ? '<span class="mk-warn">Sold out at Yugi-Market</span>' : "") +
-      '<span class="mk-stores"><a target="_blank" rel="noopener" href="https://yugi-market.com/products/' + encodeURIComponent(x.handle) + '">Yugi-Market</a>' +
-      '<a target="_blank" rel="noopener" href="https://www.ebay.com/sch/i.html?_nkw=' + q + '&amp;_sop=15&amp;LH_BIN=1">eBay</a></span></div>';
+      '<span class="mk-stores"><a target="_blank" rel="noopener" href="' + esc(ymLink(x)) + '">Yugi-Market</a>' +
+      '<a target="_blank" rel="noopener" href="https://www.ebay.com/sch/i.html?_nkw=' + q + '&amp;_sop=15&amp;LH_BIN=1">eBay</a></span>' +
+      '<span class="result-actions">' + (ymWanted(x) ? '<span class="on-list">On want list</span>' : '<button class="btn" type="button" data-ym-want="' + esc(String(x.id)) + '">Want</button>') +
+      "</span></div>";
   }
 
   /* ----- the lists ----- */
@@ -4687,7 +4797,9 @@
         (s.box ? "Unopened booster box on Bunjang: <b>" + ocgMoneyHTML(s.box.price, "kr") + "</b> (asking prices, the middle of " + plural(s.box.n, "listing") + "). "
           : "No unopened boxes listed on Bunjang right now. ") +
         '<span class="mk-stores" style="display:inline-flex"><a target="_blank" rel="noopener" href="' + esc(godOfCardsURL(s)) + '">God of Cards</a>' +
-        '<a target="_blank" rel="noopener" href="' + esc(bunjangBoxURL(s)) + '">Bunjang</a></span></p>';
+        '<a target="_blank" rel="noopener" href="' + esc(bunjangBoxURL(s)) + '">Bunjang</a></span>' +
+        (krBoxWanted(s) ? ' <span class="on-list">Booster box on want list</span>'
+          : ' <button class="btn btn-small" type="button" data-krbox-want="' + esc(s.id) + '">Want a booster box</button>') + "</p>";
     }
     if (s.chase.length) {
       const total = s.chase.reduce((t, c) => t + (ocgUSD(c.local, s.region) || 0), 0);
@@ -4789,12 +4901,12 @@
     const c = s && s.chase.find(x => x.number === g.code && (!r.rarity || !x.rarity || sameRarity(x.rarity, r.rarity)));
     return c ? ocgUSD(c.local, region) : null;
   }
-  function ocgHave(s, c) {
+  function ocgHave(s, c, opts) {
     const lang = s.region === "jp" ? "Japanese" : "Korean";
     const price = {local: c.local, cur: OCG_CUR[s.region], src: s.region === "jp" ? "BIGWEB" : "Bunjang",
       note: s.region === "jp" ? (c.stock ? "in stock" : "sold out; last price seen") : "asking prices, " + plural(c.n, "listing")};
     drawerCtx = null;
-    openOcgForm({code: c.number, name: c.name, setName: s.name, rarities: c.rarity ? [c.rarity] : []}, lang, {rarity: c.rarity, image: c.img, backup: "", ja: "", price});
+    openOcgForm({code: c.number, name: c.name, setName: s.name, rarities: c.rarity ? [c.rarity] : []}, lang, {rarity: c.rarity, image: c.img, backup: "", ja: "", price}, opts);
   }
   function ocgWant(s, c) {
     if (ocgWanted(c)) return;
@@ -4806,8 +4918,61 @@
   }
 
   /* ======================= Want list ======================= */
+  // The want list's groups: cards, booster boxes, booster packs, and other sealed products.
+  const WANT_GROUPS = [["card", "Cards"], ["box", "Booster boxes"], ["pack", "Booster packs"], ["sealed", "Other sealed"]];
+  const wantGroupName = k => (WANT_GROUPS.find(x => x[0] === k) || WANT_GROUPS[0])[1];
+  const WANT_ONE = {card: "Card", box: "Booster box", pack: "Booster pack", sealed: "Sealed product"};
+  const WANT_SHORT = {box: "Boxes", pack: "Packs", sealed: "Other"};   // (on a phone's switch)
+  // A sealed product's group, from the Market's product types (a case of boxes goes with the boxes).
+  const sealedWantKind = mkKindValue => mkKindValue === "box" || mkKindValue === "case" ? "box" : mkKindValue === "pack" ? "pack" : "sealed";
+  function wantKind(w) {
+    if (w.kind && w.kind !== "card") return w.kind;
+    const p = w.productId && catalog ? catalog.byId.get(w.productId) : null;
+    return p && p.sealed ? sealedWantKind(mkKind(p.name)) : "card";
+  }
+  const wantIsSealed = w => wantKind(w) !== "card";
+  // "3 cards", or "3 items" once the list has sealed products too
+  const wantCount = n => plural(n, wants.some(wantIsSealed) ? "item" : "card");
+  // Where a want's price comes from, for the list
+  function wantSource(w) {
+    if (w.ref) return w.shop || "";
+    if (w.productId) return "TCGplayer";
+    const g = ocgRegion(w.number);
+    return g ? (g.region === "JP" ? "BIGWEB" : "Bunjang") : "";
+  }
+  // A shop product's price now: Yugi-Market's current price (from its lists the Market reads), the middle of the
+  // Korean boxes listed on Bunjang, else the price when it was added.
+  function ymCached() {
+    if (!ymk.list) { const c = readJSON(YM_KEY, null); if (c && Array.isArray(c.list)) { ymk.list = c.list; ymk.at = c.t || 0; } }
+    return ymk.list || [];
+  }
+  function shopWantLive(w) {
+    const ref = String(w.ref || "");
+    if (ref.startsWith("ym:")) {
+      const x = ymCached().find(y => y.handle === ref.slice(3));
+      return x && x.price > 0 ? x.price : null;
+    }
+    if (ref.startsWith("krbox:")) {
+      if (!ocgMk.data && !ocgMk.loading && !ocgMk.failed && ocgMarketURL()) loadOcgMarket();
+      const s = ocgFindSet("kr:" + ref.slice(6));
+      return s && s.box ? ocgUSD(s.box.price, "kr") : null;
+    }
+    return null;
+  }
+  // Yugi-Market lists it, but sold out: its price isn't one you can pay now
+  function shopWantSoldOut(w) {
+    const ref = String(w.ref || "");
+    if (!ref.startsWith("ym:")) return false;
+    const x = ymCached().find(y => y.handle === ref.slice(3));
+    return !!(x && !x.available);
+  }
+  function shopWantPrice(w) {
+    const v = shopWantLive(w);
+    return v != null ? v : w.shopPrice != null ? w.shopPrice : null;
+  }
   // The current TCGplayer market price for the printing you want (the cheapest printing when any will do).
   function wantPrice(w) {
+    if (w.ref) return shopWantPrice(w);
     if (!w.productId) { const pr = ocgPrice(w); return pr && pr.usd != null ? pr.usd : ocgMarketPrice(w); }   // (Japanese and Korean cards: BIGWEB, Bunjang)
     if (!catalog) return null;
     const p = catalog.byId.get(w.productId);
@@ -4821,13 +4986,13 @@
     return best;
   }
   function wantStatus(w) {
-    const price = wantPrice(w);
-    return {price, hit: w.target != null && price != null && price <= w.target};
+    const price = wantPrice(w), soldOut = shopWantSoldOut(w);
+    return {price, soldOut, hit: !soldOut && w.target != null && price != null && price <= w.target};
   }
   // opts.keepNotes: a note filled in by Card Vault (like "For Blue-Eyes") doesn't replace one you wrote
   function addWant(fields, opts) {
     const edition = fields.edition || "Any";
-    const existing = wants.find(x => x.productId && x.productId === fields.productId && x.edition === edition);
+    const existing = wants.find(x => (x.productId && x.productId === fields.productId && x.edition === edition) || (fields.ref && x.ref === fields.ref));
     if (existing) {
       if (fields.target != null) existing.target = fields.target;
       if (fields.notes && !(opts && opts.keepNotes && existing.notes)) existing.notes = fields.notes;
@@ -4848,16 +5013,66 @@
     render();
     toast("Removed " + w.name + " from your want list.", {action: "Undo", onAction: () => { wants = before; save(); render(); }});
   }
+  // "I got it": the matching Add form, and the want comes off the list (or down by the number added) once it's added.
   function gotWant(id) {
     const w = wants.find(x => x.id === id);
     if (!w) return;
-    const p = catalog && w.productId ? catalog.byId.get(w.productId) : null;
-    if (!p) { toast("Adding it needs TCGplayer's card list. " + GET_DATA, {kind: "error"}); return; }
     drawerCtx = null;
-    openPickedForm(p, {fromWant: w.id, edition: w.edition !== "Any" ? w.edition : null});
+    if (w.productId) {
+      const p = catalog ? catalog.byId.get(w.productId) : null;
+      if (!p) { toast("Adding it needs TCGplayer's card list. " + GET_DATA, {kind: "error"}); return; }
+      if (p.sealed) openSealedForm(p, "", {fromWant: w.id});
+      else openPickedForm(p, {fromWant: w.id, edition: w.edition !== "Any" ? w.edition : null});
+      return;
+    }
+    if (wantIsSealed(w)) { openShopGotForm(w); return; }
+    // a Japanese or Korean card: its BIGWEB or Bunjang price and photo when the Market has the card
+    const g = ocgRegion(w.number);
+    if (g) {
+      const s = ocgSetsOf(g.region === "JP" ? "jp" : "kr").find(x => x.prefix === g.set);
+      const c = s && s.chase.find(x => x.number === g.code && (!w.rarity || !x.rarity || sameRarity(x.rarity, w.rarity)));
+      if (c) { ocgHave(s, c, {fromWant: w.id}); return; }
+      const op = ocgPrice(w);
+      openOcgForm({code: g.code, name: w.name, setName: w.setName, rarities: w.rarity ? [w.rarity] : []}, g.region === "JP" ? "Japanese" : "Korean",
+        {rarity: w.rarity, image: ocgImage(w), backup: "", ja: "", price: op && !op.none && op.local != null ? op : null}, {fromWant: w.id});
+      return;
+    }
+    openManual({name: w.name, number: w.number, setName: w.setName, rarity: w.rarity, fromWant: w.id});
   }
+  // After adding qty copies of a want to the collection: it comes off the want list, or down by qty.
+  // Returns the toast's ending.
+  function tookWant(wantId, qty) {
+    const want = wants.find(w => w.id === wantId);
+    if (!want) return "";
+    if (want.qty > qty) { want.qty -= qty; return ". You still want " + want.qty + " more."; }
+    wants = wants.filter(w => w.id !== want.id);
+    return " and took it off your want list.";
+  }
+  const fromWantNotice = '<div class="notice" style="margin:0 0 14px">From your want list. Adding it to your collection takes it off the want list.</div>';
   function wantFromProduct(p) {
+    if (p.sealed) return {productId: p.id, name: p.name, productName: p.name, setName: p.group.name, number: "", rarity: "", kind: sealedWantKind(mkKind(p.name))};
     return {productId: p.id, name: cleanName(p.name, p.rarity), productName: p.name, setName: p.group.name, number: p.number, rarity: p.rarity};
+  }
+  // Yugi-Market products and Korean booster boxes from the Market
+  const ymLink = x => "https://yugi-market.com/products/" + encodeURIComponent(x.handle);
+  const ymWanted = x => wants.some(w => w.ref === "ym:" + x.handle);
+  const krBoxWanted = s => wants.some(w => w.ref === "krbox:" + s.prefix);
+  function addShopWant(fields) {
+    const res = addWant(Object.assign({productId: null, number: "", rarity: "", edition: "Any"}, fields));
+    save(); renderTabs(); renderMarketList();
+    toast("Added " + res.want.name + " to your want list.", {action: "Set a target price", onAction: () => openWantEdit(res.want)});
+    return res;
+  }
+  function ymWant(x) {
+    if (ymWanted(x)) return;
+    const set = ymMatch().get(x.id);
+    addShopWant({name: x.title, productName: x.title, setName: set ? set.name : "", kind: x.kind === "box" ? "box" : x.kind === "pack" ? "pack" : "sealed",
+      ref: "ym:" + x.handle, shop: "Yugi-Market", link: ymLink(x), image: x.img, shopPrice: x.price, notes: "Japanese"});
+  }
+  function krBoxWant(s) {
+    if (krBoxWanted(s)) return;
+    addShopWant({name: s.name + " booster box", productName: s.name + " booster box", setName: s.name, kind: "box",
+      ref: "krbox:" + s.prefix, shop: "Bunjang", link: bunjangBoxURL(s), shopPrice: s.box ? ocgUSD(s.box.price, "kr") : null, notes: "Korean"});
   }
 
   /* ======================= Moving cards between locations & trade list ======================= */
@@ -5031,8 +5246,8 @@
   function shareWant(w, opts) {
     const it = {n: w.name, no: w.number || "", s: w.setName || "", r: w.rarity || "", e: w.edition && w.edition !== "Any" ? w.edition : "", q: w.qty || 1};
     if (w.productId) it.p = w.productId;
-    const wp = w.productId && catalog ? catalog.byId.get(w.productId) : null;
-    const im = (wp ? productPics(wp, "in_400x400") : namePics(w.name, "in_400x400", w.rarity)).list.map(u => shareImg(String(u || "").replace(/^~/, ""))).find(Boolean);
+    if (wantIsSealed(w)) it.b = 1;
+    const im = wantPics(w, "in_400x400").list.map(u => shareImg(String(u || "").replace(/^~/, ""))).find(Boolean);
     if (im && !(w.productId && im === tcgImg(w.productId, "in_400x400"))) it.i = im;
     if (opts.prices) { const v = wantPrice(w); if (v != null) it.v = round2(v); }
     if (opts.targets && w.target != null) it.t = w.target;
@@ -6115,7 +6330,7 @@
     } else {
       b.hidden = false;
       b.dataset.key = key;
-      b.innerHTML = "<strong>" + (hits.length === 1 ? esc(hits[0].name) + " is" : plural(hits.length, "card") + " on your want list are") +
+      b.innerHTML = "<strong>" + (hits.length === 1 ? esc(hits[0].name) + " is" : wantCount(hits.length) + " on your want list are") +
         " at or below your target price.</strong>" +
         '<div class="banner-actions"><button class="btn btn-small btn-primary" type="button" data-banner="wants">Show my want list</button>' +
         '<button class="btn btn-small" type="button" data-banner="want-dismiss">Dismiss</button></div>';
@@ -6272,7 +6487,7 @@
 
       '<div class="section"><h3>Stored in this browser</h3><dl class="kv">' +
       "<dt>Collection</dt><dd>" + plural(collection.length, "printing") + ", " + plural(cards, "card") + "</dd>" +
-      "<dt>Want list</dt><dd>" + plural(wants.length, "card") + "</dd>" +
+      "<dt>Want list</dt><dd>" + wantCount(wants.length) + "</dd>" +
       "<dt>Value history</dt><dd>" + (valueHistory.length ? plural(valueHistory.length, "price day") + " since " + esc(fmtDate(parseDay(valueHistory[0].d))) : "Starts with your first TCGplayer prices") +
       "</dd></dl></div>";
   }
@@ -7504,45 +7719,149 @@
   }
 
   /* ======================= Want list tab ======================= */
+  // A want's photo: the product's, the shop's, or (a card known only by name) any printing's.
+  function wantPics(w, size) {
+    const p = w.productId && catalog ? catalog.byId.get(w.productId) : null;
+    if (p) return productPics(p, size);
+    if (wantIsSealed(w)) {
+      // (a Korean box has no photo: the drawn box shows its set's top card)
+      const ref = String(w.ref || "");
+      const s = ref.startsWith("krbox:") ? ocgFindSet("kr:" + ref.slice(6)) : null;
+      return {list: [w.image, w.productId ? tcgImg(w.productId, size) : ""], sub: WANT_ONE[wantKind(w)], art: s && s.top && s.top.img ? s.top.img : ""};
+    }
+    if (ocgRegion(w.number)) return {list: [ocgImage(w)].concat(namePics(w.name, size, w.rarity).list)};
+    return namePics(w.name, size, w.rarity);
+  }
+  // Where to buy a sealed product: the shop it came from, or TCGplayer
+  function wantShopLink(w) {
+    if (w.link) return {url: w.link, label: w.shop || "Shop"};
+    if (w.productId) return {url: tcgPage(w.productId), label: "TCGplayer"};
+    return null;
+  }
+  // Editing a want: the TCGplayer form (printing, target...) for a TCGplayer product, else target, quantity and notes.
+  function openWantEdit(w) {
+    const p = w.productId && catalog ? catalog.byId.get(w.productId) : null;
+    if (p) { openWantForm(p, w); return; }
+    drawerCtx = {mode: "want-edit", wantId: w.id};
+    const sealed = wantIsSealed(w), live = w.ref ? shopWantLive(w) : null, price = wantPrice(w), src = wantSource(w);
+    const shop = wantShopLink(w);
+    const region = /korean/i.test(w.notes) || String(w.ref || "").startsWith("krbox:") ? "Korean" : /japanese/i.test(w.notes) || w.shop === "Yugi-Market" ? "Japanese" : "";
+    const where = w.ref ? (w.shop === "Bunjang" ? "Bunjang (a Korean marketplace): the middle of the sellers' asking prices for an unopened box"
+      : w.shop === "Yugi-Market" ? "Yugi-Market (based in Japan, ships worldwide), checked when you open the Market or this list, twice a day at most" : w.shop || "the shop")
+      : src === "BIGWEB" ? "BIGWEB (a large Japanese card shop)" : src === "Bunjang" ? "Bunjang (a Korean marketplace): the middle of the sellers' asking prices" : "TCGplayer";
+    openDrawer(sealed ? "Want list item" : "Want list card",
+      '<div class="picked"><span class="sleeve' + (sealed ? " boxed" : "") + '">' + imgTag(wantPics(w, "in_400x400"), w.name, true) + "</span><div>" +
+      "<h3>" + esc(w.name) + "</h3><p>" + esc(w.setName) + "</p><p>" +
+      esc(sealed ? [WANT_ONE[wantKind(w)], region].filter(Boolean).join(", ") : [w.number, w.rarity].filter(Boolean).join(", ")) + "</p>" +
+      (shop && sealed ? '<p style="margin-top:8px"><a target="_blank" rel="noopener" href="' + esc(shop.url) + '">' + esc(w.shop === "Bunjang" ? "See the boxes on Bunjang" : "Open at " + shop.label) + "</a></p>" : "") +
+      "</div></div>" +
+      '<form id="wantEditForm" class="stack">' +
+      '<div class="grid-2"><label class="field"><span>Your target price (optional)</span><input class="input" id="weTarget" type="number" min="0" step="0.01" placeholder="$" value="' +
+      (w.target == null ? "" : w.target) + '"></label>' +
+      '<label class="field"><span>How many you want</span><input class="input" id="weQty" type="number" min="1" step="1" value="' + (w.qty || 1) + '"></label></div>' +
+      '<div class="price-line" id="wePrice"></div>' +
+      '<label class="field"><span>Notes (optional)</span><input class="input" id="weNotes" value="' + esc(w.notes || "") + '"></label>' +
+      '<p class="hint" style="margin:0">Card Vault flags ' + (sealed ? "it" : "the card") + " when the price is at or below your target. The price is from " + esc(where) + ".</p>" +
+      '<div class="form-actions"><button class="btn btn-primary" type="submit">Save</button><button class="btn" type="button" id="weGot">I got it</button>' +
+      '<span class="spacer"></span><button class="btn btn-danger" type="button" id="weRemove">Remove</button></div></form>');
+    const update = () => {
+      const target = num($("weTarget").value);
+      let html = price == null ? '<span class="small">No price yet' + (w.productId && !catalog ? " (it needs TCGplayer's price list)" : "") + ".</span>"
+        : esc(src || "Price") + (w.ref && live == null ? " price when you added it" : " price") + ": <b>" + esc(usd(price)) + "</b>";
+      if (shopWantSoldOut(w)) html += '<br><span class="small">Sold out at ' + esc(w.shop) + " right now.</span>";
+      else if (price != null && target != null) {
+        html += "<br>" + (price <= target ? '<span class="status"><span class="status-icon good" aria-hidden="true">&#10003;</span>At or below your target</span>'
+          : '<span class="small">' + esc(usd(price - target)) + " above your target</span>");
+      }
+      $("wePrice").innerHTML = html;
+    };
+    $("weTarget").addEventListener("input", update);
+    update();
+    $("weGot").addEventListener("click", () => gotWant(w.id));
+    $("weRemove").addEventListener("click", () => removeWant(w.id));
+    const shown = formValues("wantEditForm");
+    $("wantEditForm").addEventListener("submit", e => {
+      e.preventDefault();
+      const cur = wants.find(x => x.id === w.id);
+      if (!cur) { closeDrawer(); toast("That isn't on your want list anymore, so nothing was saved.", {kind: "error"}); return; }
+      const now = formValues("wantEditForm");
+      if (now.weTarget !== shown.weTarget) cur.target = num($("weTarget").value);
+      if (now.weQty !== shown.weQty) cur.qty = posInt($("weQty").value) || 1;
+      if (now.weNotes !== shown.weNotes) cur.notes = $("weNotes").value.trim();
+      save(); render(); closeDrawer();
+      toast("Saved " + cur.name + ".");
+    });
+  }
   function renderWants() {
     const panel = $("panel-wants");
     const byStr = (a, b) => String(a || "").localeCompare(String(b || ""), undefined, {numeric: true, sensitivity: "base"});
-    const rows = wants.map(w => ({w, st: wantStatus(w)})).sort((a, b) => b.st.hit - a.st.hit || byStr(a.w.name, b.w.name) ||
+    // (Yugi-Market's prices now: read twice a day at most, as in the Market)
+    if (wants.some(w => String(w.ref || "").startsWith("ym:"))) loadYugiMarket();
+    const rows = wants.map(w => ({w, st: wantStatus(w), kind: wantKind(w)})).sort((a, b) => b.st.hit - a.st.hit || byStr(a.w.name, b.w.name) ||
       byStr(a.w.setName, b.w.setName) || byStr(a.w.number, b.w.number) || byStr(a.w.rarity, b.w.rarity));
     const hits = rows.filter(x => x.st.hit).length;
-    const total = rows.reduce((s, x) => s + (x.st.price || 0) * x.w.qty, 0);
+    const sum = list => list.reduce((s, x) => s + (x.st.price || 0) * x.w.qty, 0);
+    const priced = rows.some(x => x.st.price != null);
     const head = '<div class="panel-head"><div><h2>Want list</h2><p>' + (wants.length
-      ? plural(wants.length, "card") + (catalog ? ", " + esc(usd(total)) + " at today's prices" : "") + (hits ? ", " + hits + " at or below your target" : "")
-      : "Cards you're looking for, with the price you'd pay.") + "</p></div>" +
+      ? wantCount(wants.length) + (catalog || priced ? ", " + esc(usd(sum(rows))) + " at today's prices" : "") + (hits ? ", " + hits + " at or below your target" : "")
+      : "Cards and sealed products you're looking for, with the price you'd pay.") + "</p></div>" +
       '<div class="panel-tools">' + (SITE && wants.length ? '<button class="btn" type="button" data-want-action="share">Share…</button>' : "") +
+      '<button class="btn" type="button" data-want-action="add-sealed">Add sealed</button>' +
       '<button class="btn btn-primary" type="button" data-want-action="add">Add a card</button></div></div>';
     if (!wants.length) {
-      panel.innerHTML = head + emptyPanel("Your want list is empty", "Add the cards you're looking for and the price you'd pay. Card Vault flags them when TCGplayer's market price reaches your target. " +
-        "You can also add missing cards from the Sets tab.");
+      panel.innerHTML = head + emptyPanel("Your want list is empty", "Add the cards, booster boxes and packs you're looking for, and the price you'd pay. Card Vault flags them when the price reaches your target. " +
+        "You can also add them from the Market tab (English, Japanese and Korean), and missing cards from the Sets tab.");
       return;
     }
+    // Cards, booster boxes, booster packs, other sealed: a table each, and a switch to show just one
+    const groups = WANT_GROUPS.filter(([k]) => rows.some(x => x.kind === k));
+    const view = groups.length > 1 && groups.some(([k]) => k === settings.wantsView) ? settings.wantsView : "";
+    const seg = groups.length > 1 ? '<div class="want-view"><div class="seg seg-scroll" role="group" aria-label="Show" id="wantView">' +
+      [["", "All"]].concat(groups).map(([k, l]) => '<button type="button" data-wantview="' + k + '" aria-pressed="' + (view === k) + '">' +
+        (WANT_SHORT[k] ? '<span class="long">' + esc(l) + '</span><span class="short">' + WANT_SHORT[k] + "</span>" : esc(l)) +
+        '<span class="tab-count">' + (k ? rows.filter(x => x.kind === k).length : rows.length) + "</span></button>").join("") + "</div></div>" : "";
     const owned = pid => collection.filter(r => r.productId === pid).reduce((s, r) => s + r.qty, 0);
-    panel.innerHTML = head + '<div class="table-wrap"><table class="table want-table"><thead><tr><th class="c-thumb"><span class="sr">Image</span></th>' +
-      '<th>Card</th><th>Printing</th><th class="num">Market price</th><th class="num">Your target</th><th>Status</th><th><span class="sr">Actions</span></th></tr></thead><tbody>' +
-      rows.map(({w, st}) => {
-        const have = w.productId ? owned(w.productId) : 0;
-        let status;
-        if (st.hit) status = '<span class="status"><span class="status-icon good" aria-hidden="true">&#10003;</span>At or below target</span>';
-        else if (st.price == null) status = '<span class="small">' + (catalog ? "No recent price" : "Needs TCGplayer data") + "</span>";
-        else if (w.target == null) status = '<span class="small">No target set</span>';
-        else status = esc(usd(st.price - w.target)) + ' <span class="small">above target</span>';
-        return '<tr class="' + (st.hit ? "hit" : "") + '" data-want-row="' + esc(w.id) + '"><td class="c-thumb"><span class="sleeve">' +
-          imgTag(w.productId && catalog && catalog.byId.get(w.productId) ? productPics(catalog.byId.get(w.productId), "200w") : namePics(w.name, "200w", w.rarity), w.name) + "</span></td>" +
-          '<td><button type="button" class="cell-name" data-want-action="edit" data-id="' + esc(w.id) + '">' + esc(w.name) + (w.qty > 1 ? " \u00d7" + w.qty : "") + '</button><span class="cell-sub">' +
-          esc([w.setName, w.number, w.rarity].filter(Boolean).join(", ")) + (have ? ". You have " + have : "") + "</span></td>" +
-          '<td data-label="Printing">' + esc(w.edition === "Any" ? "Any printing" : w.edition) + '</td><td class="num" data-label="Market price"' +
-          (st.price == null ? " data-empty" : "") + ">" + esc(st.price == null ? "" : usd(st.price)) +
-          '</td><td class="num" data-label="Your target"' + (w.target == null ? " data-empty" : "") + ">" + esc(w.target == null ? "" : usd(w.target)) +
-          "</td><td>" + status + "</td>" +
-          '<td><div class="want-actions"><button class="btn btn-small" type="button" data-want-action="got" data-id="' + esc(w.id) + '">I got it</button>' +
-          '<button class="btn btn-small" type="button" data-want-action="edit" data-id="' + esc(w.id) + '">Edit</button>' +
-          '<button class="btn btn-small" type="button" data-want-action="remove" data-id="' + esc(w.id) + '" aria-label="Remove ' + esc(w.name) + '">Remove</button></div></td></tr>';
-      }).join("") + "</tbody></table></div>";
+    const table = (kind, list) => {
+      const sealed = kind !== "card";
+      return '<div class="table-wrap"><table class="table want-table"><thead><tr><th class="c-thumb"><span class="sr">Image</span></th>' +
+        "<th>" + (sealed ? "Product" : "Card") + "</th><th>" + (sealed ? "Where" : "Printing") + '</th><th class="num">' + (sealed ? "Price" : "Market price") +
+        '</th><th class="num">Your target</th><th>Status</th><th><span class="sr">Actions</span></th></tr></thead><tbody>' +
+        list.map(({w, st}) => {
+          const have = w.productId ? owned(w.productId) : 0;
+          let status;
+          if (st.hit) status = '<span class="status"><span class="status-icon good" aria-hidden="true">&#10003;</span>At or below target</span>';
+          else if (st.soldOut) status = '<span class="small">Sold out at ' + esc(w.shop || "the shop") + "</span>";
+          else if (st.price == null) status = '<span class="small">' + (w.productId && !catalog ? "Needs TCGplayer data" : w.productId ? "No recent price" : "No price yet") + "</span>";
+          else if (w.target == null) status = '<span class="small">No target set</span>';
+          else status = esc(usd(st.price - w.target)) + ' <span class="small">above target</span>';
+          const shop = sealed ? wantShopLink(w) : null;
+          const sub = sealed ? [w.setName, /^(japanese|korean)$/i.test(w.notes) ? w.notes : ""] : [w.setName, w.number, w.rarity];
+          const old = st.price != null && w.ref && shopWantLive(w) == null;
+          return '<tr class="' + (st.hit ? "hit" : "") + '" data-want-row="' + esc(w.id) + '"><td class="c-thumb"><span class="sleeve' + (sealed ? " boxed" : "") + '">' +
+            imgTag(wantPics(w, "200w"), w.name) + "</span></td>" +
+            '<td><button type="button" class="cell-name" data-want-action="edit" data-id="' + esc(w.id) + '">' + esc(w.name) + (w.qty > 1 ? " ×" + w.qty : "") + '</button><span class="cell-sub">' +
+            esc(sub.filter(Boolean).join(", ")) + (have ? ". You have " + have : "") + "</span></td>" +
+            (sealed ? '<td data-label="Where"' + (shop ? "" : " data-empty") + ">" + (shop ? '<a target="_blank" rel="noopener" href="' + esc(shop.url) + '">' + esc(shop.label) + "</a>" : "") + "</td>"
+              : '<td data-label="Printing">' + esc(w.edition === "Any" ? "Any printing" : w.edition) + "</td>") +
+            '<td class="num" data-label="' + (sealed ? "Price" : "Market price") + '"' + (st.price == null ? " data-empty" : "") + ">" + esc(st.price == null ? "" : usd(st.price)) +
+            (old ? ' <span class="small">when added</span>' : "") +
+            '</td><td class="num" data-label="Your target"' + (w.target == null ? " data-empty" : "") + ">" + esc(w.target == null ? "" : usd(w.target)) +
+            "</td><td>" + status + "</td>" +
+            '<td><div class="want-actions"><button class="btn btn-small" type="button" data-want-action="got" data-id="' + esc(w.id) + '">I got it</button>' +
+            '<button class="btn btn-small" type="button" data-want-action="edit" data-id="' + esc(w.id) + '">Edit</button>' +
+            '<button class="btn btn-small" type="button" data-want-action="remove" data-id="' + esc(w.id) + '" aria-label="Remove ' + esc(w.name) + '">Remove</button></div></td></tr>';
+        }).join("") + "</tbody></table></div>";
+    };
+    // (only cards: one table, as before)
+    const titled = groups.length > 1 || (groups[0] && groups[0][0] !== "card");
+    panel.innerHTML = head + seg + groups.filter(([k]) => !view || k === view).map(([k, l]) => {
+      const list = rows.filter(x => x.kind === k);
+      const hitsHere = list.filter(x => x.st.hit).length;
+      return '<section class="want-group" data-want-group="' + k + '">' +
+        (titled ? '<h3 class="want-h">' + esc(l) + ' <span class="small">' + esc([plural(list.length, k === "card" ? "card" : "item"),
+          list.some(x => x.st.price != null) ? usd(sum(list)) : "", hitsHere ? hitsHere + " at or below target" : ""].filter(Boolean).join(" · ")) + "</span></h3>" : "") +
+        table(k, list) + "</section>";
+    }).join("");
   }
 
   /* ======================= Sales ======================= */
@@ -7836,7 +8155,7 @@
     };
     const want = w => {
       const st = wantStatus(w);
-      return "<details><summary>" + pic(w.productId ? tcgImg(w.productId, "200w") : "") + '<span class="t"><b>' + esc(w.name) + (w.qty > 1 ? " ×" + w.qty : "") +
+      return "<details><summary>" + pic(w.productId ? tcgImg(w.productId, "200w") : w.image || "") + '<span class="t"><b>' + esc(w.name) + (w.qty > 1 ? " ×" + w.qty : "") +
         "</b><small>" + esc([w.number, w.rarity].filter(Boolean).join(" · ")) + "</small><small>" + esc(w.edition === "Any" ? "Any printing" : w.edition) + "</small></span>" +
         '<span class="p">' + esc(st.price == null ? "–" : usd(st.price)) + "<small" + (st.hit ? ' class="ok">✓ at target' : ">" +
           (w.target != null ? "target " + esc(usd(w.target)) : "")) + "</small></span></summary><dl>" + dl("Set", w.setName) + dl("Card number", w.number) +
@@ -9739,6 +10058,10 @@
         if (hit) { if (ow.dataset.ocgWant) ocgWant(hit.s, hit.c); else ocgHave(hit.s, hit.c); }
         return;
       }
+      const yw = e.target.closest("[data-ym-want]");
+      if (yw) { const x = (ymk.list || []).find(y => String(y.id) === yw.dataset.ymWant); if (x) ymWant(x); return; }
+      const kw = e.target.closest("[data-krbox-want]");
+      if (kw) { const s = ocgFindSet(kw.dataset.krboxWant); if (s) krBoxWant(s); return; }
       if (e.target.closest("[data-ocg-retry]")) { ocgMk.failed = 0; loadOcgMarket(); renderMarketList(); return; }
       if (e.target.closest("[data-ym-retry]")) { ymk.failed = 0; loadYugiMarket(true); renderMarketList(); return; }
       if (e.target.closest("[data-mk-more]")) { mk.limit += 40; renderMarketList(); return; }
@@ -9826,19 +10149,23 @@
 
     // ----- want list
     $("panel-wants").addEventListener("click", e => {
+      const v = e.target.closest("[data-wantview]");
+      if (v) {
+        settings.wantsView = v.dataset.wantview; saveSettings(); renderWants();
+        const again = document.querySelector('#wantView [data-wantview="' + settings.wantsView + '"]');
+        if (again) again.focus();
+        return;
+      }
       const b = e.target.closest("[data-want-action]");
       if (!b) return;
       const a = b.dataset.wantAction, w = wants.find(x => x.id === b.dataset.id);
       if (a === "add") { openAdd({want: true}); return; }
+      if (a === "add-sealed") { openSealedSearch("", {want: true}); return; }
       if (a === "share") { openShare("wants"); return; }
       if (!w) return;
       if (a === "remove") removeWant(w.id);
       else if (a === "got") gotWant(w.id);
-      else if (a === "edit") {
-        const p = catalog && w.productId ? catalog.byId.get(w.productId) : null;
-        if (p) openWantForm(p, w);
-        else toast("Editing needs TCGplayer's card list. " + GET_DATA, {kind: "error"});
-      }
+      else if (a === "edit") openWantEdit(w);
     });
 
     // ----- import, export, restore
@@ -10004,7 +10331,8 @@
     psa10Value, gradedValue, gradedTotals, pcLookup, pcMatch, refreshGradedPrices, gradeShare, koRarity, jaRarity, driveDatedCopy, fillDriveCopies, deckPullPlan, deckPullIntoBox, openShare, shareLink, marketData, mkSetLine, mkKind, mkChase, renderMarket, analyzeDeckIdeas, runDeckIdeas, starterList, ideasState: () => ideas,
     imgTag, productPics, recordPics, namePics, imageFor, shareItem, shareWant,
     silentSignInDue, maybeSilentSignIn, pageBusy, viewBusy, loadNewData, applyNewData, readDataText, dataLoad: () => dataLoad,
-    loadOcgMarket, buildOcgMarket, ocgMk: () => ocgMk, loadYugiMarket, ymMatch, ymProduct, ymk: () => ymk, renderMarket, wantPrice};
+    loadOcgMarket, buildOcgMarket, ocgMk: () => ocgMk, loadYugiMarket, ymMatch, ymProduct, ymk: () => ymk, renderMarket, wantPrice,
+    wantKind, wantSource, shopWantLive, ymWant, krBoxWant, gotWant, openWantEdit, tookWant, wantFromProduct, upgradeWant, renderWants};
 
   document.addEventListener("DOMContentLoaded", init);
 })();
