@@ -1,0 +1,10 @@
+{
+ "errors": [
+  {
+   "message": "You have sent too many requests. Try again soon.",
+   "extensions": {
+    "code": "TOO_MANY_REQUESTS"
+   }
+  }
+ ]
+}

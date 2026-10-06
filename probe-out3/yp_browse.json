@@ -1,0 +1,659 @@
+{
+ "query": {
+  "subject": "Phantom_Nightmare#0##",
+  "data": [
+   {
+    "property": "((Autolink))_value",
+    "dataitem": [
+     {
+      "type": 2,
+      "item": "&#91;&#91;Yubel - The Loving Defender Forever&#93;&#93;"
+     }
+    ]
+   },
+   {
+    "property": "Asian-English_database_ID",
+    "dataitem": [
+     {
+      "type": 1,
+      "item": "5000001336000"
+     }
+    ]
+   },
+   {
+    "property": "Asian-English_release_date",
+    "dataitem": [
+     {
+      "type": 6,
+      "item": "1/2024/3/30"
+     }
+    ]
+   },
+   {
+    "property": "Asian-English_set_and_region_prefix",
+    "dataitem": [
+     {
+      "type": 2,
+      "item": "PHNI-AE"
+     }
+    ]
+   },
+   {
+    "property": "Asian-English_set_prefix",
+    "dataitem": [
+     {
+      "type": 2,
+      "item": "PHNI"
+     }
+    ]
+   },
+   {
+    "property": "Cover_card",
+    "dataitem": [
+     {
+      "type": 9,
+      "item": "Yubel_-_The_Loving_Defender_Forever#0##"
+     }
+    ]
+   },
+   {
+    "property": "English_(EN)_release_date",
+    "dataitem": [
+     {
+      "type": 6,
+      "item": "1/2024/2/8"
+     }
+    ]
+   },
+   {
+    "property": "English_database_ID",
+    "dataitem": [
+     {
+      "type": 1,
+      "item": "2000001328000"
+     }
+    ]
+   },
+   {
+    "property": "English_name",
+    "dataitem": [
+     {
+      "type": 2,
+      "item": "Phantom Nightmare"
+     }
+    ]
+   },
+   {
+    "property": "English_release_date",
+    "dataitem": [
+     {
+      "type": 6,
+      "item": "1/2024/2/8"
+     }
+    ]
+   },
+   {
+    "property": "English_set_and_region_prefix",
+    "dataitem": [
+     {
+      "type": 2,
+      "item": "PHNI-EN"
+     }
+    ]
+   },
+   {
+    "property": "English_set_prefix",
+    "dataitem": [
+     {
+      "type": 2,
+      "item": "PHNI"
+     }
+    ]
+   },
+   {
+    "property": "European_English_release_date",
+    "dataitem": [
+     {
+      "type": 6,
+      "item": "1/2024/2/8"
+     }
+    ]
+   },
+   {
+    "property": "European_Spanish_release_date",
+    "dataitem": [
+     {
+      "type": 6,
+      "item": "1/2024/2/8"
+     }
+    ]
+   },
+   {
+    "property": "French_database_ID",
+    "dataitem": [
+     {
+      "type": 1,
+      "item": "2000001328000"
+     }
+    ]
+   },
+   {
+    "property": "French_name",
+    "dataitem": [
+     {
+      "type": 2,
+      "item": "Cauchemar Fantôme"
+     }
+    ]
+   },
+   {
+    "property": "French_release_date",
+    "dataitem": [
+     {
+      "type": 6,
+      "item": "1/2024/2/8"
+     }
+    ]
+   },
+   {
+    "property": "French_set_and_region_prefix",
+    "dataitem": [
+     {
+      "type": 2,
+      "item": "PHNI-FR"
+     }
+    ]
+   },
+   {
+    "property": "French_set_prefix",
+    "dataitem": [
+     {
+      "type": 2,
+      "item": "PHNI"
+     }
+    ]
+   },
+   {
+    "property": "German_database_ID",
+    "dataitem": [
+     {
+      "type": 1,
+      "item": "2000001328000"
+     }
+    ]
+   },
+   {
+    "property": "German_name",
+    "dataitem": [
+     {
+      "type": 2,
+      "item": "Phantom Nightmare"
+     }
+    ]
+   },
+   {
+    "property": "German_release_date",
+    "dataitem": [
+     {
+      "type": 6,
+      "item": "1/2024/2/8"
+     }
+    ]
+   },
+   {
+    "property": "German_set_and_region_prefix",
+    "dataitem": [
+     {
+      "type": 2,
+      "item": "PHNI-DE"
+     }
+    ]
+   },
+   {
+    "property": "German_set_prefix",
+    "dataitem": [
+     {
+      "type": 2,
+      "item": "PHNI"
+     }
+    ]
+   },
+   {
+    "property": "Is_main_page",
+    "dataitem": [
+     {
+      "type": 4,
+      "item": "t"
+     }
+    ]
+   },
+   {
+    "property": "Italian_database_ID",
+    "dataitem": [
+     {
+      "type": 1,
+      "item": "2000001328000"
+     }
+    ]
+   },
+   {
+    "property": "Italian_name",
+    "dataitem": [
+     {
+      "type": 2,
+      "item": "Incubo Fantasma"
+     }
+    ]
+   },
+   {
+    "property": "Italian_release_date",
+    "dataitem": [
+     {
+      "type": 6,
+      "item": "1/2024/2/8"
+     }
+    ]
+   },
+   {
+    "property": "Italian_set_and_region_prefix",
+    "dataitem": [
+     {
+      "type": 2,
+      "item": "PHNI-IT"
+     }
+    ]
+   },
+   {
+    "property": "Italian_set_prefix",
+    "dataitem": [
+     {
+      "type": 2,
+      "item": "PHNI"
+     }
+    ]
+   },
+   {
+    "property": "Japanese_database_ID",
+    "dataitem": [
+     {
+      "type": 1,
+      "item": "1000009002000"
+     }
+    ]
+   },
+   {
+    "property": "Japanese_name",
+    "dataitem": [
+     {
+      "type": 2,
+      "item": "ファントム・ナイトメア"
+     }
+    ]
+   },
+   {
+    "property": "Japanese_release_date",
+    "dataitem": [
+     {
+      "type": 6,
+      "item": "1/2023/10/28"
+     }
+    ]
+   },
+   {
+    "property": "Japanese_set_and_region_prefix",
+    "dataitem": [
+     {
+      "type": 2,
+      "item": "PHNI-JP"
+     }
+    ]
+   },
+   {
+    "property": "Japanese_set_prefix",
+    "dataitem": [
+     {
+      "type": 2,
+      "item": "PHNI"
+     }
+    ]
+   },
+   {
+    "property": "Korean_database_ID",
+    "dataitem": [
+     {
+      "type": 1,
+      "item": "1010001326000"
+     }
+    ]
+   },
+   {
+    "property": "Korean_name",
+    "dataitem": [
+     {
+      "type": 2,
+      "item": "팬텀 나이트메어"
+     }
+    ]
+   },
+   {
+    "property": "Korean_release_date",
+    "dataitem": [
+     {
+      "type": 6,
+      "item": "1/2023/12/2"
+     }
+    ]
+   },
+   {
+    "property": "Korean_set_and_region_prefix",
+    "dataitem": [
+     {
+      "type": 2,
+      "item": "PHNI-KR"
+     }
+    ]
+   },
+   {
+    "property": "Korean_set_prefix",
+    "dataitem": [
+     {
+      "type": 2,
+      "item": "PHNI"
+     }
+    ]
+   },
+   {
+    "property": "Medium",
+    "dataitem": [
+     {
+      "type": 2,
+      "item": "OCG"
+     },
+     {
+      "type": 2,
+      "item": "Official"
+     },
+     {
+      "type": 2,
+      "item": "TCG"
+     }
+    ]
+   },
+   {
+    "property": "Next_page",
+    "dataitem": [
+     {
+      "type": 9,
+      "item": "Legacy_of_Destruction#0##"
+     }
+    ]
+   },
+   {
+    "property": "North_American_English_release_date",
+    "dataitem": [
+     {
+      "type": 6,
+      "item": "1/2024/2/9"
+     }
+    ]
+   },
+   {
+    "property": "Oceanic_English_release_date",
+    "dataitem": [
+     {
+      "type": 6,
+      "item": "1/2024/2/8"
+     }
+    ]
+   },
+   {
+    "property": "Page_name",
+    "dataitem": [
+     {
+      "type": 2,
+      "item": "Phantom Nightmare"
+     }
+    ]
+   },
+   {
+    "property": "Page_type",
+    "dataitem": [
+     {
+      "type": 2,
+      "item": "Set page"
+     }
+    ]
+   },
+   {
+    "property": "Portuguese_database_ID",
+    "dataitem": [
+     {
+      "type": 1,
+      "item": "2000001328000"
+     }
+    ]
+   },
+   {
+    "property": "Portuguese_name",
+    "dataitem": [
+     {
+      "type": 2,
+      "item": "Pesadelo Fantasma"
+     }
+    ]
+   },
+   {
+    "property": "Portuguese_release_date",
+    "dataitem": [
+     {
+      "type": 6,
+      "item": "1/2024/2/8"
+     }
+    ]
+   },
+   {
+    "property": "Portuguese_set_and_region_prefix",
+    "dataitem": [
+     {
+      "type": 2,
+      "item": "PHNI-PT"
+     }
+    ]
+   },
+   {
+    "property": "Portuguese_set_prefix",
+    "dataitem": [
+     {
+      "type": 2,
+      "item": "PHNI"
+     }
+    ]
+   },
+   {
+    "property": "Previous_page",
+    "dataitem": [
+     {
+      "type": 9,
+      "item": "Age_of_Overlord#0##"
+     }
+    ]
+   },
+   {
+    "property": "Romaji_name",
+    "dataitem": [
+     {
+      "type": 2,
+      "item": "Fantomu Naitomea"
+     }
+    ]
+   },
+   {
+    "property": "Series",
+    "dataitem": [
+     {
+      "type": 9,
+      "item": "Core_Booster#0##"
+     }
+    ]
+   },
+   {
+    "property": "Set_image",
+    "dataitem": [
+     {
+      "type": 2,
+      "item": "PHNI-BoosterEN.png"
+     }
+    ]
+   },
+   {
+    "property": "Set_type",
+    "dataitem": [
+     {
+      "type": 9,
+      "item": "Booster_pack#0##"
+     }
+    ]
+   },
+   {
+    "property": "Simplified_Chinese_database_ID",
+    "dataitem": [
+     {
+      "type": 1,
+      "item": "3000001308000"
+     }
+    ]
+   },
+   {
+    "property": "Simplified_Chinese_name",
+    "dataitem": [
+     {
+      "type": 2,
+      "item": "魅影梦魇"
+     }
+    ]
+   },
+   {
+    "property": "Simplified_Chinese_release_date",
+    "dataitem": [
+     {
+      "type": 6,
+      "item": "1/2023/12/16"
+     }
+    ]
+   },
+   {
+    "property": "Simplified_Chinese_set_and_region_prefix",
+    "dataitem": [
+     {
+      "type": 2,
+      "item": "PHNI-SC"
+     }
+    ]
+   },
+   {
+    "property": "Simplified_Chinese_set_prefix",
+    "dataitem": [
+     {
+      "type": 2,
+      "item": "PHNI"
+     }
+    ]
+   },
+   {
+    "property": "Spanish_database_ID",
+    "dataitem": [
+     {
+      "type": 1,
+      "item": "2000001328000"
+     }
+    ]
+   },
+   {
+    "property": "Spanish_name",
+    "dataitem": [
+     {
+      "type": 2,
+      "item": "Pesadilla Fantasma"
+     }
+    ]
+   },
+   {
+    "property": "Spanish_release_date",
+    "dataitem": [
+     {
+      "type": 6,
+      "item": "1/2024/2/8"
+     }
+    ]
+   },
+   {
+    "property": "Spanish_set_and_region_prefix",
+    "dataitem": [
+     {
+      "type": 2,
+      "item": "PHNI-SP"
+     }
+    ]
+   },
+   {
+    "property": "Spanish_set_prefix",
+    "dataitem": [
+     {
+      "type": 2,
+      "item": "PHNI"
+     }
+    ]
+   },
+   {
+    "property": "_DTITLE",
+    "dataitem": [
+     {
+      "type": 2,
+      "item": "Phantom Nightmare"
+     }
+    ]
+   },
+   {
+    "property": "_INST",
+    "dataitem": [
+     {
+      "type": 9,
+      "item": "OCG_Core_Boosters#14##"
+     },
+     {
+      "type": 9,
+      "item": "TCG_Core_Boosters#14##"
+     },
+     {
+      "type": 9,
+      "item": "CS1_Korean-language_sources_(ko)#14##"
+     },
+     {
+      "type": 9,
+      "item": "All_sets#14##"
+     }
+    ]
+   },
+   {
+    "property": "_MDAT",
+    "dataitem": [
+     {
+      "type": 6,
+      "item": "1/2026/1/23/13/42/56/0"
+     }
+    ]
+   },
+   {
+    "property": "_SKEY",
+    "dataitem": [
+     {
+      "type": 2,
+      "item": "Phantom Nightmare"
+     }
+    ]
+   }
+  ],
+  "serializer": "SMW\\Serializers\\SemanticDataSerializer",
+  "version": 2
+ }
+}

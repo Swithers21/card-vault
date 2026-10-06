@@ -1,0 +1,25 @@
+{
+ "success": true,
+ "items": [],
+ "sub_title": null,
+ "pagenate": {
+  "count": 0,
+  "current": 0,
+  "perPage": 100,
+  "page": 1,
+  "requestedPage": 1,
+  "pageCount": 1,
+  "start": 0,
+  "end": 0,
+  "prevPage": false,
+  "nextPage": false,
+  "sort": null,
+  "direction": null,
+  "sortDefault": false,
+  "directionDefault": false,
+  "completeSort": [],
+  "limit": 100,
+  "scope": null,
+  "finder": "all"
+ }
+}

@@ -1,0 +1,229 @@
+{
+ "goc_kr_int": {
+  "url": "https://godofcards.com/en-int/collections/korean-yugioh-cards/products.json?limit=250",
+  "status": 429,
+  "headers": {
+   "Content-Type": "application/json",
+   "retry-after": "60"
+  },
+  "bytes": 169
+ },
+ "ym_box": {
+  "url": "https://yugi-market.com/collections/yu-gi-oh-booster-box/products.json?limit=250",
+  "status": 200,
+  "headers": {
+   "Content-Type": "application/json; charset=utf-8",
+   "access-control-allow-origin": "*"
+  },
+  "bytes": 341086,
+  "n_products": 82
+ },
+ "goc_jp_try": {
+  "url": "https://godofcards.com/en-int/collections/japanese-yugioh-cards/products.json?limit=250",
+  "status": 429,
+  "headers": {
+   "Content-Type": "application/json",
+   "retry-after": "60"
+  },
+  "bytes": 169
+ },
+ "ym_box2": {
+  "url": "https://yugi-market.com/collections/yu-gi-oh-box/products.json?limit=250",
+  "status": 429,
+  "headers": {
+   "Content-Type": "application/json",
+   "retry-after": "60"
+  },
+  "bytes": 169
+ },
+ "bw_cardset": {
+  "url": "https://api.bigweb.co.jp/products?game_id=9&cardset=7858",
+  "status": 500,
+  "headers": {
+   "Content-Type": "application/json",
+   "Access-Control-Allow-Origin": "*"
+  },
+  "bytes": 107
+ },
+ "bw_cardsets": {
+  "url": "https://api.bigweb.co.jp/products?game_id=9&cardsets=7858",
+  "status": 200,
+  "headers": {
+   "Content-Type": "application/json",
+   "Access-Control-Allow-Origin": "*"
+  },
+  "bytes": 278528,
+  "n_items": 100,
+  "count": 139,
+  "first": [
+   [
+    "PHNI-JP038",
+    "ユベル―Ｄａｓ Ｅｗｉｇ Ｌｉｅｂｅ Ｗａｃｈｔｅｒ",
+    880,
+    "[PHNI]PHANTOM NIGHTMARE"
+   ],
+   [
+    "PHNI-JP038",
+    "ユベル―Ｄａｓ Ｅｗｉｇ Ｌｉｅｂｅ Ｗａｃｈｔｅｒ",
+    490,
+    "[PHNI]PHANTOM NIGHTMARE"
+   ],
+   [
+    "PHNI-JPS01",
+    "ユベル",
+    3980,
+    "[PHNI]PHANTOM NIGHTMARE"
+   ],
+   [
+    "PHNI-JP000",
+    "結束と絆の魔導師",
+    14800,
+    "[PHNI]PHANTOM NIGHTMARE"
+   ],
+   [
+    "PHNI-JP001",
+    "スピリット・オブ・ユベル",
+    0,
+    "[PHNI]PHANTOM NIGHTMARE"
+   ],
+   [
+    "PHNI-JP008",
+    "百鬼羅刹 特攻ダグ",
+    0,
+    "[PHNI]PHANTOM NIGHTMARE"
+   ],
+   [
+    "PHNI-JP012",
+    "蛇眼の炎燐",
+    0,
+    "[PHNI]PHANTOM NIGHTMARE"
+   ],
+   [
+    "PHNI-JP018",
+    "ホルスの黒炎神",
+    580,
+    "[PHNI]PHANTOM NIGHTMARE"
+   ]
+  ]
+ },
+ "bw_cardset_ids": {
+  "url": "https://api.bigweb.co.jp/products?game_id=9&cardset_ids=7858",
+  "status": 500,
+  "headers": {
+   "Content-Type": "application/json",
+   "Access-Control-Allow-Origin": "*"
+  },
+  "bytes": 111
+ },
+ "bw_cardset_arr": {
+  "url": "https://api.bigweb.co.jp/products?game_id=9&cardset_id%5B%5D=7858",
+  "status": 200,
+  "headers": {
+   "Content-Type": "application/json",
+   "Access-Control-Allow-Origin": "*"
+  },
+  "bytes": 318,
+  "n_items": 0,
+  "count": 0,
+  "first": []
+ },
+ "bw_cardsetid": {
+  "url": "https://api.bigweb.co.jp/products?game_id=9&cardsetid=7858",
+  "status": 500,
+  "headers": {
+   "Content-Type": "application/json",
+   "Access-Control-Allow-Origin": "*"
+  },
+  "bytes": 109
+ },
+ "bw_cardsetId": {
+  "url": "https://api.bigweb.co.jp/products?game_id=9&cardsetId=7858",
+  "status": 500,
+  "headers": {
+   "Content-Type": "application/json",
+   "Access-Control-Allow-Origin": "*"
+  },
+  "bytes": 109
+ },
+ "bw_cardset_id_str": {
+  "url": "https://api.bigweb.co.jp/products?game_id=9&cardset_id=7858&page=1",
+  "status": 200,
+  "headers": {
+   "Content-Type": "application/json",
+   "Access-Control-Allow-Origin": "*"
+  },
+  "bytes": 318,
+  "n_items": 0,
+  "count": 0,
+  "first": []
+ },
+ "bw_sealed_name": {
+  "url": "https://api.bigweb.co.jp/products?game_id=9&cardset=6671",
+  "status": 500,
+  "headers": {
+   "Content-Type": "application/json",
+   "Access-Control-Allow-Origin": "*"
+  },
+  "bytes": 107
+ },
+ "bw_sort1": {
+  "url": "https://api.bigweb.co.jp/products?game_id=9&name=PHNI-JP&sort=price&direction=desc",
+  "status": 500,
+  "headers": {
+   "Content-Type": "application/json",
+   "Access-Control-Allow-Origin": "*"
+  },
+  "bytes": 151
+ },
+ "bw_sort2": {
+  "url": "https://api.bigweb.co.jp/products?game_id=9&name=PHNI-JP&order=price_desc",
+  "status": 500,
+  "headers": {
+   "Content-Type": "application/json",
+   "Access-Control-Allow-Origin": "*"
+  },
+  "bytes": 133
+ },
+ "bw_sort3": {
+  "url": "https://api.bigweb.co.jp/products?game_id=9&name=PHNI-JP&sort=-price",
+  "status": 500,
+  "headers": {
+   "Content-Type": "application/json",
+   "Access-Control-Allow-Origin": "*"
+  },
+  "bytes": 128
+ },
+ "bw_limit": {
+  "url": "https://api.bigweb.co.jp/products?game_id=9&name=PHNI-JP&limit=200",
+  "status": 200,
+  "headers": {
+   "Content-Type": "application/json",
+   "Access-Control-Allow-Origin": "*"
+  },
+  "bytes": 318,
+  "n_items": 0,
+  "count": 0,
+  "first": []
+ },
+ "bw_box_word": {
+  "url": "https://api.bigweb.co.jp/products?game_id=9&name=%E3%83%95%E3%82%A1%E3%83%B3%E3%83%88%E3%83%A0%E3%83%BB%E3%83%8A%E3%82%A4%E3%83%88%E3%83%A1%E3%82%A2",
+  "status": 200,
+  "headers": {
+   "Content-Type": "application/json",
+   "Access-Control-Allow-Origin": "*"
+  },
+  "bytes": 318,
+  "n_items": 0,
+  "count": 0,
+  "first": []
+ },
+ "yp_browse": {
+  "url": "https://yugipedia.com/api.php?action=browsebysubject&format=json&subject=Phantom+Nightmare",
+  "status": 200,
+  "headers": {
+   "Content-Type": "application/json; charset=utf-8",
+   "Access-Control-Allow-Origin": "*"
+  },
+  "bytes": 6096
+ }
+}
