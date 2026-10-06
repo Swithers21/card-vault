@@ -1,0 +1,564 @@
+{
+ "ym_meta": {
+  "url": "https://yugi-market.com/meta.json",
+  "status": 200,
+  "headers": {
+   "Content-Type": "application/json; charset=utf-8",
+   "access-control-allow-origin": "*"
+  },
+  "bytes": 938
+ },
+ "ym_collections": {
+  "url": "https://yugi-market.com/collections.json?limit=250",
+  "status": 429,
+  "headers": {
+   "Content-Type": "application/json",
+   "Content-Length": "169"
+  },
+  "bytes": 169
+ },
+ "ym_boosterbox": {
+  "url": "https://yugi-market.com/collections/yu-gi-oh-booster-box/products.json?limit=250",
+  "status": 429,
+  "headers": {
+   "Content-Type": "application/json",
+   "Content-Length": "169"
+  },
+  "bytes": 169
+ },
+ "ym_box": {
+  "url": "https://yugi-market.com/collections/yu-gi-oh-box/products.json?limit=250",
+  "status": 429,
+  "headers": {
+   "Content-Type": "application/json",
+   "Content-Length": "169"
+  },
+  "bytes": 169
+ },
+ "ym_singles1": {
+  "url": "https://yugi-market.com/collections/yu-gi-oh-single-cards/products.json?limit=250&page=1",
+  "status": 429,
+  "headers": {
+   "Content-Type": "application/json",
+   "Content-Length": "169"
+  },
+  "bytes": 169
+ },
+ "ym_singles2": {
+  "url": "https://yugi-market.com/collections/yu-gi-oh-single-cards/products.json?limit=250&page=2",
+  "status": 429,
+  "headers": {
+   "Content-Type": "application/json",
+   "Content-Length": "169"
+  },
+  "bytes": 169
+ },
+ "ym_all1": {
+  "url": "https://yugi-market.com/products.json?limit=250&page=1",
+  "status": 429,
+  "headers": {
+   "Content-Type": "application/json",
+   "Content-Length": "169"
+  },
+  "bytes": 169
+ },
+ "goc_meta": {
+  "url": "https://godofcards.com/meta.json",
+  "status": 200,
+  "headers": {
+   "Content-Type": "application/json; charset=utf-8",
+   "access-control-allow-origin": "*"
+  },
+  "bytes": 898
+ },
+ "goc_collections": {
+  "url": "https://godofcards.com/collections.json?limit=250",
+  "status": 429,
+  "headers": {
+   "Content-Type": "application/json",
+   "Content-Length": "169"
+  },
+  "bytes": 169
+ },
+ "goc_kr": {
+  "url": "https://godofcards.com/collections/korean-yugioh-cards/products.json?limit=250",
+  "status": 429,
+  "headers": {
+   "Content-Type": "application/json",
+   "Content-Length": "169"
+  },
+  "bytes": 169
+ },
+ "goc_kr_int": {
+  "url": "https://godofcards.com/en-int/collections/korean-yugioh-cards/products.json?limit=250",
+  "status": 429,
+  "headers": {
+   "Content-Type": "application/json",
+   "Content-Length": "169"
+  },
+  "bytes": 169
+ },
+ "goc_kr_us": {
+  "url": "https://godofcards.com/en-us/collections/korean-yugioh-cards/products.json?limit=250",
+  "status": 429,
+  "headers": {
+   "Content-Type": "application/json",
+   "Content-Length": "169"
+  },
+  "bytes": 169
+ },
+ "goc_kr_page": {
+  "url": "https://godofcards.com/en-int/collections/korean-yugioh-cards",
+  "status": 429,
+  "headers": {
+   "Content-Type": "application/json",
+   "Content-Length": "169"
+  },
+  "bytes": 169
+ },
+ "bw_name_code": {
+  "url": "https://api.bigweb.co.jp/products?game_id=9&name=DUNE-JP004",
+  "status": 200,
+  "headers": {
+   "Content-Type": "application/json",
+   "Access-Control-Allow-Origin": "*"
+  },
+  "bytes": 8602,
+  "n_items": 3
+ },
+ "bw_name_prefix": {
+  "url": "https://api.bigweb.co.jp/products?game_id=9&name=PHNI-JP",
+  "status": 200,
+  "headers": {
+   "Content-Type": "application/json",
+   "Access-Control-Allow-Origin": "*"
+  },
+  "bytes": 278528,
+  "n_items": 100
+ },
+ "bw_cardsets": {
+  "url": "https://api.bigweb.co.jp/cardsets?game_id=9",
+  "status": 200,
+  "headers": {
+   "Content-Type": "application/json",
+   "Access-Control-Allow-Origin": "*"
+  },
+  "bytes": 73816
+ },
+ "bw_cardsets2": {
+  "url": "https://api.bigweb.co.jp/cardsets?game_id=9&limit=2000",
+  "status": 200,
+  "headers": {
+   "Content-Type": "application/json",
+   "Access-Control-Allow-Origin": "*"
+  },
+  "bytes": 73816
+ },
+ "bw_games_cardsets": {
+  "url": "https://api.bigweb.co.jp/games/9/cardsets",
+  "status": 404,
+  "headers": {
+   "Content-Type": "application/json",
+   "Access-Control-Allow-Origin": "*"
+  },
+  "bytes": 63
+ },
+ "bw_products_page": {
+  "url": "https://api.bigweb.co.jp/products?game_id=9&page=1",
+  "status": 200,
+  "headers": {
+   "Content-Type": "application/json",
+   "Access-Control-Allow-Origin": "*"
+  },
+  "bytes": 306988,
+  "n_items": 100
+ },
+ "bj_set": {
+  "url": "https://api.bunjang.co.kr/api/1/find_v2.json?q=PHNI-KR&order=score&page=0&n=100",
+  "status": 200,
+  "headers": {
+   "Content-Type": "application/json;charset=UTF-8",
+   "Content-Length": "22440"
+  },
+  "bytes": 22440,
+  "n_list": 24,
+  "names": [
+   [
+    "하염의 구희 울레 phni-kr052",
+    "1500"
+   ],
+   [
+    "스네이크아이즈 포프루스 슈레 phni-kr012",
+    "3500"
+   ],
+   [
+    "스피릿 오브 유벨 슈레 PHNI-KR001",
+    "800"
+   ],
+   [
+    "하염의 구희 [PHNI-KR052]",
+    "15000"
+   ],
+   [
+    "하염의 구희 [PHNI-KR052]",
+    "6000"
+   ],
+   [
+    "순성한 수호자 로가디언 시크 phni-kr037",
+    "2000"
+   ],
+   [
+    "하염의 구희 [PHNI-KR052]",
+    "7000"
+   ],
+   [
+    "룸펠 토이펠 레어 PHNI-KR078",
+    "1000"
+   ],
+   [
+    "순성한 수호자 로가디언(PHNI-KR037) Ultra rare",
+    "500"
+   ],
+   [
+    "유희왕 스피릿 오브 유벨 PHNI-KR001",
+    "800"
+   ],
+   [
+    "철기의 뢰추 슈레 PHNI-KR080",
+    "500"
+   ],
+   [
+    "ARUM-레이드 랩터즈 포스 시크 PHNI-KR056",
+    "1500"
+   ],
+   [
+    "마제스펙터 드라코 얼티 PHNI-KR049",
+    "500"
+   ],
+   [
+    "고블린라이더 빅헤드 가봉가 울레 PHNI-KR047 4장",
+    "500"
+   ],
+   [
+    "고블린라이더 특공 다그 시크 PHNI-KR008",
+    "1200"
+   ],
+   [
+    "마제스펙터 드라코 시크 PHNI-KR049",
+    "1000"
+   ],
+   [
+    "RR-라이징 리벨리온 팔콘 얼티 PHNI-KR045",
+    "1500"
+   ],
+   [
+    "스피릿오브유벨 (PHNI-KR001) QC Secret Rare 한글판",
+    "42550"
+   ],
+   [
+    "PHNI-KR012 스네이크 아이즈 포프루스 슈퍼레어",
+    "5000"
+   ],
+   [
+    "유희왕 스네이크아이즈 포프루스 phni-kr012 슈레",
+    "1000"
+   ],
+   [
+    "유희왕 하염의 구희 phni-kr052 울레 2장 일괄",
+    "5000"
+   ],
+   [
+    "유희왕 RR-브레이브 스트릭스 엑시즈 phni-kr046 시크",
+    "700"
+   ],
+   [
+    "유희왕 유벨 쿼싴 (PHNI-KRS01) BRG9",
+    "65000"
+   ],
+   [
+    "유희왕 유벨 - 다스 에비히 리베 베히터 UR (PHNI-KR038)",
+    "2000"
+   ]
+  ]
+ },
+ "bj_set_box": {
+  "url": "https://api.bunjang.co.kr/api/1/find_v2.json?q=%EC%9C%A0%ED%9D%AC%EC%99%95%20%EB%B6%80%EC%8A%A4%ED%84%B0%20%EB%B0%95%EC%8A%A4&order=score&page=0&n=60",
+  "status": 200,
+  "headers": {
+   "Content-Type": "application/json;charset=UTF-8",
+   "Content-Length": "55945"
+  },
+  "bytes": 55945,
+  "n_list": 58,
+  "names": [
+   [
+    "고전 유희왕 정규 부스터 박스 정의의 적 미개봉품",
+    "130000"
+   ],
+   [
+    "고전 유희왕 5D's 듀얼부스터 박스 미개봉품",
+    "72000"
+   ],
+   [
+    "유희왕 아크파이브 트라이브포스 부스터 SP 한글판 박스",
+    "15000"
+   ],
+   [
+    "유희왕 정규 부스터 박스 어둠의 유산 미개봉품",
+    "15000"
+   ],
+   [
+    "유희왕 정규 부스터 박스 듀얼리스트의 혁명 은줄 박스 미개봉품",
+    "70000"
+   ],
+   [
+    "유희왕 정규 부스터 박스 빛나는 어둠 미개봉품",
+    "25000"
+   ],
+   [
+    "유희왕 정규 부스터 박스 사이버다크의 격돌 미개봉품",
+    "21000"
+   ],
+   [
+    "유희왕 정규 부스터 박스 로드 오브 더 타키온 갤럭시 미개봉품",
+    "15000"
+   ],
+   [
+    "유희왕 정규 부스터 박스 잃어버린 천년 미개봉품",
+    "95000"
+   ],
+   [
+    "유희왕 정규 부스터 박스 환영의 어둠 미개봉품",
+    "125000"
+   ],
+   [
+    "유희왕 정규 부스터 박스 악몽의 미궁 미개봉품",
+    "20000"
+   ],
+   [
+    "유희왕 정규 부스터 박스 심홍의 위기 미개봉품",
+    "15000"
+   ],
+   [
+    "유희왕 정규 부스터 박스 파괴의 빛 미개봉품",
+    "15000"
+   ],
+   [
+    "고전 유희왕 정규 부스터 박스 강철의 습격자 미개봉품",
+    "130000"
+   ],
+   [
+    "유희왕 정규 부스터 박스 파괴자의 힘 미개봉품",
+    "50000"
+   ],
+   [
+    "유희왕 정규 부스터 박스 더 시크릿 오브 에볼루션 미개봉품",
+    "28000"
+   ],
+   [
+    "유희왕 정규 부스터 박스 리턴 오브 더 듀얼리스트 미개봉품",
+    "20000"
+   ],
+   [
+    "유희왕 정규 부스터 박스 네오스의 공격 미개봉품",
+    "37500"
+   ],
+   [
+    "유희왕 정규 부스터 박스 영원한 화염 미개봉품",
+    "15000"
+   ],
+   [
+    "유희왕 정규 부스터박스 절대원소의 힘 미개봉품",
+    "55000"
+   ],
+   [
+    "유희왕 고전 정규 부스터 박스 혼돈의 교차 미개봉품",
+    "400000"
+   ],
+   [
+    "(구매글)유희왕 강철의 습격자 카드 부스터 박스 일본판 구합니다.",
+    "45000"
+   ],
+   [
+    "고전 유희왕 일본판 2기 부스터 박스 강철의 습격자 빈박스",
+    "60000"
+   ],
+   [
+    "고전 유희왕 일본판 2기 부스터 박스 푸른눈의백룡의 전설 빈박스",
+    "90000"
+   ],
+   [
+    "유희왕 새비지 스트라이크 미개봉 박스 부스터 1박스",
+    "15000"
+   ],
+   [
+    "유희왕 디멘션포스  부스터 박스",
+    "21800"
+   ],
+   [
+    "유희왕 정규부스터박스 코드 오브 더 듀얼리스트 1박스",
+    "69000"
+   ],
+   [
+    "유희왕 이터니티 코드 한글판 부스터 박스",
+    "22500"
+   ],
+   [
+    "유희왕 셀렉션5 부스터 박스",
+    "24500"
+   ],
+   [
+    "유희왕 이그니션 어썰트 한글판 부스터 박스",
+    "25800"
+   ],
+   [
+    "유희왕 애니메이션 크로니클 2024 부스터 박스",
+    "23500"
+   ],
+   [
+    "(구매글)유희왕 가면의 저주 부스터 박스 구합니다.",
+    "20000"
+   ],
+   [
+    "(구매글)유희왕 혼돈의 투쟁자 부스터 박스 구합니다.",
+    "55000"
+   ],
+   [
+    "(구매글)유희왕 파라오의 유산 부스터 카드 박스 구합니다.",
+    "30000"
+   ],
+   [
+    "(구매글)유희왕 파라오의 종복 부스터 카드 박스 미개봉 구합니다.",
+    "32000"
+   ],
+   [
+    "(구매글)유희왕 마법의 지배자 일본판 부스터 카드박스 구합니다.",
+    "35000"
+   ],
+   [
+    "(구매글)유희왕 혼돈을 제압하는 자 부스터 카드 박스 구합니다.",
+    "33000"
+   ],
+   [
+    "(구매글)유희왕 듀얼몬스터즈카드 부스터팩박스vol.1~7 일판 구합니다.",
+    "50000"
+   ],
+   [
+    "(구매글)코나미 유희왕 푸른눈의백룡 전설 부스터팩 박스 일판 구합니다.",
+    "34000"
+   ],
+   [
+    "유희왕 고전 정규 부스터 박스 듀얼리스트의 태동 미개봉품",
+    "420000"
+   ],
+   [
+    "유희왕 더 밴텀 포스 부스터 박스 한글판",
+    "19900"
+   ],
+   [
+    "유희왕 슈프림 다크니스 한글판 부스터 박스",
+    "19900"
+   ],
+   [
+    "유희왕 블레이징 보텍스 한글판 부스터 박스",
+    "19500"
+   ],
+   [
+    "유희왕 엑스트라팩 2018 부스터 박스 일본판 미개봉",
+    "19000"
+   ],
+   [
+    "유희왕 블레이징 보텍스 한글판 부스터 박스",
+    "22500"
+   ],
+   [
+    "유희왕 파라오의 사도 한글판 부스터 박스 미개봉",
+    "50000"
+   ],
+   [
+    "유희왕 어둠의유산 부스터박스 은줄팩 미개봉 새상품",
+    "100000"
+   ],
+   [
+    "유희왕 부스터박스 어비스라이징 은줄팩 새상품",
+    "80000"
+   ],
+   [
+    "유희왕 부스터박스 악몽의미궁 은줄팩 새상품",
+    "120000"
+   ],
+   [
+    "유희왕 빛나는어둠 부스터박스 은줄팩",
+    "80000"
+   ],
+   [
+    "유희왕 부스터박스 둠오브디멘션즈 DOOD-JP",
+    "50000"
+   ],
+   [
+    "유희왕 카드 던 오브 마제스티 초도한정판 미개봉 부스터 박스",
+    "55000"
+   ],
+   [
+    "유희왕 미개봉 일판 고대 부스터박스들 판매합니다",
+    "1000000"
+   ],
+   [
+    "유희왕 한정판 부스터박스 왕가의 수호자 재고1",
+    "55000"
+   ],
+   [
+    "유희왕 thousand eyes bible 부스터박스",
+    "500000"
+   ],
+   [
+    "[유희왕] N100-P0000XIA",
+    "35900"
+   ],
+   [
+    "유희왕 부스터박스 빛나는어둠 은줄팩",
+    "50000"
+   ],
+   [
+    "유희왕 정규 부스터 박스 듀얼리스트의 능력 미개봉품",
+    "39900"
+   ]
+  ]
+ },
+ "yp_set_ask": {
+  "url": "https://yugipedia.com/api.php?action=ask&format=json&formatversion=2&query=%5B%5BCard+number%3A%3A~PHNI-JP%2A%5D%5D%7C%3FCard+number%7C%3FRarity%7C%3FSet+contains%7Climit%3D500",
+  "status": 200,
+  "headers": {
+   "Content-Type": "application/json; charset=utf-8",
+   "Access-Control-Allow-Origin": "*"
+  },
+  "bytes": 79395
+ },
+ "yp_kr_ask": {
+  "url": "https://yugipedia.com/api.php?action=ask&format=json&formatversion=2&query=%5B%5BCard+number%3A%3A~PHNI-KR%2A%5D%5D%7C%3FCard+number%7C%3FRarity%7Climit%3D500",
+  "status": 200,
+  "headers": {
+   "Content-Type": "application/json; charset=utf-8",
+   "Access-Control-Allow-Origin": "*"
+  },
+  "bytes": 62572
+ },
+ "yp_jp_sets_cat": {
+  "url": "https://yugipedia.com/api.php?action=query&format=json&formatversion=2&list=categorymembers&cmtitle=Category%3AOCG+sets&cmlimit=50",
+  "status": 200,
+  "headers": {
+   "Content-Type": "application/json; charset=utf-8",
+   "Access-Control-Allow-Origin": "*"
+  },
+  "bytes": 2153
+ },
+ "yp_set_page_ask": {
+  "url": "https://yugipedia.com/api.php?action=ask&format=json&formatversion=2&query=%5B%5BCategory%3AOCG+sets%5D%5D%5B%5BJapanese+release+date%3A%3A%2B%5D%5D%7C%3FJapanese+release+date%7C%3FSet+prefix%7C%3FJapanese+name%7C%3FKorean+release+date%7Csort%3DJapanese+release+date%7Corder%3Ddesc%7Climit%3D30",
+  "status": 200,
+  "headers": {
+   "Content-Type": "application/json; charset=utf-8",
+   "Access-Control-Allow-Origin": "*"
+  },
+  "bytes": 25557
+ }
+}

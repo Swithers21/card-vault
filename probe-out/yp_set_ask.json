@@ -1,0 +1,3599 @@
+{
+ "query": {
+  "printrequests": [
+   {
+    "label": "",
+    "key": "",
+    "redi": "",
+    "typeid": "_wpg",
+    "mode": 2,
+    "format": false
+   },
+   {
+    "label": "Card number",
+    "key": "Card_number",
+    "redi": "",
+    "typeid": "_txt",
+    "mode": 1,
+    "format": ""
+   },
+   {
+    "label": "Rarity",
+    "key": "Rarity",
+    "redi": "",
+    "typeid": "_wpg",
+    "mode": 1,
+    "format": ""
+   },
+   {
+    "label": "Set contains",
+    "key": "Set_contains",
+    "redi": "",
+    "typeid": "_wpg",
+    "mode": 1,
+    "format": ""
+   }
+  ],
+  "results": {
+   "Set Card Lists:Phantom Nightmare (OCG-JP)# 01cdf20f9f25927fba5e0b8b1ace4133": {
+    "printouts": {
+     "Card number": [
+      "PHNI-JP053"
+     ],
+     "Rarity": [
+      {
+       "fulltext": "Common",
+       "fullurl": "https://yugipedia.com/wiki/Common",
+       "namespace": 0,
+       "exists": "1",
+       "displaytitle": ""
+      }
+     ],
+     "Set contains": [
+      {
+       "fulltext": "Sorcerer of Sebek",
+       "fullurl": "https://yugipedia.com/wiki/Sorcerer_of_Sebek",
+       "namespace": 0,
+       "exists": "1",
+       "displaytitle": ""
+      }
+     ]
+    },
+    "fulltext": "Set Card Lists:Phantom Nightmare (OCG-JP)# 01cdf20f9f25927fba5e0b8b1ace4133",
+    "fullurl": "https://yugipedia.com/wiki/Set_Card_Lists:Phantom_Nightmare_(OCG-JP)#_01cdf20f9f25927fba5e0b8b1ace4133",
+    "namespace": 3006,
+    "exists": "1",
+    "displaytitle": ""
+   },
+   "Set Card Lists:Phantom Nightmare (OCG-JP)# 02dbeaea69b7dfd1ff027ea4c284049c": {
+    "printouts": {
+     "Card number": [
+      "PHNI-JP054"
+     ],
+     "Rarity": [
+      {
+       "fulltext": "Rare",
+       "fullurl": "https://yugipedia.com/wiki/Rare",
+       "namespace": 0,
+       "exists": "1",
+       "displaytitle": ""
+      }
+     ],
+     "Set contains": [
+      {
+       "fulltext": "Nightmare Pain",
+       "fullurl": "https://yugipedia.com/wiki/Nightmare_Pain",
+       "namespace": 0,
+       "exists": "1",
+       "displaytitle": ""
+      }
+     ]
+    },
+    "fulltext": "Set Card Lists:Phantom Nightmare (OCG-JP)# 02dbeaea69b7dfd1ff027ea4c284049c",
+    "fullurl": "https://yugipedia.com/wiki/Set_Card_Lists:Phantom_Nightmare_(OCG-JP)#_02dbeaea69b7dfd1ff027ea4c284049c",
+    "namespace": 3006,
+    "exists": "1",
+    "displaytitle": ""
+   },
+   "Set Card Lists:Phantom Nightmare (OCG-JP)# 033379b7e9f73201a909c128736d3fbb": {
+    "printouts": {
+     "Card number": [
+      "PHNI-JP005"
+     ],
+     "Rarity": [
+      {
+       "fulltext": "Rare",
+       "fullurl": "https://yugipedia.com/wiki/Rare",
+       "namespace": 0,
+       "exists": "1",
+       "displaytitle": ""
+      }
+     ],
+     "Set contains": [
+      {
+       "fulltext": "Raidraptor - Bloom Vulture",
+       "fullurl": "https://yugipedia.com/wiki/Raidraptor_-_Bloom_Vulture",
+       "namespace": 0,
+       "exists": "1",
+       "displaytitle": ""
+      }
+     ]
+    },
+    "fulltext": "Set Card Lists:Phantom Nightmare (OCG-JP)# 033379b7e9f73201a909c128736d3fbb",
+    "fullurl": "https://yugipedia.com/wiki/Set_Card_Lists:Phantom_Nightmare_(OCG-JP)#_033379b7e9f73201a909c128736d3fbb",
+    "namespace": 3006,
+    "exists": "1",
+    "displaytitle": ""
+   },
+   "Set Card Lists:Phantom Nightmare (OCG-JP)# 05bbd0d6b87bb5a6868419b2ab77e732": {
+    "printouts": {
+     "Card number": [
+      "PHNI-JP055"
+     ],
+     "Rarity": [
+      {
+       "fulltext": "Common",
+       "fullurl": "https://yugipedia.com/wiki/Common",
+       "namespace": 0,
+       "exists": "1",
+       "displaytitle": ""
+      }
+     ],
+     "Set contains": [
+      {
+       "fulltext": "Mature Chronicle",
+       "fullurl": "https://yugipedia.com/wiki/Mature_Chronicle",
+       "namespace": 0,
+       "exists": "1",
+       "displaytitle": ""
+      }
+     ]
+    },
+    "fulltext": "Set Card Lists:Phantom Nightmare (OCG-JP)# 05bbd0d6b87bb5a6868419b2ab77e732",
+    "fullurl": "https://yugipedia.com/wiki/Set_Card_Lists:Phantom_Nightmare_(OCG-JP)#_05bbd0d6b87bb5a6868419b2ab77e732",
+    "namespace": 3006,
+    "exists": "1",
+    "displaytitle": ""
+   },
+   "Set Card Lists:Phantom Nightmare (OCG-JP)# 05c608f96a883cd784061c8e0cc3d266": {
+    "printouts": {
+     "Card number": [
+      "PHNI-JP024"
+     ],
+     "Rarity": [
+      {
+       "fulltext": "Ultra Rare",
+       "fullurl": "https://yugipedia.com/wiki/Ultra_Rare",
+       "namespace": 0,
+       "exists": "1",
+       "displaytitle": ""
+      },
+      {
+       "fulltext": "Secret Rare",
+       "fullurl": "https://yugipedia.com/wiki/Secret_Rare",
+       "namespace": 0,
+       "exists": "1",
+       "displaytitle": ""
+      },
+      {
+       "fulltext": "Ultimate Rare",
+       "fullurl": "https://yugipedia.com/wiki/Ultimate_Rare",
+       "namespace": 0,
+       "exists": "1",
+       "displaytitle": ""
+      },
+      {
+       "fulltext": "Quarter Century Secret Rare",
+       "fullurl": "https://yugipedia.com/wiki/Quarter_Century_Secret_Rare",
+       "namespace": 0,
+       "exists": "1",
+       "displaytitle": ""
+      }
+     ],
+     "Set contains": [
+      {
+       "fulltext": "Carnot the Eternal Machine",
+       "fullurl": "https://yugipedia.com/wiki/Carnot_the_Eternal_Machine",
+       "namespace": 0,
+       "exists": "1",
+       "displaytitle": ""
+      }
+     ]
+    },
+    "fulltext": "Set Card Lists:Phantom Nightmare (OCG-JP)# 05c608f96a883cd784061c8e0cc3d266",
+    "fullurl": "https://yugipedia.com/wiki/Set_Card_Lists:Phantom_Nightmare_(OCG-JP)#_05c608f96a883cd784061c8e0cc3d266",
+    "namespace": 3006,
+    "exists": "1",
+    "displaytitle": ""
+   },
+   "Set Card Lists:Phantom Nightmare (OCG-JP)# 07a0e42486155a5a23271b5b1f0217f7": {
+    "printouts": {
+     "Card number": [
+      "PHNI-JP034"
+     ],
+     "Rarity": [
+      {
+       "fulltext": "Common",
+       "fullurl": "https://yugipedia.com/wiki/Common",
+       "namespace": 0,
+       "exists": "1",
+       "displaytitle": ""
+      }
+     ],
+     "Set contains": [
+      {
+       "fulltext": "Principug",
+       "fullurl": "https://yugipedia.com/wiki/Principug",
+       "namespace": 0,
+       "exists": "1",
+       "displaytitle": ""
+      }
+     ]
+    },
+    "fulltext": "Set Card Lists:Phantom Nightmare (OCG-JP)# 07a0e42486155a5a23271b5b1f0217f7",
+    "fullurl": "https://yugipedia.com/wiki/Set_Card_Lists:Phantom_Nightmare_(OCG-JP)#_07a0e42486155a5a23271b5b1f0217f7",
+    "namespace": 3006,
+    "exists": "1",
+    "displaytitle": ""
+   },
+   "Set Card Lists:Phantom Nightmare (OCG-JP)# 0934c4147a2cda69de1294154c113531": {
+    "printouts": {
+     "Card number": [
+      "PHNI-JP059"
+     ],
+     "Rarity": [
+      {
+       "fulltext": "Rare",
+       "fullurl": "https://yugipedia.com/wiki/Rare",
+       "namespace": 0,
+       "exists": "1",
+       "displaytitle": ""
+      }
+     ],
+     "Set contains": [
+      {
+       "fulltext": "Ages of Stars and Frost",
+       "fullurl": "https://yugipedia.com/wiki/Ages_of_Stars_and_Frost",
+       "namespace": 0,
+       "exists": "1",
+       "displaytitle": ""
+      }
+     ]
+    },
+    "fulltext": "Set Card Lists:Phantom Nightmare (OCG-JP)# 0934c4147a2cda69de1294154c113531",
+    "fullurl": "https://yugipedia.com/wiki/Set_Card_Lists:Phantom_Nightmare_(OCG-JP)#_0934c4147a2cda69de1294154c113531",
+    "namespace": 3006,
+    "exists": "1",
+    "displaytitle": ""
+   },
+   "Set Card Lists:Phantom Nightmare (OCG-JP)# 0deb69d5ffe1f6117045c68866124373": {
+    "printouts": {
+     "Card number": [
+      "PHNI-JP073"
+     ],
+     "Rarity": [
+      {
+       "fulltext": "Rare",
+       "fullurl": "https://yugipedia.com/wiki/Rare",
+       "namespace": 0,
+       "exists": "1",
+       "displaytitle": ""
+      }
+     ],
+     "Set contains": [
+      {
+       "fulltext": "Eternal Favorite",
+       "fullurl": "https://yugipedia.com/wiki/Eternal_Favorite",
+       "namespace": 0,
+       "exists": "1",
+       "displaytitle": ""
+      }
+     ]
+    },
+    "fulltext": "Set Card Lists:Phantom Nightmare (OCG-JP)# 0deb69d5ffe1f6117045c68866124373",
+    "fullurl": "https://yugipedia.com/wiki/Set_Card_Lists:Phantom_Nightmare_(OCG-JP)#_0deb69d5ffe1f6117045c68866124373",
+    "namespace": 3006,
+    "exists": "1",
+    "displaytitle": ""
+   },
+   "Set Card Lists:Phantom Nightmare (OCG-JP)# 15334996f2a49053893bc1f35790510f": {
+    "printouts": {
+     "Card number": [
+      "PHNI-JP021"
+     ],
+     "Rarity": [
+      {
+       "fulltext": "Common",
+       "fullurl": "https://yugipedia.com/wiki/Common",
+       "namespace": 0,
+       "exists": "1",
+       "displaytitle": ""
+      }
+     ],
+     "Set contains": [
+      {
+       "fulltext": "Sauravis, Dragon Sage of the Voiceless Voice",
+       "fullurl": "https://yugipedia.com/wiki/Sauravis,_Dragon_Sage_of_the_Voiceless_Voice",
+       "namespace": 0,
+       "exists": "1",
+       "displaytitle": ""
+      }
+     ]
+    },
+    "fulltext": "Set Card Lists:Phantom Nightmare (OCG-JP)# 15334996f2a49053893bc1f35790510f",
+    "fullurl": "https://yugipedia.com/wiki/Set_Card_Lists:Phantom_Nightmare_(OCG-JP)#_15334996f2a49053893bc1f35790510f",
+    "namespace": 3006,
+    "exists": "1",
+    "displaytitle": ""
+   },
+   "Set Card Lists:Phantom Nightmare (OCG-JP)# 1d6ae672dfad60a14618654e5c1718cf": {
+    "printouts": {
+     "Card number": [
+      "PHNI-JP074"
+     ],
+     "Rarity": [
+      {
+       "fulltext": "Common",
+       "fullurl": "https://yugipedia.com/wiki/Common",
+       "namespace": 0,
+       "exists": "1",
+       "displaytitle": ""
+      }
+     ],
+     "Set contains": [
+      {
+       "fulltext": "Raidraptor - Glorious Bright",
+       "fullurl": "https://yugipedia.com/wiki/Raidraptor_-_Glorious_Bright",
+       "namespace": 0,
+       "exists": "1",
+       "displaytitle": ""
+      }
+     ]
+    },
+    "fulltext": "Set Card Lists:Phantom Nightmare (OCG-JP)# 1d6ae672dfad60a14618654e5c1718cf",
+    "fullurl": "https://yugipedia.com/wiki/Set_Card_Lists:Phantom_Nightmare_(OCG-JP)#_1d6ae672dfad60a14618654e5c1718cf",
+    "namespace": 3006,
+    "exists": "1",
+    "displaytitle": ""
+   },
+   "Set Card Lists:Phantom Nightmare (OCG-JP)# 1f2941977d06a2a140a11cf1a8fd228f": {
+    "printouts": {
+     "Card number": [
+      "PHNI-JP003"
+     ],
+     "Rarity": [
+      {
+       "fulltext": "Rare",
+       "fullurl": "https://yugipedia.com/wiki/Rare",
+       "namespace": 0,
+       "exists": "1",
+       "displaytitle": ""
+      }
+     ],
+     "Set contains": [
+      {
+       "fulltext": "Samsara D Lotus",
+       "fullurl": "https://yugipedia.com/wiki/Samsara_D_Lotus",
+       "namespace": 0,
+       "exists": "1",
+       "displaytitle": ""
+      }
+     ]
+    },
+    "fulltext": "Set Card Lists:Phantom Nightmare (OCG-JP)# 1f2941977d06a2a140a11cf1a8fd228f",
+    "fullurl": "https://yugipedia.com/wiki/Set_Card_Lists:Phantom_Nightmare_(OCG-JP)#_1f2941977d06a2a140a11cf1a8fd228f",
+    "namespace": 3006,
+    "exists": "1",
+    "displaytitle": ""
+   },
+   "Set Card Lists:Phantom Nightmare (OCG-JP)# 2e7919067523b51027aa0fc2ddbfd0ef": {
+    "printouts": {
+     "Card number": [
+      "PHNI-JP017"
+     ],
+     "Rarity": [
+      {
+       "fulltext": "Common",
+       "fullurl": "https://yugipedia.com/wiki/Common",
+       "namespace": 0,
+       "exists": "1",
+       "displaytitle": ""
+      }
+     ],
+     "Set contains": [
+      {
+       "fulltext": "Mementotlan Ghattic",
+       "fullurl": "https://yugipedia.com/wiki/Mementotlan_Ghattic",
+       "namespace": 0,
+       "exists": "1",
+       "displaytitle": ""
+      }
+     ]
+    },
+    "fulltext": "Set Card Lists:Phantom Nightmare (OCG-JP)# 2e7919067523b51027aa0fc2ddbfd0ef",
+    "fullurl": "https://yugipedia.com/wiki/Set_Card_Lists:Phantom_Nightmare_(OCG-JP)#_2e7919067523b51027aa0fc2ddbfd0ef",
+    "namespace": 3006,
+    "exists": "1",
+    "displaytitle": ""
+   },
+   "Set Card Lists:Phantom Nightmare (OCG-JP)# 32feec8fd7d5b54e1d4c162ebfbdd91d": {
+    "printouts": {
+     "Card number": [
+      "PHNI-JP066"
+     ],
+     "Rarity": [
+      {
+       "fulltext": "Common",
+       "fullurl": "https://yugipedia.com/wiki/Common",
+       "namespace": 0,
+       "exists": "1",
+       "displaytitle": ""
+      }
+     ],
+     "Set contains": [
+      {
+       "fulltext": "Prayers of the Voiceless Voice",
+       "fullurl": "https://yugipedia.com/wiki/Prayers_of_the_Voiceless_Voice",
+       "namespace": 0,
+       "exists": "1",
+       "displaytitle": ""
+      }
+     ]
+    },
+    "fulltext": "Set Card Lists:Phantom Nightmare (OCG-JP)# 32feec8fd7d5b54e1d4c162ebfbdd91d",
+    "fullurl": "https://yugipedia.com/wiki/Set_Card_Lists:Phantom_Nightmare_(OCG-JP)#_32feec8fd7d5b54e1d4c162ebfbdd91d",
+    "namespace": 3006,
+    "exists": "1",
+    "displaytitle": ""
+   },
+   "Set Card Lists:Phantom Nightmare (OCG-JP)# 33d0da4db27f658538f6583f769c8ccb": {
+    "printouts": {
+     "Card number": [
+      "PHNI-JP047"
+     ],
+     "Rarity": [
+      {
+       "fulltext": "Ultra Rare",
+       "fullurl": "https://yugipedia.com/wiki/Ultra_Rare",
+       "namespace": 0,
+       "exists": "1",
+       "displaytitle": ""
+      },
+      {
+       "fulltext": "Secret Rare",
+       "fullurl": "https://yugipedia.com/wiki/Secret_Rare",
+       "namespace": 0,
+       "exists": "1",
+       "displaytitle": ""
+      },
+      {
+       "fulltext": "Ultimate Rare",
+       "fullurl": "https://yugipedia.com/wiki/Ultimate_Rare",
+       "namespace": 0,
+       "exists": "1",
+       "displaytitle": ""
+      },
+      {
+       "fulltext": "Quarter Century Secret Rare",
+       "fullurl": "https://yugipedia.com/wiki/Quarter_Century_Secret_Rare",
+       "namespace": 0,
+       "exists": "1",
+       "displaytitle": ""
+      }
+     ],
+     "Set contains": [
+      {
+       "fulltext": "Goblin Biker Big Gabonga",
+       "fullurl": "https://yugipedia.com/wiki/Goblin_Biker_Big_Gabonga",
+       "namespace": 0,
+       "exists": "1",
+       "displaytitle": ""
+      }
+     ]
+    },
+    "fulltext": "Set Card Lists:Phantom Nightmare (OCG-JP)# 33d0da4db27f658538f6583f769c8ccb",
+    "fullurl": "https://yugipedia.com/wiki/Set_Card_Lists:Phantom_Nightmare_(OCG-JP)#_33d0da4db27f658538f6583f769c8ccb",
+    "namespace": 3006,
+    "exists": "1",
+    "displaytitle": ""
+   },
+   "Set Card Lists:Phantom Nightmare (OCG-JP)# 3d74fffa5967381e4151cfa6ac6cecce": {
+    "printouts": {
+     "Card number": [
+      "PHNI-JP077"
+     ],
+     "Rarity": [
+      {
+       "fulltext": "Common",
+       "fullurl": "https://yugipedia.com/wiki/Common",
+       "namespace": 0,
+       "exists": "1",
+       "displaytitle": ""
+      }
+     ],
+     "Set contains": [
+      {
+       "fulltext": "Aroma Healing",
+       "fullurl": "https://yugipedia.com/wiki/Aroma_Healing",
+       "namespace": 0,
+       "exists": "1",
+       "displaytitle": ""
+      }
+     ]
+    },
+    "fulltext": "Set Card Lists:Phantom Nightmare (OCG-JP)# 3d74fffa5967381e4151cfa6ac6cecce",
+    "fullurl": "https://yugipedia.com/wiki/Set_Card_Lists:Phantom_Nightmare_(OCG-JP)#_3d74fffa5967381e4151cfa6ac6cecce",
+    "namespace": 3006,
+    "exists": "1",
+    "displaytitle": ""
+   },
+   "Set Card Lists:Phantom Nightmare (OCG-JP)# 3df0cdc96243445127f4d3edf428918c": {
+    "printouts": {
+     "Card number": [
+      "PHNI-JP065"
+     ],
+     "Rarity": [
+      {
+       "fulltext": "Common",
+       "fullurl": "https://yugipedia.com/wiki/Common",
+       "namespace": 0,
+       "exists": "1",
+       "displaytitle": ""
+      }
+     ],
+     "Set contains": [
+      {
+       "fulltext": "Walls of the Imperial Tomb",
+       "fullurl": "https://yugipedia.com/wiki/Walls_of_the_Imperial_Tomb",
+       "namespace": 0,
+       "exists": "1",
+       "displaytitle": ""
+      }
+     ]
+    },
+    "fulltext": "Set Card Lists:Phantom Nightmare (OCG-JP)# 3df0cdc96243445127f4d3edf428918c",
+    "fullurl": "https://yugipedia.com/wiki/Set_Card_Lists:Phantom_Nightmare_(OCG-JP)#_3df0cdc96243445127f4d3edf428918c",
+    "namespace": 3006,
+    "exists": "1",
+    "displaytitle": ""
+   },
+   "Set Card Lists:Phantom Nightmare (OCG-JP)# 3e977e1892bb187364d3976c22e5a06f": {
+    "printouts": {
+     "Card number": [
+      "PHNI-JP014"
+     ],
+     "Rarity": [
+      {
+       "fulltext": "Common",
+       "fullurl": "https://yugipedia.com/wiki/Common",
+       "namespace": 0,
+       "exists": "1",
+       "displaytitle": ""
+      }
+     ],
+     "Set contains": [
+      {
+       "fulltext": "Phantasmal Summoning Beast",
+       "fullurl": "https://yugipedia.com/wiki/Phantasmal_Summoning_Beast",
+       "namespace": 0,
+       "exists": "1",
+       "displaytitle": ""
+      }
+     ]
+    },
+    "fulltext": "Set Card Lists:Phantom Nightmare (OCG-JP)# 3e977e1892bb187364d3976c22e5a06f",
+    "fullurl": "https://yugipedia.com/wiki/Set_Card_Lists:Phantom_Nightmare_(OCG-JP)#_3e977e1892bb187364d3976c22e5a06f",
+    "namespace": 3006,
+    "exists": "1",
+    "displaytitle": ""
+   },
+   "Set Card Lists:Phantom Nightmare (OCG-JP)# 41ed901e14521f030296c80d2104852e": {
+    "printouts": {
+     "Card number": [
+      "PHNI-JP033"
+     ],
+     "Rarity": [
+      {
+       "fulltext": "Common",
+       "fullurl": "https://yugipedia.com/wiki/Common",
+       "namespace": 0,
+       "exists": "1",
+       "displaytitle": ""
+      }
+     ],
+     "Set contains": [
+      {
+       "fulltext": "Mokomoko",
+       "fullurl": "https://yugipedia.com/wiki/Mokomoko",
+       "namespace": 0,
+       "exists": "1",
+       "displaytitle": ""
+      }
+     ]
+    },
+    "fulltext": "Set Card Lists:Phantom Nightmare (OCG-JP)# 41ed901e14521f030296c80d2104852e",
+    "fullurl": "https://yugipedia.com/wiki/Set_Card_Lists:Phantom_Nightmare_(OCG-JP)#_41ed901e14521f030296c80d2104852e",
+    "namespace": 3006,
+    "exists": "1",
+    "displaytitle": ""
+   },
+   "Set Card Lists:Phantom Nightmare (OCG-JP)# 44074d83fd82b94c95e2188e0d2bc120": {
+    "printouts": {
+     "Card number": [
+      "PHNI-JP062"
+     ],
+     "Rarity": [
+      {
+       "fulltext": "Common",
+       "fullurl": "https://yugipedia.com/wiki/Common",
+       "namespace": 0,
+       "exists": "1",
+       "displaytitle": ""
+      }
+     ],
+     "Set contains": [
+      {
+       "fulltext": "Dramatic Snake-Eye Chase",
+       "fullurl": "https://yugipedia.com/wiki/Dramatic_Snake-Eye_Chase",
+       "namespace": 0,
+       "exists": "1",
+       "displaytitle": ""
+      }
+     ]
+    },
+    "fulltext": "Set Card Lists:Phantom Nightmare (OCG-JP)# 44074d83fd82b94c95e2188e0d2bc120",
+    "fullurl": "https://yugipedia.com/wiki/Set_Card_Lists:Phantom_Nightmare_(OCG-JP)#_44074d83fd82b94c95e2188e0d2bc120",
+    "namespace": 3006,
+    "exists": "1",
+    "displaytitle": ""
+   },
+   "Set Card Lists:Phantom Nightmare (OCG-JP)# 48878acc3d1cf150257cfc3933bf6370": {
+    "printouts": {
+     "Card number": [
+      "PHNI-JP068"
+     ],
+     "Rarity": [
+      {
+       "fulltext": "Rare",
+       "fullurl": "https://yugipedia.com/wiki/Rare",
+       "namespace": 0,
+       "exists": "1",
+       "displaytitle": ""
+      }
+     ],
+     "Set contains": [
+      {
+       "fulltext": "Aroma Blend",
+       "fullurl": "https://yugipedia.com/wiki/Aroma_Blend",
+       "namespace": 0,
+       "exists": "1",
+       "displaytitle": ""
+      }
+     ]
+    },
+    "fulltext": "Set Card Lists:Phantom Nightmare (OCG-JP)# 48878acc3d1cf150257cfc3933bf6370",
+    "fullurl": "https://yugipedia.com/wiki/Set_Card_Lists:Phantom_Nightmare_(OCG-JP)#_48878acc3d1cf150257cfc3933bf6370",
+    "namespace": 3006,
+    "exists": "1",
+    "displaytitle": ""
+   },
+   "Set Card Lists:Phantom Nightmare (OCG-JP)# 4af4d17a1da09df947f55def5ab91517": {
+    "printouts": {
+     "Card number": [
+      "PHNI-JP028"
+     ],
+     "Rarity": [
+      {
+       "fulltext": "Common",
+       "fullurl": "https://yugipedia.com/wiki/Common",
+       "namespace": 0,
+       "exists": "1",
+       "displaytitle": ""
+      }
+     ],
+     "Set contains": [
+      {
+       "fulltext": "E Stranger Big Bang",
+       "fullurl": "https://yugipedia.com/wiki/E_Stranger_Big_Bang",
+       "namespace": 0,
+       "exists": "1",
+       "displaytitle": ""
+      }
+     ]
+    },
+    "fulltext": "Set Card Lists:Phantom Nightmare (OCG-JP)# 4af4d17a1da09df947f55def5ab91517",
+    "fullurl": "https://yugipedia.com/wiki/Set_Card_Lists:Phantom_Nightmare_(OCG-JP)#_4af4d17a1da09df947f55def5ab91517",
+    "namespace": 3006,
+    "exists": "1",
+    "displaytitle": ""
+   },
+   "Set Card Lists:Phantom Nightmare (OCG-JP)# 4d87cdc68597190df521dd55f7d23c73": {
+    "printouts": {
+     "Card number": [
+      "PHNI-JP063"
+     ],
+     "Rarity": [
+      {
+       "fulltext": "Common",
+       "fullurl": "https://yugipedia.com/wiki/Common",
+       "namespace": 0,
+       "exists": "1",
+       "displaytitle": ""
+      }
+     ],
+     "Set contains": [
+      {
+       "fulltext": "Dark Element",
+       "fullurl": "https://yugipedia.com/wiki/Dark_Element",
+       "namespace": 0,
+       "exists": "1",
+       "displaytitle": ""
+      }
+     ]
+    },
+    "fulltext": "Set Card Lists:Phantom Nightmare (OCG-JP)# 4d87cdc68597190df521dd55f7d23c73",
+    "fullurl": "https://yugipedia.com/wiki/Set_Card_Lists:Phantom_Nightmare_(OCG-JP)#_4d87cdc68597190df521dd55f7d23c73",
+    "namespace": 3006,
+    "exists": "1",
+    "displaytitle": ""
+   },
+   "Set Card Lists:Phantom Nightmare (OCG-JP)# 5c00906d568fabe51d97783028a51213": {
+    "printouts": {
+     "Card number": [
+      "PHNI-JP051"
+     ],
+     "Rarity": [
+      {
+       "fulltext": "Rare",
+       "fullurl": "https://yugipedia.com/wiki/Rare",
+       "namespace": 0,
+       "exists": "1",
+       "displaytitle": ""
+      }
+     ],
+     "Set contains": [
+      {
+       "fulltext": "Majespecter Orthrus - Nue",
+       "fullurl": "https://yugipedia.com/wiki/Majespecter_Orthrus_-_Nue",
+       "namespace": 0,
+       "exists": "1",
+       "displaytitle": ""
+      }
+     ]
+    },
+    "fulltext": "Set Card Lists:Phantom Nightmare (OCG-JP)# 5c00906d568fabe51d97783028a51213",
+    "fullurl": "https://yugipedia.com/wiki/Set_Card_Lists:Phantom_Nightmare_(OCG-JP)#_5c00906d568fabe51d97783028a51213",
+    "namespace": 3006,
+    "exists": "1",
+    "displaytitle": ""
+   },
+   "Set Card Lists:Phantom Nightmare (OCG-JP)# 5dd87ca554d4b8aeaf927adfbdcc8cc7": {
+    "printouts": {
+     "Card number": [
+      "PHNI-JP041"
+     ],
+     "Rarity": [
+      {
+       "fulltext": "Rare",
+       "fullurl": "https://yugipedia.com/wiki/Rare",
+       "namespace": 0,
+       "exists": "1",
+       "displaytitle": ""
+      }
+     ],
+     "Set contains": [
+      {
+       "fulltext": "White Aura Porpoise",
+       "fullurl": "https://yugipedia.com/wiki/White_Aura_Porpoise",
+       "namespace": 0,
+       "exists": "1",
+       "displaytitle": ""
+      }
+     ]
+    },
+    "fulltext": "Set Card Lists:Phantom Nightmare (OCG-JP)# 5dd87ca554d4b8aeaf927adfbdcc8cc7",
+    "fullurl": "https://yugipedia.com/wiki/Set_Card_Lists:Phantom_Nightmare_(OCG-JP)#_5dd87ca554d4b8aeaf927adfbdcc8cc7",
+    "namespace": 3006,
+    "exists": "1",
+    "displaytitle": ""
+   },
+   "Set Card Lists:Phantom Nightmare (OCG-JP)# 5f15e377fecdad2d9bb779d7d03523e1": {
+    "printouts": {
+     "Card number": [
+      "PHNI-JP016"
+     ],
+     "Rarity": [
+      {
+       "fulltext": "Common",
+       "fullurl": "https://yugipedia.com/wiki/Common",
+       "namespace": 0,
+       "exists": "1",
+       "displaytitle": ""
+      }
+     ],
+     "Set contains": [
+      {
+       "fulltext": "Psiics, Moonlight of the Ghoti",
+       "fullurl": "https://yugipedia.com/wiki/Psiics,_Moonlight_of_the_Ghoti",
+       "namespace": 0,
+       "exists": "1",
+       "displaytitle": ""
+      }
+     ]
+    },
+    "fulltext": "Set Card Lists:Phantom Nightmare (OCG-JP)# 5f15e377fecdad2d9bb779d7d03523e1",
+    "fullurl": "https://yugipedia.com/wiki/Set_Card_Lists:Phantom_Nightmare_(OCG-JP)#_5f15e377fecdad2d9bb779d7d03523e1",
+    "namespace": 3006,
+    "exists": "1",
+    "displaytitle": ""
+   },
+   "Set Card Lists:Phantom Nightmare (OCG-JP)# 66b307932a4fbe12bb024852ad7b36fa": {
+    "printouts": {
+     "Card number": [
+      "PHNI-JP048"
+     ],
+     "Rarity": [
+      {
+       "fulltext": "Rare",
+       "fullurl": "https://yugipedia.com/wiki/Rare",
+       "namespace": 0,
+       "exists": "1",
+       "displaytitle": ""
+      }
+     ],
+     "Set contains": [
+      {
+       "fulltext": "Goblin's Crazy Beast",
+       "fullurl": "https://yugipedia.com/wiki/Goblin%27s_Crazy_Beast",
+       "namespace": 0,
+       "exists": "1",
+       "displaytitle": ""
+      }
+     ]
+    },
+    "fulltext": "Set Card Lists:Phantom Nightmare (OCG-JP)# 66b307932a4fbe12bb024852ad7b36fa",
+    "fullurl": "https://yugipedia.com/wiki/Set_Card_Lists:Phantom_Nightmare_(OCG-JP)#_66b307932a4fbe12bb024852ad7b36fa",
+    "namespace": 3006,
+    "exists": "1",
+    "displaytitle": ""
+   },
+   "Set Card Lists:Phantom Nightmare (OCG-JP)# 66cdd0b6e2eef403294eb1f103457f5b": {
+    "printouts": {
+     "Card number": [
+      "PHNI-JP027"
+     ],
+     "Rarity": [
+      {
+       "fulltext": "Common",
+       "fullurl": "https://yugipedia.com/wiki/Common",
+       "namespace": 0,
+       "exists": "1",
+       "displaytitle": ""
+      }
+     ],
+     "Set contains": [
+      {
+       "fulltext": "Berserk Archfiend",
+       "fullurl": "https://yugipedia.com/wiki/Berserk_Archfiend",
+       "namespace": 0,
+       "exists": "1",
+       "displaytitle": ""
+      }
+     ]
+    },
+    "fulltext": "Set Card Lists:Phantom Nightmare (OCG-JP)# 66cdd0b6e2eef403294eb1f103457f5b",
+    "fullurl": "https://yugipedia.com/wiki/Set_Card_Lists:Phantom_Nightmare_(OCG-JP)#_66cdd0b6e2eef403294eb1f103457f5b",
+    "namespace": 3006,
+    "exists": "1",
+    "displaytitle": ""
+   },
+   "Set Card Lists:Phantom Nightmare (OCG-JP)# 68a21db3cc7c165ccc507d844a5eaab0": {
+    "printouts": {
+     "Card number": [
+      "PHNI-JP031"
+     ],
+     "Rarity": [
+      {
+       "fulltext": "Common",
+       "fullurl": "https://yugipedia.com/wiki/Common",
+       "namespace": 0,
+       "exists": "1",
+       "displaytitle": ""
+      }
+     ],
+     "Set contains": [
+      {
+       "fulltext": "Procession of the Tea Jar",
+       "fullurl": "https://yugipedia.com/wiki/Procession_of_the_Tea_Jar",
+       "namespace": 0,
+       "exists": "1",
+       "displaytitle": ""
+      }
+     ]
+    },
+    "fulltext": "Set Card Lists:Phantom Nightmare (OCG-JP)# 68a21db3cc7c165ccc507d844a5eaab0",
+    "fullurl": "https://yugipedia.com/wiki/Set_Card_Lists:Phantom_Nightmare_(OCG-JP)#_68a21db3cc7c165ccc507d844a5eaab0",
+    "namespace": 3006,
+    "exists": "1",
+    "displaytitle": ""
+   },
+   "Set Card Lists:Phantom Nightmare (OCG-JP)# 69b66fe4a477d44cfb2103210fe14586": {
+    "printouts": {
+     "Card number": [
+      "PHNI-JP056"
+     ],
+     "Rarity": [
+      {
+       "fulltext": "Super Rare",
+       "fullurl": "https://yugipedia.com/wiki/Super_Rare",
+       "namespace": 0,
+       "exists": "1",
+       "displaytitle": ""
+      },
+      {
+       "fulltext": "Secret Rare",
+       "fullurl": "https://yugipedia.com/wiki/Secret_Rare",
+       "namespace": 0,
+       "exists": "1",
+       "displaytitle": ""
+      },
+      {
+       "fulltext": "Quarter Century Secret Rare",
+       "fullurl": "https://yugipedia.com/wiki/Quarter_Century_Secret_Rare",
+       "namespace": 0,
+       "exists": "1",
+       "displaytitle": ""
+      }
+     ],
+     "Set contains": [
+      {
+       "fulltext": "Rise Rank-Up-Magic Raidraptor's Force",
+       "fullurl": "https://yugipedia.com/wiki/Rise_Rank-Up-Magic_Raidraptor%27s_Force",
+       "namespace": 0,
+       "exists": "1",
+       "displaytitle": ""
+      }
+     ]
+    },
+    "fulltext": "Set Card Lists:Phantom Nightmare (OCG-JP)# 69b66fe4a477d44cfb2103210fe14586",
+    "fullurl": "https://yugipedia.com/wiki/Set_Card_Lists:Phantom_Nightmare_(OCG-JP)#_69b66fe4a477d44cfb2103210fe14586",
+    "namespace": 3006,
+    "exists": "1",
+    "displaytitle": ""
+   },
+   "Set Card Lists:Phantom Nightmare (OCG-JP)# 6a9522ac3dce2e26996a6146a570cef1": {
+    "printouts": {
+     "Card number": [
+      "PHNI-JP000"
+     ],
+     "Rarity": [
+      {
+       "fulltext": "Quarter Century Secret Rare",
+       "fullurl": "https://yugipedia.com/wiki/Quarter_Century_Secret_Rare",
+       "namespace": 0,
+       "exists": "1",
+       "displaytitle": ""
+      }
+     ],
+     "Set contains": [
+      {
+       "fulltext": "Magicians of Bonds and Unity",
+       "fullurl": "https://yugipedia.com/wiki/Magicians_of_Bonds_and_Unity",
+       "namespace": 0,
+       "exists": "1",
+       "displaytitle": ""
+      }
+     ]
+    },
+    "fulltext": "Set Card Lists:Phantom Nightmare (OCG-JP)# 6a9522ac3dce2e26996a6146a570cef1",
+    "fullurl": "https://yugipedia.com/wiki/Set_Card_Lists:Phantom_Nightmare_(OCG-JP)#_6a9522ac3dce2e26996a6146a570cef1",
+    "namespace": 3006,
+    "exists": "1",
+    "displaytitle": ""
+   },
+   "Set Card Lists:Phantom Nightmare (OCG-JP)# 6c76e99310baf5cdeca358fd12f6a474": {
+    "printouts": {
+     "Card number": [
+      "PHNI-JP023"
+     ],
+     "Rarity": [
+      {
+       "fulltext": "Common",
+       "fullurl": "https://yugipedia.com/wiki/Common",
+       "namespace": 0,
+       "exists": "1",
+       "displaytitle": ""
+      }
+     ],
+     "Set contains": [
+      {
+       "fulltext": "Majespecter Porcupine - Yamarashi",
+       "fullurl": "https://yugipedia.com/wiki/Majespecter_Porcupine_-_Yamarashi",
+       "namespace": 0,
+       "exists": "1",
+       "displaytitle": ""
+      }
+     ]
+    },
+    "fulltext": "Set Card Lists:Phantom Nightmare (OCG-JP)# 6c76e99310baf5cdeca358fd12f6a474",
+    "fullurl": "https://yugipedia.com/wiki/Set_Card_Lists:Phantom_Nightmare_(OCG-JP)#_6c76e99310baf5cdeca358fd12f6a474",
+    "namespace": 3006,
+    "exists": "1",
+    "displaytitle": ""
+   },
+   "Set Card Lists:Phantom Nightmare (OCG-JP)# 6d96df605f2b057a67d8ac43b73a1735": {
+    "printouts": {
+     "Card number": [
+      "PHNI-JP060"
+     ],
+     "Rarity": [
+      {
+       "fulltext": "Common",
+       "fullurl": "https://yugipedia.com/wiki/Common",
+       "namespace": 0,
+       "exists": "1",
+       "displaytitle": ""
+      }
+     ],
+     "Set contains": [
+      {
+       "fulltext": "Goblin Biker Grand Bash",
+       "fullurl": "https://yugipedia.com/wiki/Goblin_Biker_Grand_Bash",
+       "namespace": 0,
+       "exists": "1",
+       "displaytitle": ""
+      }
+     ]
+    },
+    "fulltext": "Set Card Lists:Phantom Nightmare (OCG-JP)# 6d96df605f2b057a67d8ac43b73a1735",
+    "fullurl": "https://yugipedia.com/wiki/Set_Card_Lists:Phantom_Nightmare_(OCG-JP)#_6d96df605f2b057a67d8ac43b73a1735",
+    "namespace": 3006,
+    "exists": "1",
+    "displaytitle": ""
+   },
+   "Set Card Lists:Phantom Nightmare (OCG-JP)# 7089a0c853266084efc05a999bb226f5": {
+    "printouts": {
+     "Card number": [
+      "PHNI-JP072"
+     ],
+     "Rarity": [
+      {
+       "fulltext": "Normal Rare",
+       "fullurl": "https://yugipedia.com/wiki/Normal_Rare",
+       "namespace": 0,
+       "exists": "1",
+       "displaytitle": ""
+      }
+     ],
+     "Set contains": [
+      {
+       "fulltext": "Flock Together",
+       "fullurl": "https://yugipedia.com/wiki/Flock_Together",
+       "namespace": 0,
+       "exists": "1",
+       "displaytitle": ""
+      }
+     ]
+    },
+    "fulltext": "Set Card Lists:Phantom Nightmare (OCG-JP)# 7089a0c853266084efc05a999bb226f5",
+    "fullurl": "https://yugipedia.com/wiki/Set_Card_Lists:Phantom_Nightmare_(OCG-JP)#_7089a0c853266084efc05a999bb226f5",
+    "namespace": 3006,
+    "exists": "1",
+    "displaytitle": ""
+   },
+   "Set Card Lists:Phantom Nightmare (OCG-JP)# 730547c8e2234596abdf8d58dbaab79a": {
+    "printouts": {
+     "Card number": [
+      "PHNI-JP050"
+     ],
+     "Rarity": [
+      {
+       "fulltext": "Ultra Rare",
+       "fullurl": "https://yugipedia.com/wiki/Ultra_Rare",
+       "namespace": 0,
+       "exists": "1",
+       "displaytitle": ""
+      },
+      {
+       "fulltext": "Secret Rare",
+       "fullurl": "https://yugipedia.com/wiki/Secret_Rare",
+       "namespace": 0,
+       "exists": "1",
+       "displaytitle": ""
+      },
+      {
+       "fulltext": "Ultimate Rare",
+       "fullurl": "https://yugipedia.com/wiki/Ultimate_Rare",
+       "namespace": 0,
+       "exists": "1",
+       "displaytitle": ""
+      },
+      {
+       "fulltext": "Quarter Century Secret Rare",
+       "fullurl": "https://yugipedia.com/wiki/Quarter_Century_Secret_Rare",
+       "namespace": 0,
+       "exists": "1",
+       "displaytitle": ""
+      }
+     ],
+     "Set contains": [
+      {
+       "fulltext": "Aromalilith Rosemary",
+       "fullurl": "https://yugipedia.com/wiki/Aromalilith_Rosemary",
+       "namespace": 0,
+       "exists": "1",
+       "displaytitle": ""
+      }
+     ]
+    },
+    "fulltext": "Set Card Lists:Phantom Nightmare (OCG-JP)# 730547c8e2234596abdf8d58dbaab79a",
+    "fullurl": "https://yugipedia.com/wiki/Set_Card_Lists:Phantom_Nightmare_(OCG-JP)#_730547c8e2234596abdf8d58dbaab79a",
+    "namespace": 3006,
+    "exists": "1",
+    "displaytitle": ""
+   },
+   "Set Card Lists:Phantom Nightmare (OCG-JP)# 77a3843dbf1493c75bfc0186e6f18793": {
+    "printouts": {
+     "Card number": [
+      "PHNI-JP010"
+     ],
+     "Rarity": [
+      {
+       "fulltext": "Common",
+       "fullurl": "https://yugipedia.com/wiki/Common",
+       "namespace": 0,
+       "exists": "1",
+       "displaytitle": ""
+      }
+     ],
+     "Set contains": [
+      {
+       "fulltext": "Goblin Biker Boom Mach",
+       "fullurl": "https://yugipedia.com/wiki/Goblin_Biker_Boom_Mach",
+       "namespace": 0,
+       "exists": "1",
+       "displaytitle": ""
+      }
+     ]
+    },
+    "fulltext": "Set Card Lists:Phantom Nightmare (OCG-JP)# 77a3843dbf1493c75bfc0186e6f18793",
+    "fullurl": "https://yugipedia.com/wiki/Set_Card_Lists:Phantom_Nightmare_(OCG-JP)#_77a3843dbf1493c75bfc0186e6f18793",
+    "namespace": 3006,
+    "exists": "1",
+    "displaytitle": ""
+   },
+   "Set Card Lists:Phantom Nightmare (OCG-JP)# 78f7d8e80709b764221c066b91bef4ce": {
+    "printouts": {
+     "Card number": [
+      "PHNI-JP019"
+     ],
+     "Rarity": [
+      {
+       "fulltext": "Super Rare",
+       "fullurl": "https://yugipedia.com/wiki/Super_Rare",
+       "namespace": 0,
+       "exists": "1",
+       "displaytitle": ""
+      },
+      {
+       "fulltext": "Secret Rare",
+       "fullurl": "https://yugipedia.com/wiki/Secret_Rare",
+       "namespace": 0,
+       "exists": "1",
+       "displaytitle": ""
+      },
+      {
+       "fulltext": "Quarter Century Secret Rare",
+       "fullurl": "https://yugipedia.com/wiki/Quarter_Century_Secret_Rare",
+       "namespace": 0,
+       "exists": "1",
+       "displaytitle": ""
+      }
+     ],
+     "Set contains": [
+      {
+       "fulltext": "Lo, the Prayers of the Voiceless Voice",
+       "fullurl": "https://yugipedia.com/wiki/Lo,_the_Prayers_of_the_Voiceless_Voice",
+       "namespace": 0,
+       "exists": "1",
+       "displaytitle": ""
+      }
+     ]
+    },
+    "fulltext": "Set Card Lists:Phantom Nightmare (OCG-JP)# 78f7d8e80709b764221c066b91bef4ce",
+    "fullurl": "https://yugipedia.com/wiki/Set_Card_Lists:Phantom_Nightmare_(OCG-JP)#_78f7d8e80709b764221c066b91bef4ce",
+    "namespace": 3006,
+    "exists": "1",
+    "displaytitle": ""
+   },
+   "Set Card Lists:Phantom Nightmare (OCG-JP)# 791cff2e19e16b6f684663c846b3a9b7": {
+    "printouts": {
+     "Card number": [
+      "PHNI-JP004"
+     ],
+     "Rarity": [
+      {
+       "fulltext": "Common",
+       "fullurl": "https://yugipedia.com/wiki/Common",
+       "namespace": 0,
+       "exists": "1",
+       "displaytitle": ""
+      }
+     ],
+     "Set contains": [
+      {
+       "fulltext": "Raidraptor - Noir Lanius",
+       "fullurl": "https://yugipedia.com/wiki/Raidraptor_-_Noir_Lanius",
+       "namespace": 0,
+       "exists": "1",
+       "displaytitle": ""
+      }
+     ]
+    },
+    "fulltext": "Set Card Lists:Phantom Nightmare (OCG-JP)# 791cff2e19e16b6f684663c846b3a9b7",
+    "fullurl": "https://yugipedia.com/wiki/Set_Card_Lists:Phantom_Nightmare_(OCG-JP)#_791cff2e19e16b6f684663c846b3a9b7",
+    "namespace": 3006,
+    "exists": "1",
+    "displaytitle": ""
+   },
+   "Set Card Lists:Phantom Nightmare (OCG-JP)# 7aae918e87ee9c904e07e234e5fa03d7": {
+    "printouts": {
+     "Card number": [
+      "PHNI-JP035"
+     ],
+     "Rarity": [
+      {
+       "fulltext": "Normal Rare",
+       "fullurl": "https://yugipedia.com/wiki/Normal_Rare",
+       "namespace": 0,
+       "exists": "1",
+       "displaytitle": ""
+      }
+     ],
+     "Set contains": [
+      {
+       "fulltext": "Jongleur-Ghoul Illusionist",
+       "fullurl": "https://yugipedia.com/wiki/Jongleur-Ghoul_Illusionist",
+       "namespace": 0,
+       "exists": "1",
+       "displaytitle": ""
+      }
+     ]
+    },
+    "fulltext": "Set Card Lists:Phantom Nightmare (OCG-JP)# 7aae918e87ee9c904e07e234e5fa03d7",
+    "fullurl": "https://yugipedia.com/wiki/Set_Card_Lists:Phantom_Nightmare_(OCG-JP)#_7aae918e87ee9c904e07e234e5fa03d7",
+    "namespace": 3006,
+    "exists": "1",
+    "displaytitle": ""
+   },
+   "Set Card Lists:Phantom Nightmare (OCG-JP)# 7d7202b11645c160926e46e66012b447": {
+    "printouts": {
+     "Card number": [
+      "PHNI-JP025"
+     ],
+     "Rarity": [
+      {
+       "fulltext": "Common",
+       "fullurl": "https://yugipedia.com/wiki/Common",
+       "namespace": 0,
+       "exists": "1",
+       "displaytitle": ""
+      }
+     ],
+     "Set contains": [
+      {
+       "fulltext": "Magmacho Dragon",
+       "fullurl": "https://yugipedia.com/wiki/Magmacho_Dragon",
+       "namespace": 0,
+       "exists": "1",
+       "displaytitle": ""
+      }
+     ]
+    },
+    "fulltext": "Set Card Lists:Phantom Nightmare (OCG-JP)# 7d7202b11645c160926e46e66012b447",
+    "fullurl": "https://yugipedia.com/wiki/Set_Card_Lists:Phantom_Nightmare_(OCG-JP)#_7d7202b11645c160926e46e66012b447",
+    "namespace": 3006,
+    "exists": "1",
+    "displaytitle": ""
+   },
+   "Set Card Lists:Phantom Nightmare (OCG-JP)# 80b849fa79cdac690f09b7dc7f23a972": {
+    "printouts": {
+     "Card number": [
+      "PHNI-JP064"
+     ],
+     "Rarity": [
+      {
+       "fulltext": "Common",
+       "fullurl": "https://yugipedia.com/wiki/Common",
+       "namespace": 0,
+       "exists": "1",
+       "displaytitle": ""
+      }
+     ],
+     "Set contains": [
+      {
+       "fulltext": "Earthbound Fusion",
+       "fullurl": "https://yugipedia.com/wiki/Earthbound_Fusion",
+       "namespace": 0,
+       "exists": "1",
+       "displaytitle": ""
+      }
+     ]
+    },
+    "fulltext": "Set Card Lists:Phantom Nightmare (OCG-JP)# 80b849fa79cdac690f09b7dc7f23a972",
+    "fullurl": "https://yugipedia.com/wiki/Set_Card_Lists:Phantom_Nightmare_(OCG-JP)#_80b849fa79cdac690f09b7dc7f23a972",
+    "namespace": 3006,
+    "exists": "1",
+    "displaytitle": ""
+   },
+   "Set Card Lists:Phantom Nightmare (OCG-JP)# 81aa33883dc9f49c7363ef17c12805f1": {
+    "printouts": {
+     "Card number": [
+      "PHNI-JP070"
+     ],
+     "Rarity": [
+      {
+       "fulltext": "Super Rare",
+       "fullurl": "https://yugipedia.com/wiki/Super_Rare",
+       "namespace": 0,
+       "exists": "1",
+       "displaytitle": ""
+      },
+      {
+       "fulltext": "Secret Rare",
+       "fullurl": "https://yugipedia.com/wiki/Secret_Rare",
+       "namespace": 0,
+       "exists": "1",
+       "displaytitle": ""
+      },
+      {
+       "fulltext": "Quarter Century Secret Rare",
+       "fullurl": "https://yugipedia.com/wiki/Quarter_Century_Secret_Rare",
+       "namespace": 0,
+       "exists": "1",
+       "displaytitle": ""
+      }
+     ],
+     "Set contains": [
+      {
+       "fulltext": "Mutamorphosis",
+       "fullurl": "https://yugipedia.com/wiki/Mutamorphosis",
+       "namespace": 0,
+       "exists": "1",
+       "displaytitle": ""
+      }
+     ]
+    },
+    "fulltext": "Set Card Lists:Phantom Nightmare (OCG-JP)# 81aa33883dc9f49c7363ef17c12805f1",
+    "fullurl": "https://yugipedia.com/wiki/Set_Card_Lists:Phantom_Nightmare_(OCG-JP)#_81aa33883dc9f49c7363ef17c12805f1",
+    "namespace": 3006,
+    "exists": "1",
+    "displaytitle": ""
+   },
+   "Set Card Lists:Phantom Nightmare (OCG-JP)# 866ea2b19a4a2f9cb0b190d327c79d33": {
+    "printouts": {
+     "Card number": [
+      "PHNI-JP037"
+     ],
+     "Rarity": [
+      {
+       "fulltext": "Ultra Rare",
+       "fullurl": "https://yugipedia.com/wiki/Ultra_Rare",
+       "namespace": 0,
+       "exists": "1",
+       "displaytitle": ""
+      },
+      {
+       "fulltext": "Secret Rare",
+       "fullurl": "https://yugipedia.com/wiki/Secret_Rare",
+       "namespace": 0,
+       "exists": "1",
+       "displaytitle": ""
+      },
+      {
+       "fulltext": "Ultimate Rare",
+       "fullurl": "https://yugipedia.com/wiki/Ultimate_Rare",
+       "namespace": 0,
+       "exists": "1",
+       "displaytitle": ""
+      },
+      {
+       "fulltext": "Quarter Century Secret Rare",
+       "fullurl": "https://yugipedia.com/wiki/Quarter_Century_Secret_Rare",
+       "namespace": 0,
+       "exists": "1",
+       "displaytitle": ""
+      }
+     ],
+     "Set contains": [
+      {
+       "fulltext": "Skull Guardian, Protector of the Voiceless Voice",
+       "fullurl": "https://yugipedia.com/wiki/Skull_Guardian,_Protector_of_the_Voiceless_Voice",
+       "namespace": 0,
+       "exists": "1",
+       "displaytitle": ""
+      }
+     ]
+    },
+    "fulltext": "Set Card Lists:Phantom Nightmare (OCG-JP)# 866ea2b19a4a2f9cb0b190d327c79d33",
+    "fullurl": "https://yugipedia.com/wiki/Set_Card_Lists:Phantom_Nightmare_(OCG-JP)#_866ea2b19a4a2f9cb0b190d327c79d33",
+    "namespace": 3006,
+    "exists": "1",
+    "displaytitle": ""
+   },
+   "Set Card Lists:Phantom Nightmare (OCG-JP)# 8b7bf4f9be0bc4348a61dfafe7bf1814": {
+    "printouts": {
+     "Card number": [
+      "PHNI-JP039"
+     ],
+     "Rarity": [
+      {
+       "fulltext": "Rare",
+       "fullurl": "https://yugipedia.com/wiki/Rare",
+       "namespace": 0,
+       "exists": "1",
+       "displaytitle": ""
+      }
+     ],
+     "Set contains": [
+      {
+       "fulltext": "Aromalilith Magnolia",
+       "fullurl": "https://yugipedia.com/wiki/Aromalilith_Magnolia",
+       "namespace": 0,
+       "exists": "1",
+       "displaytitle": ""
+      }
+     ]
+    },
+    "fulltext": "Set Card Lists:Phantom Nightmare (OCG-JP)# 8b7bf4f9be0bc4348a61dfafe7bf1814",
+    "fullurl": "https://yugipedia.com/wiki/Set_Card_Lists:Phantom_Nightmare_(OCG-JP)#_8b7bf4f9be0bc4348a61dfafe7bf1814",
+    "namespace": 3006,
+    "exists": "1",
+    "displaytitle": ""
+   },
+   "Set Card Lists:Phantom Nightmare (OCG-JP)# 8ca58bbd302714a6946ca387bd3fd7e4": {
+    "printouts": {
+     "Card number": [
+      "PHNI-JP030"
+     ],
+     "Rarity": [
+      {
+       "fulltext": "Rare",
+       "fullurl": "https://yugipedia.com/wiki/Rare",
+       "namespace": 0,
+       "exists": "1",
+       "displaytitle": ""
+      }
+     ],
+     "Set contains": [
+      {
+       "fulltext": "Emissary from the House of Wax",
+       "fullurl": "https://yugipedia.com/wiki/Emissary_from_the_House_of_Wax",
+       "namespace": 0,
+       "exists": "1",
+       "displaytitle": ""
+      }
+     ]
+    },
+    "fulltext": "Set Card Lists:Phantom Nightmare (OCG-JP)# 8ca58bbd302714a6946ca387bd3fd7e4",
+    "fullurl": "https://yugipedia.com/wiki/Set_Card_Lists:Phantom_Nightmare_(OCG-JP)#_8ca58bbd302714a6946ca387bd3fd7e4",
+    "namespace": 3006,
+    "exists": "1",
+    "displaytitle": ""
+   },
+   "Set Card Lists:Phantom Nightmare (OCG-JP)# 8dbf76b3334ee7d8cb0d13be578aa898": {
+    "printouts": {
+     "Card number": [
+      "PHNI-JP078"
+     ],
+     "Rarity": [
+      {
+       "fulltext": "Rare",
+       "fullurl": "https://yugipedia.com/wiki/Rare",
+       "namespace": 0,
+       "exists": "1",
+       "displaytitle": ""
+      }
+     ],
+     "Set contains": [
+      {
+       "fulltext": "The Black Goat Laughs",
+       "fullurl": "https://yugipedia.com/wiki/The_Black_Goat_Laughs",
+       "namespace": 0,
+       "exists": "1",
+       "displaytitle": ""
+      }
+     ]
+    },
+    "fulltext": "Set Card Lists:Phantom Nightmare (OCG-JP)# 8dbf76b3334ee7d8cb0d13be578aa898",
+    "fullurl": "https://yugipedia.com/wiki/Set_Card_Lists:Phantom_Nightmare_(OCG-JP)#_8dbf76b3334ee7d8cb0d13be578aa898",
+    "namespace": 3006,
+    "exists": "1",
+    "displaytitle": ""
+   },
+   "Set Card Lists:Phantom Nightmare (OCG-JP)# 8fc7e63dd94dc2eb9a5dfc4166c68f24": {
+    "printouts": {
+     "Card number": [
+      "PHNI-JP012"
+     ],
+     "Rarity": [
+      {
+       "fulltext": "Super Rare",
+       "fullurl": "https://yugipedia.com/wiki/Super_Rare",
+       "namespace": 0,
+       "exists": "1",
+       "displaytitle": ""
+      },
+      {
+       "fulltext": "Secret Rare",
+       "fullurl": "https://yugipedia.com/wiki/Secret_Rare",
+       "namespace": 0,
+       "exists": "1",
+       "displaytitle": ""
+      },
+      {
+       "fulltext": "Quarter Century Secret Rare",
+       "fullurl": "https://yugipedia.com/wiki/Quarter_Century_Secret_Rare",
+       "namespace": 0,
+       "exists": "1",
+       "displaytitle": ""
+      }
+     ],
+     "Set contains": [
+      {
+       "fulltext": "Snake-Eyes Poplar",
+       "fullurl": "https://yugipedia.com/wiki/Snake-Eyes_Poplar",
+       "namespace": 0,
+       "exists": "1",
+       "displaytitle": ""
+      }
+     ]
+    },
+    "fulltext": "Set Card Lists:Phantom Nightmare (OCG-JP)# 8fc7e63dd94dc2eb9a5dfc4166c68f24",
+    "fullurl": "https://yugipedia.com/wiki/Set_Card_Lists:Phantom_Nightmare_(OCG-JP)#_8fc7e63dd94dc2eb9a5dfc4166c68f24",
+    "namespace": 3006,
+    "exists": "1",
+    "displaytitle": ""
+   },
+   "Set Card Lists:Phantom Nightmare (OCG-JP)# 9430e492e22e8b87abd4e84ff82b57f5": {
+    "printouts": {
+     "Card number": [
+      "PHNI-JP052"
+     ],
+     "Rarity": [
+      {
+       "fulltext": "Ultra Rare",
+       "fullurl": "https://yugipedia.com/wiki/Ultra_Rare",
+       "namespace": 0,
+       "exists": "1",
+       "displaytitle": ""
+      },
+      {
+       "fulltext": "Secret Rare",
+       "fullurl": "https://yugipedia.com/wiki/Secret_Rare",
+       "namespace": 0,
+       "exists": "1",
+       "displaytitle": ""
+      },
+      {
+       "fulltext": "Ultimate Rare",
+       "fullurl": "https://yugipedia.com/wiki/Ultimate_Rare",
+       "namespace": 0,
+       "exists": "1",
+       "displaytitle": ""
+      },
+      {
+       "fulltext": "Quarter Century Secret Rare",
+       "fullurl": "https://yugipedia.com/wiki/Quarter_Century_Secret_Rare",
+       "namespace": 0,
+       "exists": "1",
+       "displaytitle": ""
+      }
+     ],
+     "Set contains": [
+      {
+       "fulltext": "Promethean Princess, Bestower of Flames",
+       "fullurl": "https://yugipedia.com/wiki/Promethean_Princess,_Bestower_of_Flames",
+       "namespace": 0,
+       "exists": "1",
+       "displaytitle": ""
+      }
+     ]
+    },
+    "fulltext": "Set Card Lists:Phantom Nightmare (OCG-JP)# 9430e492e22e8b87abd4e84ff82b57f5",
+    "fullurl": "https://yugipedia.com/wiki/Set_Card_Lists:Phantom_Nightmare_(OCG-JP)#_9430e492e22e8b87abd4e84ff82b57f5",
+    "namespace": 3006,
+    "exists": "1",
+    "displaytitle": ""
+   },
+   "Set Card Lists:Phantom Nightmare (OCG-JP)# 962e0fa043b760fc375a3d582886c31e": {
+    "printouts": {
+     "Card number": [
+      "PHNI-JP057"
+     ],
+     "Rarity": [
+      {
+       "fulltext": "Common",
+       "fullurl": "https://yugipedia.com/wiki/Common",
+       "namespace": 0,
+       "exists": "1",
+       "displaytitle": ""
+      }
+     ],
+     "Set contains": [
+      {
+       "fulltext": "Raidraptor - Roost",
+       "fullurl": "https://yugipedia.com/wiki/Raidraptor_-_Roost",
+       "namespace": 0,
+       "exists": "1",
+       "displaytitle": ""
+      }
+     ]
+    },
+    "fulltext": "Set Card Lists:Phantom Nightmare (OCG-JP)# 962e0fa043b760fc375a3d582886c31e",
+    "fullurl": "https://yugipedia.com/wiki/Set_Card_Lists:Phantom_Nightmare_(OCG-JP)#_962e0fa043b760fc375a3d582886c31e",
+    "namespace": 3006,
+    "exists": "1",
+    "displaytitle": ""
+   },
+   "Set Card Lists:Phantom Nightmare (OCG-JP)# 96b8d35bb09433acda8e1360156a143d": {
+    "printouts": {
+     "Card number": [
+      "PHNI-JP013"
+     ],
+     "Rarity": [
+      {
+       "fulltext": "Rare",
+       "fullurl": "https://yugipedia.com/wiki/Rare",
+       "namespace": 0,
+       "exists": "1",
+       "displaytitle": ""
+      }
+     ],
+     "Set contains": [
+      {
+       "fulltext": "Dark Guardian",
+       "fullurl": "https://yugipedia.com/wiki/Dark_Guardian",
+       "namespace": 0,
+       "exists": "1",
+       "displaytitle": ""
+      }
+     ]
+    },
+    "fulltext": "Set Card Lists:Phantom Nightmare (OCG-JP)# 96b8d35bb09433acda8e1360156a143d",
+    "fullurl": "https://yugipedia.com/wiki/Set_Card_Lists:Phantom_Nightmare_(OCG-JP)#_96b8d35bb09433acda8e1360156a143d",
+    "namespace": 3006,
+    "exists": "1",
+    "displaytitle": ""
+   },
+   "Set Card Lists:Phantom Nightmare (OCG-JP)# a2aaf7765e0250255dbe113cd99b0950": {
+    "printouts": {
+     "Card number": [
+      "PHNI-JP032"
+     ],
+     "Rarity": [
+      {
+       "fulltext": "Rare",
+       "fullurl": "https://yugipedia.com/wiki/Rare",
+       "namespace": 0,
+       "exists": "1",
+       "displaytitle": ""
+      }
+     ],
+     "Set contains": [
+      {
+       "fulltext": "EM:P Meowmine",
+       "fullurl": "https://yugipedia.com/wiki/EM:P_Meowmine",
+       "namespace": 0,
+       "exists": "1",
+       "displaytitle": ""
+      }
+     ]
+    },
+    "fulltext": "Set Card Lists:Phantom Nightmare (OCG-JP)# a2aaf7765e0250255dbe113cd99b0950",
+    "fullurl": "https://yugipedia.com/wiki/Set_Card_Lists:Phantom_Nightmare_(OCG-JP)#_a2aaf7765e0250255dbe113cd99b0950",
+    "namespace": 3006,
+    "exists": "1",
+    "displaytitle": ""
+   },
+   "Set Card Lists:Phantom Nightmare (OCG-JP)# a7c67cb6e9887dbc7a1134030bdc5301": {
+    "printouts": {
+     "Card number": [
+      "PHNI-JP020"
+     ],
+     "Rarity": [
+      {
+       "fulltext": "Rare",
+       "fullurl": "https://yugipedia.com/wiki/Rare",
+       "namespace": 0,
+       "exists": "1",
+       "displaytitle": ""
+      }
+     ],
+     "Set contains": [
+      {
+       "fulltext": "Saffira, Dragon Queen of the Voiceless Voice",
+       "fullurl": "https://yugipedia.com/wiki/Saffira,_Dragon_Queen_of_the_Voiceless_Voice",
+       "namespace": 0,
+       "exists": "1",
+       "displaytitle": ""
+      }
+     ]
+    },
+    "fulltext": "Set Card Lists:Phantom Nightmare (OCG-JP)# a7c67cb6e9887dbc7a1134030bdc5301",
+    "fullurl": "https://yugipedia.com/wiki/Set_Card_Lists:Phantom_Nightmare_(OCG-JP)#_a7c67cb6e9887dbc7a1134030bdc5301",
+    "namespace": 3006,
+    "exists": "1",
+    "displaytitle": ""
+   },
+   "Set Card Lists:Phantom Nightmare (OCG-JP)# ac4b5aba60da38a77ee80135f51889d2": {
+    "printouts": {
+     "Card number": [
+      "PHNI-JP007"
+     ],
+     "Rarity": [
+      {
+       "fulltext": "Rare",
+       "fullurl": "https://yugipedia.com/wiki/Rare",
+       "namespace": 0,
+       "exists": "1",
+       "displaytitle": ""
+      }
+     ],
+     "Set contains": [
+      {
+       "fulltext": "White Sardine",
+       "fullurl": "https://yugipedia.com/wiki/White_Sardine",
+       "namespace": 0,
+       "exists": "1",
+       "displaytitle": ""
+      }
+     ]
+    },
+    "fulltext": "Set Card Lists:Phantom Nightmare (OCG-JP)# ac4b5aba60da38a77ee80135f51889d2",
+    "fullurl": "https://yugipedia.com/wiki/Set_Card_Lists:Phantom_Nightmare_(OCG-JP)#_ac4b5aba60da38a77ee80135f51889d2",
+    "namespace": 3006,
+    "exists": "1",
+    "displaytitle": ""
+   },
+   "Set Card Lists:Phantom Nightmare (OCG-JP)# ac7f01734b3ac1b6a534f0492b52d9e1": {
+    "printouts": {
+     "Card number": [
+      "PHNI-JP058"
+     ],
+     "Rarity": [
+      {
+       "fulltext": "Common",
+       "fullurl": "https://yugipedia.com/wiki/Common",
+       "namespace": 0,
+       "exists": "1",
+       "displaytitle": ""
+      }
+     ],
+     "Set contains": [
+      {
+       "fulltext": "White Reincarnation",
+       "fullurl": "https://yugipedia.com/wiki/White_Reincarnation",
+       "namespace": 0,
+       "exists": "1",
+       "displaytitle": ""
+      }
+     ]
+    },
+    "fulltext": "Set Card Lists:Phantom Nightmare (OCG-JP)# ac7f01734b3ac1b6a534f0492b52d9e1",
+    "fullurl": "https://yugipedia.com/wiki/Set_Card_Lists:Phantom_Nightmare_(OCG-JP)#_ac7f01734b3ac1b6a534f0492b52d9e1",
+    "namespace": 3006,
+    "exists": "1",
+    "displaytitle": ""
+   },
+   "Set Card Lists:Phantom Nightmare (OCG-JP)# ad59a50cb7990a113f52f079f647c98b": {
+    "printouts": {
+     "Card number": [
+      "PHNI-JP002"
+     ],
+     "Rarity": [
+      {
+       "fulltext": "Common",
+       "fullurl": "https://yugipedia.com/wiki/Common",
+       "namespace": 0,
+       "exists": "1",
+       "displaytitle": ""
+      }
+     ],
+     "Set contains": [
+      {
+       "fulltext": "Geistgrinder Golem",
+       "fullurl": "https://yugipedia.com/wiki/Geistgrinder_Golem",
+       "namespace": 0,
+       "exists": "1",
+       "displaytitle": ""
+      }
+     ]
+    },
+    "fulltext": "Set Card Lists:Phantom Nightmare (OCG-JP)# ad59a50cb7990a113f52f079f647c98b",
+    "fullurl": "https://yugipedia.com/wiki/Set_Card_Lists:Phantom_Nightmare_(OCG-JP)#_ad59a50cb7990a113f52f079f647c98b",
+    "namespace": 3006,
+    "exists": "1",
+    "displaytitle": ""
+   },
+   "Set Card Lists:Phantom Nightmare (OCG-JP)# adc9eecba912e5d00f731238b1bfc7d1": {
+    "printouts": {
+     "Card number": [
+      "PHNI-JP009"
+     ],
+     "Rarity": [
+      {
+       "fulltext": "Common",
+       "fullurl": "https://yugipedia.com/wiki/Common",
+       "namespace": 0,
+       "exists": "1",
+       "displaytitle": ""
+      }
+     ],
+     "Set contains": [
+      {
+       "fulltext": "Goblin Biker Clatter Sploder",
+       "fullurl": "https://yugipedia.com/wiki/Goblin_Biker_Clatter_Sploder",
+       "namespace": 0,
+       "exists": "1",
+       "displaytitle": ""
+      }
+     ]
+    },
+    "fulltext": "Set Card Lists:Phantom Nightmare (OCG-JP)# adc9eecba912e5d00f731238b1bfc7d1",
+    "fullurl": "https://yugipedia.com/wiki/Set_Card_Lists:Phantom_Nightmare_(OCG-JP)#_adc9eecba912e5d00f731238b1bfc7d1",
+    "namespace": 3006,
+    "exists": "1",
+    "displaytitle": ""
+   },
+   "Set Card Lists:Phantom Nightmare (OCG-JP)# af1663efbb04ebdccd01ee1d7e144df4": {
+    "printouts": {
+     "Card number": [
+      "PHNI-JP018"
+     ],
+     "Rarity": [
+      {
+       "fulltext": "Super Rare",
+       "fullurl": "https://yugipedia.com/wiki/Super_Rare",
+       "namespace": 0,
+       "exists": "1",
+       "displaytitle": ""
+      },
+      {
+       "fulltext": "Secret Rare",
+       "fullurl": "https://yugipedia.com/wiki/Secret_Rare",
+       "namespace": 0,
+       "exists": "1",
+       "displaytitle": ""
+      },
+      {
+       "fulltext": "Quarter Century Secret Rare",
+       "fullurl": "https://yugipedia.com/wiki/Quarter_Century_Secret_Rare",
+       "namespace": 0,
+       "exists": "1",
+       "displaytitle": ""
+      }
+     ],
+     "Set contains": [
+      {
+       "fulltext": "Horus the Black Flame Deity",
+       "fullurl": "https://yugipedia.com/wiki/Horus_the_Black_Flame_Deity",
+       "namespace": 0,
+       "exists": "1",
+       "displaytitle": ""
+      }
+     ]
+    },
+    "fulltext": "Set Card Lists:Phantom Nightmare (OCG-JP)# af1663efbb04ebdccd01ee1d7e144df4",
+    "fullurl": "https://yugipedia.com/wiki/Set_Card_Lists:Phantom_Nightmare_(OCG-JP)#_af1663efbb04ebdccd01ee1d7e144df4",
+    "namespace": 3006,
+    "exists": "1",
+    "displaytitle": ""
+   },
+   "Set Card Lists:Phantom Nightmare (OCG-JP)# b53e8676274d097564d93136bca61d13": {
+    "printouts": {
+     "Card number": [
+      "PHNI-JP049"
+     ],
+     "Rarity": [
+      {
+       "fulltext": "Ultra Rare",
+       "fullurl": "https://yugipedia.com/wiki/Ultra_Rare",
+       "namespace": 0,
+       "exists": "1",
+       "displaytitle": ""
+      },
+      {
+       "fulltext": "Secret Rare",
+       "fullurl": "https://yugipedia.com/wiki/Secret_Rare",
+       "namespace": 0,
+       "exists": "1",
+       "displaytitle": ""
+      },
+      {
+       "fulltext": "Ultimate Rare",
+       "fullurl": "https://yugipedia.com/wiki/Ultimate_Rare",
+       "namespace": 0,
+       "exists": "1",
+       "displaytitle": ""
+      },
+      {
+       "fulltext": "Quarter Century Secret Rare",
+       "fullurl": "https://yugipedia.com/wiki/Quarter_Century_Secret_Rare",
+       "namespace": 0,
+       "exists": "1",
+       "displaytitle": ""
+      }
+     ],
+     "Set contains": [
+      {
+       "fulltext": "Majespecter Draco - Ryu",
+       "fullurl": "https://yugipedia.com/wiki/Majespecter_Draco_-_Ryu",
+       "namespace": 0,
+       "exists": "1",
+       "displaytitle": ""
+      }
+     ]
+    },
+    "fulltext": "Set Card Lists:Phantom Nightmare (OCG-JP)# b53e8676274d097564d93136bca61d13",
+    "fullurl": "https://yugipedia.com/wiki/Set_Card_Lists:Phantom_Nightmare_(OCG-JP)#_b53e8676274d097564d93136bca61d13",
+    "namespace": 3006,
+    "exists": "1",
+    "displaytitle": ""
+   },
+   "Set Card Lists:Phantom Nightmare (OCG-JP)# b59df56ad24dcefd4dc6afc7014f1c93": {
+    "printouts": {
+     "Card number": [
+      "PHNI-JP040"
+     ],
+     "Rarity": [
+      {
+       "fulltext": "Common",
+       "fullurl": "https://yugipedia.com/wiki/Common",
+       "namespace": 0,
+       "exists": "1",
+       "displaytitle": ""
+      }
+     ],
+     "Set contains": [
+      {
+       "fulltext": "Master of Ham",
+       "fullurl": "https://yugipedia.com/wiki/Master_of_Ham",
+       "namespace": 0,
+       "exists": "1",
+       "displaytitle": ""
+      }
+     ]
+    },
+    "fulltext": "Set Card Lists:Phantom Nightmare (OCG-JP)# b59df56ad24dcefd4dc6afc7014f1c93",
+    "fullurl": "https://yugipedia.com/wiki/Set_Card_Lists:Phantom_Nightmare_(OCG-JP)#_b59df56ad24dcefd4dc6afc7014f1c93",
+    "namespace": 3006,
+    "exists": "1",
+    "displaytitle": ""
+   },
+   "Set Card Lists:Phantom Nightmare (OCG-JP)# ba10b836a6dd033063b8e4335b43ac56": {
+    "printouts": {
+     "Card number": [
+      "PHNI-JP079"
+     ],
+     "Rarity": [
+      {
+       "fulltext": "Super Rare",
+       "fullurl": "https://yugipedia.com/wiki/Super_Rare",
+       "namespace": 0,
+       "exists": "1",
+       "displaytitle": ""
+      },
+      {
+       "fulltext": "Secret Rare",
+       "fullurl": "https://yugipedia.com/wiki/Secret_Rare",
+       "namespace": 0,
+       "exists": "1",
+       "displaytitle": ""
+      },
+      {
+       "fulltext": "Quarter Century Secret Rare",
+       "fullurl": "https://yugipedia.com/wiki/Quarter_Century_Secret_Rare",
+       "namespace": 0,
+       "exists": "1",
+       "displaytitle": ""
+      }
+     ],
+     "Set contains": [
+      {
+       "fulltext": "Terrors of the Afterroot",
+       "fullurl": "https://yugipedia.com/wiki/Terrors_of_the_Afterroot",
+       "namespace": 0,
+       "exists": "1",
+       "displaytitle": ""
+      }
+     ]
+    },
+    "fulltext": "Set Card Lists:Phantom Nightmare (OCG-JP)# ba10b836a6dd033063b8e4335b43ac56",
+    "fullurl": "https://yugipedia.com/wiki/Set_Card_Lists:Phantom_Nightmare_(OCG-JP)#_ba10b836a6dd033063b8e4335b43ac56",
+    "namespace": 3006,
+    "exists": "1",
+    "displaytitle": ""
+   },
+   "Set Card Lists:Phantom Nightmare (OCG-JP)# bc03acb0e806c003ba4dff7273817c80": {
+    "printouts": {
+     "Card number": [
+      "PHNI-JP001"
+     ],
+     "Rarity": [
+      {
+       "fulltext": "Super Rare",
+       "fullurl": "https://yugipedia.com/wiki/Super_Rare",
+       "namespace": 0,
+       "exists": "1",
+       "displaytitle": ""
+      },
+      {
+       "fulltext": "Secret Rare",
+       "fullurl": "https://yugipedia.com/wiki/Secret_Rare",
+       "namespace": 0,
+       "exists": "1",
+       "displaytitle": ""
+      },
+      {
+       "fulltext": "Quarter Century Secret Rare",
+       "fullurl": "https://yugipedia.com/wiki/Quarter_Century_Secret_Rare",
+       "namespace": 0,
+       "exists": "1",
+       "displaytitle": ""
+      }
+     ],
+     "Set contains": [
+      {
+       "fulltext": "Spirit of Yubel",
+       "fullurl": "https://yugipedia.com/wiki/Spirit_of_Yubel",
+       "namespace": 0,
+       "exists": "1",
+       "displaytitle": ""
+      }
+     ]
+    },
+    "fulltext": "Set Card Lists:Phantom Nightmare (OCG-JP)# bc03acb0e806c003ba4dff7273817c80",
+    "fullurl": "https://yugipedia.com/wiki/Set_Card_Lists:Phantom_Nightmare_(OCG-JP)#_bc03acb0e806c003ba4dff7273817c80",
+    "namespace": 3006,
+    "exists": "1",
+    "displaytitle": ""
+   },
+   "Set Card Lists:Phantom Nightmare (OCG-JP)# bfc6bfcdcd66b896e4ffadd41702ac75": {
+    "printouts": {
+     "Card number": [
+      "PHNI-JP026"
+     ],
+     "Rarity": [
+      {
+       "fulltext": "Common",
+       "fullurl": "https://yugipedia.com/wiki/Common",
+       "namespace": 0,
+       "exists": "1",
+       "displaytitle": ""
+      }
+     ],
+     "Set contains": [
+      {
+       "fulltext": "Time Reloader",
+       "fullurl": "https://yugipedia.com/wiki/Time_Reloader",
+       "namespace": 0,
+       "exists": "1",
+       "displaytitle": ""
+      }
+     ]
+    },
+    "fulltext": "Set Card Lists:Phantom Nightmare (OCG-JP)# bfc6bfcdcd66b896e4ffadd41702ac75",
+    "fullurl": "https://yugipedia.com/wiki/Set_Card_Lists:Phantom_Nightmare_(OCG-JP)#_bfc6bfcdcd66b896e4ffadd41702ac75",
+    "namespace": 3006,
+    "exists": "1",
+    "displaytitle": ""
+   },
+   "Set Card Lists:Phantom Nightmare (OCG-JP)# c757448c8336d34a302fcd0292195ad7": {
+    "printouts": {
+     "Card number": [
+      "PHNI-JP036"
+     ],
+     "Rarity": [
+      {
+       "fulltext": "Normal Rare",
+       "fullurl": "https://yugipedia.com/wiki/Normal_Rare",
+       "namespace": 0,
+       "exists": "1",
+       "displaytitle": ""
+      }
+     ],
+     "Set contains": [
+      {
+       "fulltext": "Royal Rhino with Deceitful Dice",
+       "fullurl": "https://yugipedia.com/wiki/Royal_Rhino_with_Deceitful_Dice",
+       "namespace": 0,
+       "exists": "1",
+       "displaytitle": ""
+      }
+     ]
+    },
+    "fulltext": "Set Card Lists:Phantom Nightmare (OCG-JP)# c757448c8336d34a302fcd0292195ad7",
+    "fullurl": "https://yugipedia.com/wiki/Set_Card_Lists:Phantom_Nightmare_(OCG-JP)#_c757448c8336d34a302fcd0292195ad7",
+    "namespace": 3006,
+    "exists": "1",
+    "displaytitle": ""
+   },
+   "Set Card Lists:Phantom Nightmare (OCG-JP)# c8315da24e3c278fb86e13c2e84a1911": {
+    "printouts": {
+     "Card number": [
+      "PHNI-JP069"
+     ],
+     "Rarity": [
+      {
+       "fulltext": "Common",
+       "fullurl": "https://yugipedia.com/wiki/Common",
+       "namespace": 0,
+       "exists": "1",
+       "displaytitle": ""
+      }
+     ],
+     "Set contains": [
+      {
+       "fulltext": "Majespecter Wind",
+       "fullurl": "https://yugipedia.com/wiki/Majespecter_Wind",
+       "namespace": 0,
+       "exists": "1",
+       "displaytitle": ""
+      }
+     ]
+    },
+    "fulltext": "Set Card Lists:Phantom Nightmare (OCG-JP)# c8315da24e3c278fb86e13c2e84a1911",
+    "fullurl": "https://yugipedia.com/wiki/Set_Card_Lists:Phantom_Nightmare_(OCG-JP)#_c8315da24e3c278fb86e13c2e84a1911",
+    "namespace": 3006,
+    "exists": "1",
+    "displaytitle": ""
+   },
+   "Set Card Lists:Phantom Nightmare (OCG-JP)# c9672527e40b4bca9f24f05d3aa79498": {
+    "printouts": {
+     "Card number": [
+      "PHNI-JP071"
+     ],
+     "Rarity": [
+      {
+       "fulltext": "Common",
+       "fullurl": "https://yugipedia.com/wiki/Common",
+       "namespace": 0,
+       "exists": "1",
+       "displaytitle": ""
+      }
+     ],
+     "Set contains": [
+      {
+       "fulltext": "Materialization",
+       "fullurl": "https://yugipedia.com/wiki/Materialization",
+       "namespace": 0,
+       "exists": "1",
+       "displaytitle": ""
+      }
+     ]
+    },
+    "fulltext": "Set Card Lists:Phantom Nightmare (OCG-JP)# c9672527e40b4bca9f24f05d3aa79498",
+    "fullurl": "https://yugipedia.com/wiki/Set_Card_Lists:Phantom_Nightmare_(OCG-JP)#_c9672527e40b4bca9f24f05d3aa79498",
+    "namespace": 3006,
+    "exists": "1",
+    "displaytitle": ""
+   },
+   "Set Card Lists:Phantom Nightmare (OCG-JP)# ce401aa9a7729e6579df974d2673ffc8": {
+    "printouts": {
+     "Card number": [
+      "PHNI-JP076"
+     ],
+     "Rarity": [
+      {
+       "fulltext": "Common",
+       "fullurl": "https://yugipedia.com/wiki/Common",
+       "namespace": 0,
+       "exists": "1",
+       "displaytitle": ""
+      }
+     ],
+     "Set contains": [
+      {
+       "fulltext": "Radiance of the Voiceless Voice",
+       "fullurl": "https://yugipedia.com/wiki/Radiance_of_the_Voiceless_Voice",
+       "namespace": 0,
+       "exists": "1",
+       "displaytitle": ""
+      }
+     ]
+    },
+    "fulltext": "Set Card Lists:Phantom Nightmare (OCG-JP)# ce401aa9a7729e6579df974d2673ffc8",
+    "fullurl": "https://yugipedia.com/wiki/Set_Card_Lists:Phantom_Nightmare_(OCG-JP)#_ce401aa9a7729e6579df974d2673ffc8",
+    "namespace": 3006,
+    "exists": "1",
+    "displaytitle": ""
+   },
+   "Set Card Lists:Phantom Nightmare (OCG-JP)# d04ab29ab50de6c683a4c80c6ac17a3b": {
+    "printouts": {
+     "Card number": [
+      "PHNI-JP044"
+     ],
+     "Rarity": [
+      {
+       "fulltext": "Common",
+       "fullurl": "https://yugipedia.com/wiki/Common",
+       "namespace": 0,
+       "exists": "1",
+       "displaytitle": ""
+      }
+     ],
+     "Set contains": [
+      {
+       "fulltext": "Fish Lamp",
+       "fullurl": "https://yugipedia.com/wiki/Fish_Lamp",
+       "namespace": 0,
+       "exists": "1",
+       "displaytitle": ""
+      }
+     ]
+    },
+    "fulltext": "Set Card Lists:Phantom Nightmare (OCG-JP)# d04ab29ab50de6c683a4c80c6ac17a3b",
+    "fullurl": "https://yugipedia.com/wiki/Set_Card_Lists:Phantom_Nightmare_(OCG-JP)#_d04ab29ab50de6c683a4c80c6ac17a3b",
+    "namespace": 3006,
+    "exists": "1",
+    "displaytitle": ""
+   },
+   "Set Card Lists:Phantom Nightmare (OCG-JP)# d0d08cd955d652867498eb4156fd7c9e": {
+    "printouts": {
+     "Card number": [
+      "PHNI-JP046"
+     ],
+     "Rarity": [
+      {
+       "fulltext": "Super Rare",
+       "fullurl": "https://yugipedia.com/wiki/Super_Rare",
+       "namespace": 0,
+       "exists": "1",
+       "displaytitle": ""
+      },
+      {
+       "fulltext": "Secret Rare",
+       "fullurl": "https://yugipedia.com/wiki/Secret_Rare",
+       "namespace": 0,
+       "exists": "1",
+       "displaytitle": ""
+      },
+      {
+       "fulltext": "Quarter Century Secret Rare",
+       "fullurl": "https://yugipedia.com/wiki/Quarter_Century_Secret_Rare",
+       "namespace": 0,
+       "exists": "1",
+       "displaytitle": ""
+      }
+     ],
+     "Set contains": [
+      {
+       "fulltext": "Raidraptor - Brave Strix",
+       "fullurl": "https://yugipedia.com/wiki/Raidraptor_-_Brave_Strix",
+       "namespace": 0,
+       "exists": "1",
+       "displaytitle": ""
+      }
+     ]
+    },
+    "fulltext": "Set Card Lists:Phantom Nightmare (OCG-JP)# d0d08cd955d652867498eb4156fd7c9e",
+    "fullurl": "https://yugipedia.com/wiki/Set_Card_Lists:Phantom_Nightmare_(OCG-JP)#_d0d08cd955d652867498eb4156fd7c9e",
+    "namespace": 3006,
+    "exists": "1",
+    "displaytitle": ""
+   },
+   "Set Card Lists:Phantom Nightmare (OCG-JP)# d210accf16302d03b833da7bb637902e": {
+    "printouts": {
+     "Card number": [
+      "PHNI-JP011"
+     ],
+     "Rarity": [
+      {
+       "fulltext": "Rare",
+       "fullurl": "https://yugipedia.com/wiki/Rare",
+       "namespace": 0,
+       "exists": "1",
+       "displaytitle": ""
+      }
+     ],
+     "Set contains": [
+      {
+       "fulltext": "Goblin Biker Mean Merciless",
+       "fullurl": "https://yugipedia.com/wiki/Goblin_Biker_Mean_Merciless",
+       "namespace": 0,
+       "exists": "1",
+       "displaytitle": ""
+      }
+     ]
+    },
+    "fulltext": "Set Card Lists:Phantom Nightmare (OCG-JP)# d210accf16302d03b833da7bb637902e",
+    "fullurl": "https://yugipedia.com/wiki/Set_Card_Lists:Phantom_Nightmare_(OCG-JP)#_d210accf16302d03b833da7bb637902e",
+    "namespace": 3006,
+    "exists": "1",
+    "displaytitle": ""
+   },
+   "Set Card Lists:Phantom Nightmare (OCG-JP)# d3000f89bd17486c5f8e666621bb2b3c": {
+    "printouts": {
+     "Card number": [
+      "PHNI-JP006"
+     ],
+     "Rarity": [
+      {
+       "fulltext": "Common",
+       "fullurl": "https://yugipedia.com/wiki/Common",
+       "namespace": 0,
+       "exists": "1",
+       "displaytitle": ""
+      }
+     ],
+     "Set contains": [
+      {
+       "fulltext": "White Sunfish",
+       "fullurl": "https://yugipedia.com/wiki/White_Sunfish",
+       "namespace": 0,
+       "exists": "1",
+       "displaytitle": ""
+      }
+     ]
+    },
+    "fulltext": "Set Card Lists:Phantom Nightmare (OCG-JP)# d3000f89bd17486c5f8e666621bb2b3c",
+    "fullurl": "https://yugipedia.com/wiki/Set_Card_Lists:Phantom_Nightmare_(OCG-JP)#_d3000f89bd17486c5f8e666621bb2b3c",
+    "namespace": 3006,
+    "exists": "1",
+    "displaytitle": ""
+   },
+   "Set Card Lists:Phantom Nightmare (OCG-JP)# dc1d848fa461e718eb06ec690820126e": {
+    "printouts": {
+     "Card number": [
+      "PHNI-JP029"
+     ],
+     "Rarity": [
+      {
+       "fulltext": "Common",
+       "fullurl": "https://yugipedia.com/wiki/Common",
+       "namespace": 0,
+       "exists": "1",
+       "displaytitle": ""
+      }
+     ],
+     "Set contains": [
+      {
+       "fulltext": "Goblin Freefall Squad",
+       "fullurl": "https://yugipedia.com/wiki/Goblin_Freefall_Squad",
+       "namespace": 0,
+       "exists": "1",
+       "displaytitle": ""
+      }
+     ]
+    },
+    "fulltext": "Set Card Lists:Phantom Nightmare (OCG-JP)# dc1d848fa461e718eb06ec690820126e",
+    "fullurl": "https://yugipedia.com/wiki/Set_Card_Lists:Phantom_Nightmare_(OCG-JP)#_dc1d848fa461e718eb06ec690820126e",
+    "namespace": 3006,
+    "exists": "1",
+    "displaytitle": ""
+   },
+   "Set Card Lists:Phantom Nightmare (OCG-JP)# de15fb446e69a00f21a5c9f0e46ef9f6": {
+    "printouts": {
+     "Card number": [
+      "PHNI-JP080"
+     ],
+     "Rarity": [
+      {
+       "fulltext": "Super Rare",
+       "fullurl": "https://yugipedia.com/wiki/Super_Rare",
+       "namespace": 0,
+       "exists": "1",
+       "displaytitle": ""
+      },
+      {
+       "fulltext": "Secret Rare",
+       "fullurl": "https://yugipedia.com/wiki/Secret_Rare",
+       "namespace": 0,
+       "exists": "1",
+       "displaytitle": ""
+      },
+      {
+       "fulltext": "Quarter Century Secret Rare",
+       "fullurl": "https://yugipedia.com/wiki/Quarter_Century_Secret_Rare",
+       "namespace": 0,
+       "exists": "1",
+       "displaytitle": ""
+      }
+     ],
+     "Set contains": [
+      {
+       "fulltext": "Iron Thunder",
+       "fullurl": "https://yugipedia.com/wiki/Iron_Thunder",
+       "namespace": 0,
+       "exists": "1",
+       "displaytitle": ""
+      }
+     ]
+    },
+    "fulltext": "Set Card Lists:Phantom Nightmare (OCG-JP)# de15fb446e69a00f21a5c9f0e46ef9f6",
+    "fullurl": "https://yugipedia.com/wiki/Set_Card_Lists:Phantom_Nightmare_(OCG-JP)#_de15fb446e69a00f21a5c9f0e46ef9f6",
+    "namespace": 3006,
+    "exists": "1",
+    "displaytitle": ""
+   },
+   "Set Card Lists:Phantom Nightmare (OCG-JP)# e207afd23c89df40759be76f591252c0": {
+    "printouts": {
+     "Card number": [
+      "PHNI-JP015"
+     ],
+     "Rarity": [
+      {
+       "fulltext": "Common",
+       "fullurl": "https://yugipedia.com/wiki/Common",
+       "namespace": 0,
+       "exists": "1",
+       "displaytitle": ""
+      }
+     ],
+     "Set contains": [
+      {
+       "fulltext": "Keaf, Murk of the Ghoti",
+       "fullurl": "https://yugipedia.com/wiki/Keaf,_Murk_of_the_Ghoti",
+       "namespace": 0,
+       "exists": "1",
+       "displaytitle": ""
+      }
+     ]
+    },
+    "fulltext": "Set Card Lists:Phantom Nightmare (OCG-JP)# e207afd23c89df40759be76f591252c0",
+    "fullurl": "https://yugipedia.com/wiki/Set_Card_Lists:Phantom_Nightmare_(OCG-JP)#_e207afd23c89df40759be76f591252c0",
+    "namespace": 3006,
+    "exists": "1",
+    "displaytitle": ""
+   },
+   "Set Card Lists:Phantom Nightmare (OCG-JP)# e3f220795dc8235fc644acff00b29e2c": {
+    "printouts": {
+     "Card number": [
+      "PHNI-JP042"
+     ],
+     "Rarity": [
+      {
+       "fulltext": "Ultra Rare",
+       "fullurl": "https://yugipedia.com/wiki/Ultra_Rare",
+       "namespace": 0,
+       "exists": "1",
+       "displaytitle": ""
+      },
+      {
+       "fulltext": "Secret Rare",
+       "fullurl": "https://yugipedia.com/wiki/Secret_Rare",
+       "namespace": 0,
+       "exists": "1",
+       "displaytitle": ""
+      },
+      {
+       "fulltext": "Ultimate Rare",
+       "fullurl": "https://yugipedia.com/wiki/Ultimate_Rare",
+       "namespace": 0,
+       "exists": "1",
+       "displaytitle": ""
+      },
+      {
+       "fulltext": "Quarter Century Secret Rare",
+       "fullurl": "https://yugipedia.com/wiki/Quarter_Century_Secret_Rare",
+       "namespace": 0,
+       "exists": "1",
+       "displaytitle": ""
+      }
+     ],
+     "Set contains": [
+      {
+       "fulltext": "Enigmaster Packbit",
+       "fullurl": "https://yugipedia.com/wiki/Enigmaster_Packbit",
+       "namespace": 0,
+       "exists": "1",
+       "displaytitle": ""
+      }
+     ]
+    },
+    "fulltext": "Set Card Lists:Phantom Nightmare (OCG-JP)# e3f220795dc8235fc644acff00b29e2c",
+    "fullurl": "https://yugipedia.com/wiki/Set_Card_Lists:Phantom_Nightmare_(OCG-JP)#_e3f220795dc8235fc644acff00b29e2c",
+    "namespace": 3006,
+    "exists": "1",
+    "displaytitle": ""
+   },
+   "Set Card Lists:Phantom Nightmare (OCG-JP)# ec0506332622546bf10e5f53cc352348": {
+    "printouts": {
+     "Card number": [
+      "PHNI-JP067"
+     ],
+     "Rarity": [
+      {
+       "fulltext": "Rare",
+       "fullurl": "https://yugipedia.com/wiki/Rare",
+       "namespace": 0,
+       "exists": "1",
+       "displaytitle": ""
+      }
+     ],
+     "Set contains": [
+      {
+       "fulltext": "Barrier of the Voiceless Voice",
+       "fullurl": "https://yugipedia.com/wiki/Barrier_of_the_Voiceless_Voice",
+       "namespace": 0,
+       "exists": "1",
+       "displaytitle": ""
+      }
+     ]
+    },
+    "fulltext": "Set Card Lists:Phantom Nightmare (OCG-JP)# ec0506332622546bf10e5f53cc352348",
+    "fullurl": "https://yugipedia.com/wiki/Set_Card_Lists:Phantom_Nightmare_(OCG-JP)#_ec0506332622546bf10e5f53cc352348",
+    "namespace": 3006,
+    "exists": "1",
+    "displaytitle": ""
+   },
+   "Set Card Lists:Phantom Nightmare (OCG-JP)# ecbf0cf4549ca86cc60c8358b70366f2": {
+    "printouts": {
+     "Card number": [
+      "PHNI-JP045"
+     ],
+     "Rarity": [
+      {
+       "fulltext": "Ultra Rare",
+       "fullurl": "https://yugipedia.com/wiki/Ultra_Rare",
+       "namespace": 0,
+       "exists": "1",
+       "displaytitle": ""
+      },
+      {
+       "fulltext": "Secret Rare",
+       "fullurl": "https://yugipedia.com/wiki/Secret_Rare",
+       "namespace": 0,
+       "exists": "1",
+       "displaytitle": ""
+      },
+      {
+       "fulltext": "Ultimate Rare",
+       "fullurl": "https://yugipedia.com/wiki/Ultimate_Rare",
+       "namespace": 0,
+       "exists": "1",
+       "displaytitle": ""
+      },
+      {
+       "fulltext": "Quarter Century Secret Rare",
+       "fullurl": "https://yugipedia.com/wiki/Quarter_Century_Secret_Rare",
+       "namespace": 0,
+       "exists": "1",
+       "displaytitle": ""
+      }
+     ],
+     "Set contains": [
+      {
+       "fulltext": "Raidraptor - Rising Rebellion Falcon",
+       "fullurl": "https://yugipedia.com/wiki/Raidraptor_-_Rising_Rebellion_Falcon",
+       "namespace": 0,
+       "exists": "1",
+       "displaytitle": ""
+      }
+     ]
+    },
+    "fulltext": "Set Card Lists:Phantom Nightmare (OCG-JP)# ecbf0cf4549ca86cc60c8358b70366f2",
+    "fullurl": "https://yugipedia.com/wiki/Set_Card_Lists:Phantom_Nightmare_(OCG-JP)#_ecbf0cf4549ca86cc60c8358b70366f2",
+    "namespace": 3006,
+    "exists": "1",
+    "displaytitle": ""
+   },
+   "Set Card Lists:Phantom Nightmare (OCG-JP)# ed1c2ac7b0831a29762fd84832d967e8": {
+    "printouts": {
+     "Card number": [
+      "PHNI-JP008"
+     ],
+     "Rarity": [
+      {
+       "fulltext": "Super Rare",
+       "fullurl": "https://yugipedia.com/wiki/Super_Rare",
+       "namespace": 0,
+       "exists": "1",
+       "displaytitle": ""
+      },
+      {
+       "fulltext": "Secret Rare",
+       "fullurl": "https://yugipedia.com/wiki/Secret_Rare",
+       "namespace": 0,
+       "exists": "1",
+       "displaytitle": ""
+      },
+      {
+       "fulltext": "Quarter Century Secret Rare",
+       "fullurl": "https://yugipedia.com/wiki/Quarter_Century_Secret_Rare",
+       "namespace": 0,
+       "exists": "1",
+       "displaytitle": ""
+      }
+     ],
+     "Set contains": [
+      {
+       "fulltext": "Goblin Biker Dugg Charger",
+       "fullurl": "https://yugipedia.com/wiki/Goblin_Biker_Dugg_Charger",
+       "namespace": 0,
+       "exists": "1",
+       "displaytitle": ""
+      }
+     ]
+    },
+    "fulltext": "Set Card Lists:Phantom Nightmare (OCG-JP)# ed1c2ac7b0831a29762fd84832d967e8",
+    "fullurl": "https://yugipedia.com/wiki/Set_Card_Lists:Phantom_Nightmare_(OCG-JP)#_ed1c2ac7b0831a29762fd84832d967e8",
+    "namespace": 3006,
+    "exists": "1",
+    "displaytitle": ""
+   },
+   "Set Card Lists:Phantom Nightmare (OCG-JP)# f10df37219ef0c513b2966b54af757c4": {
+    "printouts": {
+     "Card number": [
+      "PHNI-JP038"
+     ],
+     "Rarity": [
+      {
+       "fulltext": "Ultra Rare",
+       "fullurl": "https://yugipedia.com/wiki/Ultra_Rare",
+       "namespace": 0,
+       "exists": "1",
+       "displaytitle": ""
+      },
+      {
+       "fulltext": "Secret Rare",
+       "fullurl": "https://yugipedia.com/wiki/Secret_Rare",
+       "namespace": 0,
+       "exists": "1",
+       "displaytitle": ""
+      },
+      {
+       "fulltext": "Ultimate Rare",
+       "fullurl": "https://yugipedia.com/wiki/Ultimate_Rare",
+       "namespace": 0,
+       "exists": "1",
+       "displaytitle": ""
+      },
+      {
+       "fulltext": "Quarter Century Secret Rare",
+       "fullurl": "https://yugipedia.com/wiki/Quarter_Century_Secret_Rare",
+       "namespace": 0,
+       "exists": "1",
+       "displaytitle": ""
+      },
+      {
+       "fulltext": "Holographic Rare",
+       "fullurl": "https://yugipedia.com/wiki/Holographic_Rare",
+       "namespace": 0,
+       "exists": "1",
+       "displaytitle": ""
+      }
+     ],
+     "Set contains": [
+      {
+       "fulltext": "Yubel - The Loving Defender Forever",
+       "fullurl": "https://yugipedia.com/wiki/Yubel_-_The_Loving_Defender_Forever",
+       "namespace": 0,
+       "exists": "1",
+       "displaytitle": ""
+      }
+     ]
+    },
+    "fulltext": "Set Card Lists:Phantom Nightmare (OCG-JP)# f10df37219ef0c513b2966b54af757c4",
+    "fullurl": "https://yugipedia.com/wiki/Set_Card_Lists:Phantom_Nightmare_(OCG-JP)#_f10df37219ef0c513b2966b54af757c4",
+    "namespace": 3006,
+    "exists": "1",
+    "displaytitle": ""
+   },
+   "Set Card Lists:Phantom Nightmare (OCG-JP)# f42c0843203908e5fa53b1ffc3b6ab6f": {
+    "printouts": {
+     "Card number": [
+      "PHNI-JP061"
+     ],
+     "Rarity": [
+      {
+       "fulltext": "Rare",
+       "fullurl": "https://yugipedia.com/wiki/Rare",
+       "namespace": 0,
+       "exists": "1",
+       "displaytitle": ""
+      }
+     ],
+     "Set contains": [
+      {
+       "fulltext": "Goblin Biker Grand Entrance",
+       "fullurl": "https://yugipedia.com/wiki/Goblin_Biker_Grand_Entrance",
+       "namespace": 0,
+       "exists": "1",
+       "displaytitle": ""
+      }
+     ]
+    },
+    "fulltext": "Set Card Lists:Phantom Nightmare (OCG-JP)# f42c0843203908e5fa53b1ffc3b6ab6f",
+    "fullurl": "https://yugipedia.com/wiki/Set_Card_Lists:Phantom_Nightmare_(OCG-JP)#_f42c0843203908e5fa53b1ffc3b6ab6f",
+    "namespace": 3006,
+    "exists": "1",
+    "displaytitle": ""
+   },
+   "Set Card Lists:Phantom Nightmare (OCG-JP)# f71f30b976ea76a4c6d91e15ed915575": {
+    "printouts": {
+     "Card number": [
+      "PHNI-JP022"
+     ],
+     "Rarity": [
+      {
+       "fulltext": "Super Rare",
+       "fullurl": "https://yugipedia.com/wiki/Super_Rare",
+       "namespace": 0,
+       "exists": "1",
+       "displaytitle": ""
+      },
+      {
+       "fulltext": "Secret Rare",
+       "fullurl": "https://yugipedia.com/wiki/Secret_Rare",
+       "namespace": 0,
+       "exists": "1",
+       "displaytitle": ""
+      },
+      {
+       "fulltext": "Quarter Century Secret Rare",
+       "fullurl": "https://yugipedia.com/wiki/Quarter_Century_Secret_Rare",
+       "namespace": 0,
+       "exists": "1",
+       "displaytitle": ""
+      }
+     ],
+     "Set contains": [
+      {
+       "fulltext": "Aromalilith Rosalina",
+       "fullurl": "https://yugipedia.com/wiki/Aromalilith_Rosalina",
+       "namespace": 0,
+       "exists": "1",
+       "displaytitle": ""
+      }
+     ]
+    },
+    "fulltext": "Set Card Lists:Phantom Nightmare (OCG-JP)# f71f30b976ea76a4c6d91e15ed915575",
+    "fullurl": "https://yugipedia.com/wiki/Set_Card_Lists:Phantom_Nightmare_(OCG-JP)#_f71f30b976ea76a4c6d91e15ed915575",
+    "namespace": 3006,
+    "exists": "1",
+    "displaytitle": ""
+   },
+   "Set Card Lists:Phantom Nightmare (OCG-JP)# fb1f07a6ded2cb0aee70a669eeeba502": {
+    "printouts": {
+     "Card number": [
+      "PHNI-JP075"
+     ],
+     "Rarity": [
+      {
+       "fulltext": "Common",
+       "fullurl": "https://yugipedia.com/wiki/Common",
+       "namespace": 0,
+       "exists": "1",
+       "displaytitle": ""
+      }
+     ],
+     "Set contains": [
+      {
+       "fulltext": "Goblin Biker Grand Stampede",
+       "fullurl": "https://yugipedia.com/wiki/Goblin_Biker_Grand_Stampede",
+       "namespace": 0,
+       "exists": "1",
+       "displaytitle": ""
+      }
+     ]
+    },
+    "fulltext": "Set Card Lists:Phantom Nightmare (OCG-JP)# fb1f07a6ded2cb0aee70a669eeeba502",
+    "fullurl": "https://yugipedia.com/wiki/Set_Card_Lists:Phantom_Nightmare_(OCG-JP)#_fb1f07a6ded2cb0aee70a669eeeba502",
+    "namespace": 3006,
+    "exists": "1",
+    "displaytitle": ""
+   },
+   "Set Card Lists:Phantom Nightmare (OCG-JP)# ffb4520d09240d8cb0e8d4cbf3787590": {
+    "printouts": {
+     "Card number": [
+      "PHNI-JP043"
+     ],
+     "Rarity": [
+      {
+       "fulltext": "Common",
+       "fullurl": "https://yugipedia.com/wiki/Common",
+       "namespace": 0,
+       "exists": "1",
+       "displaytitle": ""
+      }
+     ],
+     "Set contains": [
+      {
+       "fulltext": "Vagnawa the Moon-Eating Dragon",
+       "fullurl": "https://yugipedia.com/wiki/Vagnawa_the_Moon-Eating_Dragon",
+       "namespace": 0,
+       "exists": "1",
+       "displaytitle": ""
+      }
+     ]
+    },
+    "fulltext": "Set Card Lists:Phantom Nightmare (OCG-JP)# ffb4520d09240d8cb0e8d4cbf3787590",
+    "fullurl": "https://yugipedia.com/wiki/Set_Card_Lists:Phantom_Nightmare_(OCG-JP)#_ffb4520d09240d8cb0e8d4cbf3787590",
+    "namespace": 3006,
+    "exists": "1",
+    "displaytitle": ""
+   },
+   "Set Card Lists:Phantom Nightmare +1 Bonus Pack (OCG-JP)# 032fef9cc600e07b377becd1f98c7ed5": {
+    "printouts": {
+     "Card number": [
+      "PHNI-JP042"
+     ],
+     "Rarity": [
+      {
+       "fulltext": "Ultra Rare",
+       "fullurl": "https://yugipedia.com/wiki/Ultra_Rare",
+       "namespace": 0,
+       "exists": "1",
+       "displaytitle": ""
+      },
+      {
+       "fulltext": "Quarter Century Secret Rare",
+       "fullurl": "https://yugipedia.com/wiki/Quarter_Century_Secret_Rare",
+       "namespace": 0,
+       "exists": "1",
+       "displaytitle": ""
+      }
+     ],
+     "Set contains": [
+      {
+       "fulltext": "Enigmaster Packbit",
+       "fullurl": "https://yugipedia.com/wiki/Enigmaster_Packbit",
+       "namespace": 0,
+       "exists": "1",
+       "displaytitle": ""
+      }
+     ]
+    },
+    "fulltext": "Set Card Lists:Phantom Nightmare +1 Bonus Pack (OCG-JP)# 032fef9cc600e07b377becd1f98c7ed5",
+    "fullurl": "https://yugipedia.com/wiki/Set_Card_Lists:Phantom_Nightmare_%2B1_Bonus_Pack_(OCG-JP)#_032fef9cc600e07b377becd1f98c7ed5",
+    "namespace": 3006,
+    "exists": "1",
+    "displaytitle": ""
+   },
+   "Set Card Lists:Phantom Nightmare +1 Bonus Pack (OCG-JP)# 0650701fd40e4fc83f6361ba09efe91e": {
+    "printouts": {
+     "Card number": [
+      "PHNI-JPS01"
+     ],
+     "Rarity": [
+      {
+       "fulltext": "Quarter Century Secret Rare",
+       "fullurl": "https://yugipedia.com/wiki/Quarter_Century_Secret_Rare",
+       "namespace": 0,
+       "exists": "1",
+       "displaytitle": ""
+      }
+     ],
+     "Set contains": [
+      {
+       "fulltext": "Yubel",
+       "fullurl": "https://yugipedia.com/wiki/Yubel",
+       "namespace": 0,
+       "exists": "1",
+       "displaytitle": ""
+      }
+     ]
+    },
+    "fulltext": "Set Card Lists:Phantom Nightmare +1 Bonus Pack (OCG-JP)# 0650701fd40e4fc83f6361ba09efe91e",
+    "fullurl": "https://yugipedia.com/wiki/Set_Card_Lists:Phantom_Nightmare_%2B1_Bonus_Pack_(OCG-JP)#_0650701fd40e4fc83f6361ba09efe91e",
+    "namespace": 3006,
+    "exists": "1",
+    "displaytitle": ""
+   },
+   "Set Card Lists:Phantom Nightmare +1 Bonus Pack (OCG-JP)# 1543dc0a0f4f1e936b89047ebe80f748": {
+    "printouts": {
+     "Card number": [
+      "PHNI-JP022"
+     ],
+     "Rarity": [
+      {
+       "fulltext": "Super Rare",
+       "fullurl": "https://yugipedia.com/wiki/Super_Rare",
+       "namespace": 0,
+       "exists": "1",
+       "displaytitle": ""
+      },
+      {
+       "fulltext": "Quarter Century Secret Rare",
+       "fullurl": "https://yugipedia.com/wiki/Quarter_Century_Secret_Rare",
+       "namespace": 0,
+       "exists": "1",
+       "displaytitle": ""
+      }
+     ],
+     "Set contains": [
+      {
+       "fulltext": "Aromalilith Rosalina",
+       "fullurl": "https://yugipedia.com/wiki/Aromalilith_Rosalina",
+       "namespace": 0,
+       "exists": "1",
+       "displaytitle": ""
+      }
+     ]
+    },
+    "fulltext": "Set Card Lists:Phantom Nightmare +1 Bonus Pack (OCG-JP)# 1543dc0a0f4f1e936b89047ebe80f748",
+    "fullurl": "https://yugipedia.com/wiki/Set_Card_Lists:Phantom_Nightmare_%2B1_Bonus_Pack_(OCG-JP)#_1543dc0a0f4f1e936b89047ebe80f748",
+    "namespace": 3006,
+    "exists": "1",
+    "displaytitle": ""
+   },
+   "Set Card Lists:Phantom Nightmare +1 Bonus Pack (OCG-JP)# 385bb168f0c9ec62bf146c244ff462ab": {
+    "printouts": {
+     "Card number": [
+      "PHNI-JP049"
+     ],
+     "Rarity": [
+      {
+       "fulltext": "Ultra Rare",
+       "fullurl": "https://yugipedia.com/wiki/Ultra_Rare",
+       "namespace": 0,
+       "exists": "1",
+       "displaytitle": ""
+      },
+      {
+       "fulltext": "Quarter Century Secret Rare",
+       "fullurl": "https://yugipedia.com/wiki/Quarter_Century_Secret_Rare",
+       "namespace": 0,
+       "exists": "1",
+       "displaytitle": ""
+      }
+     ],
+     "Set contains": [
+      {
+       "fulltext": "Majespecter Draco - Ryu",
+       "fullurl": "https://yugipedia.com/wiki/Majespecter_Draco_-_Ryu",
+       "namespace": 0,
+       "exists": "1",
+       "displaytitle": ""
+      }
+     ]
+    },
+    "fulltext": "Set Card Lists:Phantom Nightmare +1 Bonus Pack (OCG-JP)# 385bb168f0c9ec62bf146c244ff462ab",
+    "fullurl": "https://yugipedia.com/wiki/Set_Card_Lists:Phantom_Nightmare_%2B1_Bonus_Pack_(OCG-JP)#_385bb168f0c9ec62bf146c244ff462ab",
+    "namespace": 3006,
+    "exists": "1",
+    "displaytitle": ""
+   },
+   "Set Card Lists:Phantom Nightmare +1 Bonus Pack (OCG-JP)# 4495f192b7b5fbd85744bfadeb952f17": {
+    "printouts": {
+     "Card number": [
+      "PHNI-JP037"
+     ],
+     "Rarity": [
+      {
+       "fulltext": "Ultra Rare",
+       "fullurl": "https://yugipedia.com/wiki/Ultra_Rare",
+       "namespace": 0,
+       "exists": "1",
+       "displaytitle": ""
+      },
+      {
+       "fulltext": "Quarter Century Secret Rare",
+       "fullurl": "https://yugipedia.com/wiki/Quarter_Century_Secret_Rare",
+       "namespace": 0,
+       "exists": "1",
+       "displaytitle": ""
+      }
+     ],
+     "Set contains": [
+      {
+       "fulltext": "Skull Guardian, Protector of the Voiceless Voice",
+       "fullurl": "https://yugipedia.com/wiki/Skull_Guardian,_Protector_of_the_Voiceless_Voice",
+       "namespace": 0,
+       "exists": "1",
+       "displaytitle": ""
+      }
+     ]
+    },
+    "fulltext": "Set Card Lists:Phantom Nightmare +1 Bonus Pack (OCG-JP)# 4495f192b7b5fbd85744bfadeb952f17",
+    "fullurl": "https://yugipedia.com/wiki/Set_Card_Lists:Phantom_Nightmare_%2B1_Bonus_Pack_(OCG-JP)#_4495f192b7b5fbd85744bfadeb952f17",
+    "namespace": 3006,
+    "exists": "1",
+    "displaytitle": ""
+   },
+   "Set Card Lists:Phantom Nightmare +1 Bonus Pack (OCG-JP)# 6beac4e999123919ae8991f48c489ae1": {
+    "printouts": {
+     "Card number": [
+      "PHNI-JP019"
+     ],
+     "Rarity": [
+      {
+       "fulltext": "Super Rare",
+       "fullurl": "https://yugipedia.com/wiki/Super_Rare",
+       "namespace": 0,
+       "exists": "1",
+       "displaytitle": ""
+      },
+      {
+       "fulltext": "Quarter Century Secret Rare",
+       "fullurl": "https://yugipedia.com/wiki/Quarter_Century_Secret_Rare",
+       "namespace": 0,
+       "exists": "1",
+       "displaytitle": ""
+      }
+     ],
+     "Set contains": [
+      {
+       "fulltext": "Lo, the Prayers of the Voiceless Voice",
+       "fullurl": "https://yugipedia.com/wiki/Lo,_the_Prayers_of_the_Voiceless_Voice",
+       "namespace": 0,
+       "exists": "1",
+       "displaytitle": ""
+      }
+     ]
+    },
+    "fulltext": "Set Card Lists:Phantom Nightmare +1 Bonus Pack (OCG-JP)# 6beac4e999123919ae8991f48c489ae1",
+    "fullurl": "https://yugipedia.com/wiki/Set_Card_Lists:Phantom_Nightmare_%2B1_Bonus_Pack_(OCG-JP)#_6beac4e999123919ae8991f48c489ae1",
+    "namespace": 3006,
+    "exists": "1",
+    "displaytitle": ""
+   },
+   "Set Card Lists:Phantom Nightmare +1 Bonus Pack (OCG-JP)# 758b943d3700945ec09c2c2c2de24fa4": {
+    "printouts": {
+     "Card number": [
+      "PHNI-JP080"
+     ],
+     "Rarity": [
+      {
+       "fulltext": "Super Rare",
+       "fullurl": "https://yugipedia.com/wiki/Super_Rare",
+       "namespace": 0,
+       "exists": "1",
+       "displaytitle": ""
+      },
+      {
+       "fulltext": "Quarter Century Secret Rare",
+       "fullurl": "https://yugipedia.com/wiki/Quarter_Century_Secret_Rare",
+       "namespace": 0,
+       "exists": "1",
+       "displaytitle": ""
+      }
+     ],
+     "Set contains": [
+      {
+       "fulltext": "Iron Thunder",
+       "fullurl": "https://yugipedia.com/wiki/Iron_Thunder",
+       "namespace": 0,
+       "exists": "1",
+       "displaytitle": ""
+      }
+     ]
+    },
+    "fulltext": "Set Card Lists:Phantom Nightmare +1 Bonus Pack (OCG-JP)# 758b943d3700945ec09c2c2c2de24fa4",
+    "fullurl": "https://yugipedia.com/wiki/Set_Card_Lists:Phantom_Nightmare_%2B1_Bonus_Pack_(OCG-JP)#_758b943d3700945ec09c2c2c2de24fa4",
+    "namespace": 3006,
+    "exists": "1",
+    "displaytitle": ""
+   },
+   "Set Card Lists:Phantom Nightmare +1 Bonus Pack (OCG-JP)# b456058924d6bb7467ac7c76a1e5f260": {
+    "printouts": {
+     "Card number": [
+      "PHNI-JP024"
+     ],
+     "Rarity": [
+      {
+       "fulltext": "Ultra Rare",
+       "fullurl": "https://yugipedia.com/wiki/Ultra_Rare",
+       "namespace": 0,
+       "exists": "1",
+       "displaytitle": ""
+      },
+      {
+       "fulltext": "Quarter Century Secret Rare",
+       "fullurl": "https://yugipedia.com/wiki/Quarter_Century_Secret_Rare",
+       "namespace": 0,
+       "exists": "1",
+       "displaytitle": ""
+      }
+     ],
+     "Set contains": [
+      {
+       "fulltext": "Carnot the Eternal Machine",
+       "fullurl": "https://yugipedia.com/wiki/Carnot_the_Eternal_Machine",
+       "namespace": 0,
+       "exists": "1",
+       "displaytitle": ""
+      }
+     ]
+    },
+    "fulltext": "Set Card Lists:Phantom Nightmare +1 Bonus Pack (OCG-JP)# b456058924d6bb7467ac7c76a1e5f260",
+    "fullurl": "https://yugipedia.com/wiki/Set_Card_Lists:Phantom_Nightmare_%2B1_Bonus_Pack_(OCG-JP)#_b456058924d6bb7467ac7c76a1e5f260",
+    "namespace": 3006,
+    "exists": "1",
+    "displaytitle": ""
+   },
+   "Set Card Lists:Phantom Nightmare +1 Bonus Pack (OCG-JP)# b6743027ec864d529a067b399deaf4cf": {
+    "printouts": {
+     "Card number": [
+      "PHNI-JP018"
+     ],
+     "Rarity": [
+      {
+       "fulltext": "Super Rare",
+       "fullurl": "https://yugipedia.com/wiki/Super_Rare",
+       "namespace": 0,
+       "exists": "1",
+       "displaytitle": ""
+      },
+      {
+       "fulltext": "Quarter Century Secret Rare",
+       "fullurl": "https://yugipedia.com/wiki/Quarter_Century_Secret_Rare",
+       "namespace": 0,
+       "exists": "1",
+       "displaytitle": ""
+      }
+     ],
+     "Set contains": [
+      {
+       "fulltext": "Horus the Black Flame Deity",
+       "fullurl": "https://yugipedia.com/wiki/Horus_the_Black_Flame_Deity",
+       "namespace": 0,
+       "exists": "1",
+       "displaytitle": ""
+      }
+     ]
+    },
+    "fulltext": "Set Card Lists:Phantom Nightmare +1 Bonus Pack (OCG-JP)# b6743027ec864d529a067b399deaf4cf",
+    "fullurl": "https://yugipedia.com/wiki/Set_Card_Lists:Phantom_Nightmare_%2B1_Bonus_Pack_(OCG-JP)#_b6743027ec864d529a067b399deaf4cf",
+    "namespace": 3006,
+    "exists": "1",
+    "displaytitle": ""
+   },
+   "Set Card Lists:Phantom Nightmare +1 Bonus Pack (OCG-JP)# b701276231c3ecfe64021d78ead4fe7a": {
+    "printouts": {
+     "Card number": [
+      "PHNI-JP056"
+     ],
+     "Rarity": [
+      {
+       "fulltext": "Super Rare",
+       "fullurl": "https://yugipedia.com/wiki/Super_Rare",
+       "namespace": 0,
+       "exists": "1",
+       "displaytitle": ""
+      },
+      {
+       "fulltext": "Quarter Century Secret Rare",
+       "fullurl": "https://yugipedia.com/wiki/Quarter_Century_Secret_Rare",
+       "namespace": 0,
+       "exists": "1",
+       "displaytitle": ""
+      }
+     ],
+     "Set contains": [
+      {
+       "fulltext": "Rise Rank-Up-Magic Raidraptor's Force",
+       "fullurl": "https://yugipedia.com/wiki/Rise_Rank-Up-Magic_Raidraptor%27s_Force",
+       "namespace": 0,
+       "exists": "1",
+       "displaytitle": ""
+      }
+     ]
+    },
+    "fulltext": "Set Card Lists:Phantom Nightmare +1 Bonus Pack (OCG-JP)# b701276231c3ecfe64021d78ead4fe7a",
+    "fullurl": "https://yugipedia.com/wiki/Set_Card_Lists:Phantom_Nightmare_%2B1_Bonus_Pack_(OCG-JP)#_b701276231c3ecfe64021d78ead4fe7a",
+    "namespace": 3006,
+    "exists": "1",
+    "displaytitle": ""
+   },
+   "Set Card Lists:Phantom Nightmare +1 Bonus Pack (OCG-JP)# b86650c21634902f9a9498322d8b5e0c": {
+    "printouts": {
+     "Card number": [
+      "PHNI-JP070"
+     ],
+     "Rarity": [
+      {
+       "fulltext": "Super Rare",
+       "fullurl": "https://yugipedia.com/wiki/Super_Rare",
+       "namespace": 0,
+       "exists": "1",
+       "displaytitle": ""
+      },
+      {
+       "fulltext": "Quarter Century Secret Rare",
+       "fullurl": "https://yugipedia.com/wiki/Quarter_Century_Secret_Rare",
+       "namespace": 0,
+       "exists": "1",
+       "displaytitle": ""
+      }
+     ],
+     "Set contains": [
+      {
+       "fulltext": "Mutamorphosis",
+       "fullurl": "https://yugipedia.com/wiki/Mutamorphosis",
+       "namespace": 0,
+       "exists": "1",
+       "displaytitle": ""
+      }
+     ]
+    },
+    "fulltext": "Set Card Lists:Phantom Nightmare +1 Bonus Pack (OCG-JP)# b86650c21634902f9a9498322d8b5e0c",
+    "fullurl": "https://yugipedia.com/wiki/Set_Card_Lists:Phantom_Nightmare_%2B1_Bonus_Pack_(OCG-JP)#_b86650c21634902f9a9498322d8b5e0c",
+    "namespace": 3006,
+    "exists": "1",
+    "displaytitle": ""
+   },
+   "Set Card Lists:Phantom Nightmare +1 Bonus Pack (OCG-JP)# beef0be7fc667c45a67de9da9f54aff1": {
+    "printouts": {
+     "Card number": [
+      "PHNI-JP012"
+     ],
+     "Rarity": [
+      {
+       "fulltext": "Super Rare",
+       "fullurl": "https://yugipedia.com/wiki/Super_Rare",
+       "namespace": 0,
+       "exists": "1",
+       "displaytitle": ""
+      },
+      {
+       "fulltext": "Quarter Century Secret Rare",
+       "fullurl": "https://yugipedia.com/wiki/Quarter_Century_Secret_Rare",
+       "namespace": 0,
+       "exists": "1",
+       "displaytitle": ""
+      }
+     ],
+     "Set contains": [
+      {
+       "fulltext": "Snake-Eyes Poplar",
+       "fullurl": "https://yugipedia.com/wiki/Snake-Eyes_Poplar",
+       "namespace": 0,
+       "exists": "1",
+       "displaytitle": ""
+      }
+     ]
+    },
+    "fulltext": "Set Card Lists:Phantom Nightmare +1 Bonus Pack (OCG-JP)# beef0be7fc667c45a67de9da9f54aff1",
+    "fullurl": "https://yugipedia.com/wiki/Set_Card_Lists:Phantom_Nightmare_%2B1_Bonus_Pack_(OCG-JP)#_beef0be7fc667c45a67de9da9f54aff1",
+    "namespace": 3006,
+    "exists": "1",
+    "displaytitle": ""
+   },
+   "Set Card Lists:Phantom Nightmare +1 Bonus Pack (OCG-JP)# bfb7106974c59af8cd5101cfecdb38e9": {
+    "printouts": {
+     "Card number": [
+      "PHNI-JP008"
+     ],
+     "Rarity": [
+      {
+       "fulltext": "Super Rare",
+       "fullurl": "https://yugipedia.com/wiki/Super_Rare",
+       "namespace": 0,
+       "exists": "1",
+       "displaytitle": ""
+      },
+      {
+       "fulltext": "Quarter Century Secret Rare",
+       "fullurl": "https://yugipedia.com/wiki/Quarter_Century_Secret_Rare",
+       "namespace": 0,
+       "exists": "1",
+       "displaytitle": ""
+      }
+     ],
+     "Set contains": [
+      {
+       "fulltext": "Goblin Biker Dugg Charger",
+       "fullurl": "https://yugipedia.com/wiki/Goblin_Biker_Dugg_Charger",
+       "namespace": 0,
+       "exists": "1",
+       "displaytitle": ""
+      }
+     ]
+    },
+    "fulltext": "Set Card Lists:Phantom Nightmare +1 Bonus Pack (OCG-JP)# bfb7106974c59af8cd5101cfecdb38e9",
+    "fullurl": "https://yugipedia.com/wiki/Set_Card_Lists:Phantom_Nightmare_%2B1_Bonus_Pack_(OCG-JP)#_bfb7106974c59af8cd5101cfecdb38e9",
+    "namespace": 3006,
+    "exists": "1",
+    "displaytitle": ""
+   },
+   "Set Card Lists:Phantom Nightmare +1 Bonus Pack (OCG-JP)# c19dbdf187137ca006db5e3545311a65": {
+    "printouts": {
+     "Card number": [
+      "PHNI-JP047"
+     ],
+     "Rarity": [
+      {
+       "fulltext": "Ultra Rare",
+       "fullurl": "https://yugipedia.com/wiki/Ultra_Rare",
+       "namespace": 0,
+       "exists": "1",
+       "displaytitle": ""
+      },
+      {
+       "fulltext": "Quarter Century Secret Rare",
+       "fullurl": "https://yugipedia.com/wiki/Quarter_Century_Secret_Rare",
+       "namespace": 0,
+       "exists": "1",
+       "displaytitle": ""
+      }
+     ],
+     "Set contains": [
+      {
+       "fulltext": "Goblin Biker Big Gabonga",
+       "fullurl": "https://yugipedia.com/wiki/Goblin_Biker_Big_Gabonga",
+       "namespace": 0,
+       "exists": "1",
+       "displaytitle": ""
+      }
+     ]
+    },
+    "fulltext": "Set Card Lists:Phantom Nightmare +1 Bonus Pack (OCG-JP)# c19dbdf187137ca006db5e3545311a65",
+    "fullurl": "https://yugipedia.com/wiki/Set_Card_Lists:Phantom_Nightmare_%2B1_Bonus_Pack_(OCG-JP)#_c19dbdf187137ca006db5e3545311a65",
+    "namespace": 3006,
+    "exists": "1",
+    "displaytitle": ""
+   },
+   "Set Card Lists:Phantom Nightmare +1 Bonus Pack (OCG-JP)# cc7db964c3384f6965e036faf0d422a9": {
+    "printouts": {
+     "Card number": [
+      "PHNI-JP045"
+     ],
+     "Rarity": [
+      {
+       "fulltext": "Ultra Rare",
+       "fullurl": "https://yugipedia.com/wiki/Ultra_Rare",
+       "namespace": 0,
+       "exists": "1",
+       "displaytitle": ""
+      },
+      {
+       "fulltext": "Quarter Century Secret Rare",
+       "fullurl": "https://yugipedia.com/wiki/Quarter_Century_Secret_Rare",
+       "namespace": 0,
+       "exists": "1",
+       "displaytitle": ""
+      }
+     ],
+     "Set contains": [
+      {
+       "fulltext": "Raidraptor - Rising Rebellion Falcon",
+       "fullurl": "https://yugipedia.com/wiki/Raidraptor_-_Rising_Rebellion_Falcon",
+       "namespace": 0,
+       "exists": "1",
+       "displaytitle": ""
+      }
+     ]
+    },
+    "fulltext": "Set Card Lists:Phantom Nightmare +1 Bonus Pack (OCG-JP)# cc7db964c3384f6965e036faf0d422a9",
+    "fullurl": "https://yugipedia.com/wiki/Set_Card_Lists:Phantom_Nightmare_%2B1_Bonus_Pack_(OCG-JP)#_cc7db964c3384f6965e036faf0d422a9",
+    "namespace": 3006,
+    "exists": "1",
+    "displaytitle": ""
+   },
+   "Set Card Lists:Phantom Nightmare +1 Bonus Pack (OCG-JP)# ce080aa2f3fc20f8542495d00bcbb217": {
+    "printouts": {
+     "Card number": [
+      "PHNI-JP079"
+     ],
+     "Rarity": [
+      {
+       "fulltext": "Super Rare",
+       "fullurl": "https://yugipedia.com/wiki/Super_Rare",
+       "namespace": 0,
+       "exists": "1",
+       "displaytitle": ""
+      },
+      {
+       "fulltext": "Quarter Century Secret Rare",
+       "fullurl": "https://yugipedia.com/wiki/Quarter_Century_Secret_Rare",
+       "namespace": 0,
+       "exists": "1",
+       "displaytitle": ""
+      }
+     ],
+     "Set contains": [
+      {
+       "fulltext": "Terrors of the Afterroot",
+       "fullurl": "https://yugipedia.com/wiki/Terrors_of_the_Afterroot",
+       "namespace": 0,
+       "exists": "1",
+       "displaytitle": ""
+      }
+     ]
+    },
+    "fulltext": "Set Card Lists:Phantom Nightmare +1 Bonus Pack (OCG-JP)# ce080aa2f3fc20f8542495d00bcbb217",
+    "fullurl": "https://yugipedia.com/wiki/Set_Card_Lists:Phantom_Nightmare_%2B1_Bonus_Pack_(OCG-JP)#_ce080aa2f3fc20f8542495d00bcbb217",
+    "namespace": 3006,
+    "exists": "1",
+    "displaytitle": ""
+   },
+   "Set Card Lists:Phantom Nightmare +1 Bonus Pack (OCG-JP)# ce4cf97d06c1342cb9008f546bd0fc87": {
+    "printouts": {
+     "Card number": [
+      "PHNI-JP001"
+     ],
+     "Rarity": [
+      {
+       "fulltext": "Super Rare",
+       "fullurl": "https://yugipedia.com/wiki/Super_Rare",
+       "namespace": 0,
+       "exists": "1",
+       "displaytitle": ""
+      },
+      {
+       "fulltext": "Quarter Century Secret Rare",
+       "fullurl": "https://yugipedia.com/wiki/Quarter_Century_Secret_Rare",
+       "namespace": 0,
+       "exists": "1",
+       "displaytitle": ""
+      }
+     ],
+     "Set contains": [
+      {
+       "fulltext": "Spirit of Yubel",
+       "fullurl": "https://yugipedia.com/wiki/Spirit_of_Yubel",
+       "namespace": 0,
+       "exists": "1",
+       "displaytitle": ""
+      }
+     ]
+    },
+    "fulltext": "Set Card Lists:Phantom Nightmare +1 Bonus Pack (OCG-JP)# ce4cf97d06c1342cb9008f546bd0fc87",
+    "fullurl": "https://yugipedia.com/wiki/Set_Card_Lists:Phantom_Nightmare_%2B1_Bonus_Pack_(OCG-JP)#_ce4cf97d06c1342cb9008f546bd0fc87",
+    "namespace": 3006,
+    "exists": "1",
+    "displaytitle": ""
+   },
+   "Set Card Lists:Phantom Nightmare +1 Bonus Pack (OCG-JP)# d1bbbaa970a47ef6c82545bd2f710eb0": {
+    "printouts": {
+     "Card number": [
+      "PHNI-JP038"
+     ],
+     "Rarity": [
+      {
+       "fulltext": "Ultra Rare",
+       "fullurl": "https://yugipedia.com/wiki/Ultra_Rare",
+       "namespace": 0,
+       "exists": "1",
+       "displaytitle": ""
+      },
+      {
+       "fulltext": "Quarter Century Secret Rare",
+       "fullurl": "https://yugipedia.com/wiki/Quarter_Century_Secret_Rare",
+       "namespace": 0,
+       "exists": "1",
+       "displaytitle": ""
+      }
+     ],
+     "Set contains": [
+      {
+       "fulltext": "Yubel - The Loving Defender Forever",
+       "fullurl": "https://yugipedia.com/wiki/Yubel_-_The_Loving_Defender_Forever",
+       "namespace": 0,
+       "exists": "1",
+       "displaytitle": ""
+      }
+     ]
+    },
+    "fulltext": "Set Card Lists:Phantom Nightmare +1 Bonus Pack (OCG-JP)# d1bbbaa970a47ef6c82545bd2f710eb0",
+    "fullurl": "https://yugipedia.com/wiki/Set_Card_Lists:Phantom_Nightmare_%2B1_Bonus_Pack_(OCG-JP)#_d1bbbaa970a47ef6c82545bd2f710eb0",
+    "namespace": 3006,
+    "exists": "1",
+    "displaytitle": ""
+   },
+   "Set Card Lists:Phantom Nightmare +1 Bonus Pack (OCG-JP)# d3b88c6c0d3726bc60cbd37eb7effb1e": {
+    "printouts": {
+     "Card number": [
+      "PHNI-JP046"
+     ],
+     "Rarity": [
+      {
+       "fulltext": "Super Rare",
+       "fullurl": "https://yugipedia.com/wiki/Super_Rare",
+       "namespace": 0,
+       "exists": "1",
+       "displaytitle": ""
+      },
+      {
+       "fulltext": "Quarter Century Secret Rare",
+       "fullurl": "https://yugipedia.com/wiki/Quarter_Century_Secret_Rare",
+       "namespace": 0,
+       "exists": "1",
+       "displaytitle": ""
+      }
+     ],
+     "Set contains": [
+      {
+       "fulltext": "Raidraptor - Brave Strix",
+       "fullurl": "https://yugipedia.com/wiki/Raidraptor_-_Brave_Strix",
+       "namespace": 0,
+       "exists": "1",
+       "displaytitle": ""
+      }
+     ]
+    },
+    "fulltext": "Set Card Lists:Phantom Nightmare +1 Bonus Pack (OCG-JP)# d3b88c6c0d3726bc60cbd37eb7effb1e",
+    "fullurl": "https://yugipedia.com/wiki/Set_Card_Lists:Phantom_Nightmare_%2B1_Bonus_Pack_(OCG-JP)#_d3b88c6c0d3726bc60cbd37eb7effb1e",
+    "namespace": 3006,
+    "exists": "1",
+    "displaytitle": ""
+   },
+   "Set Card Lists:Phantom Nightmare +1 Bonus Pack (OCG-JP)# e0b5336f38f123b092b485f7de387e23": {
+    "printouts": {
+     "Card number": [
+      "PHNI-JP052"
+     ],
+     "Rarity": [
+      {
+       "fulltext": "Ultra Rare",
+       "fullurl": "https://yugipedia.com/wiki/Ultra_Rare",
+       "namespace": 0,
+       "exists": "1",
+       "displaytitle": ""
+      },
+      {
+       "fulltext": "Quarter Century Secret Rare",
+       "fullurl": "https://yugipedia.com/wiki/Quarter_Century_Secret_Rare",
+       "namespace": 0,
+       "exists": "1",
+       "displaytitle": ""
+      }
+     ],
+     "Set contains": [
+      {
+       "fulltext": "Promethean Princess, Bestower of Flames",
+       "fullurl": "https://yugipedia.com/wiki/Promethean_Princess,_Bestower_of_Flames",
+       "namespace": 0,
+       "exists": "1",
+       "displaytitle": ""
+      }
+     ]
+    },
+    "fulltext": "Set Card Lists:Phantom Nightmare +1 Bonus Pack (OCG-JP)# e0b5336f38f123b092b485f7de387e23",
+    "fullurl": "https://yugipedia.com/wiki/Set_Card_Lists:Phantom_Nightmare_%2B1_Bonus_Pack_(OCG-JP)#_e0b5336f38f123b092b485f7de387e23",
+    "namespace": 3006,
+    "exists": "1",
+    "displaytitle": ""
+   },
+   "Set Card Lists:Phantom Nightmare +1 Bonus Pack (OCG-JP)# fa93afbaecc57b16216a44a23de948fb": {
+    "printouts": {
+     "Card number": [
+      "PHNI-JP050"
+     ],
+     "Rarity": [
+      {
+       "fulltext": "Ultra Rare",
+       "fullurl": "https://yugipedia.com/wiki/Ultra_Rare",
+       "namespace": 0,
+       "exists": "1",
+       "displaytitle": ""
+      },
+      {
+       "fulltext": "Quarter Century Secret Rare",
+       "fullurl": "https://yugipedia.com/wiki/Quarter_Century_Secret_Rare",
+       "namespace": 0,
+       "exists": "1",
+       "displaytitle": ""
+      }
+     ],
+     "Set contains": [
+      {
+       "fulltext": "Aromalilith Rosemary",
+       "fullurl": "https://yugipedia.com/wiki/Aromalilith_Rosemary",
+       "namespace": 0,
+       "exists": "1",
+       "displaytitle": ""
+      }
+     ]
+    },
+    "fulltext": "Set Card Lists:Phantom Nightmare +1 Bonus Pack (OCG-JP)# fa93afbaecc57b16216a44a23de948fb",
+    "fullurl": "https://yugipedia.com/wiki/Set_Card_Lists:Phantom_Nightmare_%2B1_Bonus_Pack_(OCG-JP)#_fa93afbaecc57b16216a44a23de948fb",
+    "namespace": 3006,
+    "exists": "1",
+    "displaytitle": ""
+   }
+  },
+  "serializer": "SMW\\Serializers\\QueryResultSerializer",
+  "version": 2,
+  "meta": {
+   "hash": "7a433e5a376a99f9707ed3788fd46d31",
+   "count": 102,
+   "offset": 0,
+   "source": "",
+   "time": "0.191756"
+  }
+ }
+}
