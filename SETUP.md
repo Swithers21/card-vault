@@ -115,6 +115,20 @@ personal app: click **Continue**.
   Filter by set type (core sets, side sets, Deck Build Packs, Battles of Legend, all-foil sets, Speed Duel, OTS
   Tournament Packs…) and sort by biggest discount. Each product has one-tap searches at eBay, Amazon, Walmart and Target,
   sorted cheapest first.
+- **Japanese and Korean sets** (Market tab > **Japanese** or **Korean**): every OCG set with its most valuable cards, by
+  English name, rarity and price in US$ (with the yen or won price), and its sealed products. **Want** and **I have it**
+  work as for English cards. Where the numbers come from:
+  - Japanese cards: BIGWEB (a large card shop in Japan), the cheapest copy for play it has in stock.
+  - Japanese sealed products: Yugi-Market (based in Japan, ships worldwide), read by the website when you open the
+    Japanese market (twice a day at most), because that shop turns away GitHub's computers.
+  - Korean cards and unopened boxes: Bunjang asking prices (a Korean marketplace), the middle of the listings. Listings of
+    several copies, graded cards and wanted posts are left out; treat them as a rough guide.
+  - Korean sealed products at God of Cards: its prices can't be read from another website, so each Korean set has a
+    link to it.
+  - Sets and English card names: Yugipedia.
+
+  The daily workflow puts this together in a few minutes at most (`ocg_market.py`, kept between runs like the prices).
+  New sets are checked every day, older ones every week or two. The first few days fill it in, newest sets first.
 - **Deck check** can move the cards you own for a deck into a location named after it ("Deck: Blue-Eyes").
 - **Decks I can build** (in the Deck check tab): looks up every card you own on YGOPRODeck and shows the archetypes your
   collection is closest to: which of each archetype's key cards you have, your cards that support it, the key cards

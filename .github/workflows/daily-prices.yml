@@ -77,12 +77,40 @@ jobs:
           path: card-images
           key: card-images-${{ github.run_id }}
 
+      # Japanese and Korean sets for the Market tab: Yugipedia (sets and English card names), BIGWEB (Japanese prices)
+      # and Bunjang (Korean prices and boxes). A few minutes at most; what was looked up is kept between runs, so each
+      # set is looked up again only now and then (new sets daily).
+      - name: Bring back the Japanese and Korean set data kept so far
+        uses: actions/cache/restore@v4
+        with:
+          path: |
+            ocg-cache
+            ocg-market.js
+          key: ocg-${{ github.run_id }}
+          restore-keys: ocg-
+
+      - name: Japanese and Korean sets, chase cards and boxes
+        continue-on-error: true   # the Market tab then shows the last ones
+        timeout-minutes: 12
+        run: |
+          python ocg_market.py | tee ocg.log
+          echo "::notice title=Japanese and Korean sets::$(tail -n 1 ocg.log)"
+
+      - name: Keep the Japanese and Korean set data for tomorrow
+        uses: actions/cache/save@v4
+        with:
+          path: |
+            ocg-cache
+            ocg-market.js
+          key: ocg-${{ github.run_id }}
+
       - name: Put the website together
         run: |
           mkdir -p _site/icons _site/card-images
           cp index.html config.js manifest.webmanifest oauth.html share.html sw.js _site/
           cp icons/*.png _site/icons/
           if [ -f tcgplayer-data.js ]; then cp tcgplayer-data.js tcgplayer-data-version.js _site/; fi
+          if [ -f ocg-market.js ]; then cp ocg-market.js _site/; fi
           if ls card-images/*.jpg >/dev/null 2>&1; then cp card-images/*.jpg _site/card-images/; fi
           echo "$(ls _site/card-images | wc -l) card pictures"
           python card_history.py _site/history || echo "No price history files this time."

@@ -486,6 +486,12 @@
   .set-toggle[aria-expanded="true"] .caret{transform:rotate(225deg);margin-top:4px}
   .set-body{padding:4px 16px 16px;border-top:1px solid var(--line)}
   .mk-filters{display:flex;gap:10px;flex-wrap:wrap;align-items:center;margin:0 0 14px}
+  .mk-tools{justify-content:flex-end}
+  @media (max-width:640px){
+    .mk-tools{width:100%;justify-content:flex-start}
+    .mk-tools .seg{width:100%}
+    .mk-tools .seg button{flex:1 1 0;min-width:0}
+  }
   .mk-filters .search{flex:1 1 220px;max-width:360px}
   .mk-row .set-toggle{grid-template-columns:minmax(0,1.4fr) minmax(0,1.2fr) minmax(110px,auto) 16px}
   .mk-top{min-width:0;font-size:13px;color:var(--text-dim);line-height:1.35}
@@ -1185,7 +1191,7 @@
     condAdjust: true, condPct: Object.assign({}, DEFAULT_COND_PCT), histPeriod: "m7", chartTable: false,
     setsMode: "number", setsSort: "complete", lastBackupAt: null, lastChangeAt: null, backupSnoozeUntil: 0,
     backupRemindDays: 7, wantAlertSeen: "", alertsOn: false, alertMinDollar: 5, alertMinPct: 10, salesYear: "", deckId: null,
-    deckView: "check", mkView: "sets", mkLine: "", mkKind: "", mkSortSets: "newest", mkSortSealed: "deal",
+    deckView: "check", mkView: "sets", mkLine: "", mkKind: "", mkSortSets: "newest", mkSortSealed: "deal", mkRegion: "en", mkLineOcg: "", mkKindOcg: "",
     gradedView: false, psa10Mult: 4, psa10Floor: 25, gradePct: Object.assign({}, DEFAULT_GRADE_PCT), pcToken: "",
     insightView: "history", salesView: "trade", gradingCost: 30, gradingMin: 50, ntfyTopic: "", siteUrl: "", autoSignIn: true};
   const filters = {q: "", set: "", rarity: "", edition: "", language: "", location: "", show: ""};
@@ -2329,6 +2335,7 @@
     catalog = next;   // (lookups made from the old prices, like the sets list and the Market tab, are kept on it and go with it)
     setsCache = null;
     histFiles.clear();
+    ocgMk.data = null;   // (rebuilt the same evening: read again when next shown)
     $("updateBanner").hidden = true;
     $("updateBanner").innerHTML = "";
     const linked = autoLink();
@@ -3765,6 +3772,7 @@
     if (ocg.refreshing) return 0;
     const codes = new Map();
     for (const r of collection) if (isOcg(r)) { const g = ocgRegion(r.number); codes.set(g.code, {g, needsPhoto: (codes.get(g.code) || {}).needsPhoto || !safeImg(r.customImage)}); }
+    for (const w of wants) if (isOcg(w) && !codes.has(ocgRegion(w.number).code)) codes.set(ocgRegion(w.number).code, {g: ocgRegion(w.number), needsPhoto: false});
     if (!codes.size) return 0;
     ocg.refreshing = true;
     let fetched = 0;
@@ -4180,28 +4188,57 @@
   const mk = {q: "", open: new Set(), limit: 40};
   function renderMarket() {
     const panel = $("panel-market");
-    if (!catalog) { panel.innerHTML = emptyPanel("The market needs TCGplayer data", SITE ? "Reload the page (it needs an internet connection)." : "Double-click <b>Update TCGplayer Data</b> in the Card Vault folder, then press F5 here."); return; }
+    const region = MK_REGIONS.some(r => r[0] === settings.mkRegion) ? settings.mkRegion : "en";
+    const ocgView = region !== "en";
+    const regionSeg = '<div class="seg" role="group" aria-label="Which cards" id="mkRegion">' +
+      MK_REGIONS.map(([k, l]) => '<button type="button" data-mkregion="' + k + '" aria-pressed="' + (region === k) + '">' + l + "</button>").join("") + "</div>";
     const sealedView = settings.mkView === "sealed";
-    const sorts = sealedView ? [["deal", "Biggest discount first"], ["low", "Lowest price first"], ["high", "Highest price first"], ["newest", "Newest first"]]
+    const viewSeg = '<div class="seg" role="group" aria-label="Show" id="mkView"><button type="button" data-mkview="sets" aria-pressed="' + !sealedView + '">Sets and chase cards</button>' +
+      '<button type="button" data-mkview="sealed" aria-pressed="' + sealedView + '">Sealed products</button></div>';
+    if (!ocgView && !catalog) {
+      panel.innerHTML = '<div class="panel-head"><div><h2>Market</h2></div><div class="panel-tools">' + regionSeg + "</div></div>" +
+        emptyPanel("The market needs TCGplayer data", SITE ? "Reload the page (it needs an internet connection)." : "Double-click <b>Update TCGplayer Data</b> in the Card Vault folder, then press F5 here.");
+      return;
+    }
+    if (ocgView) { loadOcgMarket(); if (region === "jp") loadYugiMarket(); }
+    const sorts = sealedView ? (ocgView ? [["newest", "Newest first"], ["low", "Lowest price first"], ["high", "Highest price first"]]
+      : [["deal", "Biggest discount first"], ["low", "Lowest price first"], ["high", "Highest price first"], ["newest", "Newest first"]])
       : [["newest", "Newest first"], ["oldest", "Oldest first"], ["chase", "Most valuable top card"], ["name", "Set name"]];
     const sortVal = sealedView ? settings.mkSortSealed : settings.mkSortSets;
-    panel.innerHTML = '<div class="panel-head"><div><h2>Market</h2><p>' + (sealedView
-      ? "Sealed products from every set, with the cheapest listing on TCGplayer next to the market price."
-      : "Every Yu-Gi-Oh! set on TCGplayer, with its 25 most valuable cards and its sealed products.") + "</p></div>" +
-      '<div class="panel-tools"><div class="seg" role="group" aria-label="Show" id="mkView"><button type="button" data-mkview="sets" aria-pressed="' + !sealedView + '">Sets and chase cards</button>' +
-      '<button type="button" data-mkview="sealed" aria-pressed="' + sealedView + '">Sealed products</button></div></div></div>' +
+    const lines = ocgView ? OCG_LINES : MK_LINES, lineVal = ocgView ? settings.mkLineOcg : settings.mkLine;
+    const kinds = sealedView ? (ocgView ? (region === "jp" ? YM_KINDS : null) : MK_KINDS) : null, kindVal = ocgView ? settings.mkKindOcg : settings.mkKind;
+    const intro = {
+      en: sealedView ? "Sealed products from every set, with the cheapest listing on TCGplayer next to the market price."
+        : "Every Yu-Gi-Oh! set on TCGplayer, with its 25 most valuable cards and its sealed products.",
+      jp: sealedView ? "Japanese booster boxes, limited boxes, decks and packs at Yugi-Market (based in Japan, ships worldwide), in US$."
+        : "Japanese (OCG) sets with their most valuable cards at BIGWEB, and their sealed products at Yugi-Market.",
+      kr: sealedView ? "Korean booster boxes: unopened boxes on Bunjang, and God of Cards." : "Korean sets with their most valuable cards on Bunjang, and their sealed products."
+    }[region];
+    const gen = ocgMk.data && ocgMk.data.generated ? " (" + esc(fmtDate(ocgMk.data.generated)) + ")" : "";
+    const note = {
+      en: "Prices are TCGplayer's, from " + esc(fmtDate(catalog ? catalog.generated : null)) + '. "Lowest listing" is the cheapest seller on TCGplayer before shipping; check the listing\'s condition and shipping. ' +
+        "The other store links search for the product sorted cheapest first: Amazon, Walmart and Target don't share their prices with apps like this one, so compare there in a tap. " +
+        "Set types are worked out from set names, so a few may be in a neighboring group.",
+      jp: "Card prices are BIGWEB's (a large card shop in Japan): the cheapest copy for play it has in stock, in yen, shown in US$ at today's exchange rate. " +
+        "Sealed prices are Yugi-Market's, checked when you open this page (twice a day at most). Sets and English card names are from Yugipedia. " +
+        "The list is updated every day" + gen + ": new sets daily, older ones every week or two.",
+      kr: "Card prices are asking prices on Bunjang (a Korean marketplace): the middle of the listings for each card and rarity, in won, shown in US$ at today's exchange rate. " +
+        "Listings of several copies, graded cards and wanted posts are left out, so treat them as a rough guide. God of Cards (Germany) sells Korean sealed products: each set links to it. " +
+        "Sets and English card names are from Yugipedia. The list is updated every day" + gen + "."
+    }[region];
+    panel.innerHTML = '<div class="panel-head"><div><h2>Market</h2><p>' + intro + "</p></div>" +
+      '<div class="panel-tools mk-tools">' + regionSeg + viewSeg + "</div></div>" +
       '<div class="mk-filters"><input class="search" id="mkQ" type="search" placeholder="' + (sealedView ? "Product or set name" : "Set name or code") + '" aria-label="Search" value="' + esc(mk.q) + '">' +
-      '<select class="select" id="mkLine" aria-label="Set type"><option value="">All set types</option>' + MK_LINES.map(([k, l]) => '<option value="' + k + '"' + (settings.mkLine === k ? " selected" : "") + ">" + esc(l) + "</option>").join("") + "</select>" +
-      (sealedView ? '<select class="select" id="mkKind" aria-label="Product type"><option value="">All products</option>' + MK_KINDS.map(([k, l]) => '<option value="' + k + '"' + (settings.mkKind === k ? " selected" : "") + ">" + esc(l) + "</option>").join("") + "</select>" : "") +
+      '<select class="select" id="mkLine" aria-label="Set type"><option value="">All set types</option>' + lines.map(([k, l]) => '<option value="' + k + '"' + (lineVal === k ? " selected" : "") + ">" + esc(l) + "</option>").join("") + "</select>" +
+      (kinds ? '<select class="select" id="mkKind" aria-label="Product type"><option value="">All products</option>' + kinds.map(([k, l]) => '<option value="' + k + '"' + (kindVal === k ? " selected" : "") + ">" + esc(l) + "</option>").join("") + "</select>" : "") +
       '<select class="select" id="mkSort" aria-label="Sort">' + sorts.map(([k, l]) => '<option value="' + k + '"' + (sortVal === k ? " selected" : "") + ">" + esc(l) + "</option>").join("") + "</select></div>" +
       '<div id="mkList"></div>' +
-      '<p class="small">Prices are TCGplayer\'s, from ' + esc(fmtDate(catalog.generated)) + '. "Lowest listing" is the cheapest seller on TCGplayer before shipping; check the listing\'s condition and shipping. ' +
-      "The other store links search for the product sorted cheapest first: Amazon, Walmart and Target don't share their prices with apps like this one, so compare there in a tap. " +
-      "Set types are worked out from set names, so a few may be in a neighboring group.</p>";
+      '<p class="small">' + note + "</p>";
     renderMarketList();
   }
   function renderMarketList() {
     const box = $("mkList");
+    if (box && settings.mkRegion && settings.mkRegion !== "en") { renderOcgMarketList(box); return; }
     if (!box || !catalog) return;
     const data = marketData();
     const q = mk.q.trim().toLowerCase();
@@ -4273,10 +4310,341 @@
     return html;
   }
 
+  /* ======================= Market: Japanese and Korean sets ======================= */
+  // TCGplayer only lists English cards. The Japanese and Korean sets come from ocg-market.js, put together every day by
+  // the website's GitHub workflow (ocg_market.py): Yugipedia's sets and English card names, BIGWEB's Japanese prices, and
+  // Bunjang's Korean asking prices and boxes. Sealed products for Japanese sets are Yugi-Market's, read from here (that
+  // shop turns GitHub's computers away); Korean ones link to God of Cards, whose list can't be read from another site.
+  const OCG_LINES = [["core", "Core booster sets"], ["side", "Special and side packs"], ["dbp", "Deck Build Packs"], ["structure", "Structure and starter decks"],
+    ["boxed", "Box sets and collector's sets"], ["promo", "Tournament, event and token packs"], ["other", "Other sets"]];
+  const ocgLineName = k => (OCG_LINES.find(x => x[0] === k) || [k, ""])[1];
+  const MK_REGIONS = [["en", "English"], ["jp", "Japanese"], ["kr", "Korean"]];
+  const OCG_CUR = {jp: "JPY", kr: "KRW"};
+  const ocgMk = {data: null, loading: null, failed: 0, open: new Set()};
+  function readWindowJSON(text, name) {
+    const at = text.indexOf("window." + name);
+    if (at < 0) return null;
+    let body = text.slice(text.indexOf("=", at) + 1).trim();
+    if (body.endsWith(";")) body = body.slice(0, -1);
+    return JSON.parse(body);
+  }
+  // On the website, the file next to this page; Card Vault.html on a computer loads it from the website.
+  function ocgMarketURL() {
+    if (/^https?:$/.test(location.protocol)) return "ocg-market.js";
+    const site = String(settings.siteUrl || "");
+    return /^https:\/\/[^\s]+$/.test(site) ? site.replace(/\/?$/, "/") + "ocg-market.js" : "";
+  }
+  function buildOcgMarket(raw) {
+    if (!raw || !Array.isArray(raw.jp) || !Array.isArray(raw.kr)) throw new Error("not the Japanese and Korean set data");
+    const make = region => raw[region].filter(Array.isArray).map(r => {
+      const s = {region, id: region + ":" + r[0], prefix: String(r[0]), name: String(r[1] || r[0]), date: String(r[2] || ""), line: String(r[3] || "other"),
+        cards: +r[4] || 0, local: String(r[6] || ""), box: region === "kr" && Array.isArray(r[7]) && +r[7][0] > 0 ? {price: +r[7][0], n: +r[7][1] || 0} : null};
+      s.chase = (Array.isArray(r[5]) ? r[5] : []).filter(Array.isArray).map(c => ({number: normNumber(c[0]), name: String(c[1] || c[0]), rarity: String(c[2] || ""),
+        local: +c[3] || 0, stock: region === "jp" ? !!c[4] : null, n: region === "kr" ? +c[4] || 0 : null, img: safeImg(c[5]), set: s})).filter(c => c.local > 0);
+      s.top = s.chase[0] || null;
+      return s;
+    });
+    return {generated: parseDate(raw.generated), fx: raw.fx || null, jp: make("jp"), kr: make("kr")};
+  }
+  function loadOcgMarket() {
+    if (ocgMk.data || ocgMk.loading) return ocgMk.loading || Promise.resolve(ocgMk.data);
+    const url = ocgMarketURL();
+    if (!url) { ocgMk.failed = Date.now(); return Promise.resolve(null); }
+    const http = /^https?:$/.test(location.protocol);
+    // (remembered for Card Vault.html on your computer, which gets it through the backup file)
+    if (http && SITE && siteAddress() && settings.siteUrl !== siteAddress()) { settings.siteUrl = siteAddress(); save({quiet: true}); }
+    fxRates().catch(() => null);
+    ocgMk.loading = (http
+      ? fetch(url).then(res => { if (!res.ok) throw new Error("answered " + res.status); return res.text(); }).then(t => readWindowJSON(t, "OCG_MARKET"))
+      : new Promise((resolve, reject) => {
+        const s = document.createElement("script");
+        s.src = url + "?h=" + Math.floor(Date.now() / 3600000);
+        s.onload = () => { const raw = window.OCG_MARKET; window.OCG_MARKET = null; s.remove(); resolve(raw); };
+        s.onerror = () => { s.remove(); reject(new Error("didn't load")); };
+        document.head.appendChild(s);
+      }))
+      .then(raw => { ocgMk.data = buildOcgMarket(raw); ocgMk.failed = 0; })
+      .catch(() => { ocgMk.failed = Date.now(); })
+      .then(() => {
+        ocgMk.loading = null;
+        if (settings.tab === "market" && settings.mkRegion !== "en") renderMarket();
+        else if (settings.tab === "wants") renderPanel();
+        return ocgMk.data;
+      });
+    return ocgMk.loading;
+  }
+  function ocgUSD(amount, region) {
+    const cur = OCG_CUR[region];
+    const v = toUSD(amount, cur);
+    if (v != null) return v;
+    const rate = ocgMk.data && ocgMk.data.fx && ocgMk.data.fx[cur];
+    return amount != null && rate > 0 ? round2(amount / rate) : null;
+  }
+  // US$ first (what the rest of Card Vault uses), the yen or won price beside it
+  function ocgMoneyHTML(amount, region) {
+    const u = ocgUSD(amount, region), local = fmtLocal(amount, OCG_CUR[region]);
+    return u != null ? esc(usd(u)) + ' <span class="small">' + esc(local) + "</span>" : esc(local);
+  }
+
+  /* ----- Yugi-Market (Japan): sealed products for Japanese sets, in US$ ----- */
+  const YM_KEY = "cardvault.v2.yugimarket";
+  const YM_TTL = 12 * 3600000;
+  const YM_COLLECTIONS = [["yu-gi-oh-booster-box", "box"], ["yu-gi-oh-box", "boxset"], ["yu-gi-oh-deck", "structure"], ["yu-gi-oh-booster-pack", "pack"],
+    ["yu-gi-oh-booster-pack-retro", "pack"]];
+  const YM_KINDS = [["box", "Booster boxes"], ["boxset", "Limited and collector's boxes"], ["structure", "Decks"], ["pack", "Booster packs"]];
+  const ymKindName = k => (YM_KINDS.find(x => x[0] === k) || [k, ""])[1];
+  const ymk = {list: null, at: 0, loading: null, failed: 0, match: null};
+  function ymProduct(p, kind) {
+    const title = String((p && p.title) || "");
+    const tags = ((p && p.tags) || []).map(String);
+    if (!title || /rush duel/i.test(title) || tags.some(t => /rush duel/i.test(t))) return null;
+    const vars = (p.variants || []).map(v => ({title: String(v.title || ""), price: num(v.price), available: !!v.available})).filter(v => v.price > 0);
+    if (!vars.length) return null;   // (announced, no price yet)
+    const single = v => !/case|bundle|carton|\bx\s*\d|\d+\s*(boxes|packs)/i.test(v.title);
+    const pick = vars.find(v => v.available && single(v)) || vars.find(single) || vars[0];
+    const img = String(((p.images || [])[0] || {}).src || "");
+    return {id: p.id, title: title.replace(/^\s*\[pre-?order\]\s*/i, "").trim(), pre: /pre-?order/i.test(title), handle: String(p.handle || ""), kind,
+      price: pick.price, available: vars.some(v => v.available), variants: vars.length > 1 ? vars : [],
+      img: /^https:\/\/cdn\.shopify\.com\//.test(img) ? img + (img.includes("?") ? "&" : "?") + "width=400" : "", date: String(p.published_at || "").slice(0, 10),
+      codes: tags.map(t => (t.match(/^([A-Z0-9]{2,6})-JP$/i) || [])[1]).filter(Boolean).map(x => x.toUpperCase())};
+  }
+  // Read twice a day at most, a second apart: the shop's own lists of booster boxes, limited boxes, decks and packs.
+  function loadYugiMarket(force) {
+    if (!ymk.list) { const c = readJSON(YM_KEY, null); if (c && Array.isArray(c.list)) { ymk.list = c.list; ymk.at = c.t || 0; } }
+    if (ymk.loading) return ymk.loading;
+    if (!force && ymk.list && Date.now() - ymk.at < YM_TTL) return Promise.resolve(ymk.list);
+    if (!force && ymk.failed && Date.now() - ymk.failed < 10 * 60000) return Promise.resolve(ymk.list);
+    ymk.loading = (async () => {
+      const seen = new Set(), list = [], missed = new Set();
+      let failed = 0;
+      for (const [handle, kind] of YM_COLLECTIONS) {
+        try {
+          const j = await politeJSON("https://yugi-market.com/collections/" + handle + "/products.json?limit=250", 1200);
+          for (const p of (j && j.products) || []) {
+            if (!p || seen.has(p.id)) continue;
+            const x = ymProduct(p, kind);
+            if (x) { seen.add(p.id); list.push(x); }
+          }
+        } catch (e) { missed.add(kind); failed++; }
+      }
+      if (failed < YM_COLLECTIONS.length) {
+        // (a list that didn't load this time keeps what it had)
+        for (const x of ymk.list || []) if (missed.has(x.kind) && !seen.has(x.id)) { seen.add(x.id); list.push(x); }
+        ymk.list = list; ymk.at = Date.now(); ymk.failed = 0;
+        try { localStorage.setItem(YM_KEY, JSON.stringify({t: ymk.at, list})); } catch (e) { /* optional */ }
+      } else {
+        ymk.failed = Date.now();
+      }
+      ymk.loading = null;
+      if (settings.tab === "market" && settings.mkRegion === "jp") renderMarketList();
+      return ymk.list;
+    })();
+    return ymk.loading;
+  }
+  // Which set each product is: a set code in its tags, else the longest set name in its title.
+  const ymKey = s => " " + String(s || "").normalize("NFKC").toLowerCase().replace(/\[pre-?order\]/g, " ")
+    .replace(/yu-gi-oh!?|\bocg\b|\bbooster\b|\bbox(es)?\b|\bpacks?\b|\bset\b|\bdisplay\b|\bedition\b|\bthe\b/g, " ").replace(/[^a-z0-9]+/g, " ").trim() + " ";
+  function ymMatch() {
+    if (!ymk.list || !ocgMk.data) return new Map();
+    if (ymk.match && ymk.match.list === ymk.list && ymk.match.data === ocgMk.data) return ymk.match.map;
+    const sets = ocgMk.data.jp, byPrefix = new Map(sets.map(s => [s.prefix, s]));
+    const keyed = sets.map(s => ({s, k: ymKey(s.name)})).filter(x => x.k.trim().length >= 5);
+    const map = new Map();
+    for (const x of ymk.list) {
+      let hit = x.codes.map(c => byPrefix.get(c)).find(Boolean) || null;
+      if (!hit) {
+        const k = ymKey(x.title);
+        let best = null;
+        for (const c of keyed) if (k.includes(c.k) && (!best || c.k.length > best.k.length)) best = c;
+        hit = best ? best.s : null;
+      }
+      if (hit) map.set(x.id, hit);
+    }
+    ymk.match = {list: ymk.list, data: ocgMk.data, map};
+    return map;
+  }
+  function ymForSet(s) { const m = ymMatch(); return (ymk.list || []).filter(x => m.get(x.id) === s); }
+  function ymBox(s) {
+    const boxes = ymForSet(s).filter(x => x.kind === "box");
+    const pool = boxes.filter(x => x.available).length ? boxes.filter(x => x.available) : boxes;
+    return pool.length ? pool.reduce((a, b) => (b.price < a.price ? b : a)) : null;
+  }
+  function ymTileHTML(x, showSet) {
+    const set = showSet ? ymMatch().get(x.id) : null;
+    const q = encodeURIComponent("Yu-Gi-Oh OCG " + x.title + " Japanese");
+    return '<div class="result static"><span class="sleeve boxed">' + imgTag({list: [x.img].filter(Boolean)}, x.title) + "</span>" +
+      '<span class="result-name">' + esc(x.title) + "</span>" +
+      '<span class="result-meta">' + esc((set ? set.name + " · " : "") + ymKindName(x.kind)) + "</span>" +
+      '<dl class="mk-prices"><dt>Yugi-Market</dt><dd class="low">' + esc(usd(x.price)) + "</dd>" +
+      x.variants.filter(v => v.price !== x.price).map(v => "<dt>" + esc(v.title) + "</dt><dd>" + esc(usd(v.price)) + "</dd>").join("") + "</dl>" +
+      (x.pre ? '<span class="mk-deal">Pre-order</span>' : !x.available ? '<span class="mk-warn">Sold out at Yugi-Market</span>' : "") +
+      '<span class="mk-stores"><a target="_blank" rel="noopener" href="https://yugi-market.com/products/' + encodeURIComponent(x.handle) + '">Yugi-Market</a>' +
+      '<a target="_blank" rel="noopener" href="https://www.ebay.com/sch/i.html?_nkw=' + q + '&amp;_sop=15&amp;LH_BIN=1">eBay</a></span></div>';
+  }
+
+  /* ----- the lists ----- */
+  const ocgSetsOf = region => (ocgMk.data && ocgMk.data[region]) || [];
+  const ocgFindSet = id => { const [region, prefix] = String(id).split(":"); return ocgSetsOf(region).find(s => s.prefix === prefix) || null; };
+  function ocgOwnedCount(c) {
+    return collection.filter(r => !r.productId && normNumber(r.number) === c.number && (!c.rarity || !r.rarity || sameRarity(r.rarity, c.rarity))).reduce((t, r) => t + r.qty, 0);
+  }
+  const ocgWanted = c => wants.some(w => !w.productId && normNumber(w.number) === c.number && (!c.rarity || !w.rarity || sameRarity(w.rarity, c.rarity)));
+  function ocgChaseHTML(s) {
+    return '<div class="results">' + s.chase.map((c, i) => {
+      const owned = ocgOwnedCount(c), key = esc(s.id + "|" + i);
+      const src = s.region === "jp" ? (c.stock ? "BIGWEB" : "BIGWEB, sold out (last price)") : "Bunjang, " + plural(c.n, "listing");
+      return '<div class="result static"><span class="sleeve"><span class="mk-rank">#' + (i + 1) + "</span>" + imgTag({list: [c.img].filter(Boolean).concat(namePics(c.name, "200w", c.rarity).list)}, c.name) + "</span>" +
+        '<span class="result-name">' + esc(c.name) + "</span>" +
+        '<span class="result-meta">' + esc(c.number) + ", " + esc(c.rarity || "rarity not stated") + "</span>" +
+        '<span class="result-price">' + ocgMoneyHTML(c.local, s.region) + '<br><span class="small">' + esc(src) + "</span></span>" +
+        '<span class="result-actions">' + (owned ? '<span class="on-list">You have ' + owned + "</span>" : "") +
+        (ocgWanted(c) ? '<span class="on-list">On want list</span>' : '<button class="btn" type="button" data-ocg-want="' + key + '">Want</button>') +
+        '<button class="btn" type="button" data-ocg-have="' + key + '">I have it</button></span></div>';
+    }).join("") + "</div>";
+  }
+  const godOfCardsURL = s => "https://godofcards.com/en-int/search?type=product&q=" + encodeURIComponent(s.name + " Korean");
+  const bunjangBoxURL = s => "https://m.bunjang.co.kr/search/products?q=" + encodeURIComponent((s.local || s.name) + " 박스");
+  function ocgSetBodyHTML(s) {
+    let html = "";
+    if (s.region === "jp") {
+      const mine = ymForSet(s);
+      const order = YM_KINDS.map(k => k[0]);
+      if (mine.length) {
+        html += '<h3 class="mk-h">Sealed products at Yugi-Market</h3><div class="results">' +
+          mine.slice().sort((a, b) => order.indexOf(a.kind) - order.indexOf(b.kind) || b.available - a.available || a.price - b.price).map(x => ymTileHTML(x, false)).join("") + "</div>";
+      } else {
+        html += '<p class="small" style="margin:12px 0 0">' + (ymk.loading ? "Checking Yugi-Market for sealed products…" : ymk.list ? "Yugi-Market doesn't list sealed products for this set right now."
+          : "Couldn't reach Yugi-Market for sealed prices right now.") +
+          ' <a target="_blank" rel="noopener" href="https://yugi-market.com/search?q=' + encodeURIComponent(s.name) + '">Search Yugi-Market</a></p>';
+      }
+    } else {
+      html += '<h3 class="mk-h">Sealed</h3><p class="small" style="margin:0 0 4px">' +
+        (s.box ? "Unopened booster box on Bunjang: <b>" + ocgMoneyHTML(s.box.price, "kr") + "</b> (asking prices, the middle of " + plural(s.box.n, "listing") + "). "
+          : "No unopened boxes listed on Bunjang right now. ") +
+        '<span class="mk-stores" style="display:inline-flex"><a target="_blank" rel="noopener" href="' + esc(godOfCardsURL(s)) + '">God of Cards</a>' +
+        '<a target="_blank" rel="noopener" href="' + esc(bunjangBoxURL(s)) + '">Bunjang</a></span></p>';
+    }
+    if (s.chase.length) {
+      const total = s.chase.reduce((t, c) => t + (ocgUSD(c.local, s.region) || 0), 0);
+      html += '<h3 class="mk-h">Top ' + s.chase.length + " chase cards" + (total ? ' <span class="small">(one of each: ' + esc(usd(total)) + ")</span>" : "") + "</h3>" + ocgChaseHTML(s);
+    } else {
+      html += '<p class="small" style="margin:12px 0 0">No ' + (s.region === "jp" ? "BIGWEB prices" : "Bunjang listings") + " for this set's cards yet" +
+        (s.cards ? " (" + plural(s.cards, "card") + " in the set)" : "") + ".</p>";
+    }
+    return html;
+  }
+  function ocgSetRowHTML(s) {
+    const open = ocgMk.open.has(s.id);
+    const top = s.top;
+    const box = s.region === "jp" ? ymBox(s) : null;
+    const cost = s.region === "jp"
+      ? (box ? "<b>" + esc(usd(box.price)) + "</b><small>booster box" + (box.available ? "" : ", sold out") + "</small>" : "<small>" + (ymk.loading ? "checking…" : "no box listed") + "</small>")
+      : (s.box ? "<b>" + esc(usd(ocgUSD(s.box.price, "kr")) || fmtLocal(s.box.price, "KRW")) + "</b><small>box, Bunjang</small>" : "<small>no box listed</small>");
+    return '<article class="set-row mk-row"><button type="button" class="set-toggle" aria-expanded="' + open + '" data-ocg-set="' + esc(s.id) + '">' +
+      '<span style="min-width:0"><span class="set-name">' + esc(s.name) + '</span><span class="set-sub">' +
+      esc([s.prefix + (s.region === "jp" ? "-JP" : "-KR"), s.date.slice(0, 4), s.cards ? plural(s.cards, "card") : ""].filter(Boolean).join(", ")) +
+      '<span class="mk-line">' + esc(ocgLineName(s.line)) + "</span></span></span>" +
+      '<span class="mk-top">' + (top ? "Top card: <b>" + esc(top.name) + '</b> <span class="gold">' + esc(usd(ocgUSD(top.local, s.region)) || fmtLocal(top.local, OCG_CUR[s.region])) + "</span>" : "No prices yet") + "</span>" +
+      '<span class="set-cost">' + cost + "</span>" +
+      '<span class="caret" aria-hidden="true"></span></button>' +
+      (open ? '<div class="set-body">' + ocgSetBodyHTML(s) + "</div>" : "") + "</article>";
+  }
+  function renderOcgMarketList(box) {
+    const region = settings.mkRegion;
+    if (!ocgMk.data) {
+      box.innerHTML = '<div class="notice">' + (ocgMk.loading ? "Loading the " + (region === "jp" ? "Japanese" : "Korean") + " sets…"
+        : !ocgMarketURL() ? "The Japanese and Korean sets come from your Card Vault website. Open the Market tab there once; this computer then loads them from it."
+        : "Couldn't load the Japanese and Korean sets. Check the internet connection and try again." +
+          ' <button class="btn btn-small" type="button" data-ocg-retry>Try again</button>') + "</div>";
+      return;
+    }
+    const words = mk.q.trim().toLowerCase().split(/\s+/).filter(Boolean);
+    const day = s => s.date || "";
+    if (settings.mkView === "sealed" && region === "jp") {
+      if (!ymk.list) {
+        box.innerHTML = '<div class="notice">' + (ymk.loading ? "Getting Yugi-Market's sealed products…" : "Couldn't reach Yugi-Market right now." +
+          ' <button class="btn btn-small" type="button" data-ym-retry>Try again</button> <a target="_blank" rel="noopener" href="https://yugi-market.com/collections/yu-gi-oh-booster-box">Open Yugi-Market</a>') + "</div>";
+        return;
+      }
+      const m = ymMatch();
+      let list = ymk.list.filter(x => (!settings.mkKindOcg || x.kind === settings.mkKindOcg) && (!settings.mkLineOcg || (m.get(x.id) || {}).line === settings.mkLineOcg) &&
+        (!words.length || words.every(w => (x.title + " " + ((m.get(x.id) || {}).name || "") + " " + ((m.get(x.id) || {}).prefix || "")).toLowerCase().includes(w))));
+      const sorters = {
+        low: (a, b) => b.available - a.available || a.price - b.price,
+        high: (a, b) => b.price - a.price,
+        newest: (a, b) => (b.date || "").localeCompare(a.date || "") || a.title.localeCompare(b.title)
+      };
+      list.sort(sorters[settings.mkSortSealed] || sorters.newest);
+      if (!list.length) { box.innerHTML = '<div class="notice">No product matches. Try fewer words, or another type.</div>'; return; }
+      box.innerHTML = '<p class="results-head">' + plural(list.length, "product") + " at Yugi-Market" + (list.length > mk.limit ? ", showing the first " + mk.limit : "") + ".</p>" +
+        '<div class="results">' + list.slice(0, mk.limit).map(x => ymTileHTML(x, true)).join("") + "</div>" +
+        (list.length > mk.limit ? '<div class="mk-more"><button class="btn" type="button" data-mk-more>Show more</button></div>' : "");
+      return;
+    }
+    let list = ocgSetsOf(region).filter(s => (!settings.mkLineOcg || s.line === settings.mkLineOcg) &&
+      (!words.length || words.every(w => (s.name + " " + s.prefix + " " + s.local).toLowerCase().includes(w))));
+    if (settings.mkView === "sealed") {
+      // Korean sealed: the sets with unopened boxes on Bunjang, and a God of Cards search for every set
+      list = list.filter(s => s.box);
+      const sorters = {low: (a, b) => a.box.price - b.box.price, high: (a, b) => b.box.price - a.box.price, newest: (a, b) => day(b).localeCompare(day(a))};
+      list.sort(sorters[settings.mkSortSealed] || sorters.newest);
+      box.innerHTML = '<div class="notice" style="margin-bottom:12px">God of Cards sells Korean booster boxes and decks, but its prices can\'t be read from here: each set has a link to it. ' +
+        'Below are the sets with unopened boxes on Bunjang (asking prices). <a target="_blank" rel="noopener" href="https://godofcards.com/en-int/collections/korean-yugioh-cards">God of Cards: Korean Yu-Gi-Oh!</a></div>' +
+        (list.length ? '<p class="results-head">' + plural(list.length, "set") + (list.length > mk.limit ? ", showing the first " + mk.limit : "") + ".</p>" +
+          list.slice(0, mk.limit).map(ocgSetRowHTML).join("") + (list.length > mk.limit ? '<div class="mk-more"><button class="btn" type="button" data-mk-more>Show more</button></div>' : "")
+          : '<div class="notice">No set matches.</div>');
+      return;
+    }
+    const topUSD = s => s.top ? ocgUSD(s.top.local, s.region) || 0 : -1;
+    const sorters = {
+      newest: (a, b) => day(b).localeCompare(day(a)) || a.name.localeCompare(b.name),
+      oldest: (a, b) => day(a).localeCompare(day(b)) || a.name.localeCompare(b.name),
+      chase: (a, b) => topUSD(b) - topUSD(a),
+      name: (a, b) => a.name.localeCompare(b.name)
+    };
+    list.sort(sorters[settings.mkSortSets] || sorters.newest);
+    if (!list.length) { box.innerHTML = '<div class="notice">No set matches. Try fewer words, or another set type.</div>'; return; }
+    box.innerHTML = '<p class="results-head">' + plural(list.length, "set") + (list.length > mk.limit ? ", showing the first " + mk.limit : "") + ".</p>" +
+      list.slice(0, mk.limit).map(ocgSetRowHTML).join("") +
+      (list.length > mk.limit ? '<div class="mk-more"><button class="btn" type="button" data-mk-more>Show more</button></div>' : "");
+  }
+  function ocgChaseAt(key) {
+    const bar = String(key).lastIndexOf("|");
+    const s = ocgFindSet(String(key).slice(0, bar));
+    const c = s && s.chase[+String(key).slice(bar + 1)];
+    return c ? {s, c} : null;
+  }
+  // A Japanese or Korean card's price from the Market's lists (its set's most valuable cards), in US$.
+  function ocgMarketPrice(r) {
+    const g = ocgRegion(r.number);
+    if (!g) return null;
+    if (!ocgMk.data) { if (!ocgMk.loading && !ocgMk.failed && ocgMarketURL()) loadOcgMarket(); return null; }
+    const region = g.region === "JP" ? "jp" : "kr";
+    const s = ocgSetsOf(region).find(x => x.prefix === g.set);
+    const c = s && s.chase.find(x => x.number === g.code && (!r.rarity || !x.rarity || sameRarity(x.rarity, r.rarity)));
+    return c ? ocgUSD(c.local, region) : null;
+  }
+  function ocgHave(s, c) {
+    const lang = s.region === "jp" ? "Japanese" : "Korean";
+    const price = {local: c.local, cur: OCG_CUR[s.region], src: s.region === "jp" ? "BIGWEB" : "Bunjang",
+      note: s.region === "jp" ? (c.stock ? "in stock" : "sold out; last price seen") : "asking prices, " + plural(c.n, "listing")};
+    drawerCtx = null;
+    openOcgForm({code: c.number, name: c.name, setName: s.name, rarities: c.rarity ? [c.rarity] : []}, lang, {rarity: c.rarity, image: c.img, backup: "", ja: "", price});
+  }
+  function ocgWant(s, c) {
+    if (ocgWanted(c)) return;
+    addWant({productId: null, name: c.name, productName: c.name, setName: s.name, number: c.number, rarity: c.rarity, edition: "Any",
+      notes: s.region === "jp" ? "Japanese" : "Korean"});
+    save(); renderTabs(); renderMarketList();
+    toast("Added " + c.name + " (" + c.number + ") to your want list.");
+    refreshOcgPrices();
+  }
+
   /* ======================= Want list ======================= */
   // The current TCGplayer market price for the printing you want (the cheapest printing when any will do).
   function wantPrice(w) {
-    if (!catalog || !w.productId) return null;
+    if (!w.productId) { const pr = ocgPrice(w); return pr && pr.usd != null ? pr.usd : ocgMarketPrice(w); }   // (Japanese and Korean cards: BIGWEB, Bunjang)
+    if (!catalog) return null;
     const p = catalog.byId.get(w.productId);
     if (!p) return null;
     if (w.edition && w.edition !== "Any") return firstPrice(catalogPrice(p, w.edition));
@@ -9088,13 +9456,33 @@
     let mkTimer = null;
     market.addEventListener("input", e => { if (e.target.id === "mkQ") { mk.q = e.target.value; mk.limit = 40; clearTimeout(mkTimer); mkTimer = setTimeout(renderMarketList, 200); } });
     market.addEventListener("change", e => {
-      if (e.target.id === "mkLine") { settings.mkLine = e.target.value; mk.limit = 40; saveSettings(); renderMarketList(); }
-      else if (e.target.id === "mkKind") { settings.mkKind = e.target.value; mk.limit = 40; saveSettings(); renderMarketList(); }
+      const ocgView = settings.mkRegion === "jp" || settings.mkRegion === "kr";
+      if (e.target.id === "mkLine") { settings[ocgView ? "mkLineOcg" : "mkLine"] = e.target.value; mk.limit = 40; saveSettings(); renderMarketList(); }
+      else if (e.target.id === "mkKind") { settings[ocgView ? "mkKindOcg" : "mkKind"] = e.target.value; mk.limit = 40; saveSettings(); renderMarketList(); }
       else if (e.target.id === "mkSort") { if (settings.mkView === "sealed") settings.mkSortSealed = e.target.value; else settings.mkSortSets = e.target.value; mk.limit = 40; saveSettings(); renderMarketList(); }
     });
     market.addEventListener("click", e => {
       const v = e.target.closest("[data-mkview]");
       if (v) { settings.mkView = v.dataset.mkview; mk.limit = 40; saveSettings(); renderMarket(); return; }
+      const rg = e.target.closest("[data-mkregion]");
+      if (rg) { settings.mkRegion = rg.dataset.mkregion; mk.limit = 40; saveSettings(); renderMarket(); const b = document.querySelector('#mkRegion [data-mkregion="' + settings.mkRegion + '"]'); if (b) b.focus(); return; }
+      const os = e.target.closest("[data-ocg-set]");
+      if (os) {
+        const id = os.dataset.ocgSet;
+        if (ocgMk.open.has(id)) ocgMk.open.delete(id); else ocgMk.open.add(id);
+        renderMarketList();
+        const again = Array.from(document.querySelectorAll("#mkList [data-ocg-set]")).find(x => x.dataset.ocgSet === id);
+        if (again) again.focus();
+        return;
+      }
+      const ow = e.target.closest("[data-ocg-want], [data-ocg-have]");
+      if (ow) {
+        const hit = ocgChaseAt(ow.dataset.ocgWant || ow.dataset.ocgHave);
+        if (hit) { if (ow.dataset.ocgWant) ocgWant(hit.s, hit.c); else ocgHave(hit.s, hit.c); }
+        return;
+      }
+      if (e.target.closest("[data-ocg-retry]")) { ocgMk.failed = 0; loadOcgMarket(); renderMarketList(); return; }
+      if (e.target.closest("[data-ym-retry]")) { ymk.failed = 0; loadYugiMarket(true); renderMarketList(); return; }
       if (e.target.closest("[data-mk-more]")) { mk.limit += 40; renderMarketList(); return; }
       const t = e.target.closest("[data-mk-set]");
       if (t) {
@@ -9357,7 +9745,8 @@
     searchSealed, openSealedSearch, openSealedForm, ocgCard, bigwebFor, bunjangFor, bigwebPick, bunjangPick, ocgPrice, refreshOcgPrices, fxRates, showOcgLookup,
     psa10Value, gradedValue, gradedTotals, pcLookup, pcMatch, refreshGradedPrices, gradeShare, koRarity, jaRarity, driveDatedCopy, fillDriveCopies, deckPullPlan, deckPullIntoBox, openShare, shareLink, marketData, mkSetLine, mkKind, mkChase, renderMarket, analyzeDeckIdeas, runDeckIdeas, starterList, ideasState: () => ideas,
     imgTag, productPics, recordPics, namePics, imageFor, shareItem, shareWant,
-    silentSignInDue, maybeSilentSignIn, pageBusy, viewBusy, loadNewData, applyNewData, readDataText, dataLoad: () => dataLoad};
+    silentSignInDue, maybeSilentSignIn, pageBusy, viewBusy, loadNewData, applyNewData, readDataText, dataLoad: () => dataLoad,
+    loadOcgMarket, buildOcgMarket, ocgMk: () => ocgMk, loadYugiMarket, ymMatch, ymProduct, ymk: () => ymk, renderMarket, wantPrice};
 
   document.addEventListener("DOMContentLoaded", init);
 })();
