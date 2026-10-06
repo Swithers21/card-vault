@@ -143,6 +143,9 @@ personal app: click **Continue**.
   (duplicates to merge, cards with no printing, price, location or TCGplayer link).
 - **Get it graded** (in a card's details): links to start a submission at PSA, Beckett, CGC, SGC and TAG, the card's
   details to paste into their form, and tracking while it's away ("I sent it", then "It's back" with the grade).
+- **Grading fees** (Settings): for each company, the service level you use, its fee per card and shipping per card. Worth
+  grading lets you pick the company to estimate with, each card's details show every company's cost and gain at a 10,
+  and "I sent it" fills in that company's cost. They sync to your other devices.
 - **Price over time** (in a card's details): a chart of its TCGplayer market price. The daily update keeps every
   evening's prices (120 days, then monthly) and publishes them with the website, so the charts fill in day by day.
 - **Phone alerts** (Settings): the want-list and big-move alerts on your iPhone through the free ntfy app. Your PC's

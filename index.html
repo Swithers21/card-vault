@@ -673,6 +673,18 @@
   .grader-list{list-style:none;margin:0 0 12px;padding:0;border:1px solid var(--line);border-radius:10px;overflow:hidden}
   .grader-list li{display:grid;grid-template-columns:minmax(0,1fr) auto auto;gap:12px;align-items:center;padding:8px 12px;border-top:1px solid var(--line)}
   .grader-list li:first-child{border-top:0}
+  .gl-co{display:flex;flex-direction:column;min-width:0}
+  .gl-co .small{font-variant-numeric:tabular-nums}
+  .wg-fee{margin:-6px 0 14px}
+  .wg-controls .pct{display:inline-flex;margin-left:6px}
+  .wg-controls .pct .input{margin-left:0}
+  .fee-row{padding:12px 0 2px;border-top:1px solid var(--line);margin-top:10px}
+  .fee-head{display:flex;align-items:baseline;gap:6px 12px;flex-wrap:wrap;margin-bottom:6px}
+  .fee-total{margin-left:auto;font-weight:700;font-variant-numeric:tabular-nums}
+  .fee-fields{display:grid;grid-template-columns:minmax(0,1.3fr) minmax(0,1fr) minmax(0,1fr);gap:10px}
+  .fee-fields .field > .pct{display:flex;margin:0}
+  .fee-fields .pct .input{width:100%;min-width:0}
+  @media (max-width:420px){ .fee-fields{grid-template-columns:1fr 1fr} .fee-fields label:first-child{grid-column:1 / -1} }
   .grade-status{padding:12px 14px;border-radius:10px;background:var(--bg-2);border:1px solid rgba(76,187,165,.4);font-size:13.5px}
   .card-hist .box-head{align-items:center;margin-bottom:6px}
   .card-hist .seg button{padding:5px 10px;font-size:12.5px}
@@ -1312,7 +1324,7 @@
   // deleted ones are remembered here by id, so a device can tell "deleted over there" from "not seen yet".
   const SYNC_KINDS = ["collection", "wants", "decks", "sales"];
   const SHARED_SETTINGS = ["condAdjust", "condPct", "alertsOn", "alertMinDollar", "alertMinPct", "psa10Mult", "psa10Floor", "gradePct", "pcToken",
-    "gradingCost", "gradingMin", "ntfyTopic", "siteUrl"];
+    "gradingCost", "gradingMin", "gradingFees", "gradingCo", "ntfyTopic", "siteUrl"];
   // Rough starting points for graded values when there's no real graded price: PSA 10 ≈ raw market × 4 + $25
   // (grading costs money and a gem-mint slab sells for more than raw), and other grades as a share of PSA 10.
   const DEFAULT_GRADE_PCT = {"10": 100, "9.5": 50, "9": 30, "8": 18, "7": 12, "6": 8};
@@ -1324,7 +1336,7 @@
     backupRemindDays: 7, wantAlertSeen: "", alertsOn: false, alertMinDollar: 5, alertMinPct: 10, salesYear: "", deckId: null,
     deckView: "check", mkView: "sets", mkLine: "", mkKind: "", mkSortSets: "newest", mkSortSealed: "deal", mkRegion: "en", mkLineOcg: "", mkKindOcg: "",
     gradedView: false, psa10Mult: 4, psa10Floor: 25, gradePct: Object.assign({}, DEFAULT_GRADE_PCT), pcToken: "",
-    insightView: "history", salesView: "trade", gradingCost: 30, gradingMin: 50, ntfyTopic: "", siteUrl: "", autoSignIn: true};
+    insightView: "history", salesView: "trade", gradingCost: 30, gradingMin: 50, gradingFees: {}, gradingCo: "PSA", ntfyTopic: "", siteUrl: "", autoSignIn: true};
   const filters = {q: "", set: "", rarity: "", edition: "", language: "", location: "", show: ""};
   const selected = new Set();
   let selectMode = false;   // "Select" on: tapping a card ticks it instead of opening it (phones show no checkboxes otherwise)
@@ -1729,6 +1741,8 @@
     if (typeof ds.pcToken === "string") settings.pcToken = ds.pcToken;
     if (num(ds.gradingCost) != null) settings.gradingCost = num(ds.gradingCost);
     if (num(ds.gradingMin) != null) settings.gradingMin = num(ds.gradingMin);
+    if (ds.gradingFees && typeof ds.gradingFees === "object") settings.gradingFees = cleanGradingFees(ds.gradingFees);
+    if (typeof ds.gradingCo === "string" && ds.gradingCo) settings.gradingCo = ds.gradingCo;
     if (typeof ds.ntfyTopic === "string") settings.ntfyTopic = ds.ntfyTopic;
     if (typeof ds.siteUrl === "string") settings.siteUrl = ds.siteUrl;
   }
@@ -5111,7 +5125,7 @@
       settings: {condAdjust: settings.condAdjust, condPct: settings.condPct,
         alertsOn: settings.alertsOn, alertMinDollar: settings.alertMinDollar, alertMinPct: settings.alertMinPct,
         psa10Mult: settings.psa10Mult, psa10Floor: settings.psa10Floor, gradePct: settings.gradePct, pcToken: settings.pcToken || "",
-        gradingCost: settings.gradingCost, gradingMin: settings.gradingMin, ntfyTopic: settings.ntfyTopic || "", siteUrl: settings.siteUrl || "", sharedMod: settings.sharedMod || 0}};
+        gradingCost: settings.gradingCost, gradingMin: settings.gradingMin, gradingFees: cleanGradingFees(settings.gradingFees), gradingCo: settings.gradingCo || "PSA", ntfyTopic: settings.ntfyTopic || "", siteUrl: settings.siteUrl || "", sharedMod: settings.sharedMod || 0}};
   }
   const hasUnbackedChanges = () => !!settings.lastChangeAt && (!settings.lastBackupAt || settings.lastChangeAt > settings.lastBackupAt);
   const pause = ms => new Promise(r => setTimeout(r, ms));
@@ -6233,11 +6247,26 @@
         g + '" value="' + esc(settings.gradePct[g]) + '"' + (g === "10" ? " disabled" : "") + ">%</span></label>").join("") + "</div>" +
       '<p class="small" style="margin:8px 0 0">These are rough starting points: a PSA 10 of a cheap modern card often sells for 5 to 30 times the raw price, and a vintage 1st Edition for far more. Real prices from PriceCharting replace them.</p></div>' +
 
+      '<div class="section" id="gradingFeesSection"><h3>Grading fees</h3>' +
+      '<p class="small" style="margin:0 0 4px">What grading a card costs you at each company: the service level you use, its fee per card, and shipping and insurance per card ' +
+      "(your share of an order's, both ways). Card Vault uses them in Insights &gt; Worth grading and when you send a card. Fees change often: each company's price list is linked.</p>" +
+      GRADING_COS.map(c => {
+        const f = (settings.gradingFees || {})[c.id] || {};
+        const val = v => v == null || v === "" ? "" : esc(String(v));
+        return '<div class="fee-row"><div class="fee-head"><b>' + esc(c.name) + '</b><a class="small" target="_blank" rel="noopener" href="' + esc(c.prices) + '">Price list</a>' +
+          '<span class="fee-total" data-gfee-total="' + c.id + '">' + feeTotalText(c.id) + "</span></div>" +
+          '<div class="fee-fields"><label class="field"><span>Service level</span><input class="input" data-gfee="' + c.id + '" data-k="level" maxlength="60" placeholder="e.g. Value" value="' + val(f.level) + '"></label>' +
+          '<label class="field"><span>Fee per card</span><span class="pct">$<input class="input" type="number" min="0" step="0.01" data-gfee="' + c.id + '" data-k="fee" value="' + val(f.fee) + '"></span></label>' +
+          '<label class="field"><span>Shipping per card</span><span class="pct">$<input class="input" type="number" min="0" step="0.01" data-gfee="' + c.id + '" data-k="ship" value="' + val(f.ship) + '"></span></label></div></div>';
+      }).join("") +
+      '<label class="field" style="margin-top:12px"><span>For a company with nothing entered above, or another company: cost per card</span>' +
+      '<span class="pct">$<input class="input" type="number" min="0" step="1" id="sGradeCost" value="' + esc(String(gradingCostEach())) + '"></span></label></div>' +
+
       '<div class="section"><h3>Daily price updates</h3>' +
       (SITE ? '<p style="margin:0">New TCGplayer prices arrive every evening on their own: GitHub runs the update for this website.</p>'
       : '<p style="margin:0">To get new TCGplayer prices every day without doing anything, double-click <b>Turn On Daily Updates</b> in the Card Vault folder once. ' +
         "Windows then runs the updater every evening at 6 PM, or as soon as your computer is on after that. <b>Turn Off Daily Updates</b> stops it.</p>") +
-      '<p class="small">When new prices arrive while Card Vault is open, a message offers to load them.</p>' +
+      '<p class="small">When new prices arrive while Card Vault is open, it loads them by itself.</p>' +
       '<dl class="kv"><dt>Prices loaded</dt><dd>' + (catalog ? esc(fmtDate(catalog.generated)) : "Not loaded yet") + "</dd>" +
       "<dt>Price changes compare with</dt><dd>" + (refs.length ? refs.join(", ") : catalog ? "Nothing yet. Earlier prices build up as the updater runs on different days." : "Not loaded yet") + "</dd></dl></div>" +
 
@@ -6247,9 +6276,37 @@
       "<dt>Value history</dt><dd>" + (valueHistory.length ? plural(valueHistory.length, "price day") + " since " + esc(fmtDate(parseDay(valueHistory[0].d))) : "Starts with your first TCGplayer prices") +
       "</dd></dl></div>";
   }
-  function openSettings() {
+  // "Total $30.00 per card", or what's used instead when nothing's entered
+  function feeTotalText(co) {
+    const f = gradingFee(co);
+    return f ? esc(usd(f.total)) + " per card" : '<span class="small">' + esc(usd(gradingCostEach())) + " (your general estimate)</span>";
+  }
+  // opts.section: scroll to that part (gradingFees)
+  function openSettings(opts) {
     drawerCtx = {mode: "settings"};
     openDrawer("Settings", settingsHTML());
+    const feeChange = inp => {
+      const co = inp.dataset.gfee, k = inp.dataset.k;
+      const f = Object.assign({level: "", fee: null, ship: null}, (settings.gradingFees || {})[co]);
+      f[k] = k === "level" ? inp.value : (num(inp.value) == null ? null : Math.max(0, num(inp.value)));
+      settings.gradingFees = cleanGradingFees(Object.assign({}, settings.gradingFees, {[co]: f}));
+      save({quiet: true});   // (shared: your other devices get them through the backup)
+      document.querySelectorAll("#drawerBody [data-gfee-total]").forEach(el => { el.innerHTML = feeTotalText(el.dataset.gfeeTotal); });
+      if (settings.tab === "history") renderPanel();
+    };
+    document.querySelectorAll("#drawerBody [data-gfee]").forEach(inp => inp.addEventListener("change", () => feeChange(inp)));
+    $("sGradeCost").addEventListener("change", () => {
+      const v = num($("sGradeCost").value);
+      settings.gradingCost = v == null ? 30 : Math.max(0, v);
+      $("sGradeCost").value = settings.gradingCost;
+      save({quiet: true});
+      document.querySelectorAll("#drawerBody [data-gfee-total]").forEach(el => { el.innerHTML = feeTotalText(el.dataset.gfeeTotal); });
+      if (settings.tab === "history") renderPanel();
+    });
+    if (opts && opts.section === "gradingFees") {
+      const sec = $("gradingFeesSection");
+      if (sec) setTimeout(() => { if (sec.scrollIntoView) sec.scrollIntoView({block: "start"}); const first = sec.querySelector("input"); if (first) first.focus({preventScroll: true}); }, 60);
+    }
     fillSnapshots();
     fillDriveCopies();
     $("sRemind").addEventListener("change", () => {
@@ -6718,13 +6775,36 @@
   }
 
   // ----- Worth grading: cards where a PSA 10 (or 9) beats the raw price by more than grading costs
+  // The general cost per card, for a company whose fees you haven't entered (and for "Other").
   const gradingCostEach = () => { const n = num(settings.gradingCost); return n == null ? 30 : Math.max(0, n); };
   const gradingMinGain = () => { const n = num(settings.gradingMin); return n == null ? 50 : n; };
-  function gradingEstimate(r) {
+  // Your own fees at each company (Settings > Grading fees): the service level you use, its fee per card, and shipping
+  // and insurance per card (your share of an order's).
+  function cleanGradingFees(o) {
+    const out = {};
+    for (const c of GRADING_COS) {
+      const f = o && typeof o === "object" && o[c.id];
+      if (!f || typeof f !== "object") continue;
+      const fee = num(f.fee), ship = num(f.ship), level = String(f.level || "").trim().slice(0, 60);
+      if (fee == null && ship == null && !level) continue;
+      out[c.id] = {level, fee: fee == null ? null : Math.max(0, round2(fee)), ship: ship == null ? null : Math.max(0, round2(ship))};
+    }
+    return out;
+  }
+  function gradingFee(co) {
+    const f = (settings.gradingFees || {})[co];
+    if (!f || (num(f.fee) == null && num(f.ship) == null)) return null;
+    const fee = num(f.fee) || 0, ship = num(f.ship) || 0;
+    return {level: String(f.level || ""), fee, ship, total: round2(fee + ship)};
+  }
+  const gradingCostFor = co => { const f = gradingFee(co); return f ? f.total : gradingCostEach(); };
+  const gradingCoNow = () => GRADING_COS.some(c => c.id === settings.gradingCo) ? settings.gradingCo : "PSA";
+  const gradingCoName = id => (GRADING_COS.find(c => c.id === id) || {name: id}).name;
+  function gradingEstimate(r, co) {
     if (r.sealed || r.grade) return null;
     const raw = rawMarket(r), ten = psa10Value(r);
     if (raw == null || !ten) return null;
-    const cost = gradingCostEach(), nine = round2(ten.unit * (gradeShare("9") || 0.3));
+    const cost = gradingCostFor(co || gradingCoNow()), nine = round2(ten.unit * (gradeShare("9") || 0.3));
     return {raw, ten, nine, cost, gain10: round2(ten.unit - raw - cost), gain9: round2(nine - raw - cost)};
   }
   const tenSource = ten => ten.from === "pricecharting" ? "PriceCharting" : ten.from === "yours" ? "your value" : "estimate";
@@ -6732,6 +6812,7 @@
     const el = insightBody();
     const away = collection.filter(r => r.grading);
     const min = gradingMinGain();
+    const co = gradingCoNow(), fee = gradingFee(co), cost = gradingCostFor(co);
     const list = collection.filter(r => !r.grading && /^near mint/i.test(r.condition || "Near Mint"))
       .map(r => ({r, e: gradingEstimate(r)})).filter(x => x.e && x.e.gain10 >= min).sort((a, b) => b.e.gain10 - a.e.gain10);
     const estimates = list.filter(x => x.e.ten.from === "estimate").length;
@@ -6743,9 +6824,14 @@
           esc(r.grading.company) + ", sent " + esc(fmtDate(parseDay(r.grading.sent))) + " (" + plural(days, "day") + " ago)" + (r.grading.order ? ", order " + esc(r.grading.order) : "") +
           '</span></span><button type="button" class="btn btn-small" data-grade-back="' + esc(r.id) + '">It\'s back</button></li>';
       }).join("") + "</ul></div>" : "") +
-      '<div class="wg-controls"><label class="basis">Grading cost per card (fees and shipping) <input class="input" id="wgCost" type="number" min="0" step="1" value="' + gradingCostEach() + '"></label>' +
+      '<div class="wg-controls"><label class="basis">Grading with <select class="select" id="wgCo">' +
+        GRADING_COS.map(c => '<option value="' + c.id + '"' + (c.id === co ? " selected" : "") + ">" + esc(c.name) + "</option>").join("") + "</select></label>" +
+      '<label class="basis">Cost per card <span class="pct">$<input class="input" id="wgCost" type="number" min="0" step="1" value="' + cost + '"></span></label>' +
       '<label class="basis">Show cards that gain at least <input class="input" id="wgMin" type="number" step="5" value="' + min + '"> at a 10</label></div>' +
-      (!list.length ? '<div class="notice">No ungraded Near Mint card gains ' + esc(usd(min)) + " or more at a PSA 10 after " + esc(usd(gradingCostEach())) + " in grading costs. Try a lower amount.</div>"
+      '<p class="small wg-fee">' + (fee ? esc(gradingCoName(co)) + (fee.level ? ", " + esc(fee.level) : "") + ": " + esc(usd(fee.fee)) + " fee" + (fee.ship ? " + " + esc(usd(fee.ship)) + " shipping" : "") + " per card. "
+        : "No fees entered for " + esc(gradingCoName(co)) + " yet: this is your general estimate. ") +
+        '<button type="button" class="link-btn" data-wg-fees>' + (fee ? "Edit grading fees" : "Enter each company's fees") + "</button></p>" +
+      (!list.length ? '<div class="notice">No ungraded Near Mint card gains ' + esc(usd(min)) + " or more at a PSA 10 after " + esc(usd(cost)) + " in grading costs. Try a lower amount.</div>"
       : '<div class="table-wrap"><table class="table stack-table wg-table"><thead><tr><th class="c-thumb"><span class="sr">Image</span></th><th>Card</th><th class="num">Raw</th><th class="num">PSA 10</th>' +
         '<th class="num">If it gets a 10</th><th class="num">If it gets a 9</th><th><span class="sr">Actions</span></th></tr></thead><tbody>' +
         list.slice(0, 100).map(({r, e}) => '<tr><td class="c-thumb"><span class="sleeve">' + imgTag(recordPics(r, "200w"), r.name) + "</span></td>" +
@@ -6755,7 +6841,7 @@
           '<td class="num" data-label="If it gets a 10"><b>' + esc(sign(e.gain10)) + '</b></td><td class="num" data-label="If it gets a 9">' + esc(sign(e.gain9)) + "</td>" +
           '<td><button type="button" class="btn btn-small" data-grade-it="' + esc(r.id) + '">Grade it…</button></td></tr>').join("") + "</tbody></table></div>" +
         (list.length > 100 ? '<p class="small">Showing the top 100 of ' + list.length + ".</p>" : "")) +
-      '<p class="small" style="margin-top:12px">"If it gets a 10" is the PSA 10 value minus the raw price and your grading cost; a 9 counts at ' +
+      '<p class="small" style="margin-top:12px">"If it gets a 10" is the PSA 10 value minus the raw price and the grading cost at ' + esc(gradingCoName(co)) + '; a 9 counts at ' +
       Math.round((gradeShare("9") || 0.3) * 100) + "% of a 10 (Settings &gt; Graded values). Played cards and cards already graded are left out." +
       (estimates ? " " + plural(estimates, "PSA 10 value is an estimate", "PSA 10 values are estimates") + " (raw × " + esc(String(num(settings.psa10Mult) == null ? 4 : num(settings.psa10Mult))) +
         " + " + esc(usd(num(settings.psa10Floor) == null ? 25 : num(settings.psa10Floor))) + "); a PriceCharting key in Settings gives real sold prices." : "") + "</p>";
@@ -6865,6 +6951,7 @@
       if (back) { openDetails(back.dataset.gradeBack, {grading: "back"}); return; }
       const g = e.target.closest("[data-grade-it]");
       if (g) { openDetails(g.dataset.gradeIt, {grading: "start"}); return; }
+      if (e.target.closest("[data-wg-fees]")) { openSettings({section: "gradingFees"}); return; }
       const td = e.target.closest("[data-tidy]");
       if (td) {
         const a = td.dataset.tidy;
@@ -6878,9 +6965,15 @@
       if (settings.tab !== "history") return;
       const ed = e.target.closest("[data-tidy-ed]");
       if (ed && ed.value) { const r = collection.find(x => x.id === ed.dataset.tidyEd); if (r) { r.edition = ed.value; save(); render(); toast("Saved " + r.name + " as " + ed.value + "."); } return; }
-      if (e.target.id === "wgCost" || e.target.id === "wgMin") {
+      if (e.target.id === "wgCost" || e.target.id === "wgMin" || e.target.id === "wgCo") {
         const v = num(e.target.value);
-        if (e.target.id === "wgCost") settings.gradingCost = v == null ? 30 : Math.max(0, v); else settings.gradingMin = v == null ? 50 : v;
+        if (e.target.id === "wgCo") settings.gradingCo = e.target.value;
+        else if (e.target.id === "wgMin") settings.gradingMin = v == null ? 50 : v;
+        else {   // the cost per card at this company: its fee, keeping the shipping you entered
+          const co = gradingCoNow(), f = Object.assign({level: "", fee: null, ship: null}, (settings.gradingFees || {})[co]);
+          f.fee = v == null ? null : Math.max(0, round2(v - (num(f.ship) || 0)));
+          settings.gradingFees = cleanGradingFees(Object.assign({}, settings.gradingFees, {[co]: f}));
+        }
         saveSettings(); save({quiet: true}); renderWorthGrading();
         const again = $(e.target.id); if (again) again.focus();
       }
@@ -6931,20 +7024,27 @@
     if (mode === "sent") {
       return '<form class="stack" id="giSentForm"><p class="small" style="margin:0">' + (r.qty > 1 ? "One of your " + r.qty + " copies goes on its own line while it's away; the others stay as they are. " : "") +
         "Card Vault keeps it in your collection, marked as at the grader.</p>" +
-        '<div class="grid-2"><label class="field"><span>Sent to</span><select class="input" id="giCo">' + options(GRADING_COS.map(c => c.id).concat(["Other"]), "PSA") + "</select></label>" +
+        '<div class="grid-2"><label class="field"><span>Sent to</span><select class="input" id="giCo">' + options(GRADING_COS.map(c => c.id).concat(["Other"]), gradingCoNow()) + "</select></label>" +
         '<label class="field"><span>Date sent</span><input class="input" id="giSent" type="date" value="' + localDay(new Date()) + '"></label></div>' +
         '<div class="grid-2"><label class="field"><span>Order or submission number</span><input class="input" id="giOrder"></label>' +
-        '<label class="field"><span>Cost for this card (US$)</span><input class="input" id="giCost" type="number" min="0" step="0.01" value="' + gradingCostEach() + '"></label></div>' +
+        '<label class="field"><span>Cost for this card (US$)</span><input class="input" id="giCost" type="number" min="0" step="0.01" value="' + gradingCostFor(gradingCoNow()) + '"></label></div>' +
         '<div class="btn-row"><button class="btn btn-primary" type="submit">Mark as sent</button><button class="btn" type="button" data-gi="cancel">Cancel</button></div></form>';
     }
-    const e = gradingEstimate(r);
+    const co = gradingCoNow(), e = gradingEstimate(r, co);
     const sign = v => (v >= 0 ? "+" : "−") + usd(Math.abs(v));
+    const anyFees = GRADING_COS.some(c => gradingFee(c.id));
     return (e ? '<p class="gi-math">Raw <b>' + esc(usd(e.raw)) + "</b>, PSA 10 <b>" + esc(usd(e.ten.unit)) + '</b> <span class="small">(' + tenSource(e.ten) + ")</span>. After " + esc(usd(e.cost)) +
-        " to grade: <b>" + esc(sign(e.gain10)) + "</b> if it gets a 10, " + esc(sign(e.gain9)) + " at a 9.</p>" : "") +
-      '<ul class="grader-list">' + GRADING_COS.map(c => '<li><b>' + esc(c.name) + '</b><a class="btn btn-small" target="_blank" rel="noopener" href="' + esc(c.start) + '">Start a submission</a>' +
-        '<a class="small" target="_blank" rel="noopener" href="' + esc(c.prices) + '">Prices</a></li>').join("") + "</ul>" +
+        " to grade at " + esc(gradingCoName(co)) + ": <b>" + esc(sign(e.gain10)) + "</b> if it gets a 10, " + esc(sign(e.gain9)) + " at a 9.</p>" : "") +
+      '<ul class="grader-list">' + GRADING_COS.map(c => {
+        const f = gradingFee(c.id), ce = f && gradingEstimate(r, c.id);
+        return '<li><span class="gl-co"><b>' + esc(c.name) + "</b>" + (f ? '<span class="small">' + esc((f.level ? f.level + ", " : "") + usd(f.total) + " per card") +
+          (ce ? ": " + esc(sign(ce.gain10)) + " at a 10" : "") + "</span>" : "") + "</span>" +
+          '<a class="btn btn-small" target="_blank" rel="noopener" href="' + esc(c.start) + '">Start a submission</a>' +
+          '<a class="small" target="_blank" rel="noopener" href="' + esc(c.prices) + '">Prices</a></li>';
+      }).join("") + "</ul>" +
       '<div class="btn-row"><button type="button" class="btn btn-small" data-gi="copy">Copy card details for the form</button><button type="button" class="btn btn-small" data-gi="sent">I sent it…</button></div>' +
-      '<p class="small" style="margin:8px 0 0">Each link opens that company\'s site, where you sign in, choose a service and pay them. Their fees and wait times change often, so check their prices.</p>';
+      '<p class="small" style="margin:8px 0 0">Each link opens that company\'s site, where you sign in, choose a service and pay them. Their fees and wait times change often, so check their prices. ' +
+      '<button type="button" class="link-btn" data-gi="fees">' + (anyFees ? "Edit your grading fees" : "Enter your fees at each company") + "</button></p>";
   }
   function wireGradeIt(id) {
     const box = $("gradeIt");
@@ -6958,9 +7058,16 @@
       if (!r) return;
       const a = b.dataset.gi;
       if (a === "copy") copyText(gradingDetailsText(r), () => toast("Copied the card's details. Paste them into the grading form."));
+      else if (a === "fees") openSettings({section: "gradingFees"});
       else if (a === "sent" || a === "back") show(a);
       else if (a === "cancel") show("");
       else if (a === "unsend") { r.grading = null; save(); render(); show(""); toast("It's no longer marked as at the grader."); }
+    });
+    // (choosing the company fills in its cost, unless you've typed one)
+    box.addEventListener("input", e => { if (e.target.id === "giCost") e.target.dataset.typed = "1"; });
+    box.addEventListener("change", e => {
+      const cost = $("giCost");
+      if (e.target.id === "giCo" && $("giSentForm") && cost && !cost.dataset.typed) cost.value = GRADING_COS.some(c => c.id === e.target.value) ? gradingCostFor(e.target.value) : gradingCostEach();
     });
     box.addEventListener("submit", e => {
       e.preventDefault();
