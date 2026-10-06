@@ -1,0 +1,82 @@
+{
+ "goc_kr_int": {
+  "url": "https://godofcards.com/en-int/collections/korean-yugioh-cards/products.json?limit=250",
+  "status": 429,
+  "headers": {
+   "Content-Type": "application/json",
+   "retry-after": "60"
+  },
+  "bytes": 169
+ },
+ "goc_cart_int": {
+  "url": "https://godofcards.com/en-int/cart.js",
+  "status": 200,
+  "headers": {
+   "Content-Type": "text/javascript; charset=utf-8"
+  },
+  "bytes": 303
+ },
+ "ym_collections": {
+  "url": "https://yugi-market.com/collections.json?limit=250",
+  "status": 429,
+  "headers": {
+   "Content-Type": "application/json",
+   "retry-after": "60"
+  },
+  "bytes": 169
+ },
+ "goc_kr_us": {
+  "url": "https://godofcards.com/en-us/collections/korean-yugioh-cards/products.json?limit=250",
+  "status": 429,
+  "headers": {
+   "Content-Type": "application/json",
+   "retry-after": "60"
+  },
+  "bytes": 169
+ },
+ "bw_set_p2": {
+  "url": "https://api.bigweb.co.jp/products?game_id=9&cardsets=7858&page=2",
+  "status": 200,
+  "headers": {
+   "Content-Type": "application/json",
+   "Access-Control-Allow-Origin": "*"
+  },
+  "bytes": 105852
+ },
+ "bw_sealed": {
+  "url": "https://api.bigweb.co.jp/products?game_id=9&cardsets=6671",
+  "status": 200,
+  "headers": {
+   "Content-Type": "application/json",
+   "Access-Control-Allow-Origin": "*"
+  },
+  "bytes": 9006
+ },
+ "yp_jp_index": {
+  "url": "https://yugipedia.com/api.php?action=ask&format=json&formatversion=2&query=%5B%5BJapanese+set+prefix%3A%3A%2B%5D%5D%7C%3FJapanese+set+prefix%7C%3FJapanese+release+date%7C%3FKorean+set+prefix%7C%3FKorean+release+date%7C%3FSet+type%7C%3FSeries%7C%3FJapanese+name%7Csort%3DJapanese+release+date%7Corder%3Ddesc%7Climit%3D500",
+  "status": 200,
+  "headers": {
+   "Content-Type": "application/json; charset=utf-8",
+   "Access-Control-Allow-Origin": "*"
+  },
+  "bytes": 533149
+ },
+ "yp_jp_index2": {
+  "url": "https://yugipedia.com/api.php?action=ask&format=json&formatversion=2&query=%5B%5BJapanese+set+prefix%3A%3A%2B%5D%5D%7C%3FJapanese+set+prefix%7C%3FJapanese+release+date%7Csort%3DJapanese+release+date%7Corder%3Ddesc%7Climit%3D500%7Coffset%3D500",
+  "status": 200,
+  "headers": {
+   "Content-Type": "application/json; charset=utf-8",
+   "Access-Control-Allow-Origin": "*"
+  },
+  "bytes": 183677
+ },
+ "yp_kr_index": {
+  "url": "https://yugipedia.com/api.php?action=ask&format=json&formatversion=2&query=%5B%5BKorean+set+prefix%3A%3A%2B%5D%5D%7C%3FKorean+set+prefix%7C%3FKorean+release+date%7C%3FJapanese+set+prefix%7C%3FSet+type%7C%3FSeries%7C%3FKorean+name%7Csort%3DKorean+release+date%7Corder%3Ddesc%7Climit%3D500",
+  "status": 200,
+  "headers": {
+   "Content-Type": "application/json; charset=utf-8",
+   "Access-Control-Allow-Origin": "*"
+  },
+  "bytes": 333063
+ }
+}
