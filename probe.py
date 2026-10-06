@@ -1,45 +1,29 @@
 #!/usr/bin/env python3
-"""One-off look at the Japanese and Korean shop data, round 4 (temporary workflow; not part of Card Vault)."""
+"""One-off look, round 5: may another website read the shops' search and collection data? (temporary)"""
 import json, os, time, urllib.request, urllib.error, urllib.parse
-OUT = "probe-out4"
+OUT = "probe-out5"
 os.makedirs(OUT, exist_ok=True)
-UA_APP = "CardVault/1.0 (personal collection tracker; one-off check)"
-UA_BROWSER = "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/129.0 Safari/537.36"
-def yp(query):
-    return "https://yugipedia.com/api.php?" + urllib.parse.urlencode({"action": "ask", "format": "json", "formatversion": "2", "query": query})
+UA_BROWSER = "Mozilla/5.0 (iPhone; CPU iPhone OS 18_5 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/18.5 Mobile/15E148 Safari/604.1"
 URLS = [
-  ("goc_kr_int", "https://godofcards.com/en-int/collections/korean-yugioh-cards/products.json?limit=250", UA_BROWSER, 75),
-  ("goc_cart_int", "https://godofcards.com/en-int/cart.js", UA_BROWSER, 75),
-  ("ym_collections", "https://yugi-market.com/collections.json?limit=250", UA_BROWSER, 75),
-  ("goc_kr_us", "https://godofcards.com/en-us/collections/korean-yugioh-cards/products.json?limit=250", UA_BROWSER, 75),
-  ("bw_set_p2", "https://api.bigweb.co.jp/products?game_id=9&cardsets=7858&page=2", UA_APP, 2),
-  ("bw_sealed", "https://api.bigweb.co.jp/products?game_id=9&cardsets=6671", UA_APP, 2),
-  ("yp_jp_index", yp("[[Japanese set prefix::+]]|?Japanese set prefix|?Japanese release date|?Korean set prefix|?Korean release date|?Set type|?Series|?Japanese name|sort=Japanese release date|order=desc|limit=500"), UA_APP, 2),
-  ("yp_jp_index2", yp("[[Japanese set prefix::+]]|?Japanese set prefix|?Japanese release date|sort=Japanese release date|order=desc|limit=500|offset=500"), UA_APP, 2),
-  ("yp_kr_index", yp("[[Korean set prefix::+]]|?Korean set prefix|?Korean release date|?Japanese set prefix|?Set type|?Series|?Korean name|sort=Korean release date|order=desc|limit=500"), UA_APP, 2),
+  ("goc_suggest", "https://godofcards.com/en-int/search/suggest.json?q=phantom%20nightmare%20korean&resources%5Btype%5D=product&resources%5Blimit%5D=10", 90),
+  ("ym_suggest", "https://yugi-market.com/search/suggest.json?q=phantom%20nightmare&resources%5Btype%5D=product&resources%5Blimit%5D=10", 90),
+  ("ym_collections", "https://yugi-market.com/collections.json?limit=250", 90),
+  ("ym_box", "https://yugi-market.com/collections/yu-gi-oh-box/products.json?limit=250", 90),
+  ("goc_suggest_box", "https://godofcards.com/en-int/search/suggest.json?q=korean%20booster%20box&resources%5Btype%5D=product&resources%5Blimit%5D=10", 90),
 ]
-def get(url, ua):
-    req = urllib.request.Request(url, headers={"User-Agent": ua, "Accept": "application/json, */*;q=0.8", "Origin": "https://swithers21.github.io",
-                                               "Api-User-Agent": UA_APP, "Accept-Language": "en-US,en;q=0.9"})
+summary = {}
+for key, url, gap in URLS:
+    time.sleep(gap)
+    req = urllib.request.Request(url, headers={"User-Agent": UA_BROWSER, "Accept": "application/json, */*;q=0.8", "Origin": "https://swithers21.github.io",
+                                               "Accept-Language": "en-US,en;q=0.9", "Referer": "https://swithers21.github.io/", "Sec-Fetch-Mode": "cors", "Sec-Fetch-Site": "cross-site"})
     try:
         with urllib.request.urlopen(req, timeout=60) as r:
-            return r.status, dict(r.headers), r.read()
+            status, headers, body = r.status, dict(r.headers), r.read()
     except urllib.error.HTTPError as e:
-        return e.code, dict(e.headers or {}), e.read()
+        status, headers, body = e.code, dict(e.headers or {}), e.read()
     except Exception as e:
-        return 0, {}, str(e).encode()
-summary = {}
-for key, url, ua, gap in URLS:
-    time.sleep(gap)
-    status, headers, body = get(url, ua)
-    keep = {k: v for k, v in headers.items() if k.lower() in ("content-type", "access-control-allow-origin", "retry-after")}
-    info = {"url": url, "status": status, "headers": keep, "bytes": len(body)}
-    text = body.decode("utf-8", "replace")
-    try:
-        j = json.loads(text)
-        with open(os.path.join(OUT, key + ".json"), "w") as f: json.dump(j, f, ensure_ascii=False, indent=1)
-    except Exception:
-        with open(os.path.join(OUT, key + ".txt"), "w") as f: f.write(text[:400000])
-    summary[key] = info
+        status, headers, body = 0, {}, str(e).encode()
+    summary[key] = {"url": url, "status": status, "headers": headers, "bytes": len(body)}
+    open(os.path.join(OUT, key + ".txt"), "wb").write(body[:400000])
     print(key, status, len(body), flush=True)
 json.dump(summary, open(os.path.join(OUT, "summary.json"), "w"), ensure_ascii=False, indent=1)
