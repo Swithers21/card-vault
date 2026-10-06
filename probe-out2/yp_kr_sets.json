@@ -1,0 +1,4075 @@
+{
+ "query-continue-offset": 200,
+ "query": {
+  "printrequests": [
+   {
+    "label": "",
+    "key": "",
+    "redi": "",
+    "typeid": "_wpg",
+    "mode": 2,
+    "format": false
+   },
+   {
+    "label": "Korean release date",
+    "key": "Korean_release_date",
+    "redi": "",
+    "typeid": "_dat",
+    "mode": 1,
+    "format": ""
+   },
+   {
+    "label": "Set prefix",
+    "key": "Set_prefix",
+    "redi": "",
+    "typeid": "_wpg",
+    "mode": 1,
+    "format": ""
+   },
+   {
+    "label": "Japanese release date",
+    "key": "Japanese_release_date",
+    "redi": "",
+    "typeid": "_dat",
+    "mode": 1,
+    "format": ""
+   }
+  ],
+  "results": {
+   "Rising of the Aurora": {
+    "printouts": {
+     "Korean release date": [
+      {
+       "timestamp": "1790640000",
+       "raw": "1/2026/9/29"
+      }
+     ],
+     "Set prefix": [],
+     "Japanese release date": [
+      {
+       "timestamp": "1779494400",
+       "raw": "1/2026/5/23"
+      }
+     ]
+    },
+    "fulltext": "Rising of the Aurora",
+    "fullurl": "https://yugipedia.com/wiki/Rising_of_the_Aurora",
+    "namespace": 0,
+    "exists": "1",
+    "displaytitle": "Rising of the Aurora"
+   },
+   "Advanced Event Pack 2026 Vol.2 Version 1": {
+    "printouts": {
+     "Korean release date": [
+      {
+       "timestamp": "1789776000",
+       "raw": "1/2026/9/19"
+      }
+     ],
+     "Set prefix": [],
+     "Japanese release date": []
+    },
+    "fulltext": "Advanced Event Pack 2026 Vol.2 Version 1",
+    "fullurl": "https://yugipedia.com/wiki/Advanced_Event_Pack_2026_Vol.2_Version_1",
+    "namespace": 0,
+    "exists": "1",
+    "displaytitle": "Advanced Event Pack 2026 Vol.2 Version 1"
+   },
+   "World Premiere Pack 2026": {
+    "printouts": {
+     "Korean release date": [
+      {
+       "timestamp": "1789603200",
+       "raw": "1/2026/9/17"
+      }
+     ],
+     "Set prefix": [],
+     "Japanese release date": [
+      {
+       "timestamp": "1782518400",
+       "raw": "1/2026/6/27"
+      }
+     ]
+    },
+    "fulltext": "World Premiere Pack 2026",
+    "fullurl": "https://yugipedia.com/wiki/World_Premiere_Pack_2026",
+    "namespace": 0,
+    "exists": "1",
+    "displaytitle": "World Premiere Pack 2026"
+   },
+   "Synergy Pack 03: Heroes Universe": {
+    "printouts": {
+     "Korean release date": [
+      {
+       "timestamp": "1788998400",
+       "raw": "1/2026/9/10"
+      }
+     ],
+     "Set prefix": [],
+     "Japanese release date": []
+    },
+    "fulltext": "Synergy Pack 03: Heroes Universe",
+    "fullurl": "https://yugipedia.com/wiki/Synergy_Pack_03:_Heroes_Universe",
+    "namespace": 0,
+    "exists": "1",
+    "displaytitle": "Synergy Pack 03: Heroes Universe"
+   },
+   "Over Rush Pack 4": {
+    "printouts": {
+     "Korean release date": [
+      {
+       "timestamp": "1788307200",
+       "raw": "1/2026/9/2"
+      }
+     ],
+     "Set prefix": [],
+     "Japanese release date": [
+      {
+       "timestamp": "1775865600",
+       "raw": "1/2026/4/11"
+      }
+     ]
+    },
+    "fulltext": "Over Rush Pack 4",
+    "fullurl": "https://yugipedia.com/wiki/Over_Rush_Pack_4",
+    "namespace": 0,
+    "exists": "1",
+    "displaytitle": "Over Rush Pack 4"
+   },
+   "Limited Pack World Championship 2026": {
+    "printouts": {
+     "Korean release date": [
+      {
+       "timestamp": "1787961600",
+       "raw": "1/2026/8/29"
+      }
+     ],
+     "Set prefix": [],
+     "Japanese release date": [
+      {
+       "timestamp": "1787961600",
+       "raw": "1/2026/8/29"
+      }
+     ]
+    },
+    "fulltext": "Limited Pack World Championship 2026",
+    "fullurl": "https://yugipedia.com/wiki/Limited_Pack_World_Championship_2026",
+    "namespace": 0,
+    "exists": "1",
+    "displaytitle": "Limited Pack World Championship 2026"
+   },
+   "Revolution Booster: Toon / Witchcrafter / Unchained": {
+    "printouts": {
+     "Korean release date": [
+      {
+       "timestamp": "1786579200",
+       "raw": "1/2026/8/13"
+      }
+     ],
+     "Set prefix": [],
+     "Japanese release date": [
+      {
+       "timestamp": "1780099200",
+       "raw": "1/2026/5/30"
+      }
+     ]
+    },
+    "fulltext": "Revolution Booster: Toon / Witchcrafter / Unchained",
+    "fullurl": "https://yugipedia.com/wiki/Revolution_Booster:_Toon_/_Witchcrafter_/_Unchained",
+    "namespace": 0,
+    "exists": "1",
+    "displaytitle": "Revolution Booster: Toon / Witchcrafter / Unchained"
+   },
+   "Advanced Victory Pack Vol.3": {
+    "printouts": {
+     "Korean release date": [
+      {
+       "timestamp": "1786147200",
+       "raw": "1/2026/8/8"
+      }
+     ],
+     "Set prefix": [],
+     "Japanese release date": []
+    },
+    "fulltext": "Advanced Victory Pack Vol.3",
+    "fullurl": "https://yugipedia.com/wiki/Advanced_Victory_Pack_Vol.3",
+    "namespace": 0,
+    "exists": "1",
+    "displaytitle": "Advanced Victory Pack Vol.3"
+   },
+   "Stella Cup 2026 Finals prize card": {
+    "printouts": {
+     "Korean release date": [
+      {
+       "timestamp": "1785542400",
+       "raw": "1/2026/8/1"
+      }
+     ],
+     "Set prefix": [],
+     "Japanese release date": []
+    },
+    "fulltext": "Stella Cup 2026 Finals prize card",
+    "fullurl": "https://yugipedia.com/wiki/Stella_Cup_2026_Finals_prize_card",
+    "namespace": 0,
+    "exists": "1",
+    "displaytitle": "Stella Cup 2026 Finals prize card"
+   },
+   "Stella Cup 2026 Finals participation card": {
+    "printouts": {
+     "Korean release date": [
+      {
+       "timestamp": "1785542400",
+       "raw": "1/2026/8/1"
+      }
+     ],
+     "Set prefix": [],
+     "Japanese release date": []
+    },
+    "fulltext": "Stella Cup 2026 Finals participation card",
+    "fullurl": "https://yugipedia.com/wiki/Stella_Cup_2026_Finals_participation_card",
+    "namespace": 0,
+    "exists": "1",
+    "displaytitle": "Stella Cup 2026 Finals participation card"
+   },
+   "Chaos Origins": {
+    "printouts": {
+     "Korean release date": [
+      {
+       "timestamp": "1783987200",
+       "raw": "1/2026/7/14"
+      }
+     ],
+     "Set prefix": [],
+     "Japanese release date": [
+      {
+       "timestamp": "1777075200",
+       "raw": "1/2026/4/25"
+      }
+     ]
+    },
+    "fulltext": "Chaos Origins",
+    "fullurl": "https://yugipedia.com/wiki/Chaos_Origins",
+    "namespace": 0,
+    "exists": "1",
+    "displaytitle": "Chaos Origins"
+   },
+   "Chaos Origins +1 Expansion Pack": {
+    "printouts": {
+     "Korean release date": [
+      {
+       "timestamp": "1783987200",
+       "raw": "1/2026/7/14"
+      }
+     ],
+     "Set prefix": [],
+     "Japanese release date": [
+      {
+       "timestamp": "1777075200",
+       "raw": "1/2026/4/25"
+      }
+     ]
+    },
+    "fulltext": "Chaos Origins +1 Expansion Pack",
+    "fullurl": "https://yugipedia.com/wiki/Chaos_Origins_%2B1_Expansion_Pack",
+    "namespace": 0,
+    "exists": "1",
+    "displaytitle": "Chaos Origins +1 Expansion Pack"
+   },
+   "The Lost Art Promotion Vol.4": {
+    "printouts": {
+     "Korean release date": [
+      {
+       "timestamp": "1780704000",
+       "raw": "1/2026/6/6"
+      }
+     ],
+     "Set prefix": [],
+     "Japanese release date": []
+    },
+    "fulltext": "The Lost Art Promotion Vol.4",
+    "fullurl": "https://yugipedia.com/wiki/The_Lost_Art_Promotion_Vol.4",
+    "namespace": 0,
+    "exists": "1",
+    "displaytitle": "The Lost Art Promotion Vol.4"
+   },
+   "Advanced Event Pack 2026 Vol.1 Version 2": {
+    "printouts": {
+     "Korean release date": [
+      {
+       "timestamp": "1780704000",
+       "raw": "1/2026/6/6"
+      }
+     ],
+     "Set prefix": [],
+     "Japanese release date": []
+    },
+    "fulltext": "Advanced Event Pack 2026 Vol.1 Version 2",
+    "fullurl": "https://yugipedia.com/wiki/Advanced_Event_Pack_2026_Vol.1_Version_2",
+    "namespace": 0,
+    "exists": "1",
+    "displaytitle": "Advanced Event Pack 2026 Vol.1 Version 2"
+   },
+   "Limit Over Special Pack Vol.2": {
+    "printouts": {
+     "Korean release date": [
+      {
+       "timestamp": "1780704000",
+       "raw": "1/2026/6/6"
+      }
+     ],
+     "Set prefix": [],
+     "Japanese release date": [
+      {
+       "timestamp": "1773964800",
+       "raw": "1/2026/3/20"
+      }
+     ]
+    },
+    "fulltext": "Limit Over Special Pack Vol.2",
+    "fullurl": "https://yugipedia.com/wiki/Limit_Over_Special_Pack_Vol.2",
+    "namespace": 0,
+    "exists": "1",
+    "displaytitle": "Limit Over Special Pack Vol.2"
+   },
+   "Special Pack: Stamp Edition": {
+    "printouts": {
+     "Korean release date": [
+      {
+       "timestamp": "1780704000",
+       "raw": "1/2026/6/6"
+      }
+     ],
+     "Set prefix": [],
+     "Japanese release date": [
+      {
+       "timestamp": "1765584000",
+       "raw": "1/2025/12/13"
+      }
+     ]
+    },
+    "fulltext": "Special Pack: Stamp Edition",
+    "fullurl": "https://yugipedia.com/wiki/Special_Pack:_Stamp_Edition",
+    "namespace": 0,
+    "exists": "1",
+    "displaytitle": "Special Pack: Stamp Edition"
+   },
+   "Overforce of the Abyss": {
+    "printouts": {
+     "Korean release date": [
+      {
+       "timestamp": "1780704000",
+       "raw": "1/2026/6/6"
+      }
+     ],
+     "Set prefix": [],
+     "Japanese release date": [
+      {
+       "timestamp": "1771027200",
+       "raw": "1/2026/2/14"
+      }
+     ]
+    },
+    "fulltext": "Overforce of the Abyss",
+    "fullurl": "https://yugipedia.com/wiki/Overforce_of_the_Abyss",
+    "namespace": 0,
+    "exists": "1",
+    "displaytitle": "Overforce of the Abyss"
+   },
+   "Limit Over Collection: The Rivals": {
+    "printouts": {
+     "Korean release date": [
+      {
+       "timestamp": "1780704000",
+       "raw": "1/2026/6/6"
+      }
+     ],
+     "Set prefix": [],
+     "Japanese release date": [
+      {
+       "timestamp": "1773964800",
+       "raw": "1/2026/3/20"
+      }
+     ]
+    },
+    "fulltext": "Limit Over Collection: The Rivals",
+    "fullurl": "https://yugipedia.com/wiki/Limit_Over_Collection:_The_Rivals",
+    "namespace": 0,
+    "exists": "1",
+    "displaytitle": "Limit Over Collection: The Rivals"
+   },
+   "Token Pack Vol.5": {
+    "printouts": {
+     "Korean release date": [
+      {
+       "timestamp": "1780704000",
+       "raw": "1/2026/6/6"
+      }
+     ],
+     "Set prefix": [],
+     "Japanese release date": [
+      {
+       "timestamp": "1689984000",
+       "raw": "1/2023/7/22"
+      }
+     ]
+    },
+    "fulltext": "Token Pack Vol.5",
+    "fullurl": "https://yugipedia.com/wiki/Token_Pack_Vol.5",
+    "namespace": 0,
+    "exists": "1",
+    "displaytitle": "Token Pack Vol.5"
+   },
+   "Labrynth Duel Set": {
+    "printouts": {
+     "Korean release date": [
+      {
+       "timestamp": "1780704000",
+       "raw": "1/2026/6/6"
+      }
+     ],
+     "Set prefix": [],
+     "Japanese release date": [
+      {
+       "timestamp": "1699056000",
+       "raw": "1/2023/11/4"
+      }
+     ]
+    },
+    "fulltext": "Labrynth Duel Set",
+    "fullurl": "https://yugipedia.com/wiki/Labrynth_Duel_Set",
+    "namespace": 0,
+    "exists": "1",
+    "displaytitle": "Labrynth Duel Set"
+   },
+   "Stella Cup 2026 Qualifiers participation card": {
+    "printouts": {
+     "Korean release date": [
+      {
+       "timestamp": "1780099200",
+       "raw": "1/2026/5/30"
+      }
+     ],
+     "Set prefix": [],
+     "Japanese release date": []
+    },
+    "fulltext": "Stella Cup 2026 Qualifiers participation card",
+    "fullurl": "https://yugipedia.com/wiki/Stella_Cup_2026_Qualifiers_participation_card",
+    "namespace": 0,
+    "exists": "1",
+    "displaytitle": "Stella Cup 2026 Qualifiers participation card"
+   },
+   "Limit Over Special Pack Vol.1": {
+    "printouts": {
+     "Korean release date": [
+      {
+       "timestamp": "1778803200",
+       "raw": "1/2026/5/15"
+      }
+     ],
+     "Set prefix": [],
+     "Japanese release date": [
+      {
+       "timestamp": "1772236800",
+       "raw": "1/2026/2/28"
+      }
+     ]
+    },
+    "fulltext": "Limit Over Special Pack Vol.1",
+    "fullurl": "https://yugipedia.com/wiki/Limit_Over_Special_Pack_Vol.1",
+    "namespace": 0,
+    "exists": "1",
+    "displaytitle": "Limit Over Special Pack Vol.1"
+   },
+   "Limit Over Collection: The Heroes": {
+    "printouts": {
+     "Korean release date": [
+      {
+       "timestamp": "1778803200",
+       "raw": "1/2026/5/15"
+      }
+     ],
+     "Set prefix": [],
+     "Japanese release date": [
+      {
+       "timestamp": "1772236800",
+       "raw": "1/2026/2/28"
+      }
+     ]
+    },
+    "fulltext": "Limit Over Collection: The Heroes",
+    "fullurl": "https://yugipedia.com/wiki/Limit_Over_Collection:_The_Heroes",
+    "namespace": 0,
+    "exists": "1",
+    "displaytitle": "Limit Over Collection: The Heroes"
+   },
+   "Rush Duel Event Pack 2026 Vol.1": {
+    "printouts": {
+     "Korean release date": [
+      {
+       "timestamp": "1776988800",
+       "raw": "1/2026/4/24"
+      }
+     ],
+     "Set prefix": [],
+     "Japanese release date": []
+    },
+    "fulltext": "Rush Duel Event Pack 2026 Vol.1",
+    "fullurl": "https://yugipedia.com/wiki/Rush_Duel_Event_Pack_2026_Vol.1",
+    "namespace": 0,
+    "exists": "1",
+    "displaytitle": "Rush Duel Event Pack 2026 Vol.1"
+   },
+   "Advance Pack: Revenge Hearts": {
+    "printouts": {
+     "Korean release date": [
+      {
+       "timestamp": "1776816000",
+       "raw": "1/2026/4/22"
+      }
+     ],
+     "Set prefix": [],
+     "Japanese release date": [
+      {
+       "timestamp": "1768003200",
+       "raw": "1/2026/1/10"
+      }
+     ]
+    },
+    "fulltext": "Advance Pack: Revenge Hearts",
+    "fullurl": "https://yugipedia.com/wiki/Advance_Pack:_Revenge_Hearts",
+    "namespace": 0,
+    "exists": "1",
+    "displaytitle": "Advance Pack: Revenge Hearts"
+   },
+   "Advanced Event Pack 2026 Vol.1 Version 1": {
+    "printouts": {
+     "Korean release date": [
+      {
+       "timestamp": "1775865600",
+       "raw": "1/2026/4/11"
+      }
+     ],
+     "Set prefix": [],
+     "Japanese release date": []
+    },
+    "fulltext": "Advanced Event Pack 2026 Vol.1 Version 1",
+    "fullurl": "https://yugipedia.com/wiki/Advanced_Event_Pack_2026_Vol.1_Version_1",
+    "namespace": 0,
+    "exists": "1",
+    "displaytitle": "Advanced Event Pack 2026 Vol.1 Version 1"
+   },
+   "5th Anniversary Duel Set": {
+    "printouts": {
+     "Korean release date": [
+      {
+       "timestamp": "1775692800",
+       "raw": "1/2026/4/9"
+      }
+     ],
+     "Set prefix": [],
+     "Japanese release date": [
+      {
+       "timestamp": "1772841600",
+       "raw": "1/2026/3/7"
+      }
+     ]
+    },
+    "fulltext": "5th Anniversary Duel Set",
+    "fullurl": "https://yugipedia.com/wiki/5th_Anniversary_Duel_Set",
+    "namespace": 0,
+    "exists": "1",
+    "displaytitle": "5th Anniversary Duel Set"
+   },
+   "Blazing Dominion +1 Assist Pack": {
+    "printouts": {
+     "Korean release date": [
+      {
+       "timestamp": "1775692800",
+       "raw": "1/2026/4/9"
+      }
+     ],
+     "Set prefix": [],
+     "Japanese release date": [
+      {
+       "timestamp": "1769212800",
+       "raw": "1/2026/1/24"
+      }
+     ]
+    },
+    "fulltext": "Blazing Dominion +1 Assist Pack",
+    "fullurl": "https://yugipedia.com/wiki/Blazing_Dominion_%2B1_Assist_Pack",
+    "namespace": 0,
+    "exists": "1",
+    "displaytitle": "Blazing Dominion +1 Assist Pack"
+   },
+   "Blazing Dominion": {
+    "printouts": {
+     "Korean release date": [
+      {
+       "timestamp": "1775692800",
+       "raw": "1/2026/4/9"
+      }
+     ],
+     "Set prefix": [],
+     "Japanese release date": [
+      {
+       "timestamp": "1769212800",
+       "raw": "1/2026/1/24"
+      }
+     ]
+    },
+    "fulltext": "Blazing Dominion",
+    "fullurl": "https://yugipedia.com/wiki/Blazing_Dominion",
+    "namespace": 0,
+    "exists": "1",
+    "displaytitle": "Blazing Dominion"
+   },
+   "Premium Pack 2026": {
+    "printouts": {
+     "Korean release date": [
+      {
+       "timestamp": "1774310400",
+       "raw": "1/2026/3/24"
+      }
+     ],
+     "Set prefix": [],
+     "Japanese release date": [
+      {
+       "timestamp": "1766188800",
+       "raw": "1/2025/12/20"
+      }
+     ]
+    },
+    "fulltext": "Premium Pack 2026",
+    "fullurl": "https://yugipedia.com/wiki/Premium_Pack_2026",
+    "namespace": 0,
+    "exists": "1",
+    "displaytitle": "Premium Pack 2026"
+   },
+   "Terminal World 3": {
+    "printouts": {
+     "Korean release date": [
+      {
+       "timestamp": "1772668800",
+       "raw": "1/2026/3/5"
+      }
+     ],
+     "Set prefix": [],
+     "Japanese release date": [
+      {
+       "timestamp": "1763769600",
+       "raw": "1/2025/11/22"
+      }
+     ]
+    },
+    "fulltext": "Terminal World 3",
+    "fullurl": "https://yugipedia.com/wiki/Terminal_World_3",
+    "namespace": 0,
+    "exists": "1",
+    "displaytitle": "Terminal World 3"
+   },
+   "Advanced Victory Pack Vol.2": {
+    "printouts": {
+     "Korean release date": [
+      {
+       "timestamp": "1772236800",
+       "raw": "1/2026/2/28"
+      }
+     ],
+     "Set prefix": [],
+     "Japanese release date": []
+    },
+    "fulltext": "Advanced Victory Pack Vol.2",
+    "fullurl": "https://yugipedia.com/wiki/Advanced_Victory_Pack_Vol.2",
+    "namespace": 0,
+    "exists": "1",
+    "displaytitle": "Advanced Victory Pack Vol.2"
+   },
+   "Gias Charge of the Nova": {
+    "printouts": {
+     "Korean release date": [
+      {
+       "timestamp": "1772064000",
+       "raw": "1/2026/2/26"
+      }
+     ],
+     "Set prefix": [],
+     "Japanese release date": [
+      {
+       "timestamp": "1764374400",
+       "raw": "1/2025/11/29"
+      }
+     ]
+    },
+    "fulltext": "Gias Charge of the Nova",
+    "fullurl": "https://yugipedia.com/wiki/Gias_Charge_of_the_Nova",
+    "namespace": 0,
+    "exists": "1",
+    "displaytitle": "Gias Charge of the Nova"
+   },
+   "Synergy Pack 02: The Generation Next": {
+    "printouts": {
+     "Korean release date": [
+      {
+       "timestamp": "1770768000",
+       "raw": "1/2026/2/11"
+      }
+     ],
+     "Set prefix": [],
+     "Japanese release date": []
+    },
+    "fulltext": "Synergy Pack 02: The Generation Next",
+    "fullurl": "https://yugipedia.com/wiki/Synergy_Pack_02:_The_Generation_Next",
+    "namespace": 0,
+    "exists": "1",
+    "displaytitle": "Synergy Pack 02: The Generation Next"
+   },
+   "Charmer Duel Set": {
+    "printouts": {
+     "Korean release date": [
+      {
+       "timestamp": "1770422400",
+       "raw": "1/2026/2/7"
+      }
+     ],
+     "Set prefix": [],
+     "Japanese release date": []
+    },
+    "fulltext": "Charmer Duel Set",
+    "fullurl": "https://yugipedia.com/wiki/Charmer_Duel_Set",
+    "namespace": 0,
+    "exists": "1",
+    "displaytitle": "Charmer Duel Set"
+   },
+   "THE CHRONICLES DECK: Spirit Charmers (All-Foil Edition)": {
+    "printouts": {
+     "Korean release date": [
+      {
+       "timestamp": "1770249600",
+       "raw": "1/2026/2/5"
+      }
+     ],
+     "Set prefix": [],
+     "Japanese release date": [
+      {
+       "timestamp": "1769212800",
+       "raw": "1/2026/1/24"
+      }
+     ]
+    },
+    "fulltext": "THE CHRONICLES DECK: Spirit Charmers (All-Foil Edition)",
+    "fullurl": "https://yugipedia.com/wiki/THE_CHRONICLES_DECK:_Spirit_Charmers_(All-Foil_Edition)",
+    "namespace": 0,
+    "exists": "1",
+    "displaytitle": "THE CHRONICLES DECK: Spirit Charmers (All-Foil Edition)"
+   },
+   "Over Rush Pack 3": {
+    "printouts": {
+     "Korean release date": [
+      {
+       "timestamp": "1768867200",
+       "raw": "1/2026/1/20"
+      }
+     ],
+     "Set prefix": [],
+     "Japanese release date": [
+      {
+       "timestamp": "1760745600",
+       "raw": "1/2025/10/18"
+      }
+     ]
+    },
+    "fulltext": "Over Rush Pack 3",
+    "fullurl": "https://yugipedia.com/wiki/Over_Rush_Pack_3",
+    "namespace": 0,
+    "exists": "1",
+    "displaytitle": "Over Rush Pack 3"
+   },
+   "Limited Pack: Stamp Edition": {
+    "printouts": {
+     "Korean release date": [
+      {
+       "timestamp": "1768348800",
+       "raw": "1/2026/1/14"
+      }
+     ],
+     "Set prefix": [],
+     "Japanese release date": [
+      {
+       "timestamp": "1765584000",
+       "raw": "1/2025/12/13"
+      }
+     ]
+    },
+    "fulltext": "Limited Pack: Stamp Edition",
+    "fullurl": "https://yugipedia.com/wiki/Limited_Pack:_Stamp_Edition",
+    "namespace": 0,
+    "exists": "1",
+    "displaytitle": "Limited Pack: Stamp Edition"
+   },
+   "Burst Protocol +1 Assist Pack": {
+    "printouts": {
+     "Korean release date": [
+      {
+       "timestamp": "1767744000",
+       "raw": "1/2026/1/7"
+      }
+     ],
+     "Set prefix": [],
+     "Japanese release date": [
+      {
+       "timestamp": "1761350400",
+       "raw": "1/2025/10/25"
+      }
+     ]
+    },
+    "fulltext": "Burst Protocol +1 Assist Pack",
+    "fullurl": "https://yugipedia.com/wiki/Burst_Protocol_%2B1_Assist_Pack",
+    "namespace": 0,
+    "exists": "1",
+    "displaytitle": "Burst Protocol +1 Assist Pack"
+   },
+   "Burst Protocol": {
+    "printouts": {
+     "Korean release date": [
+      {
+       "timestamp": "1767744000",
+       "raw": "1/2026/1/7"
+      }
+     ],
+     "Set prefix": [],
+     "Japanese release date": [
+      {
+       "timestamp": "1761350400",
+       "raw": "1/2025/10/25"
+      }
+     ]
+    },
+    "fulltext": "Burst Protocol",
+    "fullurl": "https://yugipedia.com/wiki/Burst_Protocol",
+    "namespace": 0,
+    "exists": "1",
+    "displaytitle": "Burst Protocol"
+   },
+   "Advanced Event Pack 2025 Vol.2 Version 2": {
+    "printouts": {
+     "Korean release date": [
+      {
+       "timestamp": "1766534400",
+       "raw": "1/2025/12/24"
+      }
+     ],
+     "Set prefix": [],
+     "Japanese release date": []
+    },
+    "fulltext": "Advanced Event Pack 2025 Vol.2 Version 2",
+    "fullurl": "https://yugipedia.com/wiki/Advanced_Event_Pack_2025_Vol.2_Version_2",
+    "namespace": 0,
+    "exists": "1",
+    "displaytitle": "Advanced Event Pack 2025 Vol.2 Version 2"
+   },
+   "Structure Deck: Power of Fellows Special Set": {
+    "printouts": {
+     "Korean release date": [
+      {
+       "timestamp": "1766102400",
+       "raw": "1/2025/12/19"
+      }
+     ],
+     "Set prefix": [],
+     "Japanese release date": []
+    },
+    "fulltext": "Structure Deck: Power of Fellows Special Set",
+    "fullurl": "https://yugipedia.com/wiki/Structure_Deck:_Power_of_Fellows_Special_Set",
+    "namespace": 0,
+    "exists": "1",
+    "displaytitle": "Structure Deck: Power of Fellows Special Set"
+   },
+   "Structure Deck: Power of Fellows Light of Gathering Stars Pack": {
+    "printouts": {
+     "Korean release date": [
+      {
+       "timestamp": "1766102400",
+       "raw": "1/2025/12/19"
+      }
+     ],
+     "Set prefix": [],
+     "Japanese release date": [
+      {
+       "timestamp": "1757116800",
+       "raw": "1/2025/9/6"
+      }
+     ]
+    },
+    "fulltext": "Structure Deck: Power of Fellows Light of Gathering Stars Pack",
+    "fullurl": "https://yugipedia.com/wiki/Structure_Deck:_Power_of_Fellows_Light_of_Gathering_Stars_Pack",
+    "namespace": 0,
+    "exists": "1",
+    "displaytitle": "Structure Deck: Power of Fellows Light of Gathering Stars Pack"
+   },
+   "World Premiere Pack 2025": {
+    "printouts": {
+     "Korean release date": [
+      {
+       "timestamp": "1765497600",
+       "raw": "1/2025/12/12"
+      }
+     ],
+     "Set prefix": [],
+     "Japanese release date": [
+      {
+       "timestamp": "1758931200",
+       "raw": "1/2025/9/27"
+      }
+     ]
+    },
+    "fulltext": "World Premiere Pack 2025",
+    "fullurl": "https://yugipedia.com/wiki/World_Premiere_Pack_2025",
+    "namespace": 0,
+    "exists": "1",
+    "displaytitle": "World Premiere Pack 2025"
+   },
+   "Structure Deck: Triumphant Return of the Monarchs": {
+    "printouts": {
+     "Korean release date": [
+      {
+       "timestamp": "1765238400",
+       "raw": "1/2025/12/9"
+      }
+     ],
+     "Set prefix": [],
+     "Japanese release date": [
+      {
+       "timestamp": "1758326400",
+       "raw": "1/2025/9/20"
+      }
+     ]
+    },
+    "fulltext": "Structure Deck: Triumphant Return of the Monarchs",
+    "fullurl": "https://yugipedia.com/wiki/Structure_Deck:_Triumphant_Return_of_the_Monarchs",
+    "namespace": 0,
+    "exists": "1",
+    "displaytitle": "Structure Deck: Triumphant Return of the Monarchs"
+   },
+   "Event Pack 2025 Vol.2": {
+    "printouts": {
+     "Korean release date": [
+      {
+       "timestamp": "1764374400",
+       "raw": "1/2025/11/29"
+      }
+     ],
+     "Set prefix": [],
+     "Japanese release date": []
+    },
+    "fulltext": "Event Pack 2025 Vol.2",
+    "fullurl": "https://yugipedia.com/wiki/Event_Pack_2025_Vol.2",
+    "namespace": 0,
+    "exists": "1",
+    "displaytitle": "Event Pack 2025 Vol.2"
+   },
+   "Deck-Build Pack: Phantom Revengers": {
+    "printouts": {
+     "Korean release date": [
+      {
+       "timestamp": "1763683200",
+       "raw": "1/2025/11/21"
+      }
+     ],
+     "Set prefix": [],
+     "Japanese release date": [
+      {
+       "timestamp": "1755907200",
+       "raw": "1/2025/8/23"
+      }
+     ]
+    },
+    "fulltext": "Deck-Build Pack: Phantom Revengers",
+    "fullurl": "https://yugipedia.com/wiki/Deck-Build_Pack:_Phantom_Revengers",
+    "namespace": 0,
+    "exists": "1",
+    "displaytitle": "Deck-Build Pack: Phantom Revengers"
+   },
+   "OuTerverSe of Terror": {
+    "printouts": {
+     "Korean release date": [
+      {
+       "timestamp": "1762819200",
+       "raw": "1/2025/11/11"
+      }
+     ],
+     "Set prefix": [],
+     "Japanese release date": [
+      {
+       "timestamp": "1754697600",
+       "raw": "1/2025/8/9"
+      }
+     ]
+    },
+    "fulltext": "OuTerverSe of Terror",
+    "fullurl": "https://yugipedia.com/wiki/OuTerverSe_of_Terror",
+    "namespace": 0,
+    "exists": "1",
+    "displaytitle": "OuTerverSe of Terror"
+   },
+   "Ultimate Special Pack": {
+    "printouts": {
+     "Korean release date": [
+      {
+       "timestamp": "1761868800",
+       "raw": "1/2025/10/31"
+      }
+     ],
+     "Set prefix": [],
+     "Japanese release date": [
+      {
+       "timestamp": "1745625600",
+       "raw": "1/2025/4/26"
+      }
+     ]
+    },
+    "fulltext": "Ultimate Special Pack",
+    "fullurl": "https://yugipedia.com/wiki/Ultimate_Special_Pack",
+    "namespace": 0,
+    "exists": "1",
+    "displaytitle": "Ultimate Special Pack"
+   },
+   "THE CHRONICLES DECK: The Fallen & The Virtuous (All-Foil Edition)": {
+    "printouts": {
+     "Korean release date": [
+      {
+       "timestamp": "1761609600",
+       "raw": "1/2025/10/28"
+      }
+     ],
+     "Set prefix": [],
+     "Japanese release date": [
+      {
+       "timestamp": "1761350400",
+       "raw": "1/2025/10/25"
+      }
+     ]
+    },
+    "fulltext": "THE CHRONICLES DECK: The Fallen & The Virtuous (All-Foil Edition)",
+    "fullurl": "https://yugipedia.com/wiki/THE_CHRONICLES_DECK:_The_Fallen_%26_The_Virtuous_(All-Foil_Edition)",
+    "namespace": 0,
+    "exists": "1",
+    "displaytitle": "THE CHRONICLES DECK: The Fallen & The Virtuous (All-Foil Edition)"
+   },
+   "5th Promotion Pack": {
+    "printouts": {
+     "Korean release date": [
+      {
+       "timestamp": "1761091200",
+       "raw": "1/2025/10/22"
+      }
+     ],
+     "Set prefix": [],
+     "Japanese release date": []
+    },
+    "fulltext": "5th Promotion Pack",
+    "fullurl": "https://yugipedia.com/wiki/5th_Promotion_Pack",
+    "namespace": 0,
+    "exists": "1",
+    "displaytitle": "5th Promotion Pack"
+   },
+   "Advance Pack: Devil's Ceremony": {
+    "printouts": {
+     "Korean release date": [
+      {
+       "timestamp": "1761091200",
+       "raw": "1/2025/10/22"
+      }
+     ],
+     "Set prefix": [],
+     "Japanese release date": [
+      {
+       "timestamp": "1752278400",
+       "raw": "1/2025/7/12"
+      }
+     ]
+    },
+    "fulltext": "Advance Pack: Devil's Ceremony",
+    "fullurl": "https://yugipedia.com/wiki/Advance_Pack:_Devil%27s_Ceremony",
+    "namespace": 0,
+    "exists": "1",
+    "displaytitle": "Advance Pack: Devil's Ceremony"
+   },
+   "Advanced Event Pack 2025 Vol.2 Version 1": {
+    "printouts": {
+     "Korean release date": [
+      {
+       "timestamp": "1760745600",
+       "raw": "1/2025/10/18"
+      }
+     ],
+     "Set prefix": [],
+     "Japanese release date": []
+    },
+    "fulltext": "Advanced Event Pack 2025 Vol.2 Version 1",
+    "fullurl": "https://yugipedia.com/wiki/Advanced_Event_Pack_2025_Vol.2_Version_1",
+    "namespace": 0,
+    "exists": "1",
+    "displaytitle": "Advanced Event Pack 2025 Vol.2 Version 1"
+   },
+   "EFootball collaboration cards": {
+    "printouts": {
+     "Korean release date": [
+      {
+       "timestamp": "1759449600",
+       "raw": "1/2025/10/3"
+      }
+     ],
+     "Set prefix": [],
+     "Japanese release date": [
+      {
+       "timestamp": "1758931200",
+       "raw": "1/2025/9/27"
+      }
+     ]
+    },
+    "fulltext": "EFootball collaboration cards",
+    "fullurl": "https://yugipedia.com/wiki/EFootball_collaboration_cards",
+    "namespace": 0,
+    "exists": "1",
+    "displaytitle": "eFootball collaboration cards"
+   },
+   "Doom of Dimensions +1 Assist Pack": {
+    "printouts": {
+     "Korean release date": [
+      {
+       "timestamp": "1758844800",
+       "raw": "1/2025/9/26"
+      }
+     ],
+     "Set prefix": [],
+     "Japanese release date": [
+      {
+       "timestamp": "1753488000",
+       "raw": "1/2025/7/26"
+      }
+     ]
+    },
+    "fulltext": "Doom of Dimensions +1 Assist Pack",
+    "fullurl": "https://yugipedia.com/wiki/Doom_of_Dimensions_%2B1_Assist_Pack",
+    "namespace": 0,
+    "exists": "1",
+    "displaytitle": "Doom of Dimensions +1 Assist Pack"
+   },
+   "Doom of Dimensions": {
+    "printouts": {
+     "Korean release date": [
+      {
+       "timestamp": "1758844800",
+       "raw": "1/2025/9/26"
+      }
+     ],
+     "Set prefix": [],
+     "Japanese release date": [
+      {
+       "timestamp": "1753488000",
+       "raw": "1/2025/7/26"
+      }
+     ]
+    },
+    "fulltext": "Doom of Dimensions",
+    "fullurl": "https://yugipedia.com/wiki/Doom_of_Dimensions",
+    "namespace": 0,
+    "exists": "1",
+    "displaytitle": "Doom of Dimensions"
+   },
+   "Tactical-Try Pack: Dark Magic / HERO / Mikanko": {
+    "printouts": {
+     "Korean release date": [
+      {
+       "timestamp": "1757980800",
+       "raw": "1/2025/9/16"
+      }
+     ],
+     "Set prefix": [],
+     "Japanese release date": [
+      {
+       "timestamp": "1751068800",
+       "raw": "1/2025/6/28"
+      }
+     ]
+    },
+    "fulltext": "Tactical-Try Pack: Dark Magic / HERO / Mikanko",
+    "fullurl": "https://yugipedia.com/wiki/Tactical-Try_Pack:_Dark_Magic_/_HERO_/_Mikanko",
+    "namespace": 0,
+    "exists": "1",
+    "displaytitle": "Tactical-Try Pack: Dark Magic / HERO / Mikanko"
+   },
+   "Accel Road of the Attack": {
+    "printouts": {
+     "Korean release date": [
+      {
+       "timestamp": "1757376000",
+       "raw": "1/2025/9/9"
+      }
+     ],
+     "Set prefix": [],
+     "Japanese release date": [
+      {
+       "timestamp": "1748649600",
+       "raw": "1/2025/5/31"
+      }
+     ]
+    },
+    "fulltext": "Accel Road of the Attack",
+    "fullurl": "https://yugipedia.com/wiki/Accel_Road_of_the_Attack",
+    "namespace": 0,
+    "exists": "1",
+    "displaytitle": "Accel Road of the Attack"
+   },
+   "Advanced Victory Pack Vol.1": {
+    "printouts": {
+     "Korean release date": [
+      {
+       "timestamp": "1755820800",
+       "raw": "1/2025/8/22"
+      }
+     ],
+     "Set prefix": [],
+     "Japanese release date": []
+    },
+    "fulltext": "Advanced Victory Pack Vol.1",
+    "fullurl": "https://yugipedia.com/wiki/Advanced_Victory_Pack_Vol.1",
+    "namespace": 0,
+    "exists": "1",
+    "displaytitle": "Advanced Victory Pack Vol.1"
+   },
+   "Structure Deck: Black Magic Ritual": {
+    "printouts": {
+     "Korean release date": [
+      {
+       "timestamp": "1755648000",
+       "raw": "1/2025/8/20"
+      }
+     ],
+     "Set prefix": [],
+     "Japanese release date": [
+      {
+       "timestamp": "1745625600",
+       "raw": "1/2025/4/26"
+      }
+     ]
+    },
+    "fulltext": "Structure Deck: Black Magic Ritual",
+    "fullurl": "https://yugipedia.com/wiki/Structure_Deck:_Black_Magic_Ritual",
+    "namespace": 0,
+    "exists": "1",
+    "displaytitle": "Structure Deck: Black Magic Ritual"
+   },
+   "Premium Pack 2025 2nd Wave": {
+    "printouts": {
+     "Korean release date": [
+      {
+       "timestamp": "1755129600",
+       "raw": "1/2025/8/14"
+      }
+     ],
+     "Set prefix": [],
+     "Japanese release date": []
+    },
+    "fulltext": "Premium Pack 2025 2nd Wave",
+    "fullurl": "https://yugipedia.com/wiki/Premium_Pack_2025_2nd_Wave",
+    "namespace": 0,
+    "exists": "1",
+    "displaytitle": "Premium Pack 2025 2nd Wave"
+   },
+   "Prismatic Trinity Box": {
+    "printouts": {
+     "Korean release date": [
+      {
+       "timestamp": "1754611200",
+       "raw": "1/2025/8/8"
+      }
+     ],
+     "Set prefix": [],
+     "Japanese release date": []
+    },
+    "fulltext": "Prismatic Trinity Box",
+    "fullurl": "https://yugipedia.com/wiki/Prismatic_Trinity_Box",
+    "namespace": 0,
+    "exists": "1",
+    "displaytitle": "Prismatic Trinity Box"
+   },
+   "Stella Cup 2025 Finals prize card": {
+    "printouts": {
+     "Korean release date": [
+      {
+       "timestamp": "1754179200",
+       "raw": "1/2025/8/3"
+      }
+     ],
+     "Set prefix": [],
+     "Japanese release date": []
+    },
+    "fulltext": "Stella Cup 2025 Finals prize card",
+    "fullurl": "https://yugipedia.com/wiki/Stella_Cup_2025_Finals_prize_card",
+    "namespace": 0,
+    "exists": "1",
+    "displaytitle": "Stella Cup 2025 Finals prize card"
+   },
+   "Stella Cup 2025 Finals participation card": {
+    "printouts": {
+     "Korean release date": [
+      {
+       "timestamp": "1754179200",
+       "raw": "1/2025/8/3"
+      }
+     ],
+     "Set prefix": [],
+     "Japanese release date": []
+    },
+    "fulltext": "Stella Cup 2025 Finals participation card",
+    "fullurl": "https://yugipedia.com/wiki/Stella_Cup_2025_Finals_participation_card",
+    "namespace": 0,
+    "exists": "1",
+    "displaytitle": "Stella Cup 2025 Finals participation card"
+   },
+   "Duelist's Advance": {
+    "printouts": {
+     "Korean release date": [
+      {
+       "timestamp": "1753747200",
+       "raw": "1/2025/7/29"
+      }
+     ],
+     "Set prefix": [],
+     "Japanese release date": [
+      {
+       "timestamp": "1745625600",
+       "raw": "1/2025/4/26"
+      }
+     ]
+    },
+    "fulltext": "Duelist's Advance",
+    "fullurl": "https://yugipedia.com/wiki/Duelist%27s_Advance",
+    "namespace": 0,
+    "exists": "1",
+    "displaytitle": "Duelist's Advance"
+   },
+   "Duelist Advance +1 Assist Pack": {
+    "printouts": {
+     "Korean release date": [
+      {
+       "timestamp": "1753747200",
+       "raw": "1/2025/7/29"
+      }
+     ],
+     "Set prefix": [],
+     "Japanese release date": [
+      {
+       "timestamp": "1745625600",
+       "raw": "1/2025/4/26"
+      }
+     ]
+    },
+    "fulltext": "Duelist Advance +1 Assist Pack",
+    "fullurl": "https://yugipedia.com/wiki/Duelist_Advance_%2B1_Assist_Pack",
+    "namespace": 0,
+    "exists": "1",
+    "displaytitle": "Duelist Advance +1 Assist Pack"
+   },
+   "5th Anniversary Pack": {
+    "printouts": {
+     "Korean release date": [
+      {
+       "timestamp": "1753228800",
+       "raw": "1/2025/7/23"
+      }
+     ],
+     "Set prefix": [],
+     "Japanese release date": [
+      {
+       "timestamp": "1744416000",
+       "raw": "1/2025/4/12"
+      }
+     ]
+    },
+    "fulltext": "5th Anniversary Pack",
+    "fullurl": "https://yugipedia.com/wiki/5th_Anniversary_Pack",
+    "namespace": 0,
+    "exists": "1",
+    "displaytitle": "5th Anniversary Pack"
+   },
+   "The Hyundai Seoul Pop-Up Special Pack B": {
+    "printouts": {
+     "Korean release date": [
+      {
+       "timestamp": "1752796800",
+       "raw": "1/2025/7/18"
+      }
+     ],
+     "Set prefix": [],
+     "Japanese release date": []
+    },
+    "fulltext": "The Hyundai Seoul Pop-Up Special Pack B",
+    "fullurl": "https://yugipedia.com/wiki/The_Hyundai_Seoul_Pop-Up_Special_Pack_B",
+    "namespace": 0,
+    "exists": "1",
+    "displaytitle": "The Hyundai Seoul Pop-Up Special Pack B"
+   },
+   "Prismatic Trinity Box Limited Edition": {
+    "printouts": {
+     "Korean release date": [
+      {
+       "timestamp": "1752796800",
+       "raw": "1/2025/7/18"
+      }
+     ],
+     "Set prefix": [],
+     "Japanese release date": []
+    },
+    "fulltext": "Prismatic Trinity Box Limited Edition",
+    "fullurl": "https://yugipedia.com/wiki/Prismatic_Trinity_Box_Limited_Edition",
+    "namespace": 0,
+    "exists": "1",
+    "displaytitle": "Prismatic Trinity Box Limited Edition"
+   },
+   "An Epic Tale of Recollected Memories Duel Set": {
+    "printouts": {
+     "Korean release date": [
+      {
+       "timestamp": "1752796800",
+       "raw": "1/2025/7/18"
+      }
+     ],
+     "Set prefix": [],
+     "Japanese release date": []
+    },
+    "fulltext": "An Epic Tale of Recollected Memories Duel Set",
+    "fullurl": "https://yugipedia.com/wiki/An_Epic_Tale_of_Recollected_Memories_Duel_Set",
+    "namespace": 0,
+    "exists": "1",
+    "displaytitle": "An Epic Tale of Recollected Memories Duel Set"
+   },
+   "The Hyundai Seoul Pop-Up Special Pack C": {
+    "printouts": {
+     "Korean release date": [
+      {
+       "timestamp": "1752796800",
+       "raw": "1/2025/7/18"
+      }
+     ],
+     "Set prefix": [],
+     "Japanese release date": []
+    },
+    "fulltext": "The Hyundai Seoul Pop-Up Special Pack C",
+    "fullurl": "https://yugipedia.com/wiki/The_Hyundai_Seoul_Pop-Up_Special_Pack_C",
+    "namespace": 0,
+    "exists": "1",
+    "displaytitle": "The Hyundai Seoul Pop-Up Special Pack C"
+   },
+   "The Hyundai Seoul Pop-Up Special Pack A": {
+    "printouts": {
+     "Korean release date": [
+      {
+       "timestamp": "1752796800",
+       "raw": "1/2025/7/18"
+      }
+     ],
+     "Set prefix": [],
+     "Japanese release date": []
+    },
+    "fulltext": "The Hyundai Seoul Pop-Up Special Pack A",
+    "fullurl": "https://yugipedia.com/wiki/The_Hyundai_Seoul_Pop-Up_Special_Pack_A",
+    "namespace": 0,
+    "exists": "1",
+    "displaytitle": "The Hyundai Seoul Pop-Up Special Pack A"
+   },
+   "Maliss Duel Set": {
+    "printouts": {
+     "Korean release date": [
+      {
+       "timestamp": "1752796800",
+       "raw": "1/2025/7/18"
+      }
+     ],
+     "Set prefix": [],
+     "Japanese release date": [
+      {
+       "timestamp": "1744416000",
+       "raw": "1/2025/4/12"
+      }
+     ]
+    },
+    "fulltext": "Maliss Duel Set",
+    "fullurl": "https://yugipedia.com/wiki/Maliss_Duel_Set",
+    "namespace": 0,
+    "exists": "1",
+    "displaytitle": "Maliss Duel Set"
+   },
+   "Structure Deck: Harpie Lady Sisters": {
+    "printouts": {
+     "Korean release date": [
+      {
+       "timestamp": "1750204800",
+       "raw": "1/2025/6/18"
+      }
+     ],
+     "Set prefix": [],
+     "Japanese release date": [
+      {
+       "timestamp": "1741392000",
+       "raw": "1/2025/3/8"
+      }
+     ]
+    },
+    "fulltext": "Structure Deck: Harpie Lady Sisters",
+    "fullurl": "https://yugipedia.com/wiki/Structure_Deck:_Harpie_Lady_Sisters",
+    "namespace": 0,
+    "exists": "1",
+    "displaytitle": "Structure Deck: Harpie Lady Sisters"
+   },
+   "Structure Deck: Chimeratech Cyber": {
+    "printouts": {
+     "Korean release date": [
+      {
+       "timestamp": "1750204800",
+       "raw": "1/2025/6/18"
+      }
+     ],
+     "Set prefix": [],
+     "Japanese release date": [
+      {
+       "timestamp": "1741392000",
+       "raw": "1/2025/3/8"
+      }
+     ]
+    },
+    "fulltext": "Structure Deck: Chimeratech Cyber",
+    "fullurl": "https://yugipedia.com/wiki/Structure_Deck:_Chimeratech_Cyber",
+    "namespace": 0,
+    "exists": "1",
+    "displaytitle": "Structure Deck: Chimeratech Cyber"
+   },
+   "Deck-Build Pack: Justice Hunters": {
+    "printouts": {
+     "Korean release date": [
+      {
+       "timestamp": "1749600000",
+       "raw": "1/2025/6/11"
+      }
+     ],
+     "Set prefix": [],
+     "Japanese release date": [
+      {
+       "timestamp": "1742601600",
+       "raw": "1/2025/3/22"
+      }
+     ]
+    },
+    "fulltext": "Deck-Build Pack: Justice Hunters",
+    "fullurl": "https://yugipedia.com/wiki/Deck-Build_Pack:_Justice_Hunters",
+    "namespace": 0,
+    "exists": "1",
+    "displaytitle": "Deck-Build Pack: Justice Hunters"
+   },
+   "Maximum Duel Tournament Part 2 prize cards": {
+    "printouts": {
+     "Korean release date": [
+      {
+       "timestamp": "1749254400",
+       "raw": "1/2025/6/7"
+      }
+     ],
+     "Set prefix": [],
+     "Japanese release date": [
+      {
+       "timestamp": "1737158400",
+       "raw": "1/2025/1/18"
+      }
+     ]
+    },
+    "fulltext": "Maximum Duel Tournament Part 2 prize cards",
+    "fullurl": "https://yugipedia.com/wiki/Maximum_Duel_Tournament_Part_2_prize_cards",
+    "namespace": 0,
+    "exists": "1",
+    "displaytitle": "Maximum Duel Tournament Part 2 prize cards"
+   },
+   "Stella Cup 2025 Qualifiers participation card": {
+    "printouts": {
+     "Korean release date": [
+      {
+       "timestamp": "1748044800",
+       "raw": "1/2025/5/24"
+      }
+     ],
+     "Set prefix": [],
+     "Japanese release date": []
+    },
+    "fulltext": "Stella Cup 2025 Qualifiers participation card",
+    "fullurl": "https://yugipedia.com/wiki/Stella_Cup_2025_Qualifiers_participation_card",
+    "namespace": 0,
+    "exists": "1",
+    "displaytitle": "Stella Cup 2025 Qualifiers participation card"
+   },
+   "Tactical-Try Deck: Rescue-ACE": {
+    "printouts": {
+     "Korean release date": [
+      {
+       "timestamp": "1747872000",
+       "raw": "1/2025/5/22"
+      }
+     ],
+     "Set prefix": [],
+     "Japanese release date": [
+      {
+       "timestamp": "1748044800",
+       "raw": "1/2025/5/24"
+      }
+     ]
+    },
+    "fulltext": "Tactical-Try Deck: Rescue-ACE",
+    "fullurl": "https://yugipedia.com/wiki/Tactical-Try_Deck:_Rescue-ACE",
+    "namespace": 0,
+    "exists": "1",
+    "displaytitle": "Tactical-Try Deck: Rescue-ACE"
+   },
+   "Tactical-Try Deck: Exosister": {
+    "printouts": {
+     "Korean release date": [
+      {
+       "timestamp": "1747872000",
+       "raw": "1/2025/5/22"
+      }
+     ],
+     "Set prefix": [],
+     "Japanese release date": [
+      {
+       "timestamp": "1748044800",
+       "raw": "1/2025/5/24"
+      }
+     ]
+    },
+    "fulltext": "Tactical-Try Deck: Exosister",
+    "fullurl": "https://yugipedia.com/wiki/Tactical-Try_Deck:_Exosister",
+    "namespace": 0,
+    "exists": "1",
+    "displaytitle": "Tactical-Try Deck: Exosister"
+   },
+   "Advanced Event Pack 2025 Vol.1 Version 2": {
+    "printouts": {
+     "Korean release date": [
+      {
+       "timestamp": "1747872000",
+       "raw": "1/2025/5/22"
+      }
+     ],
+     "Set prefix": [],
+     "Japanese release date": []
+    },
+    "fulltext": "Advanced Event Pack 2025 Vol.1 Version 2",
+    "fullurl": "https://yugipedia.com/wiki/Advanced_Event_Pack_2025_Vol.1_Version_2",
+    "namespace": 0,
+    "exists": "1",
+    "displaytitle": "Advanced Event Pack 2025 Vol.1 Version 2"
+   },
+   "Galactica of Eternity": {
+    "printouts": {
+     "Korean release date": [
+      {
+       "timestamp": "1747353600",
+       "raw": "1/2025/5/16"
+      }
+     ],
+     "Set prefix": [],
+     "Japanese release date": [
+      {
+       "timestamp": "1738972800",
+       "raw": "1/2025/2/8"
+      }
+     ]
+    },
+    "fulltext": "Galactica of Eternity",
+    "fullurl": "https://yugipedia.com/wiki/Galactica_of_Eternity",
+    "namespace": 0,
+    "exists": "1",
+    "displaytitle": "Galactica of Eternity"
+   },
+   "Premium Pack 2025 1st Wave": {
+    "printouts": {
+     "Korean release date": [
+      {
+       "timestamp": "1747180800",
+       "raw": "1/2025/5/14"
+      }
+     ],
+     "Set prefix": [],
+     "Japanese release date": []
+    },
+    "fulltext": "Premium Pack 2025 1st Wave",
+    "fullurl": "https://yugipedia.com/wiki/Premium_Pack_2025_1st_Wave",
+    "namespace": 0,
+    "exists": "1",
+    "displaytitle": "Premium Pack 2025 1st Wave"
+   },
+   "Event Pack 2025 Vol.1": {
+    "printouts": {
+     "Korean release date": [
+      {
+       "timestamp": "1745625600",
+       "raw": "1/2025/4/26"
+      }
+     ],
+     "Set prefix": [],
+     "Japanese release date": []
+    },
+    "fulltext": "Event Pack 2025 Vol.1",
+    "fullurl": "https://yugipedia.com/wiki/Event_Pack_2025_Vol.1",
+    "namespace": 0,
+    "exists": "1",
+    "displaytitle": "Event Pack 2025 Vol.1"
+   },
+   "Maximum Duel Tournament Part 1 prize cards": {
+    "printouts": {
+     "Korean release date": [
+      {
+       "timestamp": "1745625600",
+       "raw": "1/2025/4/26"
+      }
+     ],
+     "Set prefix": [],
+     "Japanese release date": [
+      {
+       "timestamp": "1734134400",
+       "raw": "1/2024/12/14"
+      }
+     ]
+    },
+    "fulltext": "Maximum Duel Tournament Part 1 prize cards",
+    "fullurl": "https://yugipedia.com/wiki/Maximum_Duel_Tournament_Part_1_prize_cards",
+    "namespace": 0,
+    "exists": "1",
+    "displaytitle": "Maximum Duel Tournament Part 1 prize cards"
+   },
+   "Alliance Insight +1 Bonus Pack": {
+    "printouts": {
+     "Korean release date": [
+      {
+       "timestamp": "1744761600",
+       "raw": "1/2025/4/16"
+      }
+     ],
+     "Set prefix": [],
+     "Japanese release date": [
+      {
+       "timestamp": "1737763200",
+       "raw": "1/2025/1/25"
+      }
+     ]
+    },
+    "fulltext": "Alliance Insight +1 Bonus Pack",
+    "fullurl": "https://yugipedia.com/wiki/Alliance_Insight_%2B1_Bonus_Pack",
+    "namespace": 0,
+    "exists": "1",
+    "displaytitle": "Alliance Insight +1 Bonus Pack"
+   },
+   "Alliance Insight": {
+    "printouts": {
+     "Korean release date": [
+      {
+       "timestamp": "1744761600",
+       "raw": "1/2025/4/16"
+      }
+     ],
+     "Set prefix": [],
+     "Japanese release date": [
+      {
+       "timestamp": "1737763200",
+       "raw": "1/2025/1/25"
+      }
+     ]
+    },
+    "fulltext": "Alliance Insight",
+    "fullurl": "https://yugipedia.com/wiki/Alliance_Insight",
+    "namespace": 0,
+    "exists": "1",
+    "displaytitle": "Alliance Insight"
+   },
+   "Advanced Event Pack 2025 Vol.1 Version 1": {
+    "printouts": {
+     "Korean release date": [
+      {
+       "timestamp": "1744416000",
+       "raw": "1/2025/4/12"
+      }
+     ],
+     "Set prefix": [],
+     "Japanese release date": []
+    },
+    "fulltext": "Advanced Event Pack 2025 Vol.1 Version 1",
+    "fullurl": "https://yugipedia.com/wiki/Advanced_Event_Pack_2025_Vol.1_Version_1",
+    "namespace": 0,
+    "exists": "1",
+    "displaytitle": "Advanced Event Pack 2025 Vol.1 Version 1"
+   },
+   "Triple Build Pack: Evolution Impact": {
+    "printouts": {
+     "Korean release date": [
+      {
+       "timestamp": "1742342400",
+       "raw": "1/2025/3/19"
+      }
+     ],
+     "Set prefix": [],
+     "Japanese release date": [
+      {
+       "timestamp": "1736553600",
+       "raw": "1/2025/1/11"
+      }
+     ]
+    },
+    "fulltext": "Triple Build Pack: Evolution Impact",
+    "fullurl": "https://yugipedia.com/wiki/Triple_Build_Pack:_Evolution_Impact",
+    "namespace": 0,
+    "exists": "1",
+    "displaytitle": "Triple Build Pack: Evolution Impact"
+   },
+   "Monthly Tournament March 2025 prize card": {
+    "printouts": {
+     "Korean release date": [
+      {
+       "timestamp": "1741392000",
+       "raw": "1/2025/3/8"
+      }
+     ],
+     "Set prefix": [],
+     "Japanese release date": []
+    },
+    "fulltext": "Monthly Tournament March 2025 prize card",
+    "fullurl": "https://yugipedia.com/wiki/Monthly_Tournament_March_2025_prize_card",
+    "namespace": 0,
+    "exists": "1",
+    "displaytitle": "Monthly Tournament March 2025 prize card"
+   },
+   "Quarter Century Art Collection": {
+    "printouts": {
+     "Korean release date": [
+      {
+       "timestamp": "1741219200",
+       "raw": "1/2025/3/6"
+      }
+     ],
+     "Set prefix": [],
+     "Japanese release date": [
+      {
+       "timestamp": "1740182400",
+       "raw": "1/2025/2/22"
+      }
+     ]
+    },
+    "fulltext": "Quarter Century Art Collection",
+    "fullurl": "https://yugipedia.com/wiki/Quarter_Century_Art_Collection",
+    "namespace": 0,
+    "exists": "1",
+    "displaytitle": "Quarter Century Art Collection"
+   },
+   "Terminal World 2": {
+    "printouts": {
+     "Korean release date": [
+      {
+       "timestamp": "1739923200",
+       "raw": "1/2025/2/19"
+      }
+     ],
+     "Set prefix": [],
+     "Japanese release date": [
+      {
+       "timestamp": "1732320000",
+       "raw": "1/2024/11/23"
+      }
+     ]
+    },
+    "fulltext": "Terminal World 2",
+    "fullurl": "https://yugipedia.com/wiki/Terminal_World_2",
+    "namespace": 0,
+    "exists": "1",
+    "displaytitle": "Terminal World 2"
+   },
+   "Salamandeus of Scorching": {
+    "printouts": {
+     "Korean release date": [
+      {
+       "timestamp": "1739491200",
+       "raw": "1/2025/2/14"
+      }
+     ],
+     "Set prefix": [],
+     "Japanese release date": [
+      {
+       "timestamp": "1731715200",
+       "raw": "1/2024/11/16"
+      }
+     ]
+    },
+    "fulltext": "Salamandeus of Scorching",
+    "fullurl": "https://yugipedia.com/wiki/Salamandeus_of_Scorching",
+    "namespace": 0,
+    "exists": "1",
+    "displaytitle": "Salamandeus of Scorching"
+   },
+   "Monthly Tournament February 2025 prize card": {
+    "printouts": {
+     "Korean release date": [
+      {
+       "timestamp": "1738368000",
+       "raw": "1/2025/2/1"
+      }
+     ],
+     "Set prefix": [],
+     "Japanese release date": []
+    },
+    "fulltext": "Monthly Tournament February 2025 prize card",
+    "fullurl": "https://yugipedia.com/wiki/Monthly_Tournament_February_2025_prize_card",
+    "namespace": 0,
+    "exists": "1",
+    "displaytitle": "Monthly Tournament February 2025 prize card"
+   },
+   "Neo Legend Awakening Pack": {
+    "printouts": {
+     "Korean release date": [
+      {
+       "timestamp": "1737072000",
+       "raw": "1/2025/1/17"
+      }
+     ],
+     "Set prefix": [],
+     "Japanese release date": [
+      {
+       "timestamp": "1728691200",
+       "raw": "1/2024/10/12"
+      }
+     ]
+    },
+    "fulltext": "Neo Legend Awakening Pack",
+    "fullurl": "https://yugipedia.com/wiki/Neo_Legend_Awakening_Pack",
+    "namespace": 0,
+    "exists": "1",
+    "displaytitle": "Neo Legend Awakening Pack"
+   },
+   "Advanced Event Pack 2024 Vol.2 Version 2": {
+    "printouts": {
+     "Korean release date": [
+      {
+       "timestamp": "1736467200",
+       "raw": "1/2025/1/10"
+      }
+     ],
+     "Set prefix": [],
+     "Japanese release date": []
+    },
+    "fulltext": "Advanced Event Pack 2024 Vol.2 Version 2",
+    "fullurl": "https://yugipedia.com/wiki/Advanced_Event_Pack_2024_Vol.2_Version_2",
+    "namespace": 0,
+    "exists": "1",
+    "displaytitle": "Advanced Event Pack 2024 Vol.2 Version 2"
+   },
+   "Supreme Darkness +1 Bonus Pack": {
+    "printouts": {
+     "Korean release date": [
+      {
+       "timestamp": "1736467200",
+       "raw": "1/2025/1/10"
+      }
+     ],
+     "Set prefix": [],
+     "Japanese release date": [
+      {
+       "timestamp": "1729900800",
+       "raw": "1/2024/10/26"
+      }
+     ]
+    },
+    "fulltext": "Supreme Darkness +1 Bonus Pack",
+    "fullurl": "https://yugipedia.com/wiki/Supreme_Darkness_%2B1_Bonus_Pack",
+    "namespace": 0,
+    "exists": "1",
+    "displaytitle": "Supreme Darkness +1 Bonus Pack"
+   },
+   "Supreme Darkness": {
+    "printouts": {
+     "Korean release date": [
+      {
+       "timestamp": "1736467200",
+       "raw": "1/2025/1/10"
+      }
+     ],
+     "Set prefix": [],
+     "Japanese release date": [
+      {
+       "timestamp": "1729900800",
+       "raw": "1/2024/10/26"
+      }
+     ]
+    },
+    "fulltext": "Supreme Darkness",
+    "fullurl": "https://yugipedia.com/wiki/Supreme_Darkness",
+    "namespace": 0,
+    "exists": "1",
+    "displaytitle": "Supreme Darkness"
+   },
+   "Secret Record Pack 3 Vol.2": {
+    "printouts": {
+     "Korean release date": [
+      {
+       "timestamp": "1735430400",
+       "raw": "1/2024/12/29"
+      }
+     ],
+     "Set prefix": [],
+     "Japanese release date": []
+    },
+    "fulltext": "Secret Record Pack 3 Vol.2",
+    "fullurl": "https://yugipedia.com/wiki/Secret_Record_Pack_3_Vol.2",
+    "namespace": 0,
+    "exists": "1",
+    "displaytitle": "Secret Record Pack 3 Vol.2"
+   },
+   "Monthly Tournament December 2024 prize card": {
+    "printouts": {
+     "Korean release date": [
+      {
+       "timestamp": "1735344000",
+       "raw": "1/2024/12/28"
+      }
+     ],
+     "Set prefix": [],
+     "Japanese release date": []
+    },
+    "fulltext": "Monthly Tournament December 2024 prize card",
+    "fullurl": "https://yugipedia.com/wiki/Monthly_Tournament_December_2024_prize_card",
+    "namespace": 0,
+    "exists": "1",
+    "displaytitle": "Monthly Tournament December 2024 prize card"
+   },
+   "Fusion Duel Tournament Part 2 prize cards": {
+    "printouts": {
+     "Korean release date": [
+      {
+       "timestamp": "1734739200",
+       "raw": "1/2024/12/21"
+      }
+     ],
+     "Set prefix": [],
+     "Japanese release date": [
+      {
+       "timestamp": "1728086400",
+       "raw": "1/2024/10/5"
+      }
+     ]
+    },
+    "fulltext": "Fusion Duel Tournament Part 2 prize cards",
+    "fullurl": "https://yugipedia.com/wiki/Fusion_Duel_Tournament_Part_2_prize_cards",
+    "namespace": 0,
+    "exists": "1",
+    "displaytitle": "Fusion Duel Tournament Part 2 prize cards"
+   },
+   "World Premiere Pack 2024": {
+    "printouts": {
+     "Korean release date": [
+      {
+       "timestamp": "1734652800",
+       "raw": "1/2024/12/20"
+      }
+     ],
+     "Set prefix": [],
+     "Japanese release date": [
+      {
+       "timestamp": "1727481600",
+       "raw": "1/2024/9/28"
+      }
+     ]
+    },
+    "fulltext": "World Premiere Pack 2024",
+    "fullurl": "https://yugipedia.com/wiki/World_Premiere_Pack_2024",
+    "namespace": 0,
+    "exists": "1",
+    "displaytitle": "World Premiere Pack 2024"
+   },
+   "Structure Deck: Advent of the Eyes of Blue Legendary Majesty Inheritance Pack": {
+    "printouts": {
+     "Korean release date": [
+      {
+       "timestamp": "1733875200",
+       "raw": "1/2024/12/11"
+      }
+     ],
+     "Set prefix": [],
+     "Japanese release date": [
+      {
+       "timestamp": "1725667200",
+       "raw": "1/2024/9/7"
+      }
+     ]
+    },
+    "fulltext": "Structure Deck: Advent of the Eyes of Blue Legendary Majesty Inheritance Pack",
+    "fullurl": "https://yugipedia.com/wiki/Structure_Deck:_Advent_of_the_Eyes_of_Blue_Legendary_Majesty_Inheritance_Pack",
+    "namespace": 0,
+    "exists": "1",
+    "displaytitle": "Structure Deck: Advent of the Eyes of Blue Legendary Majesty Inheritance Pack"
+   },
+   "Structure Deck: Advent of the Eyes of Blue": {
+    "printouts": {
+     "Korean release date": [
+      {
+       "timestamp": "1733875200",
+       "raw": "1/2024/12/11"
+      }
+     ],
+     "Set prefix": [],
+     "Japanese release date": [
+      {
+       "timestamp": "1725667200",
+       "raw": "1/2024/9/7"
+      }
+     ]
+    },
+    "fulltext": "Structure Deck: Advent of the Eyes of Blue",
+    "fullurl": "https://yugipedia.com/wiki/Structure_Deck:_Advent_of_the_Eyes_of_Blue",
+    "namespace": 0,
+    "exists": "1",
+    "displaytitle": "Structure Deck: Advent of the Eyes of Blue"
+   },
+   "Freshberry Duel Set": {
+    "printouts": {
+     "Korean release date": [
+      {
+       "timestamp": "1733529600",
+       "raw": "1/2024/12/7"
+      }
+     ],
+     "Set prefix": [],
+     "Japanese release date": []
+    },
+    "fulltext": "Freshberry Duel Set",
+    "fullurl": "https://yugipedia.com/wiki/Freshberry_Duel_Set",
+    "namespace": 0,
+    "exists": "1",
+    "displaytitle": "Freshberry Duel Set"
+   },
+   "Fiendsmith Duel Set": {
+    "printouts": {
+     "Korean release date": [
+      {
+       "timestamp": "1733529600",
+       "raw": "1/2024/12/7"
+      }
+     ],
+     "Set prefix": [],
+     "Japanese release date": [
+      {
+       "timestamp": "1730678400",
+       "raw": "1/2024/11/4"
+      }
+     ]
+    },
+    "fulltext": "Fiendsmith Duel Set",
+    "fullurl": "https://yugipedia.com/wiki/Fiendsmith_Duel_Set",
+    "namespace": 0,
+    "exists": "1",
+    "displaytitle": "Fiendsmith Duel Set"
+   },
+   "Diabellstar Duel Set": {
+    "printouts": {
+     "Korean release date": [
+      {
+       "timestamp": "1733529600",
+       "raw": "1/2024/12/7"
+      }
+     ],
+     "Set prefix": [],
+     "Japanese release date": [
+      {
+       "timestamp": "1714262400",
+       "raw": "1/2024/4/28"
+      }
+     ]
+    },
+    "fulltext": "Diabellstar Duel Set",
+    "fullurl": "https://yugipedia.com/wiki/Diabellstar_Duel_Set",
+    "namespace": 0,
+    "exists": "1",
+    "displaytitle": "Diabellstar Duel Set"
+   },
+   "Deck-Build Pack: Crossover Breakers": {
+    "printouts": {
+     "Korean release date": [
+      {
+       "timestamp": "1732060800",
+       "raw": "1/2024/11/20"
+      }
+     ],
+     "Set prefix": [],
+     "Japanese release date": [
+      {
+       "timestamp": "1724457600",
+       "raw": "1/2024/8/24"
+      }
+     ]
+    },
+    "fulltext": "Deck-Build Pack: Crossover Breakers",
+    "fullurl": "https://yugipedia.com/wiki/Deck-Build_Pack:_Crossover_Breakers",
+    "namespace": 0,
+    "exists": "1",
+    "displaytitle": "Deck-Build Pack: Crossover Breakers"
+   },
+   "Secret Record Pack 3 Vol.1": {
+    "printouts": {
+     "Korean release date": [
+      {
+       "timestamp": "1731974400",
+       "raw": "1/2024/11/19"
+      }
+     ],
+     "Set prefix": [],
+     "Japanese release date": []
+    },
+    "fulltext": "Secret Record Pack 3 Vol.1",
+    "fullurl": "https://yugipedia.com/wiki/Secret_Record_Pack_3_Vol.1",
+    "namespace": 0,
+    "exists": "1",
+    "displaytitle": "Secret Record Pack 3 Vol.1"
+   },
+   "Dark Matter of Phantoms": {
+    "printouts": {
+     "Korean release date": [
+      {
+       "timestamp": "1731974400",
+       "raw": "1/2024/11/19"
+      }
+     ],
+     "Set prefix": [],
+     "Japanese release date": [
+      {
+       "timestamp": "1723248000",
+       "raw": "1/2024/8/10"
+      }
+     ]
+    },
+    "fulltext": "Dark Matter of Phantoms",
+    "fullurl": "https://yugipedia.com/wiki/Dark_Matter_of_Phantoms",
+    "namespace": 0,
+    "exists": "1",
+    "displaytitle": "Dark Matter of Phantoms"
+   },
+   "Rush Duel Event Pack 2024 Vol.2": {
+    "printouts": {
+     "Korean release date": [
+      {
+       "timestamp": "1730505600",
+       "raw": "1/2024/11/2"
+      }
+     ],
+     "Set prefix": [],
+     "Japanese release date": []
+    },
+    "fulltext": "Rush Duel Event Pack 2024 Vol.2",
+    "fullurl": "https://yugipedia.com/wiki/Rush_Duel_Event_Pack_2024_Vol.2",
+    "namespace": 0,
+    "exists": "1",
+    "displaytitle": "Rush Duel Event Pack 2024 Vol.2"
+   },
+   "Fusion Duel Tournament Part 1 prize cards": {
+    "printouts": {
+     "Korean release date": [
+      {
+       "timestamp": "1730505600",
+       "raw": "1/2024/11/2"
+      }
+     ],
+     "Set prefix": [],
+     "Japanese release date": [
+      {
+       "timestamp": "1725148800",
+       "raw": "1/2024/9/1"
+      }
+     ]
+    },
+    "fulltext": "Fusion Duel Tournament Part 1 prize cards",
+    "fullurl": "https://yugipedia.com/wiki/Fusion_Duel_Tournament_Part_1_prize_cards",
+    "namespace": 0,
+    "exists": "1",
+    "displaytitle": "Fusion Duel Tournament Part 1 prize cards"
+   },
+   "Structure Deck: Birth of Hero": {
+    "printouts": {
+     "Korean release date": [
+      {
+       "timestamp": "1729641600",
+       "raw": "1/2024/10/23"
+      }
+     ],
+     "Set prefix": [],
+     "Japanese release date": [
+      {
+       "timestamp": "1720828800",
+       "raw": "1/2024/7/13"
+      }
+     ]
+    },
+    "fulltext": "Structure Deck: Birth of Hero",
+    "fullurl": "https://yugipedia.com/wiki/Structure_Deck:_Birth_of_Hero",
+    "namespace": 0,
+    "exists": "1",
+    "displaytitle": "Structure Deck: Birth of Hero"
+   },
+   "Monthly Tournament October 2024 prize card": {
+    "printouts": {
+     "Korean release date": [
+      {
+       "timestamp": "1729296000",
+       "raw": "1/2024/10/19"
+      }
+     ],
+     "Set prefix": [],
+     "Japanese release date": []
+    },
+    "fulltext": "Monthly Tournament October 2024 prize card",
+    "fullurl": "https://yugipedia.com/wiki/Monthly_Tournament_October_2024_prize_card",
+    "namespace": 0,
+    "exists": "1",
+    "displaytitle": "Monthly Tournament October 2024 prize card"
+   },
+   "Rage of the Abyss +1 Bonus Pack": {
+    "printouts": {
+     "Korean release date": [
+      {
+       "timestamp": "1728604800",
+       "raw": "1/2024/10/11"
+      }
+     ],
+     "Set prefix": [],
+     "Japanese release date": [
+      {
+       "timestamp": "1722038400",
+       "raw": "1/2024/7/27"
+      }
+     ]
+    },
+    "fulltext": "Rage of the Abyss +1 Bonus Pack",
+    "fullurl": "https://yugipedia.com/wiki/Rage_of_the_Abyss_%2B1_Bonus_Pack",
+    "namespace": 0,
+    "exists": "1",
+    "displaytitle": "Rage of the Abyss +1 Bonus Pack"
+   },
+   "Rage of the Abyss": {
+    "printouts": {
+     "Korean release date": [
+      {
+       "timestamp": "1728604800",
+       "raw": "1/2024/10/11"
+      }
+     ],
+     "Set prefix": [],
+     "Japanese release date": [
+      {
+       "timestamp": "1722038400",
+       "raw": "1/2024/7/27"
+      }
+     ]
+    },
+    "fulltext": "Rage of the Abyss",
+    "fullurl": "https://yugipedia.com/wiki/Rage_of_the_Abyss",
+    "namespace": 0,
+    "exists": "1",
+    "displaytitle": "Rage of the Abyss"
+   },
+   "Advanced Event Pack 2024 Vol.2 Version 1": {
+    "printouts": {
+     "Korean release date": [
+      {
+       "timestamp": "1728086400",
+       "raw": "1/2024/10/5"
+      }
+     ],
+     "Set prefix": [],
+     "Japanese release date": []
+    },
+    "fulltext": "Advanced Event Pack 2024 Vol.2 Version 1",
+    "fullurl": "https://yugipedia.com/wiki/Advanced_Event_Pack_2024_Vol.2_Version_1",
+    "namespace": 0,
+    "exists": "1",
+    "displaytitle": "Advanced Event Pack 2024 Vol.2 Version 1"
+   },
+   "Animation Chronicle 2024": {
+    "printouts": {
+     "Korean release date": [
+      {
+       "timestamp": "1727136000",
+       "raw": "1/2024/9/24"
+      }
+     ],
+     "Set prefix": [],
+     "Japanese release date": [
+      {
+       "timestamp": "1719014400",
+       "raw": "1/2024/6/22"
+      }
+     ]
+    },
+    "fulltext": "Animation Chronicle 2024",
+    "fullurl": "https://yugipedia.com/wiki/Animation_Chronicle_2024",
+    "namespace": 0,
+    "exists": "1",
+    "displaytitle": "Animation Chronicle 2024"
+   },
+   "Monthly Tournament September 2024 prize card": {
+    "printouts": {
+     "Korean release date": [
+      {
+       "timestamp": "1726272000",
+       "raw": "1/2024/9/14"
+      }
+     ],
+     "Set prefix": [],
+     "Japanese release date": []
+    },
+    "fulltext": "Monthly Tournament September 2024 prize card",
+    "fullurl": "https://yugipedia.com/wiki/Monthly_Tournament_September_2024_prize_card",
+    "namespace": 0,
+    "exists": "1",
+    "displaytitle": "Monthly Tournament September 2024 prize card"
+   },
+   "Tactical-Try Deck: Decisive Strike Cyber Dragon": {
+    "printouts": {
+     "Korean release date": [
+      {
+       "timestamp": "1725408000",
+       "raw": "1/2024/9/4"
+      }
+     ],
+     "Set prefix": [],
+     "Japanese release date": [
+      {
+       "timestamp": "1717804800",
+       "raw": "1/2024/6/8"
+      }
+     ]
+    },
+    "fulltext": "Tactical-Try Deck: Decisive Strike Cyber Dragon",
+    "fullurl": "https://yugipedia.com/wiki/Tactical-Try_Deck:_Decisive_Strike_Cyber_Dragon",
+    "namespace": 0,
+    "exists": "1",
+    "displaytitle": "Tactical-Try Deck: Decisive Strike Cyber Dragon"
+   },
+   "Tactical-Try Deck: Evil★Twin the Kaito Pair": {
+    "printouts": {
+     "Korean release date": [
+      {
+       "timestamp": "1725408000",
+       "raw": "1/2024/9/4"
+      }
+     ],
+     "Set prefix": [],
+     "Japanese release date": [
+      {
+       "timestamp": "1717804800",
+       "raw": "1/2024/6/8"
+      }
+     ]
+    },
+    "fulltext": "Tactical-Try Deck: Evil★Twin the Kaito Pair",
+    "fullurl": "https://yugipedia.com/wiki/Tactical-Try_Deck:_Evil%E2%98%85Twin_the_Kaito_Pair",
+    "namespace": 0,
+    "exists": "1",
+    "displaytitle": "Tactical-Try Deck: Evil★Twin the Kaito Pair"
+   },
+   "Tactical-Try Deck: Eldlich the Conqueror": {
+    "printouts": {
+     "Korean release date": [
+      {
+       "timestamp": "1725408000",
+       "raw": "1/2024/9/4"
+      }
+     ],
+     "Set prefix": [],
+     "Japanese release date": [
+      {
+       "timestamp": "1717804800",
+       "raw": "1/2024/6/8"
+      }
+     ]
+    },
+    "fulltext": "Tactical-Try Deck: Eldlich the Conqueror",
+    "fullurl": "https://yugipedia.com/wiki/Tactical-Try_Deck:_Eldlich_the_Conqueror",
+    "namespace": 0,
+    "exists": "1",
+    "displaytitle": "Tactical-Try Deck: Eldlich the Conqueror"
+   },
+   "The Lost Art Promotion Vol.3": {
+    "printouts": {
+     "Korean release date": [
+      {
+       "timestamp": "1724976000",
+       "raw": "1/2024/8/30"
+      }
+     ],
+     "Set prefix": [],
+     "Japanese release date": []
+    },
+    "fulltext": "The Lost Art Promotion Vol.3",
+    "fullurl": "https://yugipedia.com/wiki/The_Lost_Art_Promotion_Vol.3",
+    "namespace": 0,
+    "exists": "1",
+    "displaytitle": "The Lost Art Promotion Vol.3"
+   },
+   "Yu-Gi-Oh! The Dark Side of Dimensions Movie Pack Quarter Century Edition": {
+    "printouts": {
+     "Korean release date": [
+      {
+       "timestamp": "1724976000",
+       "raw": "1/2024/8/30"
+      }
+     ],
+     "Set prefix": [],
+     "Japanese release date": []
+    },
+    "fulltext": "Yu-Gi-Oh! The Dark Side of Dimensions Movie Pack Quarter Century Edition",
+    "fullurl": "https://yugipedia.com/wiki/Yu-Gi-Oh!_The_Dark_Side_of_Dimensions_Movie_Pack_Quarter_Century_Edition",
+    "namespace": 0,
+    "exists": "1",
+    "displaytitle": "Yu-Gi-Oh! The Dark Side of Dimensions Movie Pack Quarter Century Edition"
+   },
+   "Token Pack Vol.4": {
+    "printouts": {
+     "Korean release date": [
+      {
+       "timestamp": "1724976000",
+       "raw": "1/2024/8/30"
+      }
+     ],
+     "Set prefix": [],
+     "Japanese release date": [
+      {
+       "timestamp": "1638057600",
+       "raw": "1/2021/11/28"
+      }
+     ]
+    },
+    "fulltext": "Token Pack Vol.4",
+    "fullurl": "https://yugipedia.com/wiki/Token_Pack_Vol.4",
+    "namespace": 0,
+    "exists": "1",
+    "displaytitle": "Token Pack Vol.4"
+   },
+   "Burst Rex of Awakening": {
+    "printouts": {
+     "Korean release date": [
+      {
+       "timestamp": "1724371200",
+       "raw": "1/2024/8/23"
+      }
+     ],
+     "Set prefix": [],
+     "Japanese release date": [
+      {
+       "timestamp": "1715385600",
+       "raw": "1/2024/5/11"
+      }
+     ]
+    },
+    "fulltext": "Burst Rex of Awakening",
+    "fullurl": "https://yugipedia.com/wiki/Burst_Rex_of_Awakening",
+    "namespace": 0,
+    "exists": "1",
+    "displaytitle": "Burst Rex of Awakening"
+   },
+   "Monthly Tournament August 2024 prize card": {
+    "printouts": {
+     "Korean release date": [
+      {
+       "timestamp": "1723852800",
+       "raw": "1/2024/8/17"
+      }
+     ],
+     "Set prefix": [],
+     "Japanese release date": []
+    },
+    "fulltext": "Monthly Tournament August 2024 prize card",
+    "fullurl": "https://yugipedia.com/wiki/Monthly_Tournament_August_2024_prize_card",
+    "namespace": 0,
+    "exists": "1",
+    "displaytitle": "Monthly Tournament August 2024 prize card"
+   },
+   "Premium Pack 2024 2nd Wave": {
+    "printouts": {
+     "Korean release date": [
+      {
+       "timestamp": "1723507200",
+       "raw": "1/2024/8/13"
+      }
+     ],
+     "Set prefix": [],
+     "Japanese release date": []
+    },
+    "fulltext": "Premium Pack 2024 2nd Wave",
+    "fullurl": "https://yugipedia.com/wiki/Premium_Pack_2024_2nd_Wave",
+    "namespace": 0,
+    "exists": "1",
+    "displaytitle": "Premium Pack 2024 2nd Wave"
+   },
+   "Stella Cup 2024 Finals prize card": {
+    "printouts": {
+     "Korean release date": [
+      {
+       "timestamp": "1723334400",
+       "raw": "1/2024/8/11"
+      }
+     ],
+     "Set prefix": [],
+     "Japanese release date": []
+    },
+    "fulltext": "Stella Cup 2024 Finals prize card",
+    "fullurl": "https://yugipedia.com/wiki/Stella_Cup_2024_Finals_prize_card",
+    "namespace": 0,
+    "exists": "1",
+    "displaytitle": "Stella Cup 2024 Finals prize card"
+   },
+   "Stella Cup 2024 Finals participation card": {
+    "printouts": {
+     "Korean release date": [
+      {
+       "timestamp": "1723334400",
+       "raw": "1/2024/8/11"
+      }
+     ],
+     "Set prefix": [],
+     "Japanese release date": []
+    },
+    "fulltext": "Stella Cup 2024 Finals participation card",
+    "fullurl": "https://yugipedia.com/wiki/Stella_Cup_2024_Finals_participation_card",
+    "namespace": 0,
+    "exists": "1",
+    "displaytitle": "Stella Cup 2024 Finals participation card"
+   },
+   "Duelist Exchange Meeting August 2024 promotional cards": {
+    "printouts": {
+     "Korean release date": [
+      {
+       "timestamp": "1723248000",
+       "raw": "1/2024/8/10"
+      }
+     ],
+     "Set prefix": [],
+     "Japanese release date": []
+    },
+    "fulltext": "Duelist Exchange Meeting August 2024 promotional cards",
+    "fullurl": "https://yugipedia.com/wiki/Duelist_Exchange_Meeting_August_2024_promotional_cards",
+    "namespace": 0,
+    "exists": "1",
+    "displaytitle": "Duelist Exchange Meeting August 2024 promotional cards"
+   },
+   "Duelist Pack: Duelists of Brilliance": {
+    "printouts": {
+     "Korean release date": [
+      {
+       "timestamp": "1722988800",
+       "raw": "1/2024/8/7"
+      }
+     ],
+     "Set prefix": [],
+     "Japanese release date": [
+      {
+       "timestamp": "1716595200",
+       "raw": "1/2024/5/25"
+      }
+     ]
+    },
+    "fulltext": "Duelist Pack: Duelists of Brilliance",
+    "fullurl": "https://yugipedia.com/wiki/Duelist_Pack:_Duelists_of_Brilliance",
+    "namespace": 0,
+    "exists": "1",
+    "displaytitle": "Duelist Pack: Duelists of Brilliance"
+   },
+   "The Infinite Forbidden": {
+    "printouts": {
+     "Korean release date": [
+      {
+       "timestamp": "1721779200",
+       "raw": "1/2024/7/24"
+      }
+     ],
+     "Set prefix": [],
+     "Japanese release date": [
+      {
+       "timestamp": "1714176000",
+       "raw": "1/2024/4/27"
+      }
+     ]
+    },
+    "fulltext": "The Infinite Forbidden",
+    "fullurl": "https://yugipedia.com/wiki/The_Infinite_Forbidden",
+    "namespace": 0,
+    "exists": "1",
+    "displaytitle": "The Infinite Forbidden"
+   },
+   "Infinite Forbidden +1 Bonus Pack": {
+    "printouts": {
+     "Korean release date": [
+      {
+       "timestamp": "1721779200",
+       "raw": "1/2024/7/24"
+      }
+     ],
+     "Set prefix": [],
+     "Japanese release date": [
+      {
+       "timestamp": "1714176000",
+       "raw": "1/2024/4/27"
+      }
+     ]
+    },
+    "fulltext": "Infinite Forbidden +1 Bonus Pack",
+    "fullurl": "https://yugipedia.com/wiki/Infinite_Forbidden_%2B1_Bonus_Pack",
+    "namespace": 0,
+    "exists": "1",
+    "displaytitle": "Infinite Forbidden +1 Bonus Pack"
+   },
+   "Over Rush Pack 2": {
+    "printouts": {
+     "Korean release date": [
+      {
+       "timestamp": "1720569600",
+       "raw": "1/2024/7/10"
+      }
+     ],
+     "Set prefix": [],
+     "Japanese release date": [
+      {
+       "timestamp": "1712361600",
+       "raw": "1/2024/4/6"
+      }
+     ]
+    },
+    "fulltext": "Over Rush Pack 2",
+    "fullurl": "https://yugipedia.com/wiki/Over_Rush_Pack_2",
+    "namespace": 0,
+    "exists": "1",
+    "displaytitle": "Over Rush Pack 2"
+   },
+   "Rush Duel Event Pack 2024 Vol.1": {
+    "printouts": {
+     "Korean release date": [
+      {
+       "timestamp": "1718409600",
+       "raw": "1/2024/6/15"
+      }
+     ],
+     "Set prefix": [],
+     "Japanese release date": []
+    },
+    "fulltext": "Rush Duel Event Pack 2024 Vol.1",
+    "fullurl": "https://yugipedia.com/wiki/Rush_Duel_Event_Pack_2024_Vol.1",
+    "namespace": 0,
+    "exists": "1",
+    "displaytitle": "Rush Duel Event Pack 2024 Vol.1"
+   },
+   "Stella Cup 2024 Qualifiers participation card": {
+    "printouts": {
+     "Korean release date": [
+      {
+       "timestamp": "1718409600",
+       "raw": "1/2024/6/15"
+      }
+     ],
+     "Set prefix": [],
+     "Japanese release date": []
+    },
+    "fulltext": "Stella Cup 2024 Qualifiers participation card",
+    "fullurl": "https://yugipedia.com/wiki/Stella_Cup_2024_Qualifiers_participation_card",
+    "namespace": 0,
+    "exists": "1",
+    "displaytitle": "Stella Cup 2024 Qualifiers participation card"
+   },
+   "Quarter Century Duelist Box": {
+    "printouts": {
+     "Korean release date": [
+      {
+       "timestamp": "1717545600",
+       "raw": "1/2024/6/5"
+      }
+     ],
+     "Set prefix": [],
+     "Japanese release date": [
+      {
+       "timestamp": "1703289600",
+       "raw": "1/2023/12/23"
+      }
+     ]
+    },
+    "fulltext": "Quarter Century Duelist Box",
+    "fullurl": "https://yugipedia.com/wiki/Quarter_Century_Duelist_Box",
+    "namespace": 0,
+    "exists": "1",
+    "displaytitle": "Quarter Century Duelist Box"
+   },
+   "Quarter Century Unity & Pride Campaign side:Pride": {
+    "printouts": {
+     "Korean release date": [
+      {
+       "timestamp": "1717200000",
+       "raw": "1/2024/6"
+      }
+     ],
+     "Set prefix": [],
+     "Japanese release date": [
+      {
+       "timestamp": "1716595200",
+       "raw": "1/2024/5/25"
+      }
+     ]
+    },
+    "fulltext": "Quarter Century Unity & Pride Campaign side:Pride",
+    "fullurl": "https://yugipedia.com/wiki/Quarter_Century_Unity_%26_Pride_Campaign_side:Pride",
+    "namespace": 0,
+    "exists": "1",
+    "displaytitle": "Quarter Century Unity & Pride Campaign side:Pride"
+   },
+   "Quarter Century Unity & Pride Campaign side:Unity": {
+    "printouts": {
+     "Korean release date": [
+      {
+       "timestamp": "1715904000",
+       "raw": "1/2024/5/17"
+      }
+     ],
+     "Set prefix": [],
+     "Japanese release date": [
+      {
+       "timestamp": "1713571200",
+       "raw": "1/2024/4/20"
+      }
+     ]
+    },
+    "fulltext": "Quarter Century Unity & Pride Campaign side:Unity",
+    "fullurl": "https://yugipedia.com/wiki/Quarter_Century_Unity_%26_Pride_Campaign_side:Unity",
+    "namespace": 0,
+    "exists": "1",
+    "displaytitle": "Quarter Century Unity & Pride Campaign side:Unity"
+   },
+   "Quarter Century Chronicle side:Pride": {
+    "printouts": {
+     "Korean release date": [
+      {
+       "timestamp": "1715644800",
+       "raw": "1/2024/5/14"
+      }
+     ],
+     "Set prefix": [],
+     "Japanese release date": [
+      {
+       "timestamp": "1711152000",
+       "raw": "1/2024/3/23"
+      }
+     ]
+    },
+    "fulltext": "Quarter Century Chronicle side:Pride",
+    "fullurl": "https://yugipedia.com/wiki/Quarter_Century_Chronicle_side:Pride",
+    "namespace": 0,
+    "exists": "1",
+    "displaytitle": "Quarter Century Chronicle side:Pride"
+   },
+   "Transam of Transcendence": {
+    "printouts": {
+     "Korean release date": [
+      {
+       "timestamp": "1715299200",
+       "raw": "1/2024/5/10"
+      }
+     ],
+     "Set prefix": [],
+     "Japanese release date": [
+      {
+       "timestamp": "1707523200",
+       "raw": "1/2024/2/10"
+      }
+     ]
+    },
+    "fulltext": "Transam of Transcendence",
+    "fullurl": "https://yugipedia.com/wiki/Transam_of_Transcendence",
+    "namespace": 0,
+    "exists": "1",
+    "displaytitle": "Transam of Transcendence"
+   },
+   "High-Grade Collection Instant Lottery Event": {
+    "printouts": {
+     "Korean release date": [
+      {
+       "timestamp": "1713312000",
+       "raw": "1/2024/4/17"
+      }
+     ],
+     "Set prefix": [],
+     "Japanese release date": []
+    },
+    "fulltext": "High-Grade Collection Instant Lottery Event",
+    "fullurl": "https://yugipedia.com/wiki/High-Grade_Collection_Instant_Lottery_Event",
+    "namespace": 0,
+    "exists": "1",
+    "displaytitle": "High-Grade Collection Instant Lottery Event"
+   },
+   "High-Grade Collection": {
+    "printouts": {
+     "Korean release date": [
+      {
+       "timestamp": "1713312000",
+       "raw": "1/2024/4/17"
+      }
+     ],
+     "Set prefix": [],
+     "Japanese release date": [
+      {
+       "timestamp": "1702684800",
+       "raw": "1/2023/12/16"
+      }
+     ]
+    },
+    "fulltext": "High-Grade Collection",
+    "fullurl": "https://yugipedia.com/wiki/High-Grade_Collection",
+    "namespace": 0,
+    "exists": "1",
+    "displaytitle": "High-Grade Collection"
+   },
+   "Legacy of Destruction +1 Bonus Pack": {
+    "printouts": {
+     "Korean release date": [
+      {
+       "timestamp": "1713225600",
+       "raw": "1/2024/4/16"
+      }
+     ],
+     "Set prefix": [],
+     "Japanese release date": [
+      {
+       "timestamp": "1706313600",
+       "raw": "1/2024/1/27"
+      }
+     ]
+    },
+    "fulltext": "Legacy of Destruction +1 Bonus Pack",
+    "fullurl": "https://yugipedia.com/wiki/Legacy_of_Destruction_%2B1_Bonus_Pack",
+    "namespace": 0,
+    "exists": "1",
+    "displaytitle": "Legacy of Destruction +1 Bonus Pack"
+   },
+   "Legacy of Destruction": {
+    "printouts": {
+     "Korean release date": [
+      {
+       "timestamp": "1713225600",
+       "raw": "1/2024/4/16"
+      }
+     ],
+     "Set prefix": [],
+     "Japanese release date": [
+      {
+       "timestamp": "1706313600",
+       "raw": "1/2024/1/27"
+      }
+     ]
+    },
+    "fulltext": "Legacy of Destruction",
+    "fullurl": "https://yugipedia.com/wiki/Legacy_of_Destruction",
+    "namespace": 0,
+    "exists": "1",
+    "displaytitle": "Legacy of Destruction"
+   },
+   "Dragons Duel Tournament participation card": {
+    "printouts": {
+     "Korean release date": [
+      {
+       "timestamp": "1712966400",
+       "raw": "1/2024/4/13"
+      }
+     ],
+     "Set prefix": [],
+     "Japanese release date": []
+    },
+    "fulltext": "Dragons Duel Tournament participation card",
+    "fullurl": "https://yugipedia.com/wiki/Dragons_Duel_Tournament_participation_card",
+    "namespace": 0,
+    "exists": "1",
+    "displaytitle": "Dragons Duel Tournament participation card"
+   },
+   "Advanced Event Pack 2024 Vol.1 Version 2": {
+    "printouts": {
+     "Korean release date": [
+      {
+       "timestamp": "1712966400",
+       "raw": "1/2024/4/13"
+      }
+     ],
+     "Set prefix": [],
+     "Japanese release date": []
+    },
+    "fulltext": "Advanced Event Pack 2024 Vol.1 Version 2",
+    "fullurl": "https://yugipedia.com/wiki/Advanced_Event_Pack_2024_Vol.1_Version_2",
+    "namespace": 0,
+    "exists": "1",
+    "displaytitle": "Advanced Event Pack 2024 Vol.1 Version 2"
+   },
+   "Advanced Event Pack 2024 Vol.1 Version 1": {
+    "printouts": {
+     "Korean release date": [
+      {
+       "timestamp": "1712966400",
+       "raw": "1/2024/4/13"
+      }
+     ],
+     "Set prefix": [],
+     "Japanese release date": []
+    },
+    "fulltext": "Advanced Event Pack 2024 Vol.1 Version 1",
+    "fullurl": "https://yugipedia.com/wiki/Advanced_Event_Pack_2024_Vol.1_Version_1",
+    "namespace": 0,
+    "exists": "1",
+    "displaytitle": "Advanced Event Pack 2024 Vol.1 Version 1"
+   },
+   "Dragons Duel Tournament prize card": {
+    "printouts": {
+     "Korean release date": [
+      {
+       "timestamp": "1712966400",
+       "raw": "1/2024/4/13"
+      }
+     ],
+     "Set prefix": [],
+     "Japanese release date": [
+      {
+       "timestamp": "1704499200",
+       "raw": "1/2024/1/6"
+      }
+     ]
+    },
+    "fulltext": "Dragons Duel Tournament prize card",
+    "fullurl": "https://yugipedia.com/wiki/Dragons_Duel_Tournament_prize_card",
+    "namespace": 0,
+    "exists": "1",
+    "displaytitle": "Dragons Duel Tournament prize card"
+   },
+   "Quarter Century Chronicle side:Unity": {
+    "printouts": {
+     "Korean release date": [
+      {
+       "timestamp": "1711411200",
+       "raw": "1/2024/3/26"
+      }
+     ],
+     "Set prefix": [],
+     "Japanese release date": [
+      {
+       "timestamp": "1708646400",
+       "raw": "1/2024/2/23"
+      }
+     ]
+    },
+    "fulltext": "Quarter Century Chronicle side:Unity",
+    "fullurl": "https://yugipedia.com/wiki/Quarter_Century_Chronicle_side:Unity",
+    "namespace": 0,
+    "exists": "1",
+    "displaytitle": "Quarter Century Chronicle side:Unity"
+   },
+   "Red Reboot of Darkness": {
+    "printouts": {
+     "Korean release date": [
+      {
+       "timestamp": "1710460800",
+       "raw": "1/2024/3/15"
+      }
+     ],
+     "Set prefix": [],
+     "Japanese release date": [
+      {
+       "timestamp": "1699660800",
+       "raw": "1/2023/11/11"
+      }
+     ]
+    },
+    "fulltext": "Red Reboot of Darkness",
+    "fullurl": "https://yugipedia.com/wiki/Red_Reboot_of_Darkness",
+    "namespace": 0,
+    "exists": "1",
+    "displaytitle": "Red Reboot of Darkness"
+   },
+   "Premium Pack 2024 1st Wave": {
+    "printouts": {
+     "Korean release date": [
+      {
+       "timestamp": "1709856000",
+       "raw": "1/2024/3/8"
+      }
+     ],
+     "Set prefix": [],
+     "Japanese release date": []
+    },
+    "fulltext": "Premium Pack 2024 1st Wave",
+    "fullurl": "https://yugipedia.com/wiki/Premium_Pack_2024_1st_Wave",
+    "namespace": 0,
+    "exists": "1",
+    "displaytitle": "Premium Pack 2024 1st Wave"
+   },
+   "Megaroad Pack 2": {
+    "printouts": {
+     "Korean release date": [
+      {
+       "timestamp": "1708560000",
+       "raw": "1/2024/2/22"
+      }
+     ],
+     "Set prefix": [],
+     "Japanese release date": [
+      {
+       "timestamp": "1697241600",
+       "raw": "1/2023/10/14"
+      }
+     ]
+    },
+    "fulltext": "Megaroad Pack 2",
+    "fullurl": "https://yugipedia.com/wiki/Megaroad_Pack_2",
+    "namespace": 0,
+    "exists": "1",
+    "displaytitle": "Megaroad Pack 2"
+   },
+   "Terminal World (set)": {
+    "printouts": {
+     "Korean release date": [
+      {
+       "timestamp": "1708041600",
+       "raw": "1/2024/2/16"
+      }
+     ],
+     "Set prefix": [],
+     "Japanese release date": [
+      {
+       "timestamp": "1700870400",
+       "raw": "1/2023/11/25"
+      }
+     ]
+    },
+    "fulltext": "Terminal World (set)",
+    "fullurl": "https://yugipedia.com/wiki/Terminal_World_(set)",
+    "namespace": 0,
+    "exists": "1",
+    "displaytitle": "Terminal World (set)"
+   },
+   "Structure Deck: The Ultimate Blue-Eyed Legend": {
+    "printouts": {
+     "Korean release date": [
+      {
+       "timestamp": "1705449600",
+       "raw": "1/2024/1/17"
+      }
+     ],
+     "Set prefix": [],
+     "Japanese release date": [
+      {
+       "timestamp": "1696032000",
+       "raw": "1/2023/9/30"
+      }
+     ]
+    },
+    "fulltext": "Structure Deck: The Ultimate Blue-Eyed Legend",
+    "fullurl": "https://yugipedia.com/wiki/Structure_Deck:_The_Ultimate_Blue-Eyed_Legend",
+    "namespace": 0,
+    "exists": "1",
+    "displaytitle": "Structure Deck: The Ultimate Blue-Eyed Legend"
+   },
+   "World Premiere Pack 2023": {
+    "printouts": {
+     "Korean release date": [
+      {
+       "timestamp": "1703203200",
+       "raw": "1/2023/12/22"
+      }
+     ],
+     "Set prefix": [],
+     "Japanese release date": [
+      {
+       "timestamp": "1695427200",
+       "raw": "1/2023/9/23"
+      }
+     ]
+    },
+    "fulltext": "World Premiere Pack 2023",
+    "fullurl": "https://yugipedia.com/wiki/World_Premiere_Pack_2023",
+    "namespace": 0,
+    "exists": "1",
+    "displaytitle": "World Premiere Pack 2023"
+   },
+   "Phoenix of the Roaring Flame": {
+    "printouts": {
+     "Korean release date": [
+      {
+       "timestamp": "1703030400",
+       "raw": "1/2023/12/20"
+      }
+     ],
+     "Set prefix": [],
+     "Japanese release date": [
+      {
+       "timestamp": "1691712000",
+       "raw": "1/2023/8/11"
+      }
+     ]
+    },
+    "fulltext": "Phoenix of the Roaring Flame",
+    "fullurl": "https://yugipedia.com/wiki/Phoenix_of_the_Roaring_Flame",
+    "namespace": 0,
+    "exists": "1",
+    "displaytitle": "Phoenix of the Roaring Flame"
+   },
+   "Structure Deck R: Onslaught of the Fire Kings Second Coming of the Eternal Flames' Ruler Pack": {
+    "printouts": {
+     "Korean release date": [
+      {
+       "timestamp": "1702339200",
+       "raw": "1/2023/12/12"
+      }
+     ],
+     "Set prefix": [],
+     "Japanese release date": [
+      {
+       "timestamp": "1694217600",
+       "raw": "1/2023/9/9"
+      }
+     ]
+    },
+    "fulltext": "Structure Deck R: Onslaught of the Fire Kings Second Coming of the Eternal Flames' Ruler Pack",
+    "fullurl": "https://yugipedia.com/wiki/Structure_Deck_R:_Onslaught_of_the_Fire_Kings_Second_Coming_of_the_Eternal_Flames%27_Ruler_Pack",
+    "namespace": 0,
+    "exists": "1",
+    "displaytitle": "Structure Deck R: Onslaught of the Fire Kings Second Coming of the Eternal Flames' Ruler Pack"
+   },
+   "Structure Deck R: Onslaught of the Fire Kings": {
+    "printouts": {
+     "Korean release date": [
+      {
+       "timestamp": "1702339200",
+       "raw": "1/2023/12/12"
+      }
+     ],
+     "Set prefix": [],
+     "Japanese release date": [
+      {
+       "timestamp": "1694217600",
+       "raw": "1/2023/9/9"
+      }
+     ]
+    },
+    "fulltext": "Structure Deck R: Onslaught of the Fire Kings",
+    "fullurl": "https://yugipedia.com/wiki/Structure_Deck_R:_Onslaught_of_the_Fire_Kings",
+    "namespace": 0,
+    "exists": "1",
+    "displaytitle": "Structure Deck R: Onslaught of the Fire Kings"
+   },
+   "Gopizza x Yu-Gi-Oh! Official Card Game Collaboration Campaign": {
+    "printouts": {
+     "Korean release date": [
+      {
+       "timestamp": "1701993600",
+       "raw": "1/2023/12/8"
+      }
+     ],
+     "Set prefix": [],
+     "Japanese release date": []
+    },
+    "fulltext": "Gopizza x Yu-Gi-Oh! Official Card Game Collaboration Campaign",
+    "fullurl": "https://yugipedia.com/wiki/Gopizza_x_Yu-Gi-Oh!_Official_Card_Game_Collaboration_Campaign",
+    "namespace": 0,
+    "exists": "1",
+    "displaytitle": "Gopizza x Yu-Gi-Oh! Official Card Game Collaboration Campaign"
+   },
+   "Advanced Event Pack 2023 Vol.2 Version 2": {
+    "printouts": {
+     "Korean release date": [
+      {
+       "timestamp": "1701475200",
+       "raw": "1/2023/12/2"
+      }
+     ],
+     "Set prefix": [],
+     "Japanese release date": []
+    },
+    "fulltext": "Advanced Event Pack 2023 Vol.2 Version 2",
+    "fullurl": "https://yugipedia.com/wiki/Advanced_Event_Pack_2023_Vol.2_Version_2",
+    "namespace": 0,
+    "exists": "1",
+    "displaytitle": "Advanced Event Pack 2023 Vol.2 Version 2"
+   },
+   "Phantom Nightmare +1 Bonus Pack": {
+    "printouts": {
+     "Korean release date": [
+      {
+       "timestamp": "1701475200",
+       "raw": "1/2023/12/2"
+      }
+     ],
+     "Set prefix": [],
+     "Japanese release date": [
+      {
+       "timestamp": "1698451200",
+       "raw": "1/2023/10/28"
+      }
+     ]
+    },
+    "fulltext": "Phantom Nightmare +1 Bonus Pack",
+    "fullurl": "https://yugipedia.com/wiki/Phantom_Nightmare_%2B1_Bonus_Pack",
+    "namespace": 0,
+    "exists": "1",
+    "displaytitle": "Phantom Nightmare +1 Bonus Pack"
+   },
+   "Token Pack Vol.3": {
+    "printouts": {
+     "Korean release date": [
+      {
+       "timestamp": "1701475200",
+       "raw": "1/2023/12/2"
+      }
+     ],
+     "Set prefix": [],
+     "Japanese release date": [
+      {
+       "timestamp": "1624665600",
+       "raw": "1/2021/6/26"
+      }
+     ]
+    },
+    "fulltext": "Token Pack Vol.3",
+    "fullurl": "https://yugipedia.com/wiki/Token_Pack_Vol.3",
+    "namespace": 0,
+    "exists": "1",
+    "displaytitle": "Token Pack Vol.3"
+   },
+   "Evil★Twin Duel Set": {
+    "printouts": {
+     "Korean release date": [
+      {
+       "timestamp": "1701475200",
+       "raw": "1/2023/12/2"
+      }
+     ],
+     "Set prefix": [],
+     "Japanese release date": [
+      {
+       "timestamp": "1685232000",
+       "raw": "1/2023/5/28"
+      }
+     ]
+    },
+    "fulltext": "Evil★Twin Duel Set",
+    "fullurl": "https://yugipedia.com/wiki/Evil%E2%98%85Twin_Duel_Set",
+    "namespace": 0,
+    "exists": "1",
+    "displaytitle": "Evil★Twin Duel Set"
+   },
+   "Phantom Nightmare": {
+    "printouts": {
+     "Korean release date": [
+      {
+       "timestamp": "1701475200",
+       "raw": "1/2023/12/2"
+      }
+     ],
+     "Set prefix": [],
+     "Japanese release date": [
+      {
+       "timestamp": "1698451200",
+       "raw": "1/2023/10/28"
+      }
+     ]
+    },
+    "fulltext": "Phantom Nightmare",
+    "fullurl": "https://yugipedia.com/wiki/Phantom_Nightmare",
+    "namespace": 0,
+    "exists": "1",
+    "displaytitle": "Phantom Nightmare"
+   },
+   "Synergy Pack 01: Syncro Acceleration": {
+    "printouts": {
+     "Korean release date": [
+      {
+       "timestamp": "1700524800",
+       "raw": "1/2023/11/21"
+      }
+     ],
+     "Set prefix": [],
+     "Japanese release date": []
+    },
+    "fulltext": "Synergy Pack 01: Syncro Acceleration",
+    "fullurl": "https://yugipedia.com/wiki/Synergy_Pack_01:_Syncro_Acceleration",
+    "namespace": 0,
+    "exists": "1",
+    "displaytitle": "Synergy Pack 01: Syncro Acceleration"
+   },
+   "Deck-Build Pack: Valiant Smashers": {
+    "printouts": {
+     "Korean release date": [
+      {
+       "timestamp": "1699920000",
+       "raw": "1/2023/11/14"
+      }
+     ],
+     "Set prefix": [],
+     "Japanese release date": [
+      {
+       "timestamp": "1693008000",
+       "raw": "1/2023/8/26"
+      }
+     ]
+    },
+    "fulltext": "Deck-Build Pack: Valiant Smashers",
+    "fullurl": "https://yugipedia.com/wiki/Deck-Build_Pack:_Valiant_Smashers",
+    "namespace": 0,
+    "exists": "1",
+    "displaytitle": "Deck-Build Pack: Valiant Smashers"
+   },
+   "Advanced Event Pack 2023 Vol.2 Version 1": {
+    "printouts": {
+     "Korean release date": [
+      {
+       "timestamp": "1697846400",
+       "raw": "1/2023/10/21"
+      }
+     ],
+     "Set prefix": [],
+     "Japanese release date": []
+    },
+    "fulltext": "Advanced Event Pack 2023 Vol.2 Version 1",
+    "fullurl": "https://yugipedia.com/wiki/Advanced_Event_Pack_2023_Vol.2_Version_1",
+    "namespace": 0,
+    "exists": "1",
+    "displaytitle": "Advanced Event Pack 2023 Vol.2 Version 1"
+   },
+   "Express Pack": {
+    "printouts": {
+     "Korean release date": [
+      {
+       "timestamp": "1697760000",
+       "raw": "1/2023/10/20"
+      }
+     ],
+     "Set prefix": [],
+     "Japanese release date": []
+    },
+    "fulltext": "Express Pack",
+    "fullurl": "https://yugipedia.com/wiki/Express_Pack",
+    "namespace": 0,
+    "exists": "1",
+    "displaytitle": "Express Pack"
+   },
+   "Age of Overlord +1 Bonus Pack": {
+    "printouts": {
+     "Korean release date": [
+      {
+       "timestamp": "1697500800",
+       "raw": "1/2023/10/17"
+      }
+     ],
+     "Set prefix": [],
+     "Japanese release date": [
+      {
+       "timestamp": "1689984000",
+       "raw": "1/2023/7/22"
+      }
+     ]
+    },
+    "fulltext": "Age of Overlord +1 Bonus Pack",
+    "fullurl": "https://yugipedia.com/wiki/Age_of_Overlord_%2B1_Bonus_Pack",
+    "namespace": 0,
+    "exists": "1",
+    "displaytitle": "Age of Overlord +1 Bonus Pack"
+   },
+   "Age of Overlord": {
+    "printouts": {
+     "Korean release date": [
+      {
+       "timestamp": "1697500800",
+       "raw": "1/2023/10/17"
+      }
+     ],
+     "Set prefix": [],
+     "Japanese release date": [
+      {
+       "timestamp": "1689984000",
+       "raw": "1/2023/7/22"
+      }
+     ]
+    },
+    "fulltext": "Age of Overlord",
+    "fullurl": "https://yugipedia.com/wiki/Age_of_Overlord",
+    "namespace": 0,
+    "exists": "1",
+    "displaytitle": "Age of Overlord"
+   },
+   "Event Pack 2023 Vol.2": {
+    "printouts": {
+     "Korean release date": [
+      {
+       "timestamp": "1696636800",
+       "raw": "1/2023/10/7"
+      }
+     ],
+     "Set prefix": [],
+     "Japanese release date": []
+    },
+    "fulltext": "Event Pack 2023 Vol.2",
+    "fullurl": "https://yugipedia.com/wiki/Event_Pack_2023_Vol.2",
+    "namespace": 0,
+    "exists": "1",
+    "displaytitle": "Event Pack 2023 Vol.2"
+   },
+   "Rush Duel Korea Championship 2023 Card Shop Qualifiers promotional cards": {
+    "printouts": {
+     "Korean release date": [
+      {
+       "timestamp": "1696032000",
+       "raw": "1/2023/9/30"
+      }
+     ],
+     "Set prefix": [],
+     "Japanese release date": []
+    },
+    "fulltext": "Rush Duel Korea Championship 2023 Card Shop Qualifiers promotional cards",
+    "fullurl": "https://yugipedia.com/wiki/Rush_Duel_Korea_Championship_2023_Card_Shop_Qualifiers_promotional_cards",
+    "namespace": 0,
+    "exists": "1",
+    "displaytitle": "Rush Duel Korea Championship 2023 Card Shop Qualifiers promotional cards"
+   },
+   "Triple Build Pack: Godbreath Wing": {
+    "printouts": {
+     "Korean release date": [
+      {
+       "timestamp": "1695168000",
+       "raw": "1/2023/9/20"
+      }
+     ],
+     "Set prefix": [],
+     "Japanese release date": [
+      {
+       "timestamp": "1687564800",
+       "raw": "1/2023/6/24"
+      }
+     ]
+    },
+    "fulltext": "Triple Build Pack: Godbreath Wing",
+    "fullurl": "https://yugipedia.com/wiki/Triple_Build_Pack:_Godbreath_Wing",
+    "namespace": 0,
+    "exists": "1",
+    "displaytitle": "Triple Build Pack: Godbreath Wing"
+   },
+   "Structure Deck: Pulse of the King Rumbling of Heaven and Earth Pack": {
+    "printouts": {
+     "Korean release date": [
+      {
+       "timestamp": "1694563200",
+       "raw": "1/2023/9/13"
+      }
+     ],
+     "Set prefix": [],
+     "Japanese release date": [
+      {
+       "timestamp": "1687564800",
+       "raw": "1/2023/6/24"
+      }
+     ]
+    },
+    "fulltext": "Structure Deck: Pulse of the King Rumbling of Heaven and Earth Pack",
+    "fullurl": "https://yugipedia.com/wiki/Structure_Deck:_Pulse_of_the_King_Rumbling_of_Heaven_and_Earth_Pack",
+    "namespace": 0,
+    "exists": "1",
+    "displaytitle": "Structure Deck: Pulse of the King Rumbling of Heaven and Earth Pack"
+   },
+   "Structure Deck: Pulse of the King": {
+    "printouts": {
+     "Korean release date": [
+      {
+       "timestamp": "1694563200",
+       "raw": "1/2023/9/13"
+      }
+     ],
+     "Set prefix": [],
+     "Japanese release date": [
+      {
+       "timestamp": "1687564800",
+       "raw": "1/2023/6/24"
+      }
+     ]
+    },
+    "fulltext": "Structure Deck: Pulse of the King",
+    "fullurl": "https://yugipedia.com/wiki/Structure_Deck:_Pulse_of_the_King",
+    "namespace": 0,
+    "exists": "1",
+    "displaytitle": "Structure Deck: Pulse of the King"
+   },
+   "Animation Chronicle 2023": {
+    "printouts": {
+     "Korean release date": [
+      {
+       "timestamp": "1694131200",
+       "raw": "1/2023/9/8"
+      }
+     ],
+     "Set prefix": [],
+     "Japanese release date": [
+      {
+       "timestamp": "1686355200",
+       "raw": "1/2023/6/10"
+      }
+     ]
+    },
+    "fulltext": "Animation Chronicle 2023",
+    "fullurl": "https://yugipedia.com/wiki/Animation_Chronicle_2023",
+    "namespace": 0,
+    "exists": "1",
+    "displaytitle": "Animation Chronicle 2023"
+   },
+   "Oblivion of the Flash": {
+    "printouts": {
+     "Korean release date": [
+      {
+       "timestamp": "1692316800",
+       "raw": "1/2023/8/18"
+      }
+     ],
+     "Set prefix": [],
+     "Japanese release date": [
+      {
+       "timestamp": "1683936000",
+       "raw": "1/2023/5/13"
+      }
+     ]
+    },
+    "fulltext": "Oblivion of the Flash",
+    "fullurl": "https://yugipedia.com/wiki/Oblivion_of_the_Flash",
+    "namespace": 0,
+    "exists": "1",
+    "displaytitle": "Oblivion of the Flash"
+   },
+   "The Lost Art Promotion Vol.2": {
+    "printouts": {
+     "Korean release date": [
+      {
+       "timestamp": "1692230400",
+       "raw": "1/2023/8/17"
+      }
+     ],
+     "Set prefix": [],
+     "Japanese release date": []
+    },
+    "fulltext": "The Lost Art Promotion Vol.2",
+    "fullurl": "https://yugipedia.com/wiki/The_Lost_Art_Promotion_Vol.2",
+    "namespace": 0,
+    "exists": "1",
+    "displaytitle": "The Lost Art Promotion Vol.2"
+   },
+   "Duelist Pack: Duelists of Explosion": {
+    "printouts": {
+     "Korean release date": [
+      {
+       "timestamp": "1692230400",
+       "raw": "1/2023/8/17"
+      }
+     ],
+     "Set prefix": [],
+     "Japanese release date": [
+      {
+       "timestamp": "1685145600",
+       "raw": "1/2023/5/27"
+      }
+     ]
+    },
+    "fulltext": "Duelist Pack: Duelists of Explosion",
+    "fullurl": "https://yugipedia.com/wiki/Duelist_Pack:_Duelists_of_Explosion",
+    "namespace": 0,
+    "exists": "1",
+    "displaytitle": "Duelist Pack: Duelists of Explosion"
+   },
+   "Versus Pack Maximum Force": {
+    "printouts": {
+     "Korean release date": [
+      {
+       "timestamp": "1689638400",
+       "raw": "1/2023/7/18"
+      }
+     ],
+     "Set prefix": [],
+     "Japanese release date": [
+      {
+       "timestamp": "1680912000",
+       "raw": "1/2023/4/8"
+      }
+     ]
+    },
+    "fulltext": "Versus Pack Maximum Force",
+    "fullurl": "https://yugipedia.com/wiki/Versus_Pack_Maximum_Force",
+    "namespace": 0,
+    "exists": "1",
+    "displaytitle": "Versus Pack Maximum Force"
+   },
+   "Stella Cup 2023 Finals prize card": {
+    "printouts": {
+     "Korean release date": [
+      {
+       "timestamp": "1688256000",
+       "raw": "1/2023/7/2"
+      }
+     ],
+     "Set prefix": [],
+     "Japanese release date": []
+    },
+    "fulltext": "Stella Cup 2023 Finals prize card",
+    "fullurl": "https://yugipedia.com/wiki/Stella_Cup_2023_Finals_prize_card",
+    "namespace": 0,
+    "exists": "1",
+    "displaytitle": "Stella Cup 2023 Finals prize card"
+   },
+   "Duelist Nexus +1 Bonus Pack": {
+    "printouts": {
+     "Korean release date": [
+      {
+       "timestamp": "1687564800",
+       "raw": "1/2023/6/24"
+      }
+     ],
+     "Set prefix": [],
+     "Japanese release date": [
+      {
+       "timestamp": "1682121600",
+       "raw": "1/2023/4/22"
+      }
+     ]
+    },
+    "fulltext": "Duelist Nexus +1 Bonus Pack",
+    "fullurl": "https://yugipedia.com/wiki/Duelist_Nexus_%2B1_Bonus_Pack",
+    "namespace": 0,
+    "exists": "1",
+    "displaytitle": "Duelist Nexus +1 Bonus Pack"
+   },
+   "Duelist Nexus": {
+    "printouts": {
+     "Korean release date": [
+      {
+       "timestamp": "1687564800",
+       "raw": "1/2023/6/24"
+      }
+     ],
+     "Set prefix": [],
+     "Japanese release date": [
+      {
+       "timestamp": "1682121600",
+       "raw": "1/2023/4/22"
+      }
+     ]
+    },
+    "fulltext": "Duelist Nexus",
+    "fullurl": "https://yugipedia.com/wiki/Duelist_Nexus",
+    "namespace": 0,
+    "exists": "1",
+    "displaytitle": "Duelist Nexus"
+   },
+   "Deck-Build Pack: Wild Survivors": {
+    "printouts": {
+     "Korean release date": [
+      {
+       "timestamp": "1686700800",
+       "raw": "1/2023/6/14"
+      }
+     ],
+     "Set prefix": [],
+     "Japanese release date": [
+      {
+       "timestamp": "1679097600",
+       "raw": "1/2023/3/18"
+      }
+     ]
+    },
+    "fulltext": "Deck-Build Pack: Wild Survivors",
+    "fullurl": "https://yugipedia.com/wiki/Deck-Build_Pack:_Wild_Survivors",
+    "namespace": 0,
+    "exists": "1",
+    "displaytitle": "Deck-Build Pack: Wild Survivors"
+   },
+   "Secret Record Pack 2 Vol.1": {
+    "printouts": {
+     "Korean release date": [
+      {
+       "timestamp": "1685664000",
+       "raw": "1/2023/6/2"
+      }
+     ],
+     "Set prefix": [],
+     "Japanese release date": []
+    },
+    "fulltext": "Secret Record Pack 2 Vol.1",
+    "fullurl": "https://yugipedia.com/wiki/Secret_Record_Pack_2_Vol.1",
+    "namespace": 0,
+    "exists": "1",
+    "displaytitle": "Secret Record Pack 2 Vol.1"
+   },
+   "Legend Awakening Pack": {
+    "printouts": {
+     "Korean release date": [
+      {
+       "timestamp": "1685664000",
+       "raw": "1/2023/6/2"
+      }
+     ],
+     "Set prefix": [],
+     "Japanese release date": [
+      {
+       "timestamp": "1677888000",
+       "raw": "1/2023/3/4"
+      }
+     ]
+    },
+    "fulltext": "Legend Awakening Pack",
+    "fullurl": "https://yugipedia.com/wiki/Legend_Awakening_Pack",
+    "namespace": 0,
+    "exists": "1",
+    "displaytitle": "Legend Awakening Pack"
+   },
+   "Advanced Event Pack 2023 Vol.1 Version 2": {
+    "printouts": {
+     "Korean release date": [
+      {
+       "timestamp": "1685059200",
+       "raw": "1/2023/5/26"
+      }
+     ],
+     "Set prefix": [],
+     "Japanese release date": []
+    },
+    "fulltext": "Advanced Event Pack 2023 Vol.1 Version 2",
+    "fullurl": "https://yugipedia.com/wiki/Advanced_Event_Pack_2023_Vol.1_Version_2",
+    "namespace": 0,
+    "exists": "1",
+    "displaytitle": "Advanced Event Pack 2023 Vol.1 Version 2"
+   },
+   "Secret Record Pack 2 Vol.2": {
+    "printouts": {
+     "Korean release date": [
+      {
+       "timestamp": "1684540800",
+       "raw": "1/2023/5/20"
+      }
+     ],
+     "Set prefix": [],
+     "Japanese release date": []
+    },
+    "fulltext": "Secret Record Pack 2 Vol.2",
+    "fullurl": "https://yugipedia.com/wiki/Secret_Record_Pack_2_Vol.2",
+    "namespace": 0,
+    "exists": "1",
+    "displaytitle": "Secret Record Pack 2 Vol.2"
+   },
+   "Stella Cup 2023 Qualifiers participation card": {
+    "printouts": {
+     "Korean release date": [
+      {
+       "timestamp": "1684540800",
+       "raw": "1/2023/5/20"
+      }
+     ],
+     "Set prefix": [],
+     "Japanese release date": []
+    },
+    "fulltext": "Stella Cup 2023 Qualifiers participation card",
+    "fullurl": "https://yugipedia.com/wiki/Stella_Cup_2023_Qualifiers_participation_card",
+    "namespace": 0,
+    "exists": "1",
+    "displaytitle": "Stella Cup 2023 Qualifiers participation card"
+   },
+   "Premium Pack 2023 2nd Wave": {
+    "printouts": {
+     "Korean release date": [
+      {
+       "timestamp": "1684281600",
+       "raw": "1/2023/5/17"
+      }
+     ],
+     "Set prefix": [],
+     "Japanese release date": []
+    },
+    "fulltext": "Premium Pack 2023 2nd Wave",
+    "fullurl": "https://yugipedia.com/wiki/Premium_Pack_2023_2nd_Wave",
+    "namespace": 0,
+    "exists": "1",
+    "displaytitle": "Premium Pack 2023 2nd Wave"
+   },
+   "Premium Pack 2023 1st Wave": {
+    "printouts": {
+     "Korean release date": [
+      {
+       "timestamp": "1682640000",
+       "raw": "1/2023/4/28"
+      }
+     ],
+     "Set prefix": [],
+     "Japanese release date": []
+    },
+    "fulltext": "Premium Pack 2023 1st Wave",
+    "fullurl": "https://yugipedia.com/wiki/Premium_Pack_2023_1st_Wave",
+    "namespace": 0,
+    "exists": "1",
+    "displaytitle": "Premium Pack 2023 1st Wave"
+   },
+   "Cyberstorm Access +1 Bonus Pack": {
+    "printouts": {
+     "Korean release date": [
+      {
+       "timestamp": "1682380800",
+       "raw": "1/2023/4/25"
+      }
+     ],
+     "Set prefix": [],
+     "Japanese release date": [
+      {
+       "timestamp": "1673654400",
+       "raw": "1/2023/1/14"
+      }
+     ]
+    },
+    "fulltext": "Cyberstorm Access +1 Bonus Pack",
+    "fullurl": "https://yugipedia.com/wiki/Cyberstorm_Access_%2B1_Bonus_Pack",
+    "namespace": 0,
+    "exists": "1",
+    "displaytitle": "Cyberstorm Access +1 Bonus Pack"
+   },
+   "Cyberstorm Access": {
+    "printouts": {
+     "Korean release date": [
+      {
+       "timestamp": "1682380800",
+       "raw": "1/2023/4/25"
+      }
+     ],
+     "Set prefix": [],
+     "Japanese release date": [
+      {
+       "timestamp": "1673654400",
+       "raw": "1/2023/1/14"
+      }
+     ]
+    },
+    "fulltext": "Cyberstorm Access",
+    "fullurl": "https://yugipedia.com/wiki/Cyberstorm_Access",
+    "namespace": 0,
+    "exists": "1",
+    "displaytitle": "Cyberstorm Access"
+   },
+   "Yu-Gi-Oh! World Championship 2023 Korea Qualifiers promotional card": {
+    "printouts": {
+     "Korean release date": [
+      {
+       "timestamp": "1682121600",
+       "raw": "1/2023/4/22"
+      }
+     ],
+     "Set prefix": [],
+     "Japanese release date": []
+    },
+    "fulltext": "Yu-Gi-Oh! World Championship 2023 Korea Qualifiers promotional card",
+    "fullurl": "https://yugipedia.com/wiki/Yu-Gi-Oh!_World_Championship_2023_Korea_Qualifiers_promotional_card",
+    "namespace": 0,
+    "exists": "1",
+    "displaytitle": "Yu-Gi-Oh! World Championship 2023 Korea Qualifiers promotional card"
+   },
+   "Advanced Event Pack 2023 Vol.1 Version 1": {
+    "printouts": {
+     "Korean release date": [
+      {
+       "timestamp": "1682121600",
+       "raw": "1/2023/4/22"
+      }
+     ],
+     "Set prefix": [],
+     "Japanese release date": []
+    },
+    "fulltext": "Advanced Event Pack 2023 Vol.1 Version 1",
+    "fullurl": "https://yugipedia.com/wiki/Advanced_Event_Pack_2023_Vol.1_Version_1",
+    "namespace": 0,
+    "exists": "1",
+    "displaytitle": "Advanced Event Pack 2023 Vol.1 Version 1"
+   },
+   "Deck Mod Pack: Double Star of the Assault!!": {
+    "printouts": {
+     "Korean release date": [
+      {
+       "timestamp": "1681171200",
+       "raw": "1/2023/4/11"
+      }
+     ],
+     "Set prefix": [],
+     "Japanese release date": [
+      {
+       "timestamp": "1674259200",
+       "raw": "1/2023/1/21"
+      }
+     ]
+    },
+    "fulltext": "Deck Mod Pack: Double Star of the Assault!!",
+    "fullurl": "https://yugipedia.com/wiki/Deck_Mod_Pack:_Double_Star_of_the_Assault!!",
+    "namespace": 0,
+    "exists": "1",
+    "displaytitle": "Deck Mod Pack: Double Star of the Assault!!"
+   },
+   "Token Pack Vol.2": {
+    "printouts": {
+     "Korean release date": [
+      {
+       "timestamp": "1678492800",
+       "raw": "1/2023/3/11"
+      }
+     ],
+     "Set prefix": [],
+     "Japanese release date": [
+      {
+       "timestamp": "1607126400",
+       "raw": "1/2020/12/5"
+      }
+     ]
+    },
+    "fulltext": "Token Pack Vol.2",
+    "fullurl": "https://yugipedia.com/wiki/Token_Pack_Vol.2",
+    "namespace": 0,
+    "exists": "1",
+    "displaytitle": "Token Pack Vol.2"
+   },
+   "Rarity Collection Quarter Century Edition": {
+    "printouts": {
+     "Korean release date": [
+      {
+       "timestamp": "1678492800",
+       "raw": "1/2023/3/11"
+      }
+     ],
+     "Set prefix": [],
+     "Japanese release date": [
+      {
+       "timestamp": "1676678400",
+       "raw": "1/2023/2/18"
+      }
+     ]
+    },
+    "fulltext": "Rarity Collection Quarter Century Edition",
+    "fullurl": "https://yugipedia.com/wiki/Rarity_Collection_Quarter_Century_Edition",
+    "namespace": 0,
+    "exists": "1",
+    "displaytitle": "Rarity Collection Quarter Century Edition"
+   }
+  },
+  "serializer": "SMW\\Serializers\\QueryResultSerializer",
+  "version": 2,
+  "meta": {
+   "hash": "d56bc15220a021696f077b3b7ad6b7cb",
+   "count": 200,
+   "offset": 0,
+   "source": "",
+   "time": "0.077097"
+  }
+ }
+}

@@ -1,0 +1,42 @@
+{
+ "result": "success",
+ "no_result": true,
+ "no_result_type": null,
+ "no_result_message": null,
+ "ad_more_info": false,
+ "ad_products": [],
+ "list": [],
+ "specs": [],
+ "filters": {},
+ "categories": [],
+ "recommended_categories": [],
+ "associate_keywords": [],
+ "n": 0,
+ "num_found": 24,
+ "redirect_uri": null,
+ "shopingmoa_enable": false,
+ "view_type": "1column_type_location",
+ "flags": [
+  {
+   "type": "price",
+   "label": "가격",
+   "event_type": "flag_use_price"
+  },
+  {
+   "type": "used_product",
+   "label": "미개봉",
+   "event_type": "flag_use_newproduct"
+  },
+  {
+   "type": "free_delivery",
+   "label": "무료배송",
+   "event_type": "flag_use_freedelivery"
+  },
+  {
+   "type": "neighborhood",
+   "label": "내근처",
+   "event_type": "flag_use_neighbor"
+  }
+ ],
+ "filter_new_arrival": null
+}

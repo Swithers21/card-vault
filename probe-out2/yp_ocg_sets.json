@@ -1,0 +1,3933 @@
+{
+ "query-continue-offset": 200,
+ "query": {
+  "printrequests": [
+   {
+    "label": "",
+    "key": "",
+    "redi": "",
+    "typeid": "_wpg",
+    "mode": 2,
+    "format": false
+   },
+   {
+    "label": "Japanese release date",
+    "key": "Japanese_release_date",
+    "redi": "",
+    "typeid": "_dat",
+    "mode": 1,
+    "format": ""
+   },
+   {
+    "label": "Set prefix",
+    "key": "Set_prefix",
+    "redi": "",
+    "typeid": "_wpg",
+    "mode": 1,
+    "format": ""
+   },
+   {
+    "label": "Korean release date",
+    "key": "Korean_release_date",
+    "redi": "",
+    "typeid": "_dat",
+    "mode": 1,
+    "format": ""
+   },
+   {
+    "label": "English name",
+    "key": "English_name",
+    "redi": "",
+    "typeid": "_txt",
+    "mode": 1,
+    "format": ""
+   }
+  ],
+  "results": {
+   "Complete File: Seeker of Sinful Spoils": {
+    "printouts": {
+     "Japanese release date": [
+      {
+       "timestamp": "1803859200",
+       "raw": "1/2027/3"
+      }
+     ],
+     "Set prefix": [],
+     "Korean release date": [],
+     "English name": []
+    },
+    "fulltext": "Complete File: Seeker of Sinful Spoils",
+    "fullurl": "https://yugipedia.com/wiki/Complete_File:_Seeker_of_Sinful_Spoils",
+    "namespace": 0,
+    "exists": "1",
+    "displaytitle": "Complete File: Seeker of Sinful Spoils"
+   },
+   "Rarity Collection: Climax Scene Edition": {
+    "printouts": {
+     "Japanese release date": [
+      {
+       "timestamp": "1803686400",
+       "raw": "1/2027/2/27"
+      }
+     ],
+     "Set prefix": [],
+     "Korean release date": [],
+     "English name": []
+    },
+    "fulltext": "Rarity Collection: Climax Scene Edition",
+    "fullurl": "https://yugipedia.com/wiki/Rarity_Collection:_Climax_Scene_Edition",
+    "namespace": 0,
+    "exists": "1",
+    "displaytitle": ""
+   },
+   "Yu-Gi-Oh! Tag Force GX promotional cards": {
+    "printouts": {
+     "Japanese release date": [
+      {
+       "timestamp": "1802736000",
+       "raw": "1/2027/2/16"
+      }
+     ],
+     "Set prefix": [],
+     "Korean release date": [],
+     "English name": []
+    },
+    "fulltext": "Yu-Gi-Oh! Tag Force GX promotional cards",
+    "fullurl": "https://yugipedia.com/wiki/Yu-Gi-Oh!_Tag_Force_GX_promotional_cards",
+    "namespace": 0,
+    "exists": "1",
+    "displaytitle": "Yu-Gi-Oh! Tag Force GX promotional cards"
+   },
+   "Pride and Soul": {
+    "printouts": {
+     "Japanese release date": [
+      {
+       "timestamp": "1800662400",
+       "raw": "1/2027/1/23"
+      }
+     ],
+     "Set prefix": [],
+     "Korean release date": [],
+     "English name": []
+    },
+    "fulltext": "Pride and Soul",
+    "fullurl": "https://yugipedia.com/wiki/Pride_and_Soul",
+    "namespace": 0,
+    "exists": "1",
+    "displaytitle": "Pride and Soul"
+   },
+   "Yu-Gi-Oh! The Dark Side of Dimensions 10th Anniversary Movie Box": {
+    "printouts": {
+     "Japanese release date": [
+      {
+       "timestamp": "1797638400",
+       "raw": "1/2026/12/19"
+      }
+     ],
+     "Set prefix": [],
+     "Korean release date": [],
+     "English name": []
+    },
+    "fulltext": "Yu-Gi-Oh! The Dark Side of Dimensions 10th Anniversary Movie Box",
+    "fullurl": "https://yugipedia.com/wiki/Yu-Gi-Oh!_The_Dark_Side_of_Dimensions_10th_Anniversary_Movie_Box",
+    "namespace": 0,
+    "exists": "1",
+    "displaytitle": "Yu-Gi-Oh! The Dark Side of Dimensions 10th Anniversary Movie Box"
+   },
+   "Art Expansion Box: Tri-Brigade Arms Mouser": {
+    "printouts": {
+     "Japanese release date": [
+      {
+       "timestamp": "1796083200",
+       "raw": "1/2026/12"
+      }
+     ],
+     "Set prefix": [],
+     "Korean release date": [],
+     "English name": []
+    },
+    "fulltext": "Art Expansion Box: Tri-Brigade Arms Mouser",
+    "fullurl": "https://yugipedia.com/wiki/Art_Expansion_Box:_Tri-Brigade_Arms_Mouser",
+    "namespace": 0,
+    "exists": "1",
+    "displaytitle": "Art Expansion Box: Tri-Brigade Arms Mouser"
+   },
+   "Blue-Eyes Ultimate Dragon, the God-Surpassing Servant Duel Set": {
+    "printouts": {
+     "Japanese release date": [
+      {
+       "timestamp": "1795305600",
+       "raw": "1/2026/11/22"
+      }
+     ],
+     "Set prefix": [],
+     "Korean release date": [],
+     "English name": []
+    },
+    "fulltext": "Blue-Eyes Ultimate Dragon, the God-Surpassing Servant Duel Set",
+    "fullurl": "https://yugipedia.com/wiki/Blue-Eyes_Ultimate_Dragon,_the_God-Surpassing_Servant_Duel_Set",
+    "namespace": 0,
+    "exists": "1",
+    "displaytitle": "Blue-Eyes Ultimate Dragon, the God-Surpassing Servant Duel Set"
+   },
+   "Revolution Booster: Cubic / Marincess / Ghostrick": {
+    "printouts": {
+     "Japanese release date": [
+      {
+       "timestamp": "1795219200",
+       "raw": "1/2026/11/21"
+      }
+     ],
+     "Set prefix": [],
+     "Korean release date": [],
+     "English name": []
+    },
+    "fulltext": "Revolution Booster: Cubic / Marincess / Ghostrick",
+    "fullurl": "https://yugipedia.com/wiki/Revolution_Booster:_Cubic_/_Marincess_/_Ghostrick",
+    "namespace": 0,
+    "exists": "1",
+    "displaytitle": "Revolution Booster: Cubic / Marincess / Ghostrick"
+   },
+   "Immortal Phoenix": {
+    "printouts": {
+     "Japanese release date": [
+      {
+       "timestamp": "1793404800",
+       "raw": "1/2026/10/31"
+      }
+     ],
+     "Set prefix": [],
+     "Korean release date": [],
+     "English name": [
+      "Immortal Phoenix"
+     ]
+    },
+    "fulltext": "Immortal Phoenix",
+    "fullurl": "https://yugipedia.com/wiki/Immortal_Phoenix",
+    "namespace": 0,
+    "exists": "1",
+    "displaytitle": "Immortal Phoenix"
+   },
+   "Original Artwork Duel Set: Kaiba": {
+    "printouts": {
+     "Japanese release date": [
+      {
+       "timestamp": "1793232000",
+       "raw": "1/2026/10/29"
+      }
+     ],
+     "Set prefix": [],
+     "Korean release date": [],
+     "English name": []
+    },
+    "fulltext": "Original Artwork Duel Set: Kaiba",
+    "fullurl": "https://yugipedia.com/wiki/Original_Artwork_Duel_Set:_Kaiba",
+    "namespace": 0,
+    "exists": "1",
+    "displaytitle": "Original Artwork Duel Set: Kaiba"
+   },
+   "Original Artwork Duel Set: Joey": {
+    "printouts": {
+     "Japanese release date": [
+      {
+       "timestamp": "1793232000",
+       "raw": "1/2026/10/29"
+      }
+     ],
+     "Set prefix": [],
+     "Korean release date": [],
+     "English name": []
+    },
+    "fulltext": "Original Artwork Duel Set: Joey",
+    "fullurl": "https://yugipedia.com/wiki/Original_Artwork_Duel_Set:_Joey",
+    "namespace": 0,
+    "exists": "1",
+    "displaytitle": "Original Artwork Duel Set: Joey"
+   },
+   "Original Artwork Duel Set: Yugi": {
+    "printouts": {
+     "Japanese release date": [
+      {
+       "timestamp": "1793232000",
+       "raw": "1/2026/10/29"
+      }
+     ],
+     "Set prefix": [],
+     "Korean release date": [],
+     "English name": []
+    },
+    "fulltext": "Original Artwork Duel Set: Yugi",
+    "fullurl": "https://yugipedia.com/wiki/Original_Artwork_Duel_Set:_Yugi",
+    "namespace": 0,
+    "exists": "1",
+    "displaytitle": "Original Artwork Duel Set: Yugi"
+   },
+   "V Jump December 2026 promotional card": {
+    "printouts": {
+     "Japanese release date": [
+      {
+       "timestamp": "1792540800",
+       "raw": "1/2026/10/21"
+      }
+     ],
+     "Set prefix": [],
+     "Korean release date": [],
+     "English name": []
+    },
+    "fulltext": "V Jump December 2026 promotional card",
+    "fullurl": "https://yugipedia.com/wiki/V_Jump_December_2026_promotional_card",
+    "namespace": 0,
+    "exists": "1",
+    "displaytitle": "V Jump December 2026 promotional card"
+   },
+   "Duelist King Cup October 2026 prize card": {
+    "printouts": {
+     "Japanese release date": [
+      {
+       "timestamp": "1790985600",
+       "raw": "1/2026/10/3"
+      }
+     ],
+     "Set prefix": [],
+     "Korean release date": [],
+     "English name": []
+    },
+    "fulltext": "Duelist King Cup October 2026 prize card",
+    "fullurl": "https://yugipedia.com/wiki/Duelist_King_Cup_October_2026_prize_card",
+    "namespace": 0,
+    "exists": "1",
+    "displaytitle": "Duelist King Cup October 2026 prize card"
+   },
+   "Winner's Pack 2026 Vol.3": {
+    "printouts": {
+     "Japanese release date": [
+      {
+       "timestamp": "1790812800",
+       "raw": "1/2026/10/1"
+      }
+     ],
+     "Set prefix": [],
+     "Korean release date": [],
+     "English name": []
+    },
+    "fulltext": "Winner's Pack 2026 Vol.3",
+    "fullurl": "https://yugipedia.com/wiki/Winner%27s_Pack_2026_Vol.3",
+    "namespace": 0,
+    "exists": "1",
+    "displaytitle": "Winner's Pack 2026 Vol.3"
+   },
+   "Tournament Pack 2026 Vol.3": {
+    "printouts": {
+     "Japanese release date": [
+      {
+       "timestamp": "1790812800",
+       "raw": "1/2026/10/1"
+      }
+     ],
+     "Set prefix": [],
+     "Korean release date": [],
+     "English name": []
+    },
+    "fulltext": "Tournament Pack 2026 Vol.3",
+    "fullurl": "https://yugipedia.com/wiki/Tournament_Pack_2026_Vol.3",
+    "namespace": 0,
+    "exists": "1",
+    "displaytitle": "Tournament Pack 2026 Vol.3"
+   },
+   "Original Artwork Collection": {
+    "printouts": {
+     "Japanese release date": [
+      {
+       "timestamp": "1790380800",
+       "raw": "1/2026/9/26"
+      }
+     ],
+     "Set prefix": [],
+     "Korean release date": [],
+     "English name": []
+    },
+    "fulltext": "Original Artwork Collection",
+    "fullurl": "https://yugipedia.com/wiki/Original_Artwork_Collection",
+    "namespace": 0,
+    "exists": "1",
+    "displaytitle": "Original Artwork Collection"
+   },
+   "V Jump Fall 2026 subscription bonus": {
+    "printouts": {
+     "Japanese release date": [
+      {
+       "timestamp": "1789689600",
+       "raw": "1/2026/9/18"
+      }
+     ],
+     "Set prefix": [],
+     "Korean release date": [],
+     "English name": []
+    },
+    "fulltext": "V Jump Fall 2026 subscription bonus",
+    "fullurl": "https://yugipedia.com/wiki/V_Jump_Fall_2026_subscription_bonus",
+    "namespace": 0,
+    "exists": "1",
+    "displaytitle": "V Jump Fall 2026 subscription bonus"
+   },
+   "V Jump November 2026 promotional card": {
+    "printouts": {
+     "Japanese release date": [
+      {
+       "timestamp": "1789689600",
+       "raw": "1/2026/9/18"
+      }
+     ],
+     "Set prefix": [],
+     "Korean release date": [],
+     "English name": []
+    },
+    "fulltext": "V Jump November 2026 promotional card",
+    "fullurl": "https://yugipedia.com/wiki/V_Jump_November_2026_promotional_card",
+    "namespace": 0,
+    "exists": "1",
+    "displaytitle": "V Jump November 2026 promotional card"
+   },
+   "Tokyo Game Show 2026 promotional cards": {
+    "printouts": {
+     "Japanese release date": [
+      {
+       "timestamp": "1789603200",
+       "raw": "1/2026/9/17"
+      }
+     ],
+     "Set prefix": [],
+     "Korean release date": [],
+     "English name": []
+    },
+    "fulltext": "Tokyo Game Show 2026 promotional cards",
+    "fullurl": "https://yugipedia.com/wiki/Tokyo_Game_Show_2026_promotional_cards",
+    "namespace": 0,
+    "exists": "1",
+    "displaytitle": "Tokyo Game Show 2026 promotional cards"
+   },
+   "Deck-Build Pack: Glorious Victors": {
+    "printouts": {
+     "Japanese release date": [
+      {
+       "timestamp": "1788566400",
+       "raw": "1/2026/9/5"
+      }
+     ],
+     "Set prefix": [],
+     "Korean release date": [],
+     "English name": []
+    },
+    "fulltext": "Deck-Build Pack: Glorious Victors",
+    "fullurl": "https://yugipedia.com/wiki/Deck-Build_Pack:_Glorious_Victors",
+    "namespace": 0,
+    "exists": "1",
+    "displaytitle": "Deck-Build Pack: Glorious Victors"
+   },
+   "Yu-Gi-Oh! World Championship 2026 attendance cards": {
+    "printouts": {
+     "Japanese release date": [
+      {
+       "timestamp": "1787961600",
+       "raw": "1/2026/8/29"
+      }
+     ],
+     "Set prefix": [],
+     "Korean release date": [],
+     "English name": []
+    },
+    "fulltext": "Yu-Gi-Oh! World Championship 2026 attendance cards",
+    "fullurl": "https://yugipedia.com/wiki/Yu-Gi-Oh!_World_Championship_2026_attendance_cards",
+    "namespace": 0,
+    "exists": "1",
+    "displaytitle": "Yu-Gi-Oh! World Championship 2026 attendance cards"
+   },
+   "Duel Set World Championship 2026": {
+    "printouts": {
+     "Japanese release date": [
+      {
+       "timestamp": "1787961600",
+       "raw": "1/2026/8/29"
+      }
+     ],
+     "Set prefix": [],
+     "Korean release date": [],
+     "English name": []
+    },
+    "fulltext": "Duel Set World Championship 2026",
+    "fullurl": "https://yugipedia.com/wiki/Duel_Set_World_Championship_2026",
+    "namespace": 0,
+    "exists": "1",
+    "displaytitle": "Duel Set World Championship 2026"
+   },
+   "Limited Pack World Championship 2026": {
+    "printouts": {
+     "Japanese release date": [
+      {
+       "timestamp": "1787961600",
+       "raw": "1/2026/8/29"
+      }
+     ],
+     "Set prefix": [],
+     "Korean release date": [
+      {
+       "timestamp": "1787961600",
+       "raw": "1/2026/8/29"
+      }
+     ],
+     "English name": [
+      "Limited Pack World Championship 2026"
+     ]
+    },
+    "fulltext": "Limited Pack World Championship 2026",
+    "fullurl": "https://yugipedia.com/wiki/Limited_Pack_World_Championship_2026",
+    "namespace": 0,
+    "exists": "1",
+    "displaytitle": "Limited Pack World Championship 2026"
+   },
+   "Deluxe Duel Set: Sky Striker Ace": {
+    "printouts": {
+     "Japanese release date": [
+      {
+       "timestamp": "1787356800",
+       "raw": "1/2026/8/22"
+      }
+     ],
+     "Set prefix": [],
+     "Korean release date": [],
+     "English name": []
+    },
+    "fulltext": "Deluxe Duel Set: Sky Striker Ace",
+    "fullurl": "https://yugipedia.com/wiki/Deluxe_Duel_Set:_Sky_Striker_Ace",
+    "namespace": 0,
+    "exists": "1",
+    "displaytitle": "Deluxe Duel Set: Sky Striker Ace"
+   },
+   "V Jump October 2026 promotional card": {
+    "printouts": {
+     "Japanese release date": [
+      {
+       "timestamp": "1787270400",
+       "raw": "1/2026/8/21"
+      }
+     ],
+     "Set prefix": [],
+     "Korean release date": [],
+     "English name": []
+    },
+    "fulltext": "V Jump October 2026 promotional card",
+    "fullurl": "https://yugipedia.com/wiki/V_Jump_October_2026_promotional_card",
+    "namespace": 0,
+    "exists": "1",
+    "displaytitle": "V Jump October 2026 promotional card"
+   },
+   "Utility Selection": {
+    "printouts": {
+     "Japanese release date": [
+      {
+       "timestamp": "1786147200",
+       "raw": "1/2026/8/8"
+      }
+     ],
+     "Set prefix": [],
+     "Korean release date": [],
+     "English name": []
+    },
+    "fulltext": "Utility Selection",
+    "fullurl": "https://yugipedia.com/wiki/Utility_Selection",
+    "namespace": 0,
+    "exists": "1",
+    "displaytitle": "Utility Selection"
+   },
+   "Limited Pack GX: Ra Yellow": {
+    "printouts": {
+     "Japanese release date": [
+      {
+       "timestamp": "1784937600",
+       "raw": "1/2026/7/25"
+      }
+     ],
+     "Set prefix": [],
+     "Korean release date": [],
+     "English name": []
+    },
+    "fulltext": "Limited Pack GX: Ra Yellow",
+    "fullurl": "https://yugipedia.com/wiki/Limited_Pack_GX:_Ra_Yellow",
+    "namespace": 0,
+    "exists": "1",
+    "displaytitle": "Limited Pack GX: Ra Yellow"
+   },
+   "V Jump September 2026 promotional card": {
+    "printouts": {
+     "Japanese release date": [
+      {
+       "timestamp": "1784592000",
+       "raw": "1/2026/7/21"
+      }
+     ],
+     "Set prefix": [],
+     "Korean release date": [],
+     "English name": []
+    },
+    "fulltext": "V Jump September 2026 promotional card",
+    "fullurl": "https://yugipedia.com/wiki/V_Jump_September_2026_promotional_card",
+    "namespace": 0,
+    "exists": "1",
+    "displaytitle": "V Jump September 2026 promotional card"
+   },
+   "Japan Championship 2026 Finals prize card": {
+    "printouts": {
+     "Japanese release date": [
+      {
+       "timestamp": "1784419200",
+       "raw": "1/2026/7/19"
+      }
+     ],
+     "Set prefix": [],
+     "Korean release date": [],
+     "English name": []
+    },
+    "fulltext": "Japan Championship 2026 Finals prize card",
+    "fullurl": "https://yugipedia.com/wiki/Japan_Championship_2026_Finals_prize_card",
+    "namespace": 0,
+    "exists": "1",
+    "displaytitle": "Japan Championship 2026 Finals prize card"
+   },
+   "Jump Victory Carnival 2026 promotional cards": {
+    "printouts": {
+     "Japanese release date": [
+      {
+       "timestamp": "1784419200",
+       "raw": "1/2026/7/19"
+      }
+     ],
+     "Set prefix": [],
+     "Korean release date": [],
+     "English name": []
+    },
+    "fulltext": "Jump Victory Carnival 2026 promotional cards",
+    "fullurl": "https://yugipedia.com/wiki/Jump_Victory_Carnival_2026_promotional_cards",
+    "namespace": 0,
+    "exists": "1",
+    "displaytitle": "Jump Victory Carnival 2026 promotional cards"
+   },
+   "Beyond the Brave": {
+    "printouts": {
+     "Japanese release date": [
+      {
+       "timestamp": "1784332800",
+       "raw": "1/2026/7/18"
+      }
+     ],
+     "Set prefix": [],
+     "Korean release date": [],
+     "English name": [
+      "Beyond the Brave"
+     ]
+    },
+    "fulltext": "Beyond the Brave",
+    "fullurl": "https://yugipedia.com/wiki/Beyond_the_Brave",
+    "namespace": 0,
+    "exists": "1",
+    "displaytitle": "Beyond the Brave"
+   },
+   "Duelist King Cup July 2026 prize card": {
+    "printouts": {
+     "Japanese release date": [
+      {
+       "timestamp": "1783123200",
+       "raw": "1/2026/7/4"
+      }
+     ],
+     "Set prefix": [],
+     "Korean release date": [],
+     "English name": []
+    },
+    "fulltext": "Duelist King Cup July 2026 prize card",
+    "fullurl": "https://yugipedia.com/wiki/Duelist_King_Cup_July_2026_prize_card",
+    "namespace": 0,
+    "exists": "1",
+    "displaytitle": "Duelist King Cup July 2026 prize card"
+   },
+   "Yu-Gi-Oh! OCG Stories Volume 7 promotional card": {
+    "printouts": {
+     "Japanese release date": [
+      {
+       "timestamp": "1783036800",
+       "raw": "1/2026/7/3"
+      }
+     ],
+     "Set prefix": [],
+     "Korean release date": [],
+     "English name": []
+    },
+    "fulltext": "Yu-Gi-Oh! OCG Stories Volume 7 promotional card",
+    "fullurl": "https://yugipedia.com/wiki/Yu-Gi-Oh!_OCG_Stories_Volume_7_promotional_card",
+    "namespace": 0,
+    "exists": "1",
+    "displaytitle": "Yu-Gi-Oh! OCG Stories Volume 7 promotional card"
+   },
+   "Yu-Gi-Oh! OCG Structures Volume 12 promotional card": {
+    "printouts": {
+     "Japanese release date": [
+      {
+       "timestamp": "1783036800",
+       "raw": "1/2026/7/3"
+      }
+     ],
+     "Set prefix": [],
+     "Korean release date": [],
+     "English name": []
+    },
+    "fulltext": "Yu-Gi-Oh! OCG Structures Volume 12 promotional card",
+    "fullurl": "https://yugipedia.com/wiki/Yu-Gi-Oh!_OCG_Structures_Volume_12_promotional_card",
+    "namespace": 0,
+    "exists": "1",
+    "displaytitle": "Yu-Gi-Oh! OCG Structures Volume 12 promotional card"
+   },
+   "Winner's Pack 2026 Vol.2": {
+    "printouts": {
+     "Japanese release date": [
+      {
+       "timestamp": "1782864000",
+       "raw": "1/2026/7/1"
+      }
+     ],
+     "Set prefix": [],
+     "Korean release date": [],
+     "English name": []
+    },
+    "fulltext": "Winner's Pack 2026 Vol.2",
+    "fullurl": "https://yugipedia.com/wiki/Winner%27s_Pack_2026_Vol.2",
+    "namespace": 0,
+    "exists": "1",
+    "displaytitle": "Winner's Pack 2026 Vol.2"
+   },
+   "Tournament Pack 2026 Vol.2": {
+    "printouts": {
+     "Japanese release date": [
+      {
+       "timestamp": "1782864000",
+       "raw": "1/2026/7/1"
+      }
+     ],
+     "Set prefix": [],
+     "Korean release date": [],
+     "English name": []
+    },
+    "fulltext": "Tournament Pack 2026 Vol.2",
+    "fullurl": "https://yugipedia.com/wiki/Tournament_Pack_2026_Vol.2",
+    "namespace": 0,
+    "exists": "1",
+    "displaytitle": "Tournament Pack 2026 Vol.2"
+   },
+   "World Premiere Pack 2026": {
+    "printouts": {
+     "Japanese release date": [
+      {
+       "timestamp": "1782518400",
+       "raw": "1/2026/6/27"
+      }
+     ],
+     "Set prefix": [],
+     "Korean release date": [
+      {
+       "timestamp": "1789603200",
+       "raw": "1/2026/9/17"
+      }
+     ],
+     "English name": []
+    },
+    "fulltext": "World Premiere Pack 2026",
+    "fullurl": "https://yugipedia.com/wiki/World_Premiere_Pack_2026",
+    "namespace": 0,
+    "exists": "1",
+    "displaytitle": "World Premiere Pack 2026"
+   },
+   "V Jump August 2026 promotional card": {
+    "printouts": {
+     "Japanese release date": [
+      {
+       "timestamp": "1781827200",
+       "raw": "1/2026/6/19"
+      }
+     ],
+     "Set prefix": [],
+     "Korean release date": [],
+     "English name": []
+    },
+    "fulltext": "V Jump August 2026 promotional card",
+    "fullurl": "https://yugipedia.com/wiki/V_Jump_August_2026_promotional_card",
+    "namespace": 0,
+    "exists": "1",
+    "displaytitle": "V Jump August 2026 promotional card"
+   },
+   "Yu-Gi-Oh! Championship Series Japan 2026 prize cards": {
+    "printouts": {
+     "Japanese release date": [
+      {
+       "timestamp": "1781308800",
+       "raw": "1/2026/6/13"
+      }
+     ],
+     "Set prefix": [],
+     "Korean release date": [],
+     "English name": []
+    },
+    "fulltext": "Yu-Gi-Oh! Championship Series Japan 2026 prize cards",
+    "fullurl": "https://yugipedia.com/wiki/Yu-Gi-Oh!_Championship_Series_Japan_2026_prize_cards",
+    "namespace": 0,
+    "exists": "1",
+    "displaytitle": "Yu-Gi-Oh! Championship Series Japan 2026 prize cards"
+   },
+   "I:P Masquerena & S:P Little Knight Duel Set": {
+    "printouts": {
+     "Japanese release date": [
+      {
+       "timestamp": "1781308800",
+       "raw": "1/2026/6/13"
+      }
+     ],
+     "Set prefix": [],
+     "Korean release date": [],
+     "English name": []
+    },
+    "fulltext": "I:P Masquerena & S:P Little Knight Duel Set",
+    "fullurl": "https://yugipedia.com/wiki/I:P_Masquerena_%26_S:P_Little_Knight_Duel_Set",
+    "namespace": 0,
+    "exists": "1",
+    "displaytitle": "I:P Masquerena & S:P Little Knight Duel Set"
+   },
+   "Galaxy-Eyes Duel Set": {
+    "printouts": {
+     "Japanese release date": [
+      {
+       "timestamp": "1781308800",
+       "raw": "1/2026/6/13"
+      }
+     ],
+     "Set prefix": [],
+     "Korean release date": [],
+     "English name": []
+    },
+    "fulltext": "Galaxy-Eyes Duel Set",
+    "fullurl": "https://yugipedia.com/wiki/Galaxy-Eyes_Duel_Set",
+    "namespace": 0,
+    "exists": "1",
+    "displaytitle": "Galaxy-Eyes Duel Set"
+   },
+   "Revolution Booster: Toon / Witchcrafter / Unchained": {
+    "printouts": {
+     "Japanese release date": [
+      {
+       "timestamp": "1780099200",
+       "raw": "1/2026/5/30"
+      }
+     ],
+     "Set prefix": [],
+     "Korean release date": [
+      {
+       "timestamp": "1786579200",
+       "raw": "1/2026/8/13"
+      }
+     ],
+     "English name": []
+    },
+    "fulltext": "Revolution Booster: Toon / Witchcrafter / Unchained",
+    "fullurl": "https://yugipedia.com/wiki/Revolution_Booster:_Toon_/_Witchcrafter_/_Unchained",
+    "namespace": 0,
+    "exists": "1",
+    "displaytitle": "Revolution Booster: Toon / Witchcrafter / Unchained"
+   },
+   "30th Anniversary Demon's Pack": {
+    "printouts": {
+     "Japanese release date": [
+      {
+       "timestamp": "1779926400",
+       "raw": "1/2026/5/28"
+      }
+     ],
+     "Set prefix": [],
+     "Korean release date": [],
+     "English name": []
+    },
+    "fulltext": "30th Anniversary Demon's Pack",
+    "fullurl": "https://yugipedia.com/wiki/30th_Anniversary_Demon%27s_Pack",
+    "namespace": 0,
+    "exists": "1",
+    "displaytitle": "30th Anniversary Demon's Pack"
+   },
+   "V Jump July 2026 promotional card": {
+    "printouts": {
+     "Japanese release date": [
+      {
+       "timestamp": "1779321600",
+       "raw": "1/2026/5/21"
+      }
+     ],
+     "Set prefix": [],
+     "Korean release date": [],
+     "English name": []
+    },
+    "fulltext": "V Jump July 2026 promotional card",
+    "fullurl": "https://yugipedia.com/wiki/V_Jump_July_2026_promotional_card",
+    "namespace": 0,
+    "exists": "1",
+    "displaytitle": "V Jump July 2026 promotional card"
+   },
+   "Chaos Origins": {
+    "printouts": {
+     "Japanese release date": [
+      {
+       "timestamp": "1777075200",
+       "raw": "1/2026/4/25"
+      }
+     ],
+     "Set prefix": [],
+     "Korean release date": [
+      {
+       "timestamp": "1783987200",
+       "raw": "1/2026/7/14"
+      }
+     ],
+     "English name": [
+      "Chaos Origins"
+     ]
+    },
+    "fulltext": "Chaos Origins",
+    "fullurl": "https://yugipedia.com/wiki/Chaos_Origins",
+    "namespace": 0,
+    "exists": "1",
+    "displaytitle": "Chaos Origins"
+   },
+   "V Jump June 2026 promotional card": {
+    "printouts": {
+     "Japanese release date": [
+      {
+       "timestamp": "1776729600",
+       "raw": "1/2026/4/21"
+      }
+     ],
+     "Set prefix": [],
+     "Korean release date": [],
+     "English name": []
+    },
+    "fulltext": "V Jump June 2026 promotional card",
+    "fullurl": "https://yugipedia.com/wiki/V_Jump_June_2026_promotional_card",
+    "namespace": 0,
+    "exists": "1",
+    "displaytitle": "V Jump June 2026 promotional card"
+   },
+   "Half Deck: Warrior-Type x Xyz Summon": {
+    "printouts": {
+     "Japanese release date": [
+      {
+       "timestamp": "1775260800",
+       "raw": "1/2026/4/4"
+      }
+     ],
+     "Set prefix": [],
+     "Korean release date": [],
+     "English name": []
+    },
+    "fulltext": "Half Deck: Warrior-Type x Xyz Summon",
+    "fullurl": "https://yugipedia.com/wiki/Half_Deck:_Warrior-Type_x_Xyz_Summon",
+    "namespace": 0,
+    "exists": "1",
+    "displaytitle": "Half Deck: Warrior-Type x Xyz Summon"
+   },
+   "Half Deck: Spellcaster-Type x Synchro Summon": {
+    "printouts": {
+     "Japanese release date": [
+      {
+       "timestamp": "1775260800",
+       "raw": "1/2026/4/4"
+      }
+     ],
+     "Set prefix": [],
+     "Korean release date": [],
+     "English name": []
+    },
+    "fulltext": "Half Deck: Spellcaster-Type x Synchro Summon",
+    "fullurl": "https://yugipedia.com/wiki/Half_Deck:_Spellcaster-Type_x_Synchro_Summon",
+    "namespace": 0,
+    "exists": "1",
+    "displaytitle": "Half Deck: Spellcaster-Type x Synchro Summon"
+   },
+   "Half Deck: Dragon-Type x Fusion Summon": {
+    "printouts": {
+     "Japanese release date": [
+      {
+       "timestamp": "1775260800",
+       "raw": "1/2026/4/4"
+      }
+     ],
+     "Set prefix": [],
+     "Korean release date": [],
+     "English name": []
+    },
+    "fulltext": "Half Deck: Dragon-Type x Fusion Summon",
+    "fullurl": "https://yugipedia.com/wiki/Half_Deck:_Dragon-Type_x_Fusion_Summon",
+    "namespace": 0,
+    "exists": "1",
+    "displaytitle": "Half Deck: Dragon-Type x Fusion Summon"
+   },
+   "Duelist King Cup April 2026 prize card": {
+    "printouts": {
+     "Japanese release date": [
+      {
+       "timestamp": "1775260800",
+       "raw": "1/2026/4/4"
+      }
+     ],
+     "Set prefix": [],
+     "Korean release date": [],
+     "English name": []
+    },
+    "fulltext": "Duelist King Cup April 2026 prize card",
+    "fullurl": "https://yugipedia.com/wiki/Duelist_King_Cup_April_2026_prize_card",
+    "namespace": 0,
+    "exists": "1",
+    "displaytitle": "Duelist King Cup April 2026 prize card"
+   },
+   "Winner's Pack 2026 Vol.1": {
+    "printouts": {
+     "Japanese release date": [
+      {
+       "timestamp": "1775001600",
+       "raw": "1/2026/4/1"
+      }
+     ],
+     "Set prefix": [],
+     "Korean release date": [],
+     "English name": []
+    },
+    "fulltext": "Winner's Pack 2026 Vol.1",
+    "fullurl": "https://yugipedia.com/wiki/Winner%27s_Pack_2026_Vol.1",
+    "namespace": 0,
+    "exists": "1",
+    "displaytitle": "Winner's Pack 2026 Vol.1"
+   },
+   "Tournament Pack 2026 Vol.1": {
+    "printouts": {
+     "Japanese release date": [
+      {
+       "timestamp": "1775001600",
+       "raw": "1/2026/4/1"
+      }
+     ],
+     "Set prefix": [],
+     "Korean release date": [],
+     "English name": []
+    },
+    "fulltext": "Tournament Pack 2026 Vol.1",
+    "fullurl": "https://yugipedia.com/wiki/Tournament_Pack_2026_Vol.1",
+    "namespace": 0,
+    "exists": "1",
+    "displaytitle": "Tournament Pack 2026 Vol.1"
+   },
+   "AnimeJapan 2026 promotional cards": {
+    "printouts": {
+     "Japanese release date": [
+      {
+       "timestamp": "1774656000",
+       "raw": "1/2026/3/28"
+      }
+     ],
+     "Set prefix": [],
+     "Korean release date": [],
+     "English name": []
+    },
+    "fulltext": "AnimeJapan 2026 promotional cards",
+    "fullurl": "https://yugipedia.com/wiki/AnimeJapan_2026_promotional_cards",
+    "namespace": 0,
+    "exists": "1",
+    "displaytitle": "AnimeJapan 2026 promotional cards"
+   },
+   "Artwork Series Mini Hanging Scrolls: Egyptian Gods": {
+    "printouts": {
+     "Japanese release date": [
+      {
+       "timestamp": "1774569600",
+       "raw": "1/2026/3/27"
+      }
+     ],
+     "Set prefix": [],
+     "Korean release date": [],
+     "English name": []
+    },
+    "fulltext": "Artwork Series Mini Hanging Scrolls: Egyptian Gods",
+    "fullurl": "https://yugipedia.com/wiki/Artwork_Series_Mini_Hanging_Scrolls:_Egyptian_Gods",
+    "namespace": 0,
+    "exists": "1",
+    "displaytitle": "Artwork Series Mini Hanging Scrolls: Egyptian Gods"
+   },
+   "Limit Over Special Pack Vol.2": {
+    "printouts": {
+     "Japanese release date": [
+      {
+       "timestamp": "1773964800",
+       "raw": "1/2026/3/20"
+      }
+     ],
+     "Set prefix": [],
+     "Korean release date": [
+      {
+       "timestamp": "1780704000",
+       "raw": "1/2026/6/6"
+      }
+     ],
+     "English name": []
+    },
+    "fulltext": "Limit Over Special Pack Vol.2",
+    "fullurl": "https://yugipedia.com/wiki/Limit_Over_Special_Pack_Vol.2",
+    "namespace": 0,
+    "exists": "1",
+    "displaytitle": "Limit Over Special Pack Vol.2"
+   },
+   "Limit Over Collection: The Rivals": {
+    "printouts": {
+     "Japanese release date": [
+      {
+       "timestamp": "1773964800",
+       "raw": "1/2026/3/20"
+      }
+     ],
+     "Set prefix": [],
+     "Korean release date": [
+      {
+       "timestamp": "1780704000",
+       "raw": "1/2026/6/6"
+      }
+     ],
+     "English name": []
+    },
+    "fulltext": "Limit Over Collection: The Rivals",
+    "fullurl": "https://yugipedia.com/wiki/Limit_Over_Collection:_The_Rivals",
+    "namespace": 0,
+    "exists": "1",
+    "displaytitle": "Limit Over Collection: The Rivals"
+   },
+   "V Jump May 2026 promotional card": {
+    "printouts": {
+     "Japanese release date": [
+      {
+       "timestamp": "1773878400",
+       "raw": "1/2026/3/19"
+      }
+     ],
+     "Set prefix": [],
+     "Korean release date": [],
+     "English name": []
+    },
+    "fulltext": "V Jump May 2026 promotional card",
+    "fullurl": "https://yugipedia.com/wiki/V_Jump_May_2026_promotional_card",
+    "namespace": 0,
+    "exists": "1",
+    "displaytitle": "V Jump May 2026 promotional card"
+   },
+   "The Valuable Book EX 6 promotional cards": {
+    "printouts": {
+     "Japanese release date": [
+      {
+       "timestamp": "1773878400",
+       "raw": "1/2026/3/19"
+      }
+     ],
+     "Set prefix": [],
+     "Korean release date": [],
+     "English name": []
+    },
+    "fulltext": "The Valuable Book EX 6 promotional cards",
+    "fullurl": "https://yugipedia.com/wiki/The_Valuable_Book_EX_6_promotional_cards",
+    "namespace": 0,
+    "exists": "1",
+    "displaytitle": "The Valuable Book EX 6 promotional cards"
+   },
+   "V Jump Spring 2026 subscription bonus": {
+    "printouts": {
+     "Japanese release date": [
+      {
+       "timestamp": "1773878400",
+       "raw": "1/2026/3/19"
+      }
+     ],
+     "Set prefix": [],
+     "Korean release date": [],
+     "English name": []
+    },
+    "fulltext": "V Jump Spring 2026 subscription bonus",
+    "fullurl": "https://yugipedia.com/wiki/V_Jump_Spring_2026_subscription_bonus",
+    "namespace": 0,
+    "exists": "1",
+    "displaytitle": "V Jump Spring 2026 subscription bonus"
+   },
+   "Cup Noodle collaboration card": {
+    "printouts": {
+     "Japanese release date": [
+      {
+       "timestamp": "1773792000",
+       "raw": "1/2026/3/18"
+      }
+     ],
+     "Set prefix": [],
+     "Korean release date": [],
+     "English name": []
+    },
+    "fulltext": "Cup Noodle collaboration card",
+    "fullurl": "https://yugipedia.com/wiki/Cup_Noodle_collaboration_card",
+    "namespace": 0,
+    "exists": "1",
+    "displaytitle": "Cup Noodle collaboration card"
+   },
+   "Artwork Series Hanging Scrolls": {
+    "printouts": {
+     "Japanese release date": [
+      {
+       "timestamp": "1773446400",
+       "raw": "1/2026/3/14"
+      }
+     ],
+     "Set prefix": [],
+     "Korean release date": [],
+     "English name": []
+    },
+    "fulltext": "Artwork Series Hanging Scrolls",
+    "fullurl": "https://yugipedia.com/wiki/Artwork_Series_Hanging_Scrolls",
+    "namespace": 0,
+    "exists": "1",
+    "displaytitle": "Artwork Series Hanging Scrolls"
+   },
+   "Limit Over Special Pack Vol.1": {
+    "printouts": {
+     "Japanese release date": [
+      {
+       "timestamp": "1772236800",
+       "raw": "1/2026/2/28"
+      }
+     ],
+     "Set prefix": [],
+     "Korean release date": [
+      {
+       "timestamp": "1778803200",
+       "raw": "1/2026/5/15"
+      }
+     ],
+     "English name": []
+    },
+    "fulltext": "Limit Over Special Pack Vol.1",
+    "fullurl": "https://yugipedia.com/wiki/Limit_Over_Special_Pack_Vol.1",
+    "namespace": 0,
+    "exists": "1",
+    "displaytitle": "Limit Over Special Pack Vol.1"
+   },
+   "Limit Over Collection: The Heroes": {
+    "printouts": {
+     "Japanese release date": [
+      {
+       "timestamp": "1772236800",
+       "raw": "1/2026/2/28"
+      }
+     ],
+     "Set prefix": [],
+     "Korean release date": [
+      {
+       "timestamp": "1778803200",
+       "raw": "1/2026/5/15"
+      }
+     ],
+     "English name": []
+    },
+    "fulltext": "Limit Over Collection: The Heroes",
+    "fullurl": "https://yugipedia.com/wiki/Limit_Over_Collection:_The_Heroes",
+    "namespace": 0,
+    "exists": "1",
+    "displaytitle": "Limit Over Collection: The Heroes"
+   },
+   "V Jump April 2026 promotional card": {
+    "printouts": {
+     "Japanese release date": [
+      {
+       "timestamp": "1771545600",
+       "raw": "1/2026/2/20"
+      }
+     ],
+     "Set prefix": [],
+     "Korean release date": [],
+     "English name": []
+    },
+    "fulltext": "V Jump April 2026 promotional card",
+    "fullurl": "https://yugipedia.com/wiki/V_Jump_April_2026_promotional_card",
+    "namespace": 0,
+    "exists": "1",
+    "displaytitle": "V Jump April 2026 promotional card"
+   },
+   "Get \"Nijisanji Yu-Gi-Oh! Master Duel Festival 2025\" Celebration Tokens! Campaign": {
+    "printouts": {
+     "Japanese release date": [
+      {
+       "timestamp": "1769904000",
+       "raw": "1/2026/2"
+      }
+     ],
+     "Set prefix": [],
+     "Korean release date": [],
+     "English name": []
+    },
+    "fulltext": "Get \"Nijisanji Yu-Gi-Oh! Master Duel Festival 2025\" Celebration Tokens! Campaign",
+    "fullurl": "https://yugipedia.com/wiki/Get_%22Nijisanji_Yu-Gi-Oh!_Master_Duel_Festival_2025%22_Celebration_Tokens!_Campaign",
+    "namespace": 0,
+    "exists": "1",
+    "displaytitle": "Get \"Nijisanji Yu-Gi-Oh! Master Duel Festival 2025\" Celebration Tokens! Campaign"
+   },
+   "Blazing Dominion": {
+    "printouts": {
+     "Japanese release date": [
+      {
+       "timestamp": "1769212800",
+       "raw": "1/2026/1/24"
+      }
+     ],
+     "Set prefix": [],
+     "Korean release date": [
+      {
+       "timestamp": "1775692800",
+       "raw": "1/2026/4/9"
+      }
+     ],
+     "English name": [
+      "Blazing Dominion"
+     ]
+    },
+    "fulltext": "Blazing Dominion",
+    "fullurl": "https://yugipedia.com/wiki/Blazing_Dominion",
+    "namespace": 0,
+    "exists": "1",
+    "displaytitle": "Blazing Dominion"
+   },
+   "V Jump March 2026 promotional card": {
+    "printouts": {
+     "Japanese release date": [
+      {
+       "timestamp": "1768953600",
+       "raw": "1/2026/1/21"
+      }
+     ],
+     "Set prefix": [],
+     "Korean release date": [],
+     "English name": []
+    },
+    "fulltext": "V Jump March 2026 promotional card",
+    "fullurl": "https://yugipedia.com/wiki/V_Jump_March_2026_promotional_card",
+    "namespace": 0,
+    "exists": "1",
+    "displaytitle": "V Jump March 2026 promotional card"
+   },
+   "Yu-Gi-Oh! OCG Stories Volume 6 promotional card": {
+    "printouts": {
+     "Japanese release date": [
+      {
+       "timestamp": "1767571200",
+       "raw": "1/2026/1/5"
+      }
+     ],
+     "Set prefix": [],
+     "Korean release date": [],
+     "English name": []
+    },
+    "fulltext": "Yu-Gi-Oh! OCG Stories Volume 6 promotional card",
+    "fullurl": "https://yugipedia.com/wiki/Yu-Gi-Oh!_OCG_Stories_Volume_6_promotional_card",
+    "namespace": 0,
+    "exists": "1",
+    "displaytitle": "Yu-Gi-Oh! OCG Stories Volume 6 promotional card"
+   },
+   "Winner's Pack 2025 Vol.4": {
+    "printouts": {
+     "Japanese release date": [
+      {
+       "timestamp": "1767225600",
+       "raw": "1/2026/1/1"
+      }
+     ],
+     "Set prefix": [],
+     "Korean release date": [],
+     "English name": []
+    },
+    "fulltext": "Winner's Pack 2025 Vol.4",
+    "fullurl": "https://yugipedia.com/wiki/Winner%27s_Pack_2025_Vol.4",
+    "namespace": 0,
+    "exists": "1",
+    "displaytitle": "Winner's Pack 2025 Vol.4"
+   },
+   "Tournament Pack 2025 Vol.4": {
+    "printouts": {
+     "Japanese release date": [
+      {
+       "timestamp": "1767225600",
+       "raw": "1/2026/1/1"
+      }
+     ],
+     "Set prefix": [],
+     "Korean release date": [],
+     "English name": []
+    },
+    "fulltext": "Tournament Pack 2025 Vol.4",
+    "fullurl": "https://yugipedia.com/wiki/Tournament_Pack_2025_Vol.4",
+    "namespace": 0,
+    "exists": "1",
+    "displaytitle": "Tournament Pack 2025 Vol.4"
+   },
+   "Duelist King Cup January 2026 prize card": {
+    "printouts": {
+     "Japanese release date": [
+      {
+       "timestamp": "1767225600",
+       "raw": "1/2026/1/1"
+      }
+     ],
+     "Set prefix": [],
+     "Korean release date": [],
+     "English name": []
+    },
+    "fulltext": "Duelist King Cup January 2026 prize card",
+    "fullurl": "https://yugipedia.com/wiki/Duelist_King_Cup_January_2026_prize_card",
+    "namespace": 0,
+    "exists": "1",
+    "displaytitle": "Duelist King Cup January 2026 prize card"
+   },
+   "Special Promotion Card GET Campaign": {
+    "printouts": {
+     "Japanese release date": [
+      {
+       "timestamp": "1766707200",
+       "raw": "1/2025/12/26"
+      }
+     ],
+     "Set prefix": [],
+     "Korean release date": [],
+     "English name": []
+    },
+    "fulltext": "Special Promotion Card GET Campaign",
+    "fullurl": "https://yugipedia.com/wiki/Special_Promotion_Card_GET_Campaign",
+    "namespace": 0,
+    "exists": "1",
+    "displaytitle": "Special Promotion Card GET Campaign"
+   },
+   "Promotion Pack 2026": {
+    "printouts": {
+     "Japanese release date": [
+      {
+       "timestamp": "1766188800",
+       "raw": "1/2025/12/20"
+      }
+     ],
+     "Set prefix": [],
+     "Korean release date": [],
+     "English name": []
+    },
+    "fulltext": "Promotion Pack 2026",
+    "fullurl": "https://yugipedia.com/wiki/Promotion_Pack_2026",
+    "namespace": 0,
+    "exists": "1",
+    "displaytitle": "Promotion Pack 2026"
+   },
+   "Premium Pack 2026": {
+    "printouts": {
+     "Japanese release date": [
+      {
+       "timestamp": "1766188800",
+       "raw": "1/2025/12/20"
+      }
+     ],
+     "Set prefix": [],
+     "Korean release date": [
+      {
+       "timestamp": "1774310400",
+       "raw": "1/2026/3/24"
+      }
+     ],
+     "English name": []
+    },
+    "fulltext": "Premium Pack 2026",
+    "fullurl": "https://yugipedia.com/wiki/Premium_Pack_2026",
+    "namespace": 0,
+    "exists": "1",
+    "displaytitle": "Premium Pack 2026"
+   },
+   "Duelist Box: Prismatic Summon": {
+    "printouts": {
+     "Japanese release date": [
+      {
+       "timestamp": "1766188800",
+       "raw": "1/2025/12/20"
+      }
+     ],
+     "Set prefix": [],
+     "Korean release date": [],
+     "English name": []
+    },
+    "fulltext": "Duelist Box: Prismatic Summon",
+    "fullurl": "https://yugipedia.com/wiki/Duelist_Box:_Prismatic_Summon",
+    "namespace": 0,
+    "exists": "1",
+    "displaytitle": "Duelist Box: Prismatic Summon"
+   },
+   "V Jump February 2026 promotional card": {
+    "printouts": {
+     "Japanese release date": [
+      {
+       "timestamp": "1766102400",
+       "raw": "1/2025/12/19"
+      }
+     ],
+     "Set prefix": [],
+     "Korean release date": [],
+     "English name": []
+    },
+    "fulltext": "V Jump February 2026 promotional card",
+    "fullurl": "https://yugipedia.com/wiki/V_Jump_February_2026_promotional_card",
+    "namespace": 0,
+    "exists": "1",
+    "displaytitle": "V Jump February 2026 promotional card"
+   },
+   "Special Pack: Stamp Edition": {
+    "printouts": {
+     "Japanese release date": [
+      {
+       "timestamp": "1765584000",
+       "raw": "1/2025/12/13"
+      }
+     ],
+     "Set prefix": [],
+     "Korean release date": [
+      {
+       "timestamp": "1780704000",
+       "raw": "1/2026/6/6"
+      }
+     ],
+     "English name": []
+    },
+    "fulltext": "Special Pack: Stamp Edition",
+    "fullurl": "https://yugipedia.com/wiki/Special_Pack:_Stamp_Edition",
+    "namespace": 0,
+    "exists": "1",
+    "displaytitle": "Special Pack: Stamp Edition"
+   },
+   "Limited Pack: Stamp Edition": {
+    "printouts": {
+     "Japanese release date": [
+      {
+       "timestamp": "1765584000",
+       "raw": "1/2025/12/13"
+      }
+     ],
+     "Set prefix": [],
+     "Korean release date": [
+      {
+       "timestamp": "1768348800",
+       "raw": "1/2026/1/14"
+      }
+     ],
+     "English name": []
+    },
+    "fulltext": "Limited Pack: Stamp Edition",
+    "fullurl": "https://yugipedia.com/wiki/Limited_Pack:_Stamp_Edition",
+    "namespace": 0,
+    "exists": "1",
+    "displaytitle": "Limited Pack: Stamp Edition"
+   },
+   "Gift for Hajime Syacho": {
+    "printouts": {
+     "Japanese release date": [
+      {
+       "timestamp": "1765065600",
+       "raw": "1/2025/12/7"
+      }
+     ],
+     "Set prefix": [],
+     "Korean release date": [],
+     "English name": []
+    },
+    "fulltext": "Gift for Hajime Syacho",
+    "fullurl": "https://yugipedia.com/wiki/Gift_for_Hajime_Syacho",
+    "namespace": 0,
+    "exists": "1",
+    "displaytitle": "Gift for Hajime Syacho"
+   },
+   "Yu-Gi-Oh! OCG Structures Volume 11 promotional card": {
+    "printouts": {
+     "Japanese release date": [
+      {
+       "timestamp": "1764806400",
+       "raw": "1/2025/12/4"
+      }
+     ],
+     "Set prefix": [],
+     "Korean release date": [],
+     "English name": []
+    },
+    "fulltext": "Yu-Gi-Oh! OCG Structures Volume 11 promotional card",
+    "fullurl": "https://yugipedia.com/wiki/Yu-Gi-Oh!_OCG_Structures_Volume_11_promotional_card",
+    "namespace": 0,
+    "exists": "1",
+    "displaytitle": "Yu-Gi-Oh! OCG Structures Volume 11 promotional card"
+   },
+   "Terminal World 3": {
+    "printouts": {
+     "Japanese release date": [
+      {
+       "timestamp": "1763769600",
+       "raw": "1/2025/11/22"
+      }
+     ],
+     "Set prefix": [],
+     "Korean release date": [
+      {
+       "timestamp": "1772668800",
+       "raw": "1/2026/3/5"
+      }
+     ],
+     "English name": []
+    },
+    "fulltext": "Terminal World 3",
+    "fullurl": "https://yugipedia.com/wiki/Terminal_World_3",
+    "namespace": 0,
+    "exists": "1",
+    "displaytitle": "Terminal World 3"
+   },
+   "V Jump January 2026 promotional card": {
+    "printouts": {
+     "Japanese release date": [
+      {
+       "timestamp": "1763596800",
+       "raw": "1/2025/11/20"
+      }
+     ],
+     "Set prefix": [],
+     "Korean release date": [],
+     "English name": []
+    },
+    "fulltext": "V Jump January 2026 promotional card",
+    "fullurl": "https://yugipedia.com/wiki/V_Jump_January_2026_promotional_card",
+    "namespace": 0,
+    "exists": "1",
+    "displaytitle": "V Jump January 2026 promotional card"
+   },
+   "Story of White Duel Set": {
+    "printouts": {
+     "Japanese release date": [
+      {
+       "timestamp": "1761955200",
+       "raw": "1/2025/11/1"
+      }
+     ],
+     "Set prefix": [],
+     "Korean release date": [],
+     "English name": []
+    },
+    "fulltext": "Story of White Duel Set",
+    "fullurl": "https://yugipedia.com/wiki/Story_of_White_Duel_Set",
+    "namespace": 0,
+    "exists": "1",
+    "displaytitle": "Story of White Duel Set"
+   },
+   "Junk Warrior Duel Set": {
+    "printouts": {
+     "Japanese release date": [
+      {
+       "timestamp": "1761955200",
+       "raw": "1/2025/11/1"
+      }
+     ],
+     "Set prefix": [],
+     "Korean release date": [],
+     "English name": []
+    },
+    "fulltext": "Junk Warrior Duel Set",
+    "fullurl": "https://yugipedia.com/wiki/Junk_Warrior_Duel_Set",
+    "namespace": 0,
+    "exists": "1",
+    "displaytitle": "Junk Warrior Duel Set"
+   },
+   "Gift for Neymar": {
+    "printouts": {
+     "Japanese release date": [
+      {
+       "timestamp": "1761696000",
+       "raw": "1/2025/10/29"
+      }
+     ],
+     "Set prefix": [],
+     "Korean release date": [],
+     "English name": []
+    },
+    "fulltext": "Gift for Neymar",
+    "fullurl": "https://yugipedia.com/wiki/Gift_for_Neymar",
+    "namespace": 0,
+    "exists": "1",
+    "displaytitle": "Gift for Neymar"
+   },
+   "Burst Protocol": {
+    "printouts": {
+     "Japanese release date": [
+      {
+       "timestamp": "1761350400",
+       "raw": "1/2025/10/25"
+      }
+     ],
+     "Set prefix": [],
+     "Korean release date": [
+      {
+       "timestamp": "1767744000",
+       "raw": "1/2026/1/7"
+      }
+     ],
+     "English name": [
+      "Burst Protocol"
+     ]
+    },
+    "fulltext": "Burst Protocol",
+    "fullurl": "https://yugipedia.com/wiki/Burst_Protocol",
+    "namespace": 0,
+    "exists": "1",
+    "displaytitle": "Burst Protocol"
+   },
+   "V Jump December 2025 promotional card": {
+    "printouts": {
+     "Japanese release date": [
+      {
+       "timestamp": "1761004800",
+       "raw": "1/2025/10/21"
+      }
+     ],
+     "Set prefix": [],
+     "Korean release date": [],
+     "English name": []
+    },
+    "fulltext": "V Jump December 2025 promotional card",
+    "fullurl": "https://yugipedia.com/wiki/V_Jump_December_2025_promotional_card",
+    "namespace": 0,
+    "exists": "1",
+    "displaytitle": "V Jump December 2025 promotional card"
+   },
+   "Duelist King Cup October 2025 prize card": {
+    "printouts": {
+     "Japanese release date": [
+      {
+       "timestamp": "1759536000",
+       "raw": "1/2025/10/4"
+      }
+     ],
+     "Set prefix": [],
+     "Korean release date": [],
+     "English name": []
+    },
+    "fulltext": "Duelist King Cup October 2025 prize card",
+    "fullurl": "https://yugipedia.com/wiki/Duelist_King_Cup_October_2025_prize_card",
+    "namespace": 0,
+    "exists": "1",
+    "displaytitle": "Duelist King Cup October 2025 prize card"
+   },
+   "Winner's Pack 2025 Vol.3": {
+    "printouts": {
+     "Japanese release date": [
+      {
+       "timestamp": "1759276800",
+       "raw": "1/2025/10/1"
+      }
+     ],
+     "Set prefix": [],
+     "Korean release date": [],
+     "English name": []
+    },
+    "fulltext": "Winner's Pack 2025 Vol.3",
+    "fullurl": "https://yugipedia.com/wiki/Winner%27s_Pack_2025_Vol.3",
+    "namespace": 0,
+    "exists": "1",
+    "displaytitle": "Winner's Pack 2025 Vol.3"
+   },
+   "Tournament Pack 2025 Vol.3": {
+    "printouts": {
+     "Japanese release date": [
+      {
+       "timestamp": "1759276800",
+       "raw": "1/2025/10/1"
+      }
+     ],
+     "Set prefix": [],
+     "Korean release date": [],
+     "English name": []
+    },
+    "fulltext": "Tournament Pack 2025 Vol.3",
+    "fullurl": "https://yugipedia.com/wiki/Tournament_Pack_2025_Vol.3",
+    "namespace": 0,
+    "exists": "1",
+    "displaytitle": "Tournament Pack 2025 Vol.3"
+   },
+   "EFootball collaboration cards": {
+    "printouts": {
+     "Japanese release date": [
+      {
+       "timestamp": "1758931200",
+       "raw": "1/2025/9/27"
+      }
+     ],
+     "Set prefix": [],
+     "Korean release date": [
+      {
+       "timestamp": "1759449600",
+       "raw": "1/2025/10/3"
+      }
+     ],
+     "English name": [
+      "eFootball collaboration cards"
+     ]
+    },
+    "fulltext": "EFootball collaboration cards",
+    "fullurl": "https://yugipedia.com/wiki/EFootball_collaboration_cards",
+    "namespace": 0,
+    "exists": "1",
+    "displaytitle": "eFootball collaboration cards"
+   },
+   "World Premiere Pack 2025": {
+    "printouts": {
+     "Japanese release date": [
+      {
+       "timestamp": "1758931200",
+       "raw": "1/2025/9/27"
+      }
+     ],
+     "Set prefix": [],
+     "Korean release date": [
+      {
+       "timestamp": "1765497600",
+       "raw": "1/2025/12/12"
+      }
+     ],
+     "English name": []
+    },
+    "fulltext": "World Premiere Pack 2025",
+    "fullurl": "https://yugipedia.com/wiki/World_Premiere_Pack_2025",
+    "namespace": 0,
+    "exists": "1",
+    "displaytitle": "World Premiere Pack 2025"
+   },
+   "V Jump November 2025 promotional card": {
+    "printouts": {
+     "Japanese release date": [
+      {
+       "timestamp": "1758326400",
+       "raw": "1/2025/9/20"
+      }
+     ],
+     "Set prefix": [],
+     "Korean release date": [],
+     "English name": []
+    },
+    "fulltext": "V Jump November 2025 promotional card",
+    "fullurl": "https://yugipedia.com/wiki/V_Jump_November_2025_promotional_card",
+    "namespace": 0,
+    "exists": "1",
+    "displaytitle": "V Jump November 2025 promotional card"
+   },
+   "V Jump Fall 2025 subscription bonus": {
+    "printouts": {
+     "Japanese release date": [
+      {
+       "timestamp": "1758326400",
+       "raw": "1/2025/9/20"
+      }
+     ],
+     "Set prefix": [],
+     "Korean release date": [],
+     "English name": []
+    },
+    "fulltext": "V Jump Fall 2025 subscription bonus",
+    "fullurl": "https://yugipedia.com/wiki/V_Jump_Fall_2025_subscription_bonus",
+    "namespace": 0,
+    "exists": "1",
+    "displaytitle": "V Jump Fall 2025 subscription bonus"
+   },
+   "Limited Pack GX: Slifer Red": {
+    "printouts": {
+     "Japanese release date": [
+      {
+       "timestamp": "1757721600",
+       "raw": "1/2025/9/13"
+      }
+     ],
+     "Set prefix": [],
+     "Korean release date": [],
+     "English name": []
+    },
+    "fulltext": "Limited Pack GX: Slifer Red",
+    "fullurl": "https://yugipedia.com/wiki/Limited_Pack_GX:_Slifer_Red",
+    "namespace": 0,
+    "exists": "1",
+    "displaytitle": "Limited Pack GX: Slifer Red"
+   },
+   "Nike collaboration cards": {
+    "printouts": {
+     "Japanese release date": [
+      {
+       "timestamp": "1757635200",
+       "raw": "1/2025/9/12"
+      }
+     ],
+     "Set prefix": [],
+     "Korean release date": [],
+     "English name": [
+      "Nike collaboration cards"
+     ]
+    },
+    "fulltext": "Nike collaboration cards",
+    "fullurl": "https://yugipedia.com/wiki/Nike_collaboration_cards",
+    "namespace": 0,
+    "exists": "1",
+    "displaytitle": "Nike collaboration cards"
+   },
+   "Structure Deck: Power of Fellows Light of Gathering Stars Pack": {
+    "printouts": {
+     "Japanese release date": [
+      {
+       "timestamp": "1757116800",
+       "raw": "1/2025/9/6"
+      }
+     ],
+     "Set prefix": [],
+     "Korean release date": [
+      {
+       "timestamp": "1766102400",
+       "raw": "1/2025/12/19"
+      }
+     ],
+     "English name": []
+    },
+    "fulltext": "Structure Deck: Power of Fellows Light of Gathering Stars Pack",
+    "fullurl": "https://yugipedia.com/wiki/Structure_Deck:_Power_of_Fellows_Light_of_Gathering_Stars_Pack",
+    "namespace": 0,
+    "exists": "1",
+    "displaytitle": "Structure Deck: Power of Fellows Light of Gathering Stars Pack"
+   },
+   "Structure Deck: Power of Fellows": {
+    "printouts": {
+     "Japanese release date": [
+      {
+       "timestamp": "1757116800",
+       "raw": "1/2025/9/6"
+      }
+     ],
+     "Set prefix": [],
+     "Korean release date": [],
+     "English name": []
+    },
+    "fulltext": "Structure Deck: Power of Fellows",
+    "fullurl": "https://yugipedia.com/wiki/Structure_Deck:_Power_of_Fellows",
+    "namespace": 0,
+    "exists": "1",
+    "displaytitle": "Structure Deck: Power of Fellows"
+   },
+   "Limited Pack World Championship 2025": {
+    "printouts": {
+     "Japanese release date": [
+      {
+       "timestamp": "1756512000",
+       "raw": "1/2025/8/30"
+      }
+     ],
+     "Set prefix": [],
+     "Korean release date": [],
+     "English name": [
+      "Limited Pack World Championship 2025"
+     ]
+    },
+    "fulltext": "Limited Pack World Championship 2025",
+    "fullurl": "https://yugipedia.com/wiki/Limited_Pack_World_Championship_2025",
+    "namespace": 0,
+    "exists": "1",
+    "displaytitle": "Limited Pack World Championship 2025"
+   },
+   "Deluxe Duel Set: Exosister": {
+    "printouts": {
+     "Japanese release date": [
+      {
+       "timestamp": "1755907200",
+       "raw": "1/2025/8/23"
+      }
+     ],
+     "Set prefix": [],
+     "Korean release date": [],
+     "English name": []
+    },
+    "fulltext": "Deluxe Duel Set: Exosister",
+    "fullurl": "https://yugipedia.com/wiki/Deluxe_Duel_Set:_Exosister",
+    "namespace": 0,
+    "exists": "1",
+    "displaytitle": "Deluxe Duel Set: Exosister"
+   },
+   "Deck-Build Pack: Phantom Revengers": {
+    "printouts": {
+     "Japanese release date": [
+      {
+       "timestamp": "1755907200",
+       "raw": "1/2025/8/23"
+      }
+     ],
+     "Set prefix": [],
+     "Korean release date": [
+      {
+       "timestamp": "1763683200",
+       "raw": "1/2025/11/21"
+      }
+     ],
+     "English name": []
+    },
+    "fulltext": "Deck-Build Pack: Phantom Revengers",
+    "fullurl": "https://yugipedia.com/wiki/Deck-Build_Pack:_Phantom_Revengers",
+    "namespace": 0,
+    "exists": "1",
+    "displaytitle": "Deck-Build Pack: Phantom Revengers"
+   },
+   "V Jump October 2025 promotional card": {
+    "printouts": {
+     "Japanese release date": [
+      {
+       "timestamp": "1755734400",
+       "raw": "1/2025/8/21"
+      }
+     ],
+     "Set prefix": [],
+     "Korean release date": [],
+     "English name": []
+    },
+    "fulltext": "V Jump October 2025 promotional card",
+    "fullurl": "https://yugipedia.com/wiki/V_Jump_October_2025_promotional_card",
+    "namespace": 0,
+    "exists": "1",
+    "displaytitle": "V Jump October 2025 promotional card"
+   },
+   "Yu-Gi-Oh! Card Game x 7-Eleven 2025 Collaboration Campaign": {
+    "printouts": {
+     "Japanese release date": [
+      {
+       "timestamp": "1754524800",
+       "raw": "1/2025/8/7"
+      }
+     ],
+     "Set prefix": [],
+     "Korean release date": [],
+     "English name": []
+    },
+    "fulltext": "Yu-Gi-Oh! Card Game x 7-Eleven 2025 Collaboration Campaign",
+    "fullurl": "https://yugipedia.com/wiki/Yu-Gi-Oh!_Card_Game_x_7-Eleven_2025_Collaboration_Campaign",
+    "namespace": 0,
+    "exists": "1",
+    "displaytitle": "Yu-Gi-Oh! Card Game x 7-Eleven 2025 Collaboration Campaign"
+   },
+   "Doom of Dimensions": {
+    "printouts": {
+     "Japanese release date": [
+      {
+       "timestamp": "1753488000",
+       "raw": "1/2025/7/26"
+      }
+     ],
+     "Set prefix": [],
+     "Korean release date": [
+      {
+       "timestamp": "1758844800",
+       "raw": "1/2025/9/26"
+      }
+     ],
+     "English name": [
+      "Doom of Dimensions"
+     ]
+    },
+    "fulltext": "Doom of Dimensions",
+    "fullurl": "https://yugipedia.com/wiki/Doom_of_Dimensions",
+    "namespace": 0,
+    "exists": "1",
+    "displaytitle": "Doom of Dimensions"
+   },
+   "V Jump September 2025 promotional card": {
+    "printouts": {
+     "Japanese release date": [
+      {
+       "timestamp": "1752796800",
+       "raw": "1/2025/7/18"
+      }
+     ],
+     "Set prefix": [],
+     "Korean release date": [],
+     "English name": []
+    },
+    "fulltext": "V Jump September 2025 promotional card",
+    "fullurl": "https://yugipedia.com/wiki/V_Jump_September_2025_promotional_card",
+    "namespace": 0,
+    "exists": "1",
+    "displaytitle": "V Jump September 2025 promotional card"
+   },
+   "Tactical-Try Event 2025 promotional card": {
+    "printouts": {
+     "Japanese release date": [
+      {
+       "timestamp": "1752278400",
+       "raw": "1/2025/7/12"
+      }
+     ],
+     "Set prefix": [],
+     "Korean release date": [],
+     "English name": []
+    },
+    "fulltext": "Tactical-Try Event 2025 promotional card",
+    "fullurl": "https://yugipedia.com/wiki/Tactical-Try_Event_2025_promotional_card",
+    "namespace": 0,
+    "exists": "1",
+    "displaytitle": "Tactical-Try Event 2025 promotional card"
+   },
+   "Duelist King Cup July 2025 prize card": {
+    "printouts": {
+     "Japanese release date": [
+      {
+       "timestamp": "1751673600",
+       "raw": "1/2025/7/5"
+      }
+     ],
+     "Set prefix": [],
+     "Korean release date": [],
+     "English name": []
+    },
+    "fulltext": "Duelist King Cup July 2025 prize card",
+    "fullurl": "https://yugipedia.com/wiki/Duelist_King_Cup_July_2025_prize_card",
+    "namespace": 0,
+    "exists": "1",
+    "displaytitle": "Duelist King Cup July 2025 prize card"
+   },
+   "Winner's Pack 2025 Vol.2": {
+    "printouts": {
+     "Japanese release date": [
+      {
+       "timestamp": "1751328000",
+       "raw": "1/2025/7/1"
+      }
+     ],
+     "Set prefix": [],
+     "Korean release date": [],
+     "English name": []
+    },
+    "fulltext": "Winner's Pack 2025 Vol.2",
+    "fullurl": "https://yugipedia.com/wiki/Winner%27s_Pack_2025_Vol.2",
+    "namespace": 0,
+    "exists": "1",
+    "displaytitle": "Winner's Pack 2025 Vol.2"
+   },
+   "Tournament Pack 2025 Vol.2": {
+    "printouts": {
+     "Japanese release date": [
+      {
+       "timestamp": "1751328000",
+       "raw": "1/2025/7/1"
+      }
+     ],
+     "Set prefix": [],
+     "Korean release date": [],
+     "English name": []
+    },
+    "fulltext": "Tournament Pack 2025 Vol.2",
+    "fullurl": "https://yugipedia.com/wiki/Tournament_Pack_2025_Vol.2",
+    "namespace": 0,
+    "exists": "1",
+    "displaytitle": "Tournament Pack 2025 Vol.2"
+   },
+   "Japan Championship 2025 Finals prize card": {
+    "printouts": {
+     "Japanese release date": [
+      {
+       "timestamp": "1751155200",
+       "raw": "1/2025/6/29"
+      }
+     ],
+     "Set prefix": [],
+     "Korean release date": [],
+     "English name": []
+    },
+    "fulltext": "Japan Championship 2025 Finals prize card",
+    "fullurl": "https://yugipedia.com/wiki/Japan_Championship_2025_Finals_prize_card",
+    "namespace": 0,
+    "exists": "1",
+    "displaytitle": "Japan Championship 2025 Finals prize card"
+   },
+   "Tactical-Try Pack: Dark Magic / HERO / Mikanko": {
+    "printouts": {
+     "Japanese release date": [
+      {
+       "timestamp": "1751068800",
+       "raw": "1/2025/6/28"
+      }
+     ],
+     "Set prefix": [],
+     "Korean release date": [
+      {
+       "timestamp": "1757980800",
+       "raw": "1/2025/9/16"
+      }
+     ],
+     "English name": []
+    },
+    "fulltext": "Tactical-Try Pack: Dark Magic / HERO / Mikanko",
+    "fullurl": "https://yugipedia.com/wiki/Tactical-Try_Pack:_Dark_Magic_/_HERO_/_Mikanko",
+    "namespace": 0,
+    "exists": "1",
+    "displaytitle": "Tactical-Try Pack: Dark Magic / HERO / Mikanko"
+   },
+   "Gift for Shohei Ohtani": {
+    "printouts": {
+     "Japanese release date": [
+      {
+       "timestamp": "1750723200",
+       "raw": "1/2025/6/24"
+      }
+     ],
+     "Set prefix": [],
+     "Korean release date": [],
+     "English name": []
+    },
+    "fulltext": "Gift for Shohei Ohtani",
+    "fullurl": "https://yugipedia.com/wiki/Gift_for_Shohei_Ohtani",
+    "namespace": 0,
+    "exists": "1",
+    "displaytitle": "Gift for Shohei Ohtani"
+   },
+   "V Jump August 2025 promotional card": {
+    "printouts": {
+     "Japanese release date": [
+      {
+       "timestamp": "1750377600",
+       "raw": "1/2025/6/20"
+      }
+     ],
+     "Set prefix": [],
+     "Korean release date": [],
+     "English name": []
+    },
+    "fulltext": "V Jump August 2025 promotional card",
+    "fullurl": "https://yugipedia.com/wiki/V_Jump_August_2025_promotional_card",
+    "namespace": 0,
+    "exists": "1",
+    "displaytitle": "V Jump August 2025 promotional card"
+   },
+   "Sunstar Tonic collaboration card": {
+    "printouts": {
+     "Japanese release date": [
+      {
+       "timestamp": "1748563200",
+       "raw": "1/2025/5/30"
+      }
+     ],
+     "Set prefix": [],
+     "Korean release date": [],
+     "English name": []
+    },
+    "fulltext": "Sunstar Tonic collaboration card",
+    "fullurl": "https://yugipedia.com/wiki/Sunstar_Tonic_collaboration_card",
+    "namespace": 0,
+    "exists": "1",
+    "displaytitle": "Sunstar Tonic collaboration card"
+   },
+   "Duel Academia Selection": {
+    "printouts": {
+     "Japanese release date": [
+      {
+       "timestamp": "1748390400",
+       "raw": "1/2025/5/28"
+      }
+     ],
+     "Set prefix": [],
+     "Korean release date": [],
+     "English name": []
+    },
+    "fulltext": "Duel Academia Selection",
+    "fullurl": "https://yugipedia.com/wiki/Duel_Academia_Selection",
+    "namespace": 0,
+    "exists": "1",
+    "displaytitle": "Duel Academia Selection"
+   },
+   "Tactical-Try Deck: Rescue-ACE": {
+    "printouts": {
+     "Japanese release date": [
+      {
+       "timestamp": "1748044800",
+       "raw": "1/2025/5/24"
+      }
+     ],
+     "Set prefix": [],
+     "Korean release date": [
+      {
+       "timestamp": "1747872000",
+       "raw": "1/2025/5/22"
+      }
+     ],
+     "English name": []
+    },
+    "fulltext": "Tactical-Try Deck: Rescue-ACE",
+    "fullurl": "https://yugipedia.com/wiki/Tactical-Try_Deck:_Rescue-ACE",
+    "namespace": 0,
+    "exists": "1",
+    "displaytitle": "Tactical-Try Deck: Rescue-ACE"
+   },
+   "Tactical-Try Deck: Exosister": {
+    "printouts": {
+     "Japanese release date": [
+      {
+       "timestamp": "1748044800",
+       "raw": "1/2025/5/24"
+      }
+     ],
+     "Set prefix": [],
+     "Korean release date": [
+      {
+       "timestamp": "1747872000",
+       "raw": "1/2025/5/22"
+      }
+     ],
+     "English name": []
+    },
+    "fulltext": "Tactical-Try Deck: Exosister",
+    "fullurl": "https://yugipedia.com/wiki/Tactical-Try_Deck:_Exosister",
+    "namespace": 0,
+    "exists": "1",
+    "displaytitle": "Tactical-Try Deck: Exosister"
+   },
+   "V Jump July 2025 promotional card": {
+    "printouts": {
+     "Japanese release date": [
+      {
+       "timestamp": "1747785600",
+       "raw": "1/2025/5/21"
+      }
+     ],
+     "Set prefix": [],
+     "Korean release date": [],
+     "English name": []
+    },
+    "fulltext": "V Jump July 2025 promotional card",
+    "fullurl": "https://yugipedia.com/wiki/V_Jump_July_2025_promotional_card",
+    "namespace": 0,
+    "exists": "1",
+    "displaytitle": "V Jump July 2025 promotional card"
+   },
+   "Yu-Gi-Oh! OCG Structures Volume 10 promotional card": {
+    "printouts": {
+     "Japanese release date": [
+      {
+       "timestamp": "1746144000",
+       "raw": "1/2025/5/2"
+      }
+     ],
+     "Set prefix": [],
+     "Korean release date": [],
+     "English name": []
+    },
+    "fulltext": "Yu-Gi-Oh! OCG Structures Volume 10 promotional card",
+    "fullurl": "https://yugipedia.com/wiki/Yu-Gi-Oh!_OCG_Structures_Volume_10_promotional_card",
+    "namespace": 0,
+    "exists": "1",
+    "displaytitle": "Yu-Gi-Oh! OCG Structures Volume 10 promotional card"
+   },
+   "Japan Championship 2025 Shop Qualifiers prize card 2": {
+    "printouts": {
+     "Japanese release date": [
+      {
+       "timestamp": "1746057600",
+       "raw": "1/2025/5/1"
+      }
+     ],
+     "Set prefix": [],
+     "Korean release date": [],
+     "English name": []
+    },
+    "fulltext": "Japan Championship 2025 Shop Qualifiers prize card 2",
+    "fullurl": "https://yugipedia.com/wiki/Japan_Championship_2025_Shop_Qualifiers_prize_card_2",
+    "namespace": 0,
+    "exists": "1",
+    "displaytitle": "Japan Championship 2025 Shop Qualifiers prize card 2"
+   },
+   "Ultimate Special Pack": {
+    "printouts": {
+     "Japanese release date": [
+      {
+       "timestamp": "1745625600",
+       "raw": "1/2025/4/26"
+      }
+     ],
+     "Set prefix": [],
+     "Korean release date": [
+      {
+       "timestamp": "1761868800",
+       "raw": "1/2025/10/31"
+      }
+     ],
+     "English name": []
+    },
+    "fulltext": "Ultimate Special Pack",
+    "fullurl": "https://yugipedia.com/wiki/Ultimate_Special_Pack",
+    "namespace": 0,
+    "exists": "1",
+    "displaytitle": "Ultimate Special Pack"
+   },
+   "Duelist's Advance": {
+    "printouts": {
+     "Japanese release date": [
+      {
+       "timestamp": "1745625600",
+       "raw": "1/2025/4/26"
+      }
+     ],
+     "Set prefix": [],
+     "Korean release date": [
+      {
+       "timestamp": "1753747200",
+       "raw": "1/2025/7/29"
+      }
+     ],
+     "English name": [
+      "Duelist's Advance"
+     ]
+    },
+    "fulltext": "Duelist's Advance",
+    "fullurl": "https://yugipedia.com/wiki/Duelist%27s_Advance",
+    "namespace": 0,
+    "exists": "1",
+    "displaytitle": "Duelist's Advance"
+   },
+   "V Jump June 2025 promotional card": {
+    "printouts": {
+     "Japanese release date": [
+      {
+       "timestamp": "1745193600",
+       "raw": "1/2025/4/21"
+      }
+     ],
+     "Set prefix": [],
+     "Korean release date": [],
+     "English name": []
+    },
+    "fulltext": "V Jump June 2025 promotional card",
+    "fullurl": "https://yugipedia.com/wiki/V_Jump_June_2025_promotional_card",
+    "namespace": 0,
+    "exists": "1",
+    "displaytitle": "V Jump June 2025 promotional card"
+   },
+   "Yu-Gi-Oh! Card Game 25th Anniversary \"Blue-Eyes White Dragon\" Ukiyo-e Style Limited OCG Card with Framed Stamp Set": {
+    "printouts": {
+     "Japanese release date": [
+      {
+       "timestamp": "1745193600",
+       "raw": "1/2025/4/21"
+      }
+     ],
+     "Set prefix": [],
+     "Korean release date": [],
+     "English name": []
+    },
+    "fulltext": "Yu-Gi-Oh! Card Game 25th Anniversary \"Blue-Eyes White Dragon\" Ukiyo-e Style Limited OCG Card with Framed Stamp Set",
+    "fullurl": "https://yugipedia.com/wiki/Yu-Gi-Oh!_Card_Game_25th_Anniversary_%22Blue-Eyes_White_Dragon%22_Ukiyo-e_Style_Limited_OCG_Card_with_Framed_Stamp_Set",
+    "namespace": 0,
+    "exists": "1",
+    "displaytitle": "Yu-Gi-Oh! Card Game 25th Anniversary \"Blue-Eyes White Dragon\" Ukiyo-e Style Limited OCG Card with Framed Stamp Set"
+   },
+   "3x3 Japan Championship 2025 Qualifiers April prize card": {
+    "printouts": {
+     "Japanese release date": [
+      {
+       "timestamp": "1744502400",
+       "raw": "1/2025/4/13"
+      }
+     ],
+     "Set prefix": [],
+     "Korean release date": [],
+     "English name": []
+    },
+    "fulltext": "3x3 Japan Championship 2025 Qualifiers April prize card",
+    "fullurl": "https://yugipedia.com/wiki/3x3_Japan_Championship_2025_Qualifiers_April_prize_card",
+    "namespace": 0,
+    "exists": "1",
+    "displaytitle": "3x3 Japan Championship 2025 Qualifiers April prize card"
+   },
+   "Yu-Gi-Oh! Championship Series Japan 2025 prize cards": {
+    "printouts": {
+     "Japanese release date": [
+      {
+       "timestamp": "1744416000",
+       "raw": "1/2025/4/12"
+      }
+     ],
+     "Set prefix": [],
+     "Korean release date": [],
+     "English name": []
+    },
+    "fulltext": "Yu-Gi-Oh! Championship Series Japan 2025 prize cards",
+    "fullurl": "https://yugipedia.com/wiki/Yu-Gi-Oh!_Championship_Series_Japan_2025_prize_cards",
+    "namespace": 0,
+    "exists": "1",
+    "displaytitle": "Yu-Gi-Oh! Championship Series Japan 2025 prize cards"
+   },
+   "Maliss Duel Set": {
+    "printouts": {
+     "Japanese release date": [
+      {
+       "timestamp": "1744416000",
+       "raw": "1/2025/4/12"
+      }
+     ],
+     "Set prefix": [],
+     "Korean release date": [
+      {
+       "timestamp": "1752796800",
+       "raw": "1/2025/7/18"
+      }
+     ],
+     "English name": []
+    },
+    "fulltext": "Maliss Duel Set",
+    "fullurl": "https://yugipedia.com/wiki/Maliss_Duel_Set",
+    "namespace": 0,
+    "exists": "1",
+    "displaytitle": "Maliss Duel Set"
+   },
+   "Dragon Ruler Duel Set": {
+    "printouts": {
+     "Japanese release date": [
+      {
+       "timestamp": "1744416000",
+       "raw": "1/2025/4/12"
+      }
+     ],
+     "Set prefix": [],
+     "Korean release date": [],
+     "English name": []
+    },
+    "fulltext": "Dragon Ruler Duel Set",
+    "fullurl": "https://yugipedia.com/wiki/Dragon_Ruler_Duel_Set",
+    "namespace": 0,
+    "exists": "1",
+    "displaytitle": "Dragon Ruler Duel Set"
+   },
+   "Duelist King Cup April 2025 prize card": {
+    "printouts": {
+     "Japanese release date": [
+      {
+       "timestamp": "1743811200",
+       "raw": "1/2025/4/5"
+      }
+     ],
+     "Set prefix": [],
+     "Korean release date": [],
+     "English name": []
+    },
+    "fulltext": "Duelist King Cup April 2025 prize card",
+    "fullurl": "https://yugipedia.com/wiki/Duelist_King_Cup_April_2025_prize_card",
+    "namespace": 0,
+    "exists": "1",
+    "displaytitle": "Duelist King Cup April 2025 prize card"
+   },
+   "Yu-Gi-Oh! OCG Stories Volume 5 promotional card": {
+    "printouts": {
+     "Japanese release date": [
+      {
+       "timestamp": "1743724800",
+       "raw": "1/2025/4/4"
+      }
+     ],
+     "Set prefix": [],
+     "Korean release date": [],
+     "English name": []
+    },
+    "fulltext": "Yu-Gi-Oh! OCG Stories Volume 5 promotional card",
+    "fullurl": "https://yugipedia.com/wiki/Yu-Gi-Oh!_OCG_Stories_Volume_5_promotional_card",
+    "namespace": 0,
+    "exists": "1",
+    "displaytitle": "Yu-Gi-Oh! OCG Stories Volume 5 promotional card"
+   },
+   "Winner's Pack 2025 Vol.1": {
+    "printouts": {
+     "Japanese release date": [
+      {
+       "timestamp": "1743465600",
+       "raw": "1/2025/4/1"
+      }
+     ],
+     "Set prefix": [],
+     "Korean release date": [],
+     "English name": []
+    },
+    "fulltext": "Winner's Pack 2025 Vol.1",
+    "fullurl": "https://yugipedia.com/wiki/Winner%27s_Pack_2025_Vol.1",
+    "namespace": 0,
+    "exists": "1",
+    "displaytitle": "Winner's Pack 2025 Vol.1"
+   },
+   "Tournament Pack 2025 Vol.1": {
+    "printouts": {
+     "Japanese release date": [
+      {
+       "timestamp": "1743465600",
+       "raw": "1/2025/4/1"
+      }
+     ],
+     "Set prefix": [],
+     "Korean release date": [],
+     "English name": []
+    },
+    "fulltext": "Tournament Pack 2025 Vol.1",
+    "fullurl": "https://yugipedia.com/wiki/Tournament_Pack_2025_Vol.1",
+    "namespace": 0,
+    "exists": "1",
+    "displaytitle": "Tournament Pack 2025 Vol.1"
+   },
+   "Deck-Build Pack: Justice Hunters": {
+    "printouts": {
+     "Japanese release date": [
+      {
+       "timestamp": "1742601600",
+       "raw": "1/2025/3/22"
+      }
+     ],
+     "Set prefix": [],
+     "Korean release date": [
+      {
+       "timestamp": "1749600000",
+       "raw": "1/2025/6/11"
+      }
+     ],
+     "English name": []
+    },
+    "fulltext": "Deck-Build Pack: Justice Hunters",
+    "fullurl": "https://yugipedia.com/wiki/Deck-Build_Pack:_Justice_Hunters",
+    "namespace": 0,
+    "exists": "1",
+    "displaytitle": "Deck-Build Pack: Justice Hunters"
+   },
+   "The Valuable Book EX 5 promotional cards": {
+    "printouts": {
+     "Japanese release date": [
+      {
+       "timestamp": "1742515200",
+       "raw": "1/2025/3/21"
+      }
+     ],
+     "Set prefix": [],
+     "Korean release date": [],
+     "English name": []
+    },
+    "fulltext": "The Valuable Book EX 5 promotional cards",
+    "fullurl": "https://yugipedia.com/wiki/The_Valuable_Book_EX_5_promotional_cards",
+    "namespace": 0,
+    "exists": "1",
+    "displaytitle": "The Valuable Book EX 5 promotional cards"
+   },
+   "V Jump May 2025 promotional card": {
+    "printouts": {
+     "Japanese release date": [
+      {
+       "timestamp": "1742342400",
+       "raw": "1/2025/3/19"
+      }
+     ],
+     "Set prefix": [],
+     "Korean release date": [],
+     "English name": []
+    },
+    "fulltext": "V Jump May 2025 promotional card",
+    "fullurl": "https://yugipedia.com/wiki/V_Jump_May_2025_promotional_card",
+    "namespace": 0,
+    "exists": "1",
+    "displaytitle": "V Jump May 2025 promotional card"
+   },
+   "V Jump Spring 2025 subscription bonus": {
+    "printouts": {
+     "Japanese release date": [
+      {
+       "timestamp": "1742342400",
+       "raw": "1/2025/3/19"
+      }
+     ],
+     "Set prefix": [],
+     "Korean release date": [],
+     "English name": []
+    },
+    "fulltext": "V Jump Spring 2025 subscription bonus",
+    "fullurl": "https://yugipedia.com/wiki/V_Jump_Spring_2025_subscription_bonus",
+    "namespace": 0,
+    "exists": "1",
+    "displaytitle": "V Jump Spring 2025 subscription bonus"
+   },
+   "Japan Championship 2025 Shop Qualifiers prize card 1": {
+    "printouts": {
+     "Japanese release date": [
+      {
+       "timestamp": "1740787200",
+       "raw": "1/2025/3/1"
+      }
+     ],
+     "Set prefix": [],
+     "Korean release date": [],
+     "English name": []
+    },
+    "fulltext": "Japan Championship 2025 Shop Qualifiers prize card 1",
+    "fullurl": "https://yugipedia.com/wiki/Japan_Championship_2025_Shop_Qualifiers_prize_card_1",
+    "namespace": 0,
+    "exists": "1",
+    "displaytitle": "Japan Championship 2025 Shop Qualifiers prize card 1"
+   },
+   "Quarter Century Duel Set \"Black Luster Soldier - Envoy of the Beginning\"": {
+    "printouts": {
+     "Japanese release date": [
+      {
+       "timestamp": "1740700800",
+       "raw": "1/2025/2/28"
+      }
+     ],
+     "Set prefix": [],
+     "Korean release date": [],
+     "English name": []
+    },
+    "fulltext": "Quarter Century Duel Set \"Black Luster Soldier - Envoy of the Beginning\"",
+    "fullurl": "https://yugipedia.com/wiki/Quarter_Century_Duel_Set_%22Black_Luster_Soldier_-_Envoy_of_the_Beginning%22",
+    "namespace": 0,
+    "exists": "1",
+    "displaytitle": "Quarter Century Duel Set \"Black Luster Soldier - Envoy of the Beginning\""
+   },
+   "Yu-Gi-Oh! Early Days Collection promotional cards": {
+    "printouts": {
+     "Japanese release date": [
+      {
+       "timestamp": "1740614400",
+       "raw": "1/2025/2/27"
+      }
+     ],
+     "Set prefix": [],
+     "Korean release date": [],
+     "English name": []
+    },
+    "fulltext": "Yu-Gi-Oh! Early Days Collection promotional cards",
+    "fullurl": "https://yugipedia.com/wiki/Yu-Gi-Oh!_Early_Days_Collection_promotional_cards",
+    "namespace": 0,
+    "exists": "1",
+    "displaytitle": "Yu-Gi-Oh! Early Days Collection promotional cards"
+   },
+   "Quarter Century Art Collection": {
+    "printouts": {
+     "Japanese release date": [
+      {
+       "timestamp": "1740182400",
+       "raw": "1/2025/2/22"
+      }
+     ],
+     "Set prefix": [],
+     "Korean release date": [
+      {
+       "timestamp": "1741219200",
+       "raw": "1/2025/3/6"
+      }
+     ],
+     "English name": []
+    },
+    "fulltext": "Quarter Century Art Collection",
+    "fullurl": "https://yugipedia.com/wiki/Quarter_Century_Art_Collection",
+    "namespace": 0,
+    "exists": "1",
+    "displaytitle": "Quarter Century Art Collection"
+   },
+   "V Jump April 2025 promotional card": {
+    "printouts": {
+     "Japanese release date": [
+      {
+       "timestamp": "1740009600",
+       "raw": "1/2025/2/20"
+      }
+     ],
+     "Set prefix": [],
+     "Korean release date": [],
+     "English name": []
+    },
+    "fulltext": "V Jump April 2025 promotional card",
+    "fullurl": "https://yugipedia.com/wiki/V_Jump_April_2025_promotional_card",
+    "namespace": 0,
+    "exists": "1",
+    "displaytitle": "V Jump April 2025 promotional card"
+   },
+   "Alliance Insight +1 Bonus Pack": {
+    "printouts": {
+     "Japanese release date": [
+      {
+       "timestamp": "1737763200",
+       "raw": "1/2025/1/25"
+      }
+     ],
+     "Set prefix": [],
+     "Korean release date": [
+      {
+       "timestamp": "1744761600",
+       "raw": "1/2025/4/16"
+      }
+     ],
+     "English name": []
+    },
+    "fulltext": "Alliance Insight +1 Bonus Pack",
+    "fullurl": "https://yugipedia.com/wiki/Alliance_Insight_%2B1_Bonus_Pack",
+    "namespace": 0,
+    "exists": "1",
+    "displaytitle": "Alliance Insight +1 Bonus Pack"
+   },
+   "Alliance Insight": {
+    "printouts": {
+     "Japanese release date": [
+      {
+       "timestamp": "1737763200",
+       "raw": "1/2025/1/25"
+      }
+     ],
+     "Set prefix": [],
+     "Korean release date": [
+      {
+       "timestamp": "1744761600",
+       "raw": "1/2025/4/16"
+      }
+     ],
+     "English name": [
+      "Alliance Insight"
+     ]
+    },
+    "fulltext": "Alliance Insight",
+    "fullurl": "https://yugipedia.com/wiki/Alliance_Insight",
+    "namespace": 0,
+    "exists": "1",
+    "displaytitle": "Alliance Insight"
+   },
+   "V Jump March 2025 promotional card": {
+    "printouts": {
+     "Japanese release date": [
+      {
+       "timestamp": "1737417600",
+       "raw": "1/2025/1/21"
+      }
+     ],
+     "Set prefix": [],
+     "Korean release date": [],
+     "English name": []
+    },
+    "fulltext": "V Jump March 2025 promotional card",
+    "fullurl": "https://yugipedia.com/wiki/V_Jump_March_2025_promotional_card",
+    "namespace": 0,
+    "exists": "1",
+    "displaytitle": "V Jump March 2025 promotional card"
+   },
+   "Tournament Pack 2024 Vol.5": {
+    "printouts": {
+     "Japanese release date": [
+      {
+       "timestamp": "1735689600",
+       "raw": "1/2025/1/1"
+      }
+     ],
+     "Set prefix": [],
+     "Korean release date": [],
+     "English name": []
+    },
+    "fulltext": "Tournament Pack 2024 Vol.5",
+    "fullurl": "https://yugipedia.com/wiki/Tournament_Pack_2024_Vol.5",
+    "namespace": 0,
+    "exists": "1",
+    "displaytitle": "Tournament Pack 2024 Vol.5"
+   },
+   "Area Championship 2024 December prize card": {
+    "printouts": {
+     "Japanese release date": [
+      {
+       "timestamp": "1734739200",
+       "raw": "1/2024/12/21"
+      }
+     ],
+     "Set prefix": [],
+     "Korean release date": [],
+     "English name": []
+    },
+    "fulltext": "Area Championship 2024 December prize card",
+    "fullurl": "https://yugipedia.com/wiki/Area_Championship_2024_December_prize_card",
+    "namespace": 0,
+    "exists": "1",
+    "displaytitle": "Area Championship 2024 December prize card"
+   },
+   "Promotion Pack 2025": {
+    "printouts": {
+     "Japanese release date": [
+      {
+       "timestamp": "1734739200",
+       "raw": "1/2024/12/21"
+      }
+     ],
+     "Set prefix": [],
+     "Korean release date": [],
+     "English name": []
+    },
+    "fulltext": "Promotion Pack 2025",
+    "fullurl": "https://yugipedia.com/wiki/Promotion_Pack_2025",
+    "namespace": 0,
+    "exists": "1",
+    "displaytitle": "Promotion Pack 2025"
+   },
+   "Premium Pack 2025": {
+    "printouts": {
+     "Japanese release date": [
+      {
+       "timestamp": "1734739200",
+       "raw": "1/2024/12/21"
+      }
+     ],
+     "Set prefix": [],
+     "Korean release date": [],
+     "English name": []
+    },
+    "fulltext": "Premium Pack 2025",
+    "fullurl": "https://yugipedia.com/wiki/Premium_Pack_2025",
+    "namespace": 0,
+    "exists": "1",
+    "displaytitle": "Premium Pack 2025"
+   },
+   "Quarter Century Trinity Box": {
+    "printouts": {
+     "Japanese release date": [
+      {
+       "timestamp": "1734739200",
+       "raw": "1/2024/12/21"
+      }
+     ],
+     "Set prefix": [],
+     "Korean release date": [],
+     "English name": []
+    },
+    "fulltext": "Quarter Century Trinity Box",
+    "fullurl": "https://yugipedia.com/wiki/Quarter_Century_Trinity_Box",
+    "namespace": 0,
+    "exists": "1",
+    "displaytitle": "Quarter Century Trinity Box"
+   },
+   "V Jump February 2025 promotional card": {
+    "printouts": {
+     "Japanese release date": [
+      {
+       "timestamp": "1734652800",
+       "raw": "1/2024/12/20"
+      }
+     ],
+     "Set prefix": [],
+     "Korean release date": [],
+     "English name": []
+    },
+    "fulltext": "V Jump February 2025 promotional card",
+    "fullurl": "https://yugipedia.com/wiki/V_Jump_February_2025_promotional_card",
+    "namespace": 0,
+    "exists": "1",
+    "displaytitle": "V Jump February 2025 promotional card"
+   },
+   "Coco's x Yu-Gi-Oh! Card Game Anniversary Campaign 2024 Part 2": {
+    "printouts": {
+     "Japanese release date": [
+      {
+       "timestamp": "1733184000",
+       "raw": "1/2024/12/3"
+      }
+     ],
+     "Set prefix": [],
+     "Korean release date": [],
+     "English name": []
+    },
+    "fulltext": "Coco's x Yu-Gi-Oh! Card Game Anniversary Campaign 2024 Part 2",
+    "fullurl": "https://yugipedia.com/wiki/Coco%27s_x_Yu-Gi-Oh!_Card_Game_Anniversary_Campaign_2024_Part_2",
+    "namespace": 0,
+    "exists": "1",
+    "displaytitle": "Coco's x Yu-Gi-Oh! Card Game Anniversary Campaign 2024 Part 2"
+   },
+   "Duelist King Cup December 2024 prize card": {
+    "printouts": {
+     "Japanese release date": [
+      {
+       "timestamp": "1733011200",
+       "raw": "1/2024/12/1"
+      }
+     ],
+     "Set prefix": [],
+     "Korean release date": [],
+     "English name": []
+    },
+    "fulltext": "Duelist King Cup December 2024 prize card",
+    "fullurl": "https://yugipedia.com/wiki/Duelist_King_Cup_December_2024_prize_card",
+    "namespace": 0,
+    "exists": "1",
+    "displaytitle": "Duelist King Cup December 2024 prize card"
+   },
+   "Terminal World 2": {
+    "printouts": {
+     "Japanese release date": [
+      {
+       "timestamp": "1732320000",
+       "raw": "1/2024/11/23"
+      }
+     ],
+     "Set prefix": [],
+     "Korean release date": [
+      {
+       "timestamp": "1739923200",
+       "raw": "1/2025/2/19"
+      }
+     ],
+     "English name": []
+    },
+    "fulltext": "Terminal World 2",
+    "fullurl": "https://yugipedia.com/wiki/Terminal_World_2",
+    "namespace": 0,
+    "exists": "1",
+    "displaytitle": "Terminal World 2"
+   },
+   "V Jump January 2025 promotional card": {
+    "printouts": {
+     "Japanese release date": [
+      {
+       "timestamp": "1732147200",
+       "raw": "1/2024/11/21"
+      }
+     ],
+     "Set prefix": [],
+     "Korean release date": [],
+     "English name": []
+    },
+    "fulltext": "V Jump January 2025 promotional card",
+    "fullurl": "https://yugipedia.com/wiki/V_Jump_January_2025_promotional_card",
+    "namespace": 0,
+    "exists": "1",
+    "displaytitle": "V Jump January 2025 promotional card"
+   },
+   "Quarter Century Limited Pack": {
+    "printouts": {
+     "Japanese release date": [
+      {
+       "timestamp": "1731715200",
+       "raw": "1/2024/11/16"
+      }
+     ],
+     "Set prefix": [],
+     "Korean release date": [],
+     "English name": []
+    },
+    "fulltext": "Quarter Century Limited Pack",
+    "fullurl": "https://yugipedia.com/wiki/Quarter_Century_Limited_Pack",
+    "namespace": 0,
+    "exists": "1",
+    "displaytitle": "Quarter Century Limited Pack"
+   },
+   "Coco's x Yu-Gi-Oh! Card Game Anniversary Campaign 2024 Part 1": {
+    "printouts": {
+     "Japanese release date": [
+      {
+       "timestamp": "1731369600",
+       "raw": "1/2024/11/12"
+      }
+     ],
+     "Set prefix": [],
+     "Korean release date": [],
+     "English name": []
+    },
+    "fulltext": "Coco's x Yu-Gi-Oh! Card Game Anniversary Campaign 2024 Part 1",
+    "fullurl": "https://yugipedia.com/wiki/Coco%27s_x_Yu-Gi-Oh!_Card_Game_Anniversary_Campaign_2024_Part_1",
+    "namespace": 0,
+    "exists": "1",
+    "displaytitle": "Coco's x Yu-Gi-Oh! Card Game Anniversary Campaign 2024 Part 1"
+   },
+   "Fiendsmith Duel Set": {
+    "printouts": {
+     "Japanese release date": [
+      {
+       "timestamp": "1730678400",
+       "raw": "1/2024/11/4"
+      }
+     ],
+     "Set prefix": [],
+     "Korean release date": [
+      {
+       "timestamp": "1733529600",
+       "raw": "1/2024/12/7"
+      }
+     ],
+     "English name": []
+    },
+    "fulltext": "Fiendsmith Duel Set",
+    "fullurl": "https://yugipedia.com/wiki/Fiendsmith_Duel_Set",
+    "namespace": 0,
+    "exists": "1",
+    "displaytitle": "Fiendsmith Duel Set"
+   },
+   "Centur-Ion Duel Set": {
+    "printouts": {
+     "Japanese release date": [
+      {
+       "timestamp": "1730678400",
+       "raw": "1/2024/11/4"
+      }
+     ],
+     "Set prefix": [],
+     "Korean release date": [],
+     "English name": []
+    },
+    "fulltext": "Centur-Ion Duel Set",
+    "fullurl": "https://yugipedia.com/wiki/Centur-Ion_Duel_Set",
+    "namespace": 0,
+    "exists": "1",
+    "displaytitle": "Centur-Ion Duel Set"
+   },
+   "Supreme Darkness +1 Bonus Pack": {
+    "printouts": {
+     "Japanese release date": [
+      {
+       "timestamp": "1729900800",
+       "raw": "1/2024/10/26"
+      }
+     ],
+     "Set prefix": [],
+     "Korean release date": [
+      {
+       "timestamp": "1736467200",
+       "raw": "1/2025/1/10"
+      }
+     ],
+     "English name": []
+    },
+    "fulltext": "Supreme Darkness +1 Bonus Pack",
+    "fullurl": "https://yugipedia.com/wiki/Supreme_Darkness_%2B1_Bonus_Pack",
+    "namespace": 0,
+    "exists": "1",
+    "displaytitle": "Supreme Darkness +1 Bonus Pack"
+   },
+   "Supreme Darkness": {
+    "printouts": {
+     "Japanese release date": [
+      {
+       "timestamp": "1729900800",
+       "raw": "1/2024/10/26"
+      }
+     ],
+     "Set prefix": [],
+     "Korean release date": [
+      {
+       "timestamp": "1736467200",
+       "raw": "1/2025/1/10"
+      }
+     ],
+     "English name": [
+      "Supreme Darkness"
+     ]
+    },
+    "fulltext": "Supreme Darkness",
+    "fullurl": "https://yugipedia.com/wiki/Supreme_Darkness",
+    "namespace": 0,
+    "exists": "1",
+    "displaytitle": "Supreme Darkness"
+   },
+   "V Jump December 2024 promotional card": {
+    "printouts": {
+     "Japanese release date": [
+      {
+       "timestamp": "1729468800",
+       "raw": "1/2024/10/21"
+      }
+     ],
+     "Set prefix": [],
+     "Korean release date": [],
+     "English name": []
+    },
+    "fulltext": "V Jump December 2024 promotional card",
+    "fullurl": "https://yugipedia.com/wiki/V_Jump_December_2024_promotional_card",
+    "namespace": 0,
+    "exists": "1",
+    "displaytitle": "V Jump December 2024 promotional card"
+   },
+   "Yu-Gi-Oh! OCG Stories Magistus Arc Volume 4 promotional card": {
+    "printouts": {
+     "Japanese release date": [
+      {
+       "timestamp": "1728000000",
+       "raw": "1/2024/10/4"
+      }
+     ],
+     "Set prefix": [],
+     "Korean release date": [],
+     "English name": []
+    },
+    "fulltext": "Yu-Gi-Oh! OCG Stories Magistus Arc Volume 4 promotional card",
+    "fullurl": "https://yugipedia.com/wiki/Yu-Gi-Oh!_OCG_Stories_Magistus_Arc_Volume_4_promotional_card",
+    "namespace": 0,
+    "exists": "1",
+    "displaytitle": "Yu-Gi-Oh! OCG Stories Magistus Arc Volume 4 promotional card"
+   },
+   "Yu-Gi-Oh! OCG Structures Volume 9 promotional card": {
+    "printouts": {
+     "Japanese release date": [
+      {
+       "timestamp": "1728000000",
+       "raw": "1/2024/10/4"
+      }
+     ],
+     "Set prefix": [],
+     "Korean release date": [],
+     "English name": []
+    },
+    "fulltext": "Yu-Gi-Oh! OCG Structures Volume 9 promotional card",
+    "fullurl": "https://yugipedia.com/wiki/Yu-Gi-Oh!_OCG_Structures_Volume_9_promotional_card",
+    "namespace": 0,
+    "exists": "1",
+    "displaytitle": "Yu-Gi-Oh! OCG Structures Volume 9 promotional card"
+   },
+   "Tournament Pack 2024 Vol.4": {
+    "printouts": {
+     "Japanese release date": [
+      {
+       "timestamp": "1727740800",
+       "raw": "1/2024/10/1"
+      }
+     ],
+     "Set prefix": [],
+     "Korean release date": [],
+     "English name": []
+    },
+    "fulltext": "Tournament Pack 2024 Vol.4",
+    "fullurl": "https://yugipedia.com/wiki/Tournament_Pack_2024_Vol.4",
+    "namespace": 0,
+    "exists": "1",
+    "displaytitle": "Tournament Pack 2024 Vol.4"
+   },
+   "World Premiere Pack 2024": {
+    "printouts": {
+     "Japanese release date": [
+      {
+       "timestamp": "1727481600",
+       "raw": "1/2024/9/28"
+      }
+     ],
+     "Set prefix": [],
+     "Korean release date": [
+      {
+       "timestamp": "1734652800",
+       "raw": "1/2024/12/20"
+      }
+     ],
+     "English name": []
+    },
+    "fulltext": "World Premiere Pack 2024",
+    "fullurl": "https://yugipedia.com/wiki/World_Premiere_Pack_2024",
+    "namespace": 0,
+    "exists": "1",
+    "displaytitle": "World Premiere Pack 2024"
+   },
+   "V Jump November 2024 promotional card": {
+    "printouts": {
+     "Japanese release date": [
+      {
+       "timestamp": "1726876800",
+       "raw": "1/2024/9/21"
+      }
+     ],
+     "Set prefix": [],
+     "Korean release date": [],
+     "English name": []
+    },
+    "fulltext": "V Jump November 2024 promotional card",
+    "fullurl": "https://yugipedia.com/wiki/V_Jump_November_2024_promotional_card",
+    "namespace": 0,
+    "exists": "1",
+    "displaytitle": "V Jump November 2024 promotional card"
+   },
+   "V Jump Fall 2024 subscription bonus": {
+    "printouts": {
+     "Japanese release date": [
+      {
+       "timestamp": "1726876800",
+       "raw": "1/2024/9/21"
+      }
+     ],
+     "Set prefix": [],
+     "Korean release date": [],
+     "English name": []
+    },
+    "fulltext": "V Jump Fall 2024 subscription bonus",
+    "fullurl": "https://yugipedia.com/wiki/V_Jump_Fall_2024_subscription_bonus",
+    "namespace": 0,
+    "exists": "1",
+    "displaytitle": "V Jump Fall 2024 subscription bonus"
+   },
+   "Complete File: Story of White": {
+    "printouts": {
+     "Japanese release date": [
+      {
+       "timestamp": "1726272000",
+       "raw": "1/2024/9/14"
+      }
+     ],
+     "Set prefix": [],
+     "Korean release date": [],
+     "English name": []
+    },
+    "fulltext": "Complete File: Story of White",
+    "fullurl": "https://yugipedia.com/wiki/Complete_File:_Story_of_White",
+    "namespace": 0,
+    "exists": "1",
+    "displaytitle": "Complete File: Story of White"
+   },
+   "Structure Deck: Advent of the Eyes of Blue Legendary Majesty Inheritance Pack": {
+    "printouts": {
+     "Japanese release date": [
+      {
+       "timestamp": "1725667200",
+       "raw": "1/2024/9/7"
+      }
+     ],
+     "Set prefix": [],
+     "Korean release date": [
+      {
+       "timestamp": "1733875200",
+       "raw": "1/2024/12/11"
+      }
+     ],
+     "English name": []
+    },
+    "fulltext": "Structure Deck: Advent of the Eyes of Blue Legendary Majesty Inheritance Pack",
+    "fullurl": "https://yugipedia.com/wiki/Structure_Deck:_Advent_of_the_Eyes_of_Blue_Legendary_Majesty_Inheritance_Pack",
+    "namespace": 0,
+    "exists": "1",
+    "displaytitle": "Structure Deck: Advent of the Eyes of Blue Legendary Majesty Inheritance Pack"
+   },
+   "Structure Deck: Advent of the Eyes of Blue": {
+    "printouts": {
+     "Japanese release date": [
+      {
+       "timestamp": "1725667200",
+       "raw": "1/2024/9/7"
+      }
+     ],
+     "Set prefix": [],
+     "Korean release date": [
+      {
+       "timestamp": "1733875200",
+       "raw": "1/2024/12/11"
+      }
+     ],
+     "English name": []
+    },
+    "fulltext": "Structure Deck: Advent of the Eyes of Blue",
+    "fullurl": "https://yugipedia.com/wiki/Structure_Deck:_Advent_of_the_Eyes_of_Blue",
+    "namespace": 0,
+    "exists": "1",
+    "displaytitle": "Structure Deck: Advent of the Eyes of Blue"
+   },
+   "Deck-Build Pack: Crossover Breakers": {
+    "printouts": {
+     "Japanese release date": [
+      {
+       "timestamp": "1724457600",
+       "raw": "1/2024/8/24"
+      }
+     ],
+     "Set prefix": [],
+     "Korean release date": [
+      {
+       "timestamp": "1732060800",
+       "raw": "1/2024/11/20"
+      }
+     ],
+     "English name": []
+    },
+    "fulltext": "Deck-Build Pack: Crossover Breakers",
+    "fullurl": "https://yugipedia.com/wiki/Deck-Build_Pack:_Crossover_Breakers",
+    "namespace": 0,
+    "exists": "1",
+    "displaytitle": "Deck-Build Pack: Crossover Breakers"
+   },
+   "V Jump October 2024 promotional card": {
+    "printouts": {
+     "Japanese release date": [
+      {
+       "timestamp": "1724198400",
+       "raw": "1/2024/8/21"
+      }
+     ],
+     "Set prefix": [],
+     "Korean release date": [],
+     "English name": []
+    },
+    "fulltext": "V Jump October 2024 promotional card",
+    "fullurl": "https://yugipedia.com/wiki/V_Jump_October_2024_promotional_card",
+    "namespace": 0,
+    "exists": "1",
+    "displaytitle": "V Jump October 2024 promotional card"
+   },
+   "Area Championship 2024 August prize card": {
+    "printouts": {
+     "Japanese release date": [
+      {
+       "timestamp": "1723248000",
+       "raw": "1/2024/8/10"
+      }
+     ],
+     "Set prefix": [],
+     "Korean release date": [],
+     "English name": []
+    },
+    "fulltext": "Area Championship 2024 August prize card",
+    "fullurl": "https://yugipedia.com/wiki/Area_Championship_2024_August_prize_card",
+    "namespace": 0,
+    "exists": "1",
+    "displaytitle": "Area Championship 2024 August prize card"
+   },
+   "Yu-Gi-Oh! Card Game x 7-Eleven 2024 Collaboration Campaign": {
+    "printouts": {
+     "Japanese release date": [
+      {
+       "timestamp": "1723075200",
+       "raw": "1/2024/8/8"
+      }
+     ],
+     "Set prefix": [],
+     "Korean release date": [],
+     "English name": []
+    },
+    "fulltext": "Yu-Gi-Oh! Card Game x 7-Eleven 2024 Collaboration Campaign",
+    "fullurl": "https://yugipedia.com/wiki/Yu-Gi-Oh!_Card_Game_x_7-Eleven_2024_Collaboration_Campaign",
+    "namespace": 0,
+    "exists": "1",
+    "displaytitle": "Yu-Gi-Oh! Card Game x 7-Eleven 2024 Collaboration Campaign"
+   },
+   "Duelist King Cup August 2024 prize card": {
+    "printouts": {
+     "Japanese release date": [
+      {
+       "timestamp": "1722643200",
+       "raw": "1/2024/8/3"
+      }
+     ],
+     "Set prefix": [],
+     "Korean release date": [],
+     "English name": []
+    },
+    "fulltext": "Duelist King Cup August 2024 prize card",
+    "fullurl": "https://yugipedia.com/wiki/Duelist_King_Cup_August_2024_prize_card",
+    "namespace": 0,
+    "exists": "1",
+    "displaytitle": "Duelist King Cup August 2024 prize card"
+   },
+   "Rage of the Abyss +1 Bonus Pack": {
+    "printouts": {
+     "Japanese release date": [
+      {
+       "timestamp": "1722038400",
+       "raw": "1/2024/7/27"
+      }
+     ],
+     "Set prefix": [],
+     "Korean release date": [
+      {
+       "timestamp": "1728604800",
+       "raw": "1/2024/10/11"
+      }
+     ],
+     "English name": []
+    },
+    "fulltext": "Rage of the Abyss +1 Bonus Pack",
+    "fullurl": "https://yugipedia.com/wiki/Rage_of_the_Abyss_%2B1_Bonus_Pack",
+    "namespace": 0,
+    "exists": "1",
+    "displaytitle": "Rage of the Abyss +1 Bonus Pack"
+   },
+   "Rage of the Abyss": {
+    "printouts": {
+     "Japanese release date": [
+      {
+       "timestamp": "1722038400",
+       "raw": "1/2024/7/27"
+      }
+     ],
+     "Set prefix": [],
+     "Korean release date": [
+      {
+       "timestamp": "1728604800",
+       "raw": "1/2024/10/11"
+      }
+     ],
+     "English name": [
+      "Rage of the Abyss"
+     ]
+    },
+    "fulltext": "Rage of the Abyss",
+    "fullurl": "https://yugipedia.com/wiki/Rage_of_the_Abyss",
+    "namespace": 0,
+    "exists": "1",
+    "displaytitle": "Rage of the Abyss"
+   },
+   "V Jump September 2024 promotional card": {
+    "printouts": {
+     "Japanese release date": [
+      {
+       "timestamp": "1721433600",
+       "raw": "1/2024/7/20"
+      }
+     ],
+     "Set prefix": [],
+     "Korean release date": [],
+     "English name": []
+    },
+    "fulltext": "V Jump September 2024 promotional card",
+    "fullurl": "https://yugipedia.com/wiki/V_Jump_September_2024_promotional_card",
+    "namespace": 0,
+    "exists": "1",
+    "displaytitle": "V Jump September 2024 promotional card"
+   },
+   "Tournament Pack 2024 Vol.3": {
+    "printouts": {
+     "Japanese release date": [
+      {
+       "timestamp": "1719792000",
+       "raw": "1/2024/7/1"
+      }
+     ],
+     "Set prefix": [],
+     "Korean release date": [],
+     "English name": []
+    },
+    "fulltext": "Tournament Pack 2024 Vol.3",
+    "fullurl": "https://yugipedia.com/wiki/Tournament_Pack_2024_Vol.3",
+    "namespace": 0,
+    "exists": "1",
+    "displaytitle": "Tournament Pack 2024 Vol.3"
+   },
+   "Area Championship 2024 June prize card": {
+    "printouts": {
+     "Japanese release date": [
+      {
+       "timestamp": "1719014400",
+       "raw": "1/2024/6/22"
+      }
+     ],
+     "Set prefix": [],
+     "Korean release date": [],
+     "English name": []
+    },
+    "fulltext": "Area Championship 2024 June prize card",
+    "fullurl": "https://yugipedia.com/wiki/Area_Championship_2024_June_prize_card",
+    "namespace": 0,
+    "exists": "1",
+    "displaytitle": "Area Championship 2024 June prize card"
+   },
+   "Animation Chronicle 2024": {
+    "printouts": {
+     "Japanese release date": [
+      {
+       "timestamp": "1719014400",
+       "raw": "1/2024/6/22"
+      }
+     ],
+     "Set prefix": [],
+     "Korean release date": [
+      {
+       "timestamp": "1727136000",
+       "raw": "1/2024/9/24"
+      }
+     ],
+     "English name": []
+    },
+    "fulltext": "Animation Chronicle 2024",
+    "fullurl": "https://yugipedia.com/wiki/Animation_Chronicle_2024",
+    "namespace": 0,
+    "exists": "1",
+    "displaytitle": "Animation Chronicle 2024"
+   },
+   "V Jump August 2024 promotional card": {
+    "printouts": {
+     "Japanese release date": [
+      {
+       "timestamp": "1718928000",
+       "raw": "1/2024/6/21"
+      }
+     ],
+     "Set prefix": [],
+     "Korean release date": [],
+     "English name": []
+    },
+    "fulltext": "V Jump August 2024 promotional card",
+    "fullurl": "https://yugipedia.com/wiki/V_Jump_August_2024_promotional_card",
+    "namespace": 0,
+    "exists": "1",
+    "displaytitle": "V Jump August 2024 promotional card"
+   },
+   "Tactical-Try Deck: Decisive Strike Cyber Dragon": {
+    "printouts": {
+     "Japanese release date": [
+      {
+       "timestamp": "1717804800",
+       "raw": "1/2024/6/8"
+      }
+     ],
+     "Set prefix": [],
+     "Korean release date": [
+      {
+       "timestamp": "1725408000",
+       "raw": "1/2024/9/4"
+      }
+     ],
+     "English name": []
+    },
+    "fulltext": "Tactical-Try Deck: Decisive Strike Cyber Dragon",
+    "fullurl": "https://yugipedia.com/wiki/Tactical-Try_Deck:_Decisive_Strike_Cyber_Dragon",
+    "namespace": 0,
+    "exists": "1",
+    "displaytitle": "Tactical-Try Deck: Decisive Strike Cyber Dragon"
+   },
+   "Tactical-Try Deck: Evil★Twin the Kaito Pair": {
+    "printouts": {
+     "Japanese release date": [
+      {
+       "timestamp": "1717804800",
+       "raw": "1/2024/6/8"
+      }
+     ],
+     "Set prefix": [],
+     "Korean release date": [
+      {
+       "timestamp": "1725408000",
+       "raw": "1/2024/9/4"
+      }
+     ],
+     "English name": []
+    },
+    "fulltext": "Tactical-Try Deck: Evil★Twin the Kaito Pair",
+    "fullurl": "https://yugipedia.com/wiki/Tactical-Try_Deck:_Evil%E2%98%85Twin_the_Kaito_Pair",
+    "namespace": 0,
+    "exists": "1",
+    "displaytitle": "Tactical-Try Deck: Evil★Twin the Kaito Pair"
+   },
+   "Tactical-Try Deck: Eldlich the Conqueror": {
+    "printouts": {
+     "Japanese release date": [
+      {
+       "timestamp": "1717804800",
+       "raw": "1/2024/6/8"
+      }
+     ],
+     "Set prefix": [],
+     "Korean release date": [
+      {
+       "timestamp": "1725408000",
+       "raw": "1/2024/9/4"
+      }
+     ],
+     "English name": []
+    },
+    "fulltext": "Tactical-Try Deck: Eldlich the Conqueror",
+    "fullurl": "https://yugipedia.com/wiki/Tactical-Try_Deck:_Eldlich_the_Conqueror",
+    "namespace": 0,
+    "exists": "1",
+    "displaytitle": "Tactical-Try Deck: Eldlich the Conqueror"
+   },
+   "Quarter Century Legendary Selection": {
+    "printouts": {
+     "Japanese release date": [
+      {
+       "timestamp": "1716854400",
+       "raw": "1/2024/5/28"
+      }
+     ],
+     "Set prefix": [],
+     "Korean release date": [],
+     "English name": []
+    },
+    "fulltext": "Quarter Century Legendary Selection",
+    "fullurl": "https://yugipedia.com/wiki/Quarter_Century_Legendary_Selection",
+    "namespace": 0,
+    "exists": "1",
+    "displaytitle": "Quarter Century Legendary Selection"
+   },
+   "Duelist Pack: Duelists of Brilliance": {
+    "printouts": {
+     "Japanese release date": [
+      {
+       "timestamp": "1716595200",
+       "raw": "1/2024/5/25"
+      }
+     ],
+     "Set prefix": [],
+     "Korean release date": [
+      {
+       "timestamp": "1722988800",
+       "raw": "1/2024/8/7"
+      }
+     ],
+     "English name": []
+    },
+    "fulltext": "Duelist Pack: Duelists of Brilliance",
+    "fullurl": "https://yugipedia.com/wiki/Duelist_Pack:_Duelists_of_Brilliance",
+    "namespace": 0,
+    "exists": "1",
+    "displaytitle": "Duelist Pack: Duelists of Brilliance"
+   },
+   "Quarter Century Unity & Pride Campaign side:Pride": {
+    "printouts": {
+     "Japanese release date": [
+      {
+       "timestamp": "1716595200",
+       "raw": "1/2024/5/25"
+      }
+     ],
+     "Set prefix": [],
+     "Korean release date": [
+      {
+       "timestamp": "1717200000",
+       "raw": "1/2024/6"
+      }
+     ],
+     "English name": []
+    },
+    "fulltext": "Quarter Century Unity & Pride Campaign side:Pride",
+    "fullurl": "https://yugipedia.com/wiki/Quarter_Century_Unity_%26_Pride_Campaign_side:Pride",
+    "namespace": 0,
+    "exists": "1",
+    "displaytitle": "Quarter Century Unity & Pride Campaign side:Pride"
+   },
+   "V Jump July 2024 promotional card": {
+    "printouts": {
+     "Japanese release date": [
+      {
+       "timestamp": "1716249600",
+       "raw": "1/2024/5/21"
+      }
+     ],
+     "Set prefix": [],
+     "Korean release date": [],
+     "English name": []
+    },
+    "fulltext": "V Jump July 2024 promotional card",
+    "fullurl": "https://yugipedia.com/wiki/V_Jump_July_2024_promotional_card",
+    "namespace": 0,
+    "exists": "1",
+    "displaytitle": "V Jump July 2024 promotional card"
+   },
+   "Yu-Gi-Oh! Championship Series Japan 2024 prize card": {
+    "printouts": {
+     "Japanese release date": [
+      {
+       "timestamp": "1714348800",
+       "raw": "1/2024/4/29"
+      }
+     ],
+     "Set prefix": [],
+     "Korean release date": [],
+     "English name": []
+    },
+    "fulltext": "Yu-Gi-Oh! Championship Series Japan 2024 prize card",
+    "fullurl": "https://yugipedia.com/wiki/Yu-Gi-Oh!_Championship_Series_Japan_2024_prize_card",
+    "namespace": 0,
+    "exists": "1",
+    "displaytitle": "Yu-Gi-Oh! Championship Series Japan 2024 prize card"
+   },
+   "Yu-Gi-Oh! Championship Series Japan Tokyo 2024 participation card": {
+    "printouts": {
+     "Japanese release date": [
+      {
+       "timestamp": "1714262400",
+       "raw": "1/2024/4/28"
+      }
+     ],
+     "Set prefix": [],
+     "Korean release date": [],
+     "English name": []
+    },
+    "fulltext": "Yu-Gi-Oh! Championship Series Japan Tokyo 2024 participation card",
+    "fullurl": "https://yugipedia.com/wiki/Yu-Gi-Oh!_Championship_Series_Japan_Tokyo_2024_participation_card",
+    "namespace": 0,
+    "exists": "1",
+    "displaytitle": "Yu-Gi-Oh! Championship Series Japan Tokyo 2024 participation card"
+   },
+   "Shining Sarcophagus Duel Set": {
+    "printouts": {
+     "Japanese release date": [
+      {
+       "timestamp": "1714262400",
+       "raw": "1/2024/4/28"
+      }
+     ],
+     "Set prefix": [],
+     "Korean release date": [],
+     "English name": []
+    },
+    "fulltext": "Shining Sarcophagus Duel Set",
+    "fullurl": "https://yugipedia.com/wiki/Shining_Sarcophagus_Duel_Set",
+    "namespace": 0,
+    "exists": "1",
+    "displaytitle": "Shining Sarcophagus Duel Set"
+   },
+   "Diabellstar Duel Set": {
+    "printouts": {
+     "Japanese release date": [
+      {
+       "timestamp": "1714262400",
+       "raw": "1/2024/4/28"
+      }
+     ],
+     "Set prefix": [],
+     "Korean release date": [
+      {
+       "timestamp": "1733529600",
+       "raw": "1/2024/12/7"
+      }
+     ],
+     "English name": []
+    },
+    "fulltext": "Diabellstar Duel Set",
+    "fullurl": "https://yugipedia.com/wiki/Diabellstar_Duel_Set",
+    "namespace": 0,
+    "exists": "1",
+    "displaytitle": "Diabellstar Duel Set"
+   },
+   "The Infinite Forbidden": {
+    "printouts": {
+     "Japanese release date": [
+      {
+       "timestamp": "1714176000",
+       "raw": "1/2024/4/27"
+      }
+     ],
+     "Set prefix": [],
+     "Korean release date": [
+      {
+       "timestamp": "1721779200",
+       "raw": "1/2024/7/24"
+      }
+     ],
+     "English name": [
+      "The Infinite Forbidden"
+     ]
+    },
+    "fulltext": "The Infinite Forbidden",
+    "fullurl": "https://yugipedia.com/wiki/The_Infinite_Forbidden",
+    "namespace": 0,
+    "exists": "1",
+    "displaytitle": "The Infinite Forbidden"
+   },
+   "Infinite Forbidden +1 Bonus Pack": {
+    "printouts": {
+     "Japanese release date": [
+      {
+       "timestamp": "1714176000",
+       "raw": "1/2024/4/27"
+      }
+     ],
+     "Set prefix": [],
+     "Korean release date": [
+      {
+       "timestamp": "1721779200",
+       "raw": "1/2024/7/24"
+      }
+     ],
+     "English name": []
+    },
+    "fulltext": "Infinite Forbidden +1 Bonus Pack",
+    "fullurl": "https://yugipedia.com/wiki/Infinite_Forbidden_%2B1_Bonus_Pack",
+    "namespace": 0,
+    "exists": "1",
+    "displaytitle": "Infinite Forbidden +1 Bonus Pack"
+   },
+   "Quarter Century Unity & Pride Campaign side:Unity": {
+    "printouts": {
+     "Japanese release date": [
+      {
+       "timestamp": "1713571200",
+       "raw": "1/2024/4/20"
+      }
+     ],
+     "Set prefix": [],
+     "Korean release date": [
+      {
+       "timestamp": "1715904000",
+       "raw": "1/2024/5/17"
+      }
+     ],
+     "English name": []
+    },
+    "fulltext": "Quarter Century Unity & Pride Campaign side:Unity",
+    "fullurl": "https://yugipedia.com/wiki/Quarter_Century_Unity_%26_Pride_Campaign_side:Unity",
+    "namespace": 0,
+    "exists": "1",
+    "displaytitle": "Quarter Century Unity & Pride Campaign side:Unity"
+   },
+   "V Jump June 2024 promotional card": {
+    "printouts": {
+     "Japanese release date": [
+      {
+       "timestamp": "1713484800",
+       "raw": "1/2024/4/19"
+      }
+     ],
+     "Set prefix": [],
+     "Korean release date": [],
+     "English name": []
+    },
+    "fulltext": "V Jump June 2024 promotional card",
+    "fullurl": "https://yugipedia.com/wiki/V_Jump_June_2024_promotional_card",
+    "namespace": 0,
+    "exists": "1",
+    "displaytitle": "V Jump June 2024 promotional card"
+   },
+   "Duelist King Cup April 2024 prize card": {
+    "printouts": {
+     "Japanese release date": [
+      {
+       "timestamp": "1712966400",
+       "raw": "1/2024/4/13"
+      }
+     ],
+     "Set prefix": [],
+     "Korean release date": [],
+     "English name": []
+    },
+    "fulltext": "Duelist King Cup April 2024 prize card",
+    "fullurl": "https://yugipedia.com/wiki/Duelist_King_Cup_April_2024_prize_card",
+    "namespace": 0,
+    "exists": "1",
+    "displaytitle": "Duelist King Cup April 2024 prize card"
+   },
+   "Tournament Pack 2024 Vol.2": {
+    "printouts": {
+     "Japanese release date": [
+      {
+       "timestamp": "1711929600",
+       "raw": "1/2024/4/1"
+      }
+     ],
+     "Set prefix": [],
+     "Korean release date": [],
+     "English name": []
+    },
+    "fulltext": "Tournament Pack 2024 Vol.2",
+    "fullurl": "https://yugipedia.com/wiki/Tournament_Pack_2024_Vol.2",
+    "namespace": 0,
+    "exists": "1",
+    "displaytitle": "Tournament Pack 2024 Vol.2"
+   }
+  },
+  "serializer": "SMW\\Serializers\\QueryResultSerializer",
+  "version": 2,
+  "meta": {
+   "hash": "617399f8b6be30829b07c2b64e278bdd",
+   "count": 200,
+   "offset": 0,
+   "source": "",
+   "time": "0.111505"
+  }
+ }
+}

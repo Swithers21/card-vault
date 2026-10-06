@@ -1,0 +1,5 @@
+{
+ "message": "An Internal Error Has Occurred.",
+ "url": "/products?game_id=9&amp;cardset_id=7858&amp;sort=price&amp;direction=desc&amp;limit=30",
+ "code": 500
+}

@@ -1,0 +1,169 @@
+{
+ "ym_box_ua": {
+  "url": "https://yugi-market.com/collections/yu-gi-oh-booster-box/products.json?limit=250",
+  "status": 429,
+  "headers": {
+   "Content-Type": "application/json",
+   "retry-after": "60",
+   "server": "cloudflare",
+   "CF-RAY": "a460762b7d912c74-IAD"
+  },
+  "bytes": 169
+ },
+ "ym_box_myshop": {
+  "url": "https://yugi-market.myshopify.com/collections/yu-gi-oh-booster-box/products.json?limit=250",
+  "status": 429,
+  "headers": {
+   "Content-Type": "application/json",
+   "retry-after": "60",
+   "server": "cloudflare",
+   "CF-RAY": "a46076a9186bc999-IAD"
+  },
+  "bytes": 169
+ },
+ "ym_atom": {
+  "url": "https://yugi-market.com/collections/yu-gi-oh-booster-box.atom",
+  "status": 429,
+  "headers": {
+   "Content-Type": "application/json",
+   "retry-after": "60",
+   "server": "cloudflare",
+   "CF-RAY": "a46077267ce82c74-IAD"
+  },
+  "bytes": 169
+ },
+ "ym_sitemap": {
+  "url": "https://yugi-market.com/sitemap.xml",
+  "status": 200,
+  "headers": {
+   "Content-Type": "application/xml; charset=utf-8",
+   "server": "cloudflare",
+   "CF-RAY": "a46077a40a452c74-IAD"
+  },
+  "bytes": 11692
+ },
+ "goc_kr_ua": {
+  "url": "https://godofcards.com/collections/korean-yugioh-cards/products.json?limit=250",
+  "status": 200,
+  "headers": {
+   "Content-Type": "application/json; charset=utf-8",
+   "access-control-allow-origin": "*",
+   "server": "cloudflare",
+   "CF-RAY": "a46078288c09c971-IAD"
+  },
+  "bytes": 15,
+  "n_products": 0
+ },
+ "goc_kr_app": {
+  "url": "https://godofcards.com/collections/korean-yugioh-cards/products.json?limit=250",
+  "status": 429,
+  "headers": {
+   "Content-Type": "application/json",
+   "retry-after": "60",
+   "server": "cloudflare",
+   "CF-RAY": "a46078a73b9ec971-IAD"
+  },
+  "bytes": 169
+ },
+ "bw_set_sorted": {
+  "url": "https://api.bigweb.co.jp/products?game_id=9&cardset_id=7858&sort=price&direction=desc&limit=30",
+  "status": 500,
+  "headers": {
+   "Content-Type": "application/json",
+   "Server": "Apache/2.4.68 () OpenSSL/1.1.1zh",
+   "Access-Control-Allow-Origin": "*"
+  },
+  "bytes": 172
+ },
+ "bw_set_plain": {
+  "url": "https://api.bigweb.co.jp/products?game_id=9&cardset_id=7858",
+  "status": 200,
+  "headers": {
+   "Content-Type": "application/json",
+   "Server": "Apache/2.4.68 () OpenSSL/1.1.1zh",
+   "Access-Control-Allow-Origin": "*"
+  },
+  "bytes": 318
+ },
+ "bw_sealed": {
+  "url": "https://api.bigweb.co.jp/products?game_id=9&cardset_id=6671",
+  "status": 200,
+  "headers": {
+   "Content-Type": "application/json",
+   "Server": "Apache/2.4.68 () OpenSSL/1.1.1zh",
+   "Access-Control-Allow-Origin": "*"
+  },
+  "bytes": 318
+ },
+ "bw_sealed_old": {
+  "url": "https://api.bigweb.co.jp/products?game_id=9&cardset_id=6985",
+  "status": 200,
+  "headers": {
+   "Content-Type": "application/json",
+   "Server": "Apache/2.4.68 () OpenSSL/1.1.1zh",
+   "Access-Control-Allow-Origin": "*"
+  },
+  "bytes": 318
+ },
+ "bw_sealed_sorted": {
+  "url": "https://api.bigweb.co.jp/products?game_id=9&cardset_id=6671&sort=price&direction=desc&limit=100",
+  "status": 500,
+  "headers": {
+   "Content-Type": "application/json",
+   "Server": "Apache/2.4.68 () OpenSSL/1.1.1zh",
+   "Access-Control-Allow-Origin": "*"
+  },
+  "bytes": 173
+ },
+ "yp_ocg_sets": {
+  "url": "https://yugipedia.com/api.php?action=ask&format=json&formatversion=2&query=%5B%5BCategory%3AOCG+sets%5D%5D%5B%5BJapanese+release+date%3A%3A%2B%5D%5D%7C%3FJapanese+release+date%7C%3FSet+prefix%7C%3FKorean+release+date%7C%3FEnglish+name%7Csort%3DJapanese+release+date%7Corder%3Ddesc%7Climit%3D200",
+  "status": 200,
+  "headers": {
+   "Content-Type": "application/json; charset=utf-8",
+   "Server": "cloudflare",
+   "Access-Control-Allow-Origin": "*",
+   "CF-RAY": "a46079095a20dd86-IAD"
+  },
+  "bytes": 81207
+ },
+ "yp_kr_sets": {
+  "url": "https://yugipedia.com/api.php?action=ask&format=json&formatversion=2&query=%5B%5BKorean+release+date%3A%3A%2B%5D%5D%7C%3FKorean+release+date%7C%3FSet+prefix%7C%3FJapanese+release+date%7Csort%3DKorean+release+date%7Corder%3Ddesc%7Climit%3D200",
+  "status": 200,
+  "headers": {
+   "Content-Type": "application/json; charset=utf-8",
+   "Server": "cloudflare",
+   "Access-Control-Allow-Origin": "*",
+   "CF-RAY": "a4607918ae159d2e-IAD"
+  },
+  "bytes": 78512
+ },
+ "yp_kr_list": {
+  "url": "https://yugipedia.com/api.php?action=ask&format=json&formatversion=2&query=%5B%5BCard+number%3A%3A~PHNI-KR%2A%5D%5D%7C%3FCard+number%7C%3FRarity%7C%3FSet+contains%7Climit%3D500",
+  "status": 200,
+  "headers": {
+   "Content-Type": "application/json; charset=utf-8",
+   "Server": "cloudflare",
+   "Access-Control-Allow-Origin": "*",
+   "CF-RAY": "a46079266bd2876a-IAD"
+  },
+  "bytes": 79395
+ },
+ "bj_set_date": {
+  "url": "https://api.bunjang.co.kr/api/1/find_v2.json?q=PHNI-KR&order=date&page=0&n=200",
+  "status": 200,
+  "headers": {
+   "Content-Type": "application/json;charset=UTF-8",
+   "access-control-allow-origin": "https://swithers21.github.io"
+  },
+  "bytes": 22439
+ },
+ "bj_set_p1": {
+  "url": "https://api.bunjang.co.kr/api/1/find_v2.json?q=PHNI-KR&order=score&page=1&n=100",
+  "status": 200,
+  "headers": {
+   "Content-Type": "application/json;charset=UTF-8",
+   "access-control-allow-origin": "https://swithers21.github.io"
+  },
+  "bytes": 668
+ }
+}
