@@ -110,6 +110,12 @@ personal app: click **Continue**.
   Legendary plan, $49 a month as of October 2026). The key is saved with your Card Vault data in your Google Drive.
 - **Dated backups**: every day, the first save also keeps a dated copy in **Card Vault > Backups** in your Google Drive
   (the last 30 days). Settings lists them; Restore puts one back on every device.
+- **Card search** tab: what any card is worth. Type a name (or part of one), a card number or a set; more words narrow it
+  (`dark magician lob`). Each card lists every printing with TCGplayer's market price, lowest listing and 30-day change,
+  most valuable first, plus its Japanese and Korean prices when the Market has them. **Details** opens a card's price
+  page: every printing, its price over time, a PSA 10 value, other markets, and buttons to add it or want it. A
+  Japanese or Korean number (like DUNE-JP004) gets the same Yugipedia/BIGWEB/Bunjang lookup as Add card. It only uses
+  data Card Vault already has, so it works offline once the prices are loaded (except that lookup).
 - **Market** tab: every set on TCGplayer with its 25 most valuable cards, and every sealed product (booster packs and
   boxes, Structure Decks, Special and Deluxe Editions, tins…) with the cheapest TCGplayer listing next to the market price.
   Filter by set type (core sets, side sets, Deck Build Packs, Battles of Legend, all-foil sets, Speed Duel, OTS
