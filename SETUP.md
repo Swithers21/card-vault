@@ -116,6 +116,11 @@ personal app: click **Continue**.
   page: every printing, its price over time, a PSA 10 value, other markets, and buttons to add it or want it. A
   Japanese or Korean number (like DUNE-JP004) gets the same Yugipedia/BIGWEB/Bunjang lookup as Add card. It only uses
   data Card Vault already has, so it works offline once the prices are loaded (except that lookup).
+  Switch to **Sets** to find a set by name or code (`MAMO`, or a card number) and see every card in it: card number,
+  rarity, each printing's price, which you have, how many of its cards you have and what the rest would cost, its
+  booster box price, with a filter by rarity and "Ones I don't have". Japanese and Korean sets show their most valuable
+  cards from the Market, with a link to Yugipedia's full card list. Sets matching a card search show on top of it, and a
+  set's name on a card's price page, the Sets tab and the Market open the set here.
 - **Market** tab: every set on TCGplayer with its 25 most valuable cards, and every sealed product (booster packs and
   boxes, Structure Decks, Special and Deluxe Editions, tins…) with the cheapest TCGplayer listing next to the market price.
   Filter by set type (core sets, side sets, Deck Build Packs, Battles of Legend, all-foil sets, Speed Duel, OTS

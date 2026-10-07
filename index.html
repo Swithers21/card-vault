@@ -659,12 +659,35 @@
   .cs-mine{list-style:none;margin:0 0 10px;padding:0}
   .cs-mine li{display:flex;justify-content:space-between;align-items:center;gap:10px;padding:7px 0;border-top:1px solid var(--line)}
   .cs-mine li:first-child{border-top:0}
+  .caret.go{transform:rotate(-45deg);margin-top:0}
+  .cs-setchips{align-items:center;margin:0 0 12px}
+  .cs-setchips > .small{margin-right:2px}
+  .cs-back{margin:0 0 6px}
+  .cs-set-title{margin:0;font-family:"Cinzel",Georgia,serif;font-size:21px;font-weight:700;letter-spacing:.03em;color:#f6e6c4}
+  .cs-set-sub{margin:4px 0 0;color:var(--text-dim);font-size:13px}
+  .cs-set-facts{display:flex;flex-wrap:wrap;gap:12px 28px;margin:14px 0 16px}
+  .cs-fact{display:flex;flex-direction:column;gap:2px;min-width:0}
+  .cs-fact b{font-size:18px;font-variant-numeric:tabular-nums}
+  .cs-fact b.gold{color:var(--gold-hi)}
+  .cs-fact .progress{width:140px;margin-top:4px}
+  .cs-fact a,.cs-fact .link-btn{font-size:12.5px;text-align:left}
+  .cs-set-tools{display:flex;flex-wrap:wrap;gap:10px;align-items:center;margin:0 0 12px}
+  .cs-set-tools .search{flex:1 1 200px;max-width:320px}
+  .table.cs-settable{min-width:700px}
+  .cs-settable td:nth-child(2){white-space:nowrap;font-variant-numeric:tabular-nums}
+  .cs-ed{color:var(--text-dim);font-size:12px}
+  .cs-settable tr.cs-have{background:rgba(216,173,87,.05)}
   @media (max-width:700px){
     .table.cs-table{min-width:0}
     .cs-ocg tr{grid-template-columns:minmax(0,1fr)}
   }
   @media (max-width:640px){
     .cs-bar .search{max-width:none;flex-basis:100%}
+    .cs-bar #csMode{display:flex;flex:1 1 100%}
+    .cs-bar #csMode button{flex:1 1 0}
+    .cs-set-tools .search{max-width:none;flex-basis:100%}
+    .cs-set-tools .select{flex:1 1 30%;min-width:0}
+    .cs-set-facts{gap:12px 22px}
     .cs-bar .select{flex:1 1 auto}
     .cs-card .cs-toggle{grid-template-columns:40px minmax(0,1fr) 16px;padding:12px}
     .cs-thumb{width:40px;grid-row:1 / span 2}
@@ -1405,7 +1428,7 @@
     condAdjust: true, condPct: Object.assign({}, DEFAULT_COND_PCT), histPeriod: "m7", chartTable: false,
     setsMode: "number", setsSort: "complete", lastBackupAt: null, lastChangeAt: null, backupSnoozeUntil: 0,
     backupRemindDays: 7, wantAlertSeen: "", alertsOn: false, alertMinDollar: 5, alertMinPct: 10, salesYear: "", deckId: null,
-    deckView: "check", mkView: "sets", mkLine: "", mkKind: "", mkSortSets: "newest", mkSortSealed: "deal", mkRegion: "en", mkLineOcg: "", mkKindOcg: "", wantsView: "", csSort: "best",
+    deckView: "check", mkView: "sets", mkLine: "", mkKind: "", mkSortSets: "newest", mkSortSealed: "deal", mkRegion: "en", mkLineOcg: "", mkKindOcg: "", wantsView: "", csSort: "best", csMode: "cards", csSetSort: "number",
     gradedView: false, psa10Mult: 4, psa10Floor: 25, gradePct: Object.assign({}, DEFAULT_GRADE_PCT), pcToken: "",
     insightView: "history", salesView: "trade", gradingCost: 30, gradingMin: 50, gradingFees: {}, gradingCo: "PSA", ntfyTopic: "", siteUrl: "", autoSignIn: true};
   const filters = {q: "", set: "", rarity: "", edition: "", language: "", location: "", show: ""};
@@ -2508,7 +2531,7 @@
     if (!$("drawer").hidden || !$("importModal").hidden || scan) return true;
     // (typing somewhere that's redrawn, like a deck list; the search boxes at the top and in Card search aren't, so they don't count)
     const a = document.activeElement;
-    return !!(a && a !== document.body && a.id !== "q" && a.id !== "csQ" && a.matches &&
+    return !!(a && a !== document.body && a.id !== "q" && a.id !== "csQ" && a.id !== "csSetFind" && a.matches &&
       a.matches("textarea, select, [contenteditable=true], input:not([type=checkbox]):not([type=radio]):not([type=button]):not([type=file])"));
   }
   function readDataText(text) {
@@ -4631,6 +4654,7 @@
       const total = chase.reduce((t, b) => t + b.price, 0);
       html += '<h3 class="mk-h">Top ' + chase.length + " chase cards <span class=\"small\">(one of each: " + esc(usd(total)) + ")</span></h3>" + mkChaseHTML(chase);
     }
+    if (s.cards.length) html += '<p class="small" style="margin:12px 0 0"><button type="button" class="link-btn" data-cs-browse="en:' + s.group.id + '">See all ' + plural(s.cards.length, "printing") + " in this set</button></p>";
     return html;
   }
 
@@ -4763,6 +4787,7 @@
       ymk.loading = null;
       if (settings.tab === "market" && settings.mkRegion === "jp") renderMarketList();
       else if (settings.tab === "wants") { renderWants(); renderTabs(); }
+      else if (settings.tab === "search" && String(cs.set || "").startsWith("jp:")) renderSearchResults();
       return ymk.list;
     })();
     return ymk.loading;
@@ -4974,7 +4999,7 @@
   // What any card is worth, from the data Card Vault already has: TCGplayer's price for every printing (and how it
   // changed over the last day, week and month), the Market's Japanese and Korean prices, and for a Japanese or Korean
   // card number, the same Yugipedia/BIGWEB/Bunjang lookup as Add card.
-  const cs = {q: "", open: new Set(), shut: new Set(), limit: 30, groups: new Map(), recent: null};
+  const cs = {q: "", open: new Set(), shut: new Set(), limit: 30, groups: new Map(), recent: null, set: null, setFind: "", setRarity: "", setShow: ""};
   const CS_SORTS = [["best", "Best match"], ["high", "Most valuable first"], ["low", "Cheapest first"], ["name", "Name"]];
   const CS_RECENT_KEY = "cardvault.v2.cardsearch";
   const csNorm = s => String(s || "").toLowerCase().normalize("NFKD").replace(/[̀-ͯ]/g, "").replace(/['’"`]/g, "");
@@ -5056,18 +5081,28 @@
     }
     // (the Japanese and Korean prices, once; after a failure, again 10 minutes later)
     if (!ocgMk.data && !ocgMk.loading && !(ocgMk.failed && Date.now() - ocgMk.failed < 10 * 60000) && ocgMarketURL()) loadOcgMarket();
-    const intro = "What any card is worth: TCGplayer's market price and lowest listing for every printing, from " + esc(fmtDate(catalog.generated)) +
+    const intro = "What any card is worth, and every card in a set: TCGplayer's market price and lowest listing for every printing, from " + esc(fmtDate(catalog.generated)) +
       ", with Japanese and Korean prices from the Market.";
     // (the box you type in stays put while the results change, and when new prices arrive)
     if (!$("csQ")) {
       panel.innerHTML = '<div class="panel-head"><div><h2>Card search</h2><p id="csIntro">' + intro + "</p></div></div>" +
-        '<div class="cs-bar"><input class="search" id="csQ" type="search" autocomplete="off" spellcheck="false" placeholder="Card name, number or set" aria-label="Card name, number or set" value="' + esc(cs.q) + '">' +
+        '<div class="cs-bar"><div class="seg" role="group" aria-label="Search for" id="csMode"><button type="button" data-csmode="cards">Cards</button><button type="button" data-csmode="sets">Sets</button></div>' +
+        '<input class="search" id="csQ" type="search" autocomplete="off" spellcheck="false" value="' + esc(cs.q) + '">' +
         '<select class="select" id="csSort" aria-label="Sort">' + CS_SORTS.map(([k, l]) => '<option value="' + k + '"' + ((settings.csSort || "best") === k ? " selected" : "") + ">" + l + "</option>").join("") + "</select></div>" +
         '<div id="csOut"></div>';
     } else {
       $("csIntro").innerHTML = intro;
     }
+    csSyncBar();
     renderSearchResults();
+  }
+  // Cards or Sets: the switch, what the box asks for, and the card sort (cards only)
+  function csSyncBar() {
+    const sets = settings.csMode === "sets";
+    document.querySelectorAll("#csMode [data-csmode]").forEach(b => b.setAttribute("aria-pressed", String((b.dataset.csmode === "sets") === sets)));
+    const q = $("csQ");
+    if (q) { q.placeholder = sets ? "Set name or code" : "Card name, number or set"; q.setAttribute("aria-label", sets ? "Set name or code" : "Card name, number or set"); }
+    if ($("csSort")) $("csSort").hidden = sets || !!cs.set;
   }
   function csStartHTML() {
     const recent = csRecent();
@@ -5080,13 +5115,18 @@
     }
     const chips = (label, list) => list.length ? '<p class="cs-chips-h">' + label + '</p><div class="cs-chips">' +
       list.map(n => '<button type="button" class="chip" data-cs-q="' + esc(n) + '">' + esc(n) + "</button>").join("") + "</div>" : "";
-    return '<div class="cs-start"><p>Type a card\'s name (or part of it), its number from under the artwork, or a set. Add more words to narrow it down, like <b>dark magician lob</b> or <b>blue-eyes secret</b>.</p>' +
+    return '<div class="cs-start"><p>Type a card\'s name (or part of it), its number from under the artwork, or a set. Add more words to narrow it down, like <b>dark magician lob</b> or <b>blue-eyes secret</b>. ' +
+      'To see every card in a set, switch to <button type="button" class="link-btn" data-cs-mode="sets">Sets</button>.</p>' +
       chips("Looked up recently", recent.map(x => x.n)) + chips("Your most valuable cards", yours) +
       '<p class="small">Japanese and Korean card numbers (like DUNE-JP004) are looked up on Yugipedia, with BIGWEB and Bunjang prices.</p></div>';
   }
   function renderSearchResults() {
     const out = $("csOut");
     if (!out) return;
+    csSyncBar();
+    if (cs.set) { renderSetView(out); return; }
+    out.dataset.view = "";
+    if (settings.csMode === "sets") { renderSetSearch(out); return; }
     const text = cs.q.trim();
     cs.groups = new Map();
     if (text.length < 2) { out.innerHTML = csStartHTML(); return; }
@@ -5097,13 +5137,13 @@
     if (!groups.length) {
       const region = normNumber(text).match(/^([A-Z0-9]+)-(JA|AE|TC|SC)([A-Z]?\d+)$/);
       out.innerHTML = '<div class="notice">' + (region ? "TCGplayer only lists English cards, and " + esc(normNumber(text)) + " isn't one. Search for the card's name, or the English number " + esc(region[1] + "-EN" + region[3]) + "."
-        : "No card matches \"" + esc(text) + "\". Check the spelling, or try fewer words.") + "</div>" + csMarketHint(text);
+        : "No card matches \"" + esc(text) + "\". Check the spelling, or try fewer words.") + "</div>" + csSetChipsHTML(text) + csMarketHint(text);
       return;
     }
     const printings = groups.reduce((t, g) => t + g.rows.length, 0);
     const owned = new Map();
     for (const r of collection) if (r.productId) owned.set(r.productId, (owned.get(r.productId) || 0) + r.qty);
-    out.innerHTML = '<p class="results-head">' + plural(groups.length, "card") + ", " + plural(printings, "printing") + (groups.length > cs.limit ? ", showing the first " + cs.limit : "") + ".</p>" +
+    out.innerHTML = csSetChipsHTML(text) + '<p class="results-head">' + plural(groups.length, "card") + ", " + plural(printings, "printing") + (groups.length > cs.limit ? ", showing the first " + cs.limit : "") + ".</p>" +
       groups.slice(0, cs.limit).map(g => csCardHTML(g, owned, groups.length === 1)).join("") +
       (groups.length > cs.limit ? '<div class="mk-more"><button class="btn" type="button" data-cs-more>Show more</button></div>' : "") +
       csMarketHint(text);
@@ -5176,6 +5216,229 @@
       "</tbody></table></div>" : "") + '<div id="csOcg"></div>';
     showOcgLookup($("csOcg"), code, m, {search: true});
   }
+  /* ----- Card search: sets ----- */
+  // Find a set by name or code (English from TCGplayer; Japanese and Korean from the Market) and see its cards: every
+  // card of an English set with its prices and which you have; the most valuable cards of a Japanese or Korean set.
+  const CS_SET_SORTS = [["number", "By number"], ["value", "Most valuable"], ["name", "By name"], ["rarity", "By rarity"]];
+  const CS_SET_SHOWS = [["", "All cards"], ["missing", "Ones I don't have"], ["have", "Ones I have"]];
+  // An English set's code: TCGplayer's, else the one most of its card numbers start with
+  function csSetCode(s) {
+    if (s.code != null) return s.code;
+    if (s.group.abbr) return (s.code = String(s.group.abbr).toUpperCase());
+    const count = new Map();
+    for (const p of s.cards) { const m = String(p.number || "").match(/^([A-Z0-9]+)-/i); if (m) count.set(m[1].toUpperCase(), (count.get(m[1].toUpperCase()) || 0) + 1); }
+    let best = "", n = 0;
+    for (const [k, v] of count) if (v > n) { best = k; n = v; }
+    return (s.code = best);
+  }
+  const csSetsEN = () => marketData().filter(s => s.cards.length);
+  const csCardKey = p => normNumber(p.number) || "p" + p.id;   // (each card number once)
+  function csSetCount(s) {
+    if (s.csCount == null) s.csCount = new Set(s.cards.map(csCardKey)).size;
+    return s.csCount;
+  }
+  const csSetDay = s => String(s.group ? s.group.published || "" : s.date || "");
+  // The sets matching what's typed: a set code ("MAMO", or a card number's), or words of its name
+  function csSetMatches(text) {
+    const t = String(text || "").trim();
+    if (t.length < 2) return {en: [], ocg: []};
+    const phrase = csNorm(t), words = phrase.split(/\s+/).filter(Boolean);
+    const code = csLooksLikeNumber(t) ? t.split("-")[0].toUpperCase() : "";
+    const rank = (name, c) => (csNorm(c) === phrase || csNorm(name) === phrase ? 0 : csNorm(name).startsWith(phrase) ? 1 : 2);
+    const en = csSetsEN().filter(s => code ? csSetCode(s) === code : words.every(w => csNorm(s.group.name + " " + csSetCode(s)).includes(w)))
+      .map(s => ({s, r: rank(s.group.name, csSetCode(s))})).sort((a, b) => a.r - b.r || csSetDay(b.s).localeCompare(csSetDay(a.s))).map(x => x.s);
+    const ocg = ["jp", "kr"].flatMap(rg => ocgSetsOf(rg)).filter(s => code ? s.prefix === code : words.every(w => csNorm(s.name + " " + s.prefix + " " + s.local).includes(w)))
+      .map(s => ({s, r: rank(s.name, s.prefix)})).sort((a, b) => a.r - b.r || csSetDay(b.s).localeCompare(csSetDay(a.s))).map(x => x.s);
+    return {en, ocg};
+  }
+  function csOwnedMap() {
+    const owned = new Map();
+    for (const r of collection) if (r.productId) owned.set(r.productId, (owned.get(r.productId) || 0) + r.qty);
+    return owned;
+  }
+  // You have X of Y cards (each card number once)
+  function csSetProgress(s, owned) {
+    const have = new Set();
+    for (const p of s.cards) if (owned.get(p.id)) have.add(csCardKey(p));
+    return {have: have.size, total: csSetCount(s), keys: have};
+  }
+  const csLang = s => s.region === "jp" ? "Japanese" : "Korean";
+  function csSetRowHTML(s, owned) {
+    const year = csSetDay(s).slice(0, 4);
+    if (s.region) {
+      const top = s.top;
+      return '<article class="set-row mk-row cs-set"><button type="button" class="set-toggle" data-cs-set="' + esc(s.id) + '">' +
+        '<span style="min-width:0"><span class="set-name">' + esc(s.name) + '</span><span class="set-sub">' +
+        esc([s.prefix + (s.region === "jp" ? "-JP" : "-KR"), year, s.cards ? plural(s.cards, "card") : ""].filter(Boolean).join(", ")) +
+        '<span class="mk-line">' + csLang(s) + "</span></span></span>" +
+        '<span class="mk-top">' + (top ? "Top card: <b>" + esc(top.name) + '</b> <span class="gold">' + esc(usd(ocgUSD(top.local, s.region)) || fmtLocal(top.local, OCG_CUR[s.region])) + "</span>" : "No prices yet") + "</span>" +
+        '<span class="set-cost"><small>' + esc(ocgLineName(s.line)) + "</small></span>" +
+        '<span class="caret go" aria-hidden="true"></span></button></article>';
+    }
+    const pr = csSetProgress(s, owned), top = s.top;
+    return '<article class="set-row mk-row cs-set"><button type="button" class="set-toggle" data-cs-set="en:' + s.group.id + '">' +
+      '<span style="min-width:0"><span class="set-name">' + esc(s.group.name) + '</span><span class="set-sub">' +
+      esc([csSetCode(s), year, plural(csSetCount(s), "card")].filter(Boolean).join(", ")) + '<span class="mk-line">' + esc(mkLineName(s.line)) + "</span></span></span>" +
+      '<span class="mk-top">' + (top ? "Top card: <b>" + esc(cleanName(top.product.name, top.product.rarity)) + '</b> <span class="gold">' + esc(usd(top.price)) + "</span>" : "No prices yet") + "</span>" +
+      '<span class="set-cost">' + (pr.have ? "<b>" + pr.have + " of " + pr.total + "</b><small>you have</small>" : "<small>none yet</small>") + "</span>" +
+      '<span class="caret go" aria-hidden="true"></span></button></article>';
+  }
+  // The Sets search: matching sets, or the newest ones before anything is typed
+  function renderSetSearch(out) {
+    const text = cs.q.trim();
+    const owned = csOwnedMap();
+    if (text.length < 2) {
+      const yours = setsData().sort((a, b) => b.have - a.have).slice(0, 8);
+      const newest = csSetsEN().slice().sort((a, b) => csSetDay(b).localeCompare(csSetDay(a)) || a.group.name.localeCompare(b.group.name));
+      out.innerHTML = '<div class="cs-start"><p>Type a set\'s name or code (like <b>MAMO</b> or <b>legend of blue eyes</b>) to see every card in it, with prices and the ones you have. ' +
+        "Japanese and Korean sets are found by name or code too.</p>" +
+        (yours.length ? '<p class="cs-chips-h">Sets you collect</p><div class="cs-chips">' + yours.map(s => '<button type="button" class="chip" data-cs-set="en:' + s.group.id + '">' +
+          esc(s.group.name) + " · " + s.have + "/" + s.total + "</button>").join("") + "</div>" : "") + "</div>" +
+        '<h3 class="mk-h">Newest sets</h3>' + newest.slice(0, cs.limit).map(s => csSetRowHTML(s, owned)).join("") +
+        (newest.length > cs.limit ? '<div class="mk-more"><button class="btn" type="button" data-cs-more>Show more</button></div>' : "");
+      return;
+    }
+    const m = csSetMatches(text);
+    if (!m.en.length && !m.ocg.length) {
+      out.innerHTML = '<div class="notice">No set matches "' + esc(text) + '". Try part of its name, or its code (the letters before the dash in a card number).</div>';
+      return;
+    }
+    out.innerHTML = '<p class="results-head">' + plural(m.en.length + m.ocg.length, "set") + ".</p>" +
+      m.en.slice(0, cs.limit).map(s => csSetRowHTML(s, owned)).join("") +
+      (m.en.length > cs.limit ? '<div class="mk-more"><button class="btn" type="button" data-cs-more>Show more</button></div>' : "") +
+      (m.ocg.length ? '<h3 class="mk-h">Japanese and Korean sets</h3>' + m.ocg.slice(0, cs.limit).map(s => csSetRowHTML(s, owned)).join("") : "");
+  }
+  // In the card search: the sets the words match, to open
+  function csSetChipsHTML(text) {
+    const m = csSetMatches(text), list = m.en.slice(0, 4).concat(m.ocg.slice(0, 2));
+    if (!list.length) return "";
+    const more = m.en.length + m.ocg.length - list.length;
+    return '<div class="cs-chips cs-setchips"><span class="small">Sets:</span>' + list.map(s => s.region
+      ? '<button type="button" class="chip" data-cs-set="' + esc(s.id) + '">' + esc(s.name) + " · " + esc(s.prefix) + "-" + (s.region === "jp" ? "JP" : "KR") + "</button>"
+      : '<button type="button" class="chip" data-cs-set="en:' + s.group.id + '">' + esc(s.group.name) + (csSetCode(s) ? " · " + esc(csSetCode(s)) : "") + "</button>").join("") +
+      (more > 0 ? '<button type="button" class="chip" data-cs-mode="sets">' + more + " more</button>" : "") + "</div>";
+  }
+  function csFindSet(key) {
+    const k = String(key || "");
+    if (k.startsWith("en:")) return csSetsEN().find(s => String(s.group.id) === k.slice(3)) || null;
+    return ocgFindSet(k);
+  }
+  // Open a set in Card search (from anywhere: a card's price page, the Sets tab, the Market)
+  function openSearchSet(key) {
+    if (!$("drawer").hidden) closeDrawer();
+    cs.set = key; cs.setFind = ""; cs.setRarity = ""; cs.setShow = "";
+    if (settings.tab !== "search") setTab("search"); else renderSearchResults();
+    const out = $("csOut");
+    if (out && out.getBoundingClientRect().top < 0 && out.scrollIntoView) out.scrollIntoView({block: "start"});
+  }
+  // One set's cards. The parts you type in stay put; the list below them changes.
+  function renderSetView(out) {
+    const s = csFindSet(cs.set);
+    if (!s) {
+      out.dataset.view = "";
+      out.innerHTML = '<p><button type="button" class="link-btn" data-cs-back>← Back</button></p><div class="notice">' +
+        (String(cs.set).startsWith("en:") ? "That set isn't in TCGplayer's list anymore." : ocgMk.loading ? "Loading the Japanese and Korean sets…" : "Couldn't load the Japanese and Korean sets right now.") + "</div>";
+      return;
+    }
+    const back = '<p class="cs-back"><button type="button" class="link-btn" data-cs-back>← Back to ' + (settings.csMode === "sets" ? "sets" : cs.q.trim().length >= 2 ? "results" : "search") + "</button></p>";
+    if (s.region) {
+      if (s.region === "jp") loadYugiMarket();   // (its booster box; read twice a day at most)
+      out.dataset.view = cs.set; out.innerHTML = back + csOcgSetHTML(s); return;
+    }
+    if (out.dataset.view !== cs.set || !$("csSetList")) {
+      out.dataset.view = cs.set;
+      const rarities = Array.from(new Set(s.cards.map(p => p.rarity).filter(Boolean))).sort();
+      const opt = (list, cur) => list.map(([k, l]) => '<option value="' + esc(k) + '"' + (k === cur ? " selected" : "") + ">" + esc(l) + "</option>").join("");
+      const day = s.group.published ? parseDay(String(s.group.published).slice(0, 10)) : null;
+      out.innerHTML = back + '<div class="cs-set-head"><h3 class="cs-set-title">' + esc(s.group.name) + "</h3>" +
+        '<p class="cs-set-sub">' + esc([csSetCode(s), day ? "released " + fmtDate(day) : "", mkLineName(s.line), plural(csSetCount(s), "card")].filter(Boolean).join(" · ")) + "</p></div>" +
+        '<div id="csSetFacts" class="cs-set-facts"></div>' +
+        '<div class="cs-set-tools"><input class="search" id="csSetFind" type="search" autocomplete="off" placeholder="Find in this set" aria-label="Find in this set" value="' + esc(cs.setFind || "") + '">' +
+        '<select class="select" id="csSetRarity" aria-label="Rarity">' + opt([["", "All rarities"]].concat(rarities.map(r => [r, r])), cs.setRarity || "") + "</select>" +
+        '<select class="select" id="csSetShow" aria-label="Show">' + opt(CS_SET_SHOWS, cs.setShow || "") + "</select>" +
+        '<select class="select" id="csSetSort" aria-label="Sort">' + opt(CS_SET_SORTS, settings.csSetSort || "number") + "</select></div>" +
+        '<div id="csSetList"></div>';
+    }
+    renderSetCards(s);
+  }
+  function renderSetCards(s) {
+    s = s || csFindSet(cs.set);
+    const box = $("csSetList"), facts = $("csSetFacts");
+    if (!s || !box) return;
+    const owned = csOwnedMap(), pr = csSetProgress(s, owned);
+    // the cheapest copy of each card you're missing
+    const cheapest = new Map();
+    for (const p of s.cards) {
+      const k = csCardKey(p);
+      if (pr.keys.has(k)) continue;
+      for (const ed in p.prices) { const v = firstPrice(p.prices[ed]); if (v != null && (!cheapest.has(k) || v < cheapest.get(k))) cheapest.set(k, v); }
+    }
+    const missingCost = Array.from(cheapest.values()).reduce((t, v) => t + v, 0);
+    const box2 = s.cheapBox;
+    facts.innerHTML = '<div class="cs-fact"><span class="small">You have</span> <b>' + pr.have + " of " + pr.total + "</b>" +
+      '<span class="progress" aria-hidden="true"><span style="width:' + (pr.total ? pr.have / pr.total * 100 : 0).toFixed(1) + '%"></span></span></div>' +
+      (pr.have < pr.total ? '<div class="cs-fact"><span class="small">The rest, one of each</span> <b>' + esc(usd(missingCost)) + '</b> <span class="small">cheapest printings</span></div>'
+        : '<div class="cs-fact"><span class="small">Complete</span> <b>Every card</b></div>') +
+      (s.top ? '<div class="cs-fact"><span class="small">Most valuable</span> <b class="gold">' + esc(usd(s.top.price)) + '</b> <span class="small">' + esc(cleanName(s.top.product.name, s.top.product.rarity)) + "</span></div>" : "") +
+      (box2 ? '<div class="cs-fact"><span class="small">' + (/mini/i.test(box2.p.name) ? "Mini box" : "Booster box") + "</span> <b>" + esc(usd(box2.best)) + '</b> <button type="button" class="link-btn" data-cs-mkset="' + s.group.id + '">Sealed products in the Market</button></div>'
+        : s.sealed.length ? '<div class="cs-fact"><span class="small">Sealed</span> <b>' + s.sealed.length + '</b> <button type="button" class="link-btn" data-cs-mkset="' + s.group.id + '">See them in the Market</button></div>' : "");
+    const words = csNorm(cs.setFind || "").split(/\s+/).filter(Boolean);
+    const best = p => { let b = null; for (const ed of printingsFor(p)) { const v = firstPrice(p.prices[ed]); if (v != null && (!b || v > b.v)) b = {ed, v}; } return b; };
+    let list = s.cards.filter(p => (!cs.setRarity || p.rarity === cs.setRarity) &&
+      (cs.setShow !== "have" || owned.get(p.id)) && (cs.setShow !== "missing" || !pr.keys.has(csCardKey(p))) &&
+      (!words.length || words.every(w => csHay(p).includes(w))));
+    const byNum = (a, b) => String(a.number).localeCompare(String(b.number), undefined, {numeric: true}) || a.name.localeCompare(b.name);
+    const sorters = {
+      number: byNum,
+      value: (a, b) => ((best(b) || {v: -1}).v - (best(a) || {v: -1}).v) || byNum(a, b),
+      name: (a, b) => cleanName(a.name, a.rarity).localeCompare(cleanName(b.name, b.rarity)) || byNum(a, b),
+      rarity: (a, b) => a.rarity.localeCompare(b.rarity) || byNum(a, b)
+    };
+    list = list.slice().sort(sorters[settings.csSetSort] || sorters.number);
+    if (!list.length) { box.innerHTML = '<div class="notice">No card in this set matches. ' + (cs.setShow === "have" ? "You don't have any of these yet." : "Try fewer words, or All rarities.") + "</div>"; return; }
+    box.innerHTML = '<p class="results-head">' + (list.length === s.cards.length ? plural(list.length, "printing") : list.length + " of " + plural(s.cards.length, "printing")) + ".</p>" +
+      '<div class="table-wrap"><table class="table cs-table cs-settable stack-table"><thead><tr><th class="c-thumb"><span class="sr">Image</span></th><th>No.</th><th>Card</th>' +
+      '<th class="num">Price</th><th>Yours</th><th><span class="sr">Details</span></th></tr></thead><tbody>' +
+      list.map(p => {
+        const b = best(p), eds = printingsFor(p), have = owned.get(p.id) || 0, name = cleanName(p.name, p.rarity);
+        const key = esc(p.id + "|" + (b ? b.ed : eds[0] || ""));
+        const priceHTML = !eds.length || !b ? '<span class="small">No sales</span>' : eds.length === 1 ? '<b class="gold">' + esc(usd(b.v)) + "</b>"
+          : eds.map(ed => { const v = firstPrice(p.prices[ed]); return v == null ? "" : '<span class="cs-ed">' + esc(csPrinting(ed).replace(" Edition", " Ed.")) + "</span> " + (ed === b.ed ? '<b class="gold">' + esc(usd(v)) + "</b>" : esc(usd(v))); }).filter(Boolean).join("<br>");
+        return "<tr" + (have ? ' class="cs-have"' : "") + '><td class="c-thumb"><span class="sleeve"' + foilAttr(p.rarity) + ">" + imgTag(productPics(p, "200w"), name) + "</span></td>" +
+          '<td data-label="No."' + (p.number ? "" : " data-empty") + ">" + esc(p.number) + "</td>" +
+          '<td><button type="button" class="cell-name" data-cs-open="' + key + '">' + esc(name) + '</button><span class="cell-sub">' + esc(p.rarity || "Rarity unknown") + "</span></td>" +
+          '<td class="num cs-pricecell" data-label="Price">' + priceHTML + "</td>" +
+          "<td" + (have ? "" : " data-empty") + ">" + (have ? '<span class="cs-own">You have ' + have + "</span>" : "") + "</td>" +
+          '<td><button class="btn btn-small" type="button" data-cs-open="' + key + '">Details</button></td></tr>';
+      }).join("") + "</tbody></table></div>" +
+      '<p class="small">TCGplayer\'s market price for each printing (1st Edition, Unlimited…), from ' + esc(fmtDate(catalog.generated)) + ". \"You have\" counts each card number once.</p>";
+  }
+  // A Japanese or Korean set: what the Market has (its most valuable cards), and where to see the rest
+  function csOcgSetHTML(s) {
+    const lang = csLang(s), code = s.prefix + (s.region === "jp" ? "-JP" : "-KR");
+    const yp = "https://yugipedia.com/wiki/Set_Card_Lists:" + encodeURIComponent(s.name.replace(/ /g, "_")) + "_(OCG-" + (s.region === "jp" ? "JP" : "KR") + ")";
+    const box = s.region === "jp" ? ymBox(s) : null;
+    return '<div class="cs-set-head"><h3 class="cs-set-title">' + esc(s.name) + "</h3>" +
+      '<p class="cs-set-sub">' + esc([code, s.date ? "released " + fmtDate(parseDay(s.date.slice(0, 10))) : "", ocgLineName(s.line), s.cards ? plural(s.cards, "card") : "", lang].filter(Boolean).join(" · ")) + "</p></div>" +
+      '<div class="cs-set-facts">' +
+      (s.top ? '<div class="cs-fact"><span class="small">Most valuable</span> <b class="gold">' + esc(usd(ocgUSD(s.top.local, s.region)) || fmtLocal(s.top.local, OCG_CUR[s.region])) + '</b> <span class="small">' + esc(s.top.name) + "</span></div>" : "") +
+      (box ? '<div class="cs-fact"><span class="small">Booster box, Yugi-Market</span> <b>' + esc(usd(box.price)) + '</b> <a target="_blank" rel="noopener" href="' + esc(ymLink(box)) + '">Yugi-Market</a></div>' : "") +
+      (s.box ? '<div class="cs-fact"><span class="small">Booster box, Bunjang</span> <b>' + esc(usd(ocgUSD(s.box.price, "kr")) || fmtLocal(s.box.price, "KRW")) + '</b> <a target="_blank" rel="noopener" href="' + esc(bunjangBoxURL(s)) + '">Bunjang</a></div>' : "") +
+      "</div>" +
+      (s.chase.length ? '<p class="results-head">Its ' + plural(s.chase.length, "most valuable card") + " (of " + (s.cards ? s.cards : "all its") + ").</p>" +
+        '<div class="table-wrap"><table class="table cs-table cs-settable stack-table"><thead><tr><th class="c-thumb"><span class="sr">Image</span></th><th>No.</th><th>Card</th><th class="num">Price</th><th>From</th><th><span class="sr">Actions</span></th></tr></thead><tbody>' +
+        s.chase.map((c, i) => {
+          const owned = ocgOwnedCount(c), k = esc(s.id + "|" + i);
+          return "<tr" + (owned ? ' class="cs-have"' : "") + '><td class="c-thumb"><span class="sleeve"' + foilAttr(c.rarity) + ">" + imgTag({list: [c.img].filter(Boolean).concat(namePics(c.name, "200w", c.rarity).list)}, c.name) + "</span></td>" +
+            '<td data-label="No.">' + esc(c.number) + "</td><td>" + esc(c.name) + '<span class="cell-sub">' + esc(c.rarity || "rarity not stated") + (owned ? ' <span class="cs-own">You have ' + owned + "</span>" : "") + "</span></td>" +
+            '<td class="num" data-label="Price">' + ocgMoneyHTML(c.local, s.region) + '</td><td data-label="From">' + esc(s.region === "jp" ? (c.stock ? "BIGWEB" : "BIGWEB, sold out") : "Bunjang, " + plural(c.n, "listing")) + "</td>" +
+            '<td><div class="want-actions">' + (ocgWanted(c) ? '<span class="on-list">On want list</span>' : '<button class="btn btn-small" type="button" data-cs-ocgwant="' + k + '">Want</button>') +
+            '<button class="btn btn-small" type="button" data-cs-ocghave="' + k + '">I have it</button></div></td></tr>';
+        }).join("") + "</tbody></table></div>" : '<div class="notice">The Market has no prices for this set\'s cards yet.</div>') +
+      '<p class="small">The Market keeps the most valuable cards of each ' + lang + ' set. Every card in it: <a target="_blank" rel="noopener" href="' + esc(yp) + '">Yugipedia\'s card list</a>. ' +
+      "For any other card, search its number (like " + esc(code) + "001).</p>";
+  }
+
   // A card's worth, in the drawer: every printing's price, its price over time, PSA 10 value, other markets, yours.
   function openPriceCard(pid, edition) {
     const p = catalog ? catalog.byId.get(+pid) : null;
@@ -5199,7 +5462,7 @@
       '<a href="' + esc(big || "#") + '" target="_blank" rel="noopener" class="detail-img" title="Open full-size image"' + (big ? "" : ' onclick="return false"') + ">" +
       '<span class="sleeve"' + foilAttr(p.rarity) + ">" + imgTag(bigPics, name, true) + "</span></a>" +
       '<h3 class="detail-title">' + esc(name) + "</h3>" +
-      '<p class="detail-sub">' + esc(p.group.name) + (p.group.published ? " (" + esc(String(p.group.published).slice(0, 4)) + ")" : "") + "<br>" + esc(p.number || "No card number") + (p.rarity ? ", " + esc(p.rarity) : "") + "</p>" +
+      '<p class="detail-sub"><button type="button" class="link-btn" id="csSetLink" title="Every card in this set">' + esc(p.group.name) + "</button>" + (p.group.published ? " (" + esc(String(p.group.published).slice(0, 4)) + ")" : "") + "<br>" + esc(p.number || "No card number") + (p.rarity ? ", " + esc(p.rarity) : "") + "</p>" +
       '<div class="links"><a target="_blank" rel="noopener" href="' + esc(tcgPage(p.id)) + '">View on TCGplayer</a>' +
       '<a target="_blank" rel="noopener" href="https://www.ebay.com/sch/i.html?_nkw=' + q + (ed === "1st Edition" ? "+1st" : "") + '">eBay</a>' +
       '<a target="_blank" rel="noopener" href="https://www.cardmarket.com/en/YuGiOh/Products/Search?searchString=' + encodeURIComponent(name) + '">Cardmarket</a></div>' +
@@ -5220,6 +5483,7 @@
       '<div class="form-actions"><button class="btn btn-primary" type="button" id="csHave">' + (mine.length ? "Add more" : "I have it") + "</button>" +
       '<button class="btn" type="button" id="csWant">' + (want ? "Edit want" : "Want") + "</button></div></div>");
     $("otherBtn").addEventListener("click", () => loadOtherMarkets(r));
+    $("csSetLink").addEventListener("click", () => openSearchSet("en:" + p.group.id));
     $("csHave").addEventListener("click", () => { drawerCtx = null; openPickedForm(p, {edition: r.edition || null}); });
     $("csWant").addEventListener("click", () => { const w = wants.find(x => x.productId === p.id); if (w) openWantForm(p, w); else openWantForm(p, null, {edition: r.edition}); });
     $("drawerBody").querySelectorAll("[data-cs-mine]").forEach(b => b.addEventListener("click", () => openDetails(b.dataset.csMine)));
@@ -8013,10 +8277,11 @@
       (open ? '<div class="set-body">' + setMissingHTML(s) + "</div>" : "") + "</article>";
   }
   function setMissingHTML(s) {
-    if (!s.missing.length) return '<p class="small" style="margin:12px 0 0">You have every card in this set.</p>';
+    const every = '<p class="small" style="margin:12px 0 0"><button type="button" class="link-btn" data-cs-browse="en:' + s.group.id + '">See every card in this set, with prices</button></p>';
+    if (!s.missing.length) return '<p class="small" style="margin:12px 0 0">You have every card in this set.</p>' + every;
     const wanted = new Set(wants.map(w => w.productId));
     const shown = s.missing.slice(0, 150);
-    return '<p class="results-head" style="margin-top:12px">Missing ' + plural(s.missing.length, "card") +
+    return every + '<p class="results-head" style="margin-top:12px">Missing ' + plural(s.missing.length, "card") +
       (settings.setsMode === "master" ? " (every rarity counts separately)" : "") + ":</p><div class=\"results\">" + shown.map(it => {
         const p = it.best ? it.best.product : it.products[0];
         const rarities = Array.from(new Set(it.products.map(x => x.rarity).filter(Boolean)));
@@ -10319,6 +10584,8 @@
       else if (e.target.id === "setsSort") { settings.setsSort = e.target.value; saveSettings(); renderSetsList(); }
     });
     sets.addEventListener("click", e => {
+      const br = e.target.closest("[data-cs-browse]");
+      if (br) { openSearchSet(br.dataset.csBrowse); return; }
       const toggle = e.target.closest("[data-set]");
       if (toggle) {
         const gid = +toggle.dataset.set;
@@ -10351,17 +10618,52 @@
     let csTimer = null;
     const coarse = () => !!(window.matchMedia && window.matchMedia("(pointer:coarse)").matches);
     csPanel.addEventListener("input", e => {
+      if (e.target.id === "csSetFind") { cs.setFind = e.target.value; clearTimeout(csTimer); csTimer = setTimeout(() => renderSetCards(), 180); return; }
       if (e.target.id !== "csQ") return;
-      cs.q = e.target.value; cs.limit = 30; cs.shut.clear();
+      cs.q = e.target.value; cs.limit = 30; cs.shut.clear(); cs.set = null;   // (typing again leaves a set you opened)
       clearTimeout(csTimer); csTimer = setTimeout(renderSearchResults, 220);
     });
     csPanel.addEventListener("keydown", e => {
-      if (e.target.id !== "csQ" || e.key !== "Enter") return;
-      clearTimeout(csTimer); renderSearchResults();
+      if (e.key !== "Enter" || (e.target.id !== "csQ" && e.target.id !== "csSetFind")) return;
+      clearTimeout(csTimer);
+      if (e.target.id === "csQ") renderSearchResults(); else renderSetCards();
       if (coarse()) e.target.blur();   // (a phone's keyboard out of the way of the results)
     });
-    csPanel.addEventListener("change", e => { if (e.target.id === "csSort") { settings.csSort = e.target.value; saveSettings(); renderSearchResults(); } });
+    csPanel.addEventListener("change", e => {
+      if (e.target.id === "csSort") { settings.csSort = e.target.value; saveSettings(); renderSearchResults(); }
+      else if (e.target.id === "csSetSort") { settings.csSetSort = e.target.value; saveSettings(); renderSetCards(); }
+      else if (e.target.id === "csSetRarity") { cs.setRarity = e.target.value; renderSetCards(); }
+      else if (e.target.id === "csSetShow") { cs.setShow = e.target.value; renderSetCards(); }
+    });
     csPanel.addEventListener("click", e => {
+      const md = e.target.closest("[data-csmode], [data-cs-mode]");
+      if (md) {
+        settings.csMode = (md.dataset.csmode || md.dataset.csMode) === "sets" ? "sets" : "cards"; saveSettings();
+        cs.set = null; cs.limit = 30;
+        renderSearchResults();
+        const b = document.querySelector('#csMode [data-csmode="' + settings.csMode + '"]');
+        if (b) b.focus();
+        return;
+      }
+      const st = e.target.closest("[data-cs-set]");
+      if (st) { openSearchSet(st.dataset.csSet); return; }
+      if (e.target.closest("[data-cs-back]")) {
+        cs.set = null; renderSearchResults();
+        if ($("csQ") && !coarse()) $("csQ").focus();
+        return;
+      }
+      const ms = e.target.closest("[data-cs-mkset]");
+      if (ms) {
+        const set = csFindSet("en:" + ms.dataset.csMkset);
+        if (set) { settings.mkRegion = "en"; settings.mkView = "sets"; settings.mkLine = ""; mk.q = set.group.name; mk.limit = 40; mk.open.add(set.group.id); saveSettings(); setTab("market"); }
+        return;
+      }
+      const oc = e.target.closest("[data-cs-ocgwant], [data-cs-ocghave]");
+      if (oc) {
+        const hit = ocgChaseAt(oc.dataset.csOcgwant || oc.dataset.csOcghave);
+        if (hit) { if (oc.dataset.csOcgwant) { ocgWant(hit.s, hit.c); renderSearchResults(); } else ocgHave(hit.s, hit.c); }
+        return;
+      }
       const chip = e.target.closest("[data-cs-q]");
       if (chip) { cs.q = chip.dataset.csQ; cs.limit = 30; cs.shut.clear(); if ($("csQ")) $("csQ").value = cs.q; renderSearchResults(); return; }
       const t = e.target.closest("[data-cs-card]");
@@ -10410,6 +10712,8 @@
         if (hit) { if (ow.dataset.ocgWant) ocgWant(hit.s, hit.c); else ocgHave(hit.s, hit.c); }
         return;
       }
+      const br = e.target.closest("[data-cs-browse]");
+      if (br) { openSearchSet(br.dataset.csBrowse); return; }
       const yw = e.target.closest("[data-ym-want]");
       if (yw) { const x = (ymk.list || []).find(y => String(y.id) === yw.dataset.ymWant); if (x) ymWant(x); return; }
       const kw = e.target.closest("[data-krbox-want]");
@@ -10685,7 +10989,7 @@
     silentSignInDue, maybeSilentSignIn, pageBusy, viewBusy, loadNewData, applyNewData, readDataText, dataLoad: () => dataLoad,
     loadOcgMarket, buildOcgMarket, ocgMk: () => ocgMk, loadYugiMarket, ymMatch, ymProduct, ymk: () => ymk, renderMarket, wantPrice,
     wantKind, wantSource, shopWantLive, ymWant, krBoxWant, gotWant, openWantEdit, tookWant, wantFromProduct, upgradeWant, renderWants,
-    csSearch, renderSearch, renderSearchResults, openPriceCard, cs: () => cs};
+    csSearch, renderSearch, renderSearchResults, openPriceCard, cs: () => cs, csSetMatches, openSearchSet, csSetCode};
 
   document.addEventListener("DOMContentLoaded", init);
 })();
