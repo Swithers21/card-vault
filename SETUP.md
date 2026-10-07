@@ -121,6 +121,13 @@ personal app: click **Continue**.
   booster box price, with a filter by rarity and "Ones I don't have". Japanese and Korean sets show their most valuable
   cards from the Market, with a link to Yugipedia's full card list. Sets matching a card search show on top of it, and a
   set's name on a card's price page, the Sets tab and the Market open the set here.
+  **Scan a card** (next to the search box) points the camera at a card and shows what it's worth right in the scanner,
+  without adding it: every printing with that number, market price and lowest listing, and a running "Checked so far"
+  list with the total (handy at a card shop). You can also type the number there.
+- **Set goals**: open a set in Card search (or in the Sets tab) and tap **Make this set a goal**. Goals show at the top of
+  the Collection tab with your progress (each card number once) and about what the rest would cost. Nothing is added to
+  your want list by itself: **Add the missing cards to my want list** (on the goal or the set) adds one of each, the
+  cheapest printing, any edition, and Undo takes them off again. Up to 12 goals; they sync with your other devices.
 - **Market** tab: every set on TCGplayer with its 25 most valuable cards, and every sealed product (booster packs and
   boxes, Structure Decks, Special and Deluxe Editions, tins…) with the cheapest TCGplayer listing next to the market price.
   Filter by set type (core sets, side sets, Deck Build Packs, Battles of Legend, all-foil sets, Speed Duel, OTS
@@ -157,7 +164,10 @@ personal app: click **Continue**.
 - **Trades & sales** tab: the trade checker adds up both sides of a trade at TCGplayer prices (cards from your collection
   against any TCGplayer printing, plus cash) and, when you complete it, moves the cards in and out. The sales log is next to it.
 - **Insights** tab: price history, where your value is (by set, rarity, location), cards worth grading, and Tidy up
-  (duplicates to merge, cards with no printing, price, location or TCGplayer link).
+  (duplicates to merge, cards with no printing, price, location or TCGplayer link). **Price movers** lists the biggest
+  TCGplayer price changes since the last update, 7 or 30 days ago, by dollars or percent: your cards, your want list
+  (what got cheaper), every card on TCGplayer, and sealed products, with a price floor (default $1 and up) to leave out
+  cheap cards whose prices jump around.
 - **Get it graded** (in a card's details): links to start a submission at PSA, Beckett, CGC, SGC and TAG, the card's
   details to paste into their form, and tracking while it's away ("I sent it", then "It's back" with the grade).
 - **Grading fees** (Settings): for each company, the service level you use, its fee per card and shipping per card. Worth

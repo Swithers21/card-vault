@@ -696,6 +696,56 @@
     .cs-body{padding:4px 10px 14px}
   }
 
+  /* ---------- set goals ---------- */
+  .goals{margin:0 0 18px}
+  .goals-head{display:flex;align-items:baseline;justify-content:space-between;gap:10px;margin:0 0 10px}
+  .goal-list{display:grid;grid-template-columns:repeat(auto-fill,minmax(270px,1fr));gap:12px}
+  .goal{background:linear-gradient(180deg,#1f1839,#1a1431);border:1px solid var(--line);border-radius:var(--radius);padding:12px 14px;display:flex;flex-direction:column;gap:8px;min-width:0}
+  .goal.done{border-color:rgba(216,173,87,.55);box-shadow:0 0 0 1px rgba(216,173,87,.2) inset}
+  .goal-top{display:flex;align-items:flex-start;justify-content:space-between;gap:8px}
+  .goal-name{background:none;border:0;padding:0;color:#f6e6c4;font:700 15px/1.3 "Cinzel",Georgia,serif;letter-spacing:.02em;text-align:left;cursor:pointer;min-width:0}
+  .goal-name:hover{color:var(--gold-hi)}
+  .goal-x{background:none;border:1px solid transparent;border-radius:6px;color:var(--text-dim);font-size:18px;line-height:1;padding:0 6px;cursor:pointer}
+  .goal-x:hover{border-color:var(--line-2);color:#fff}
+  .goal .progress{width:100%}
+  .goal-nums{margin:0;font-size:13px;color:var(--text-dim)}
+  .goal-nums b{color:var(--text)}
+  .goal-nums b.gold{color:var(--gold-hi)}
+  .goal-actions{display:flex;flex-wrap:wrap;gap:6px;align-items:center}
+  .goal-tag{display:inline-block;vertical-align:2px;margin-left:6px;font:600 10.5px/1.6 "Archivo",system-ui,sans-serif;letter-spacing:.02em;padding:0 6px;border-radius:5px;border:1px solid rgba(216,173,87,.5);color:var(--gold-hi)}
+  .cs-set-actions{display:flex;flex-wrap:wrap;gap:8px;align-items:center;margin:10px 0 0}
+  .cs-set-actions .btn.is-goal{border-color:rgba(216,173,87,.6);color:var(--gold-hi)}
+  .sets-links{display:flex;flex-wrap:wrap;gap:6px 18px}
+
+  /* ---------- price movers ---------- */
+  .mv-tools{display:flex;flex-wrap:wrap;gap:10px;align-items:center;margin:0 0 8px}
+  .mv-note{margin:0 0 6px}
+  .mv-section{margin-top:22px}
+  .mv-sub{margin:4px 0 0}
+  .mv-section .movers{margin-top:10px}
+  .movers-more{margin:12px 0 0}
+
+  /* ---------- scan to check ---------- */
+  .cs-scan{display:inline-flex;align-items:center;gap:7px}
+  .scan-prices{display:flex;flex-direction:column;gap:10px;margin-top:12px}
+  .scan-card{display:grid;grid-template-columns:64px minmax(0,1fr);gap:12px;padding:10px;border:1px solid var(--line);border-radius:var(--radius);background:var(--surface)}
+  .scan-card .sleeve{width:64px}
+  .scan-info{display:flex;flex-direction:column;gap:3px;min-width:0}
+  .scan-name{font-family:"Cinzel",Georgia,serif;font-size:15px;letter-spacing:.02em;color:#f6e6c4}
+  .scan-info .cs-own{align-self:flex-start;margin:2px 0 0}
+  .scan-ed{display:flex;flex-wrap:wrap;align-items:baseline;gap:4px 10px;font-size:13.5px}
+  .scan-ed b{color:var(--gold-hi);font-size:16px;font-variant-numeric:tabular-nums}
+  .scan-info .link-btn{align-self:flex-start;margin-top:4px;font-size:13px}
+  .scan-log{margin-top:16px;border-top:1px solid var(--line);padding-top:12px}
+  .scan-log .box-head h3{margin:0;font-size:14px}
+  .scan-log-list{list-style:none;margin:0;padding:0;font-size:13px}
+  .scan-log-list li{display:flex;justify-content:space-between;gap:10px;padding:4px 0;border-top:1px solid var(--line)}
+  .scan-log-list b{font-variant-numeric:tabular-nums}
+  @media (max-width:640px){
+    .goal-list{grid-template-columns:minmax(0,1fr)}
+    .cs-bar .cs-scan{flex:1 1 auto;justify-content:center}
+  }
+
   /* ---------- settings extras ---------- */
   .alert-grid{display:flex;flex-wrap:wrap;gap:10px 18px;margin-top:10px}
   .alert-grid .input{width:90px}
@@ -1202,6 +1252,7 @@
   </nav>
 
   <section id="panel-collection" role="tabpanel" aria-labelledby="tab-collection">
+  <section class="goals" id="goalsBar" aria-label="Set goals" hidden></section>
   <section class="controls" aria-label="Search and filters">
     <div class="controls-row controls-main">
       <div class="search-wrap">
@@ -1428,7 +1479,7 @@
     condAdjust: true, condPct: Object.assign({}, DEFAULT_COND_PCT), histPeriod: "m7", chartTable: false,
     setsMode: "number", setsSort: "complete", lastBackupAt: null, lastChangeAt: null, backupSnoozeUntil: 0,
     backupRemindDays: 7, wantAlertSeen: "", alertsOn: false, alertMinDollar: 5, alertMinPct: 10, salesYear: "", deckId: null,
-    deckView: "check", mkView: "sets", mkLine: "", mkKind: "", mkSortSets: "newest", mkSortSealed: "deal", mkRegion: "en", mkLineOcg: "", mkKindOcg: "", wantsView: "", csSort: "best", csMode: "cards", csSetSort: "number",
+    deckView: "check", mkView: "sets", mkLine: "", mkKind: "", mkSortSets: "newest", mkSortSealed: "deal", mkRegion: "en", mkLineOcg: "", mkKindOcg: "", wantsView: "", csSort: "best", csMode: "cards", csSetSort: "number", setGoals: [], moverBy: "usd", moverMin: 1,
     gradedView: false, psa10Mult: 4, psa10Floor: 25, gradePct: Object.assign({}, DEFAULT_GRADE_PCT), pcToken: "",
     insightView: "history", salesView: "trade", gradingCost: 30, gradingMin: 50, gradingFees: {}, gradingCo: "PSA", ntfyTopic: "", siteUrl: "", autoSignIn: true};
   const filters = {q: "", set: "", rarity: "", edition: "", language: "", location: "", show: ""};
@@ -1834,6 +1885,12 @@
     } else if (myMod > theirMod || (ds && theirShared !== sharedPrint())) {
       res.behind = true;
     }
+    // Set goals go one by one (the latest change to each goal wins), so goals added on two devices both stay
+    if (ds && Array.isArray(ds.setGoals)) {
+      const m = mergeGoals(settings.setGoals, ds.setGoals, fileWins);
+      if (m.changed) { settings.setGoals = m.list; res.goals = true; res.changed = true; }
+      if (m.behind) res.behind = true;
+    } else if (ds && cleanGoals(settings.setGoals).length) res.behind = true;
     if (Array.isArray(data.valueHistory)) {
       const merged = mergeHistory(valueHistory, data.valueHistory);
       if (merged.length !== valueHistory.length) { valueHistory = merged; res.touched = true; }
@@ -1867,6 +1924,7 @@
       if (bits.length) parts.push(names[k] + ": " + bits.join(", "));
     }
     if (res.settings) parts.push("card-value settings");
+    if (res.goals) parts.push("set goals");
     return parts.join("; ");
   }
   // Saves the collection, want list and value history (and settings). Every data change
@@ -2288,6 +2346,7 @@
     return sub ? {market: sub.market, low: sub.low, date: catalog && catalog.generated ? catalog.generated.toISOString() : new Date().toISOString()} : null;
   }
   function addOrMerge(rec) {
+    lastAddAt = Date.now();   // (a set goal finished just now gets a message)
     const key = recordKey(rec);
     const existing = collection.find(r => recordKey(r) === key);
     if (existing) {
@@ -2410,6 +2469,7 @@
     renderFilterOptions();
     renderPanel();
     renderBulkBar();
+    checkGoalsDone();
   }
   function syncBanners() {
     const any = Array.from($("banners").children).some(b => !b.hidden);
@@ -2451,7 +2511,7 @@
     else if (settings.tab === "sales") renderSalesTab();
     else if (settings.tab === "market") renderMarket();
     else if (settings.tab === "search") renderSearch();
-    else renderCollection();
+    else { renderGoalsBar(); renderCollection(); }
   }
 
   function renderDataStatus() {
@@ -5088,7 +5148,8 @@
       panel.innerHTML = '<div class="panel-head"><div><h2>Card search</h2><p id="csIntro">' + intro + "</p></div></div>" +
         '<div class="cs-bar"><div class="seg" role="group" aria-label="Search for" id="csMode"><button type="button" data-csmode="cards">Cards</button><button type="button" data-csmode="sets">Sets</button></div>' +
         '<input class="search" id="csQ" type="search" autocomplete="off" spellcheck="false" value="' + esc(cs.q) + '">' +
-        '<select class="select" id="csSort" aria-label="Sort">' + CS_SORTS.map(([k, l]) => '<option value="' + k + '"' + ((settings.csSort || "best") === k ? " selected" : "") + ">" + l + "</option>").join("") + "</select></div>" +
+        '<select class="select" id="csSort" aria-label="Sort">' + CS_SORTS.map(([k, l]) => '<option value="' + k + '"' + ((settings.csSort || "best") === k ? " selected" : "") + ">" + l + "</option>").join("") + "</select>" +
+        '<button class="btn cs-scan" type="button" id="csScan" title="Point your camera at a card to see what it\'s worth"><svg width="16" height="16" viewBox="0 0 20 20" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M2.5 6.5V4.2A1.7 1.7 0 0 1 4.2 2.5h2.3M13.5 2.5h2.3a1.7 1.7 0 0 1 1.7 1.7v2.3M17.5 13.5v2.3a1.7 1.7 0 0 1-1.7 1.7h-2.3M6.5 17.5H4.2a1.7 1.7 0 0 1-1.7-1.7v-2.3"/><path d="M6 10h8"/></svg>Scan a card</button></div>' +
         '<div id="csOut"></div>';
     } else {
       $("csIntro").innerHTML = intro;
@@ -5351,7 +5412,8 @@
       const opt = (list, cur) => list.map(([k, l]) => '<option value="' + esc(k) + '"' + (k === cur ? " selected" : "") + ">" + esc(l) + "</option>").join("");
       const day = s.group.published ? parseDay(String(s.group.published).slice(0, 10)) : null;
       out.innerHTML = back + '<div class="cs-set-head"><h3 class="cs-set-title">' + esc(s.group.name) + "</h3>" +
-        '<p class="cs-set-sub">' + esc([csSetCode(s), day ? "released " + fmtDate(day) : "", mkLineName(s.line), plural(csSetCount(s), "card")].filter(Boolean).join(" · ")) + "</p></div>" +
+        '<p class="cs-set-sub">' + esc([csSetCode(s), day ? "released " + fmtDate(day) : "", mkLineName(s.line), plural(csSetCount(s), "card")].filter(Boolean).join(" · ")) + "</p>" +
+        '<div class="cs-set-actions" id="csSetActions"></div></div>' +
         '<div id="csSetFacts" class="cs-set-facts"></div>' +
         '<div class="cs-set-tools"><input class="search" id="csSetFind" type="search" autocomplete="off" placeholder="Find in this set" aria-label="Find in this set" value="' + esc(cs.setFind || "") + '">' +
         '<select class="select" id="csSetRarity" aria-label="Rarity">' + opt([["", "All rarities"]].concat(rarities.map(r => [r, r])), cs.setRarity || "") + "</select>" +
@@ -5375,6 +5437,11 @@
     }
     const missingCost = Array.from(cheapest.values()).reduce((t, v) => t + v, 0);
     const box2 = s.cheapBox;
+    const needs = csSetNeeds(s, owned), goal = isGoal(s.group.id);
+    if ($("csSetActions")) $("csSetActions").innerHTML = '<button type="button" class="btn btn-small' + (goal ? " is-goal" : "") + '" data-goal-toggle="' + s.group.id + '" aria-pressed="' + goal + '">' +
+      (goal ? "&#9733; Your goal (tap to remove)" : "&#9734; Make this set a goal") + "</button>" +
+      (needs.toWant.length ? '<button type="button" class="btn btn-small" data-goal-wants="' + s.group.id + '">Add the ' + plural(needs.toWant.length, "missing card") + " to my want list</button>"
+        : needs.missing.length ? '<span class="small">The missing cards are on your want list.</span>' : "");
     facts.innerHTML = '<div class="cs-fact"><span class="small">You have</span> <b>' + pr.have + " of " + pr.total + "</b>" +
       '<span class="progress" aria-hidden="true"><span style="width:' + (pr.total ? pr.have / pr.total * 100 : 0).toFixed(1) + '%"></span></span></div>' +
       (pr.have < pr.total ? '<div class="cs-fact"><span class="small">The rest, one of each</span> <b>' + esc(usd(missingCost)) + '</b> <span class="small">cheapest printings</span></div>'
@@ -5439,8 +5506,143 @@
       "For any other card, search its number (like " + esc(code) + "001).</p>";
   }
 
+  /* ----- Set goals: sets you're finishing, on the Collection tab ----- */
+  // A goal is just the set and when it was last changed; its progress is worked out from your collection. A removed
+  // goal is remembered for a while (off), so syncing doesn't bring it back from a device that still has it.
+  const GOAL_MAX = 12;
+  function cleanGoals(list) {
+    const by = new Map();
+    for (const x of Array.isArray(list) ? list : []) {
+      const g = Number(x && x.g);
+      if (!Number.isFinite(g)) continue;
+      const e = {g, t: modTime(x.t) || 0};
+      if (x.off) e.off = 1;
+      const cur = by.get(g);
+      if (!cur || e.t > cur.t) by.set(g, e);
+    }
+    const all = Array.from(by.values());
+    const on = all.filter(e => !e.off).sort((a, b) => a.t - b.t).slice(-GOAL_MAX);
+    const off = all.filter(e => e.off).sort((a, b) => b.t - a.t).slice(0, 40);
+    return on.concat(off);
+  }
+  function mergeGoals(mine, theirs, fileWins) {
+    const a = new Map(cleanGoals(mine).map(e => [e.g, e])), b = new Map(cleanGoals(theirs).map(e => [e.g, e]));
+    let changed = false, behind = false;
+    for (const [g, e] of b) {
+      const m = a.get(g);
+      if (!m || e.t > m.t || (fileWins && (e.t !== m.t || !!e.off !== !!m.off))) { if (!m || !!m.off !== !!e.off || m.t !== e.t) changed = true; a.set(g, e); }
+      else if (m.t > e.t) behind = true;
+    }
+    for (const g of a.keys()) if (!b.has(g)) behind = true;
+    return {list: cleanGoals(Array.from(a.values())), changed, behind};
+  }
+  const goalIds = () => cleanGoals(settings.setGoals).filter(e => !e.off).map(e => e.g);
+  function setGoal(gid, on) {
+    const list = cleanGoals(settings.setGoals).filter(e => e.g !== gid);
+    list.push(on ? {g: gid, t: Date.now()} : {g: gid, t: Date.now(), off: 1});
+    settings.setGoals = cleanGoals(list);
+  }
+  const isGoal = gid => goalIds().includes(+gid);
+  // What a set still needs: for each card number you don't have, its cheapest printing (TCGplayer market, else listing)
+  function csSetNeeds(s, owned) {
+    owned = owned || csOwnedMap();
+    const pr = csSetProgress(s, owned);
+    const need = new Map();
+    for (const p of s.cards) {
+      const k = csCardKey(p);
+      if (pr.keys.has(k)) continue;
+      let cur = need.get(k);
+      if (!cur) need.set(k, cur = {key: k, p, v: null});
+      for (const ed in p.prices) { const v = firstPrice(p.prices[ed]); if (v != null && (cur.v == null || v < cur.v)) { cur.v = v; cur.p = p; } }
+    }
+    const missing = Array.from(need.values()).sort((a, b) => String(a.p.number).localeCompare(String(b.p.number), undefined, {numeric: true}));
+    // (missing cards already on the want list, as any printing of that number from this set)
+    const wanted = new Set();
+    for (const w of wants) { const p = w.productId && catalog ? catalog.byId.get(w.productId) : null; if (p && p.group.id === s.group.id) wanted.add(csCardKey(p)); }
+    return {pr, missing, cost: missing.reduce((t, m) => t + (m.v || 0), 0), unpriced: missing.filter(m => m.v == null).length,
+      toWant: missing.filter(m => !wanted.has(m.key))};
+  }
+  function toggleGoal(gid) {
+    gid = +gid;
+    const s = csFindSet("en:" + gid);
+    const on = isGoal(gid);
+    if (!on && goalIds().length >= GOAL_MAX) { toast("You can have up to " + GOAL_MAX + " set goals. Remove one first.", {kind: "error"}); return; }
+    setGoal(gid, !on);
+    if (!on) goalDone.set(gid, s ? csSetProgress(s, csOwnedMap()).have >= csSetCount(s) : false);
+    save(); render();
+    const name = s ? s.group.name : "that set";
+    toast(on ? "Removed " + name + " from your goals." : "Added " + name + " to your goals. Its progress shows on the Collection tab.",
+      {action: "Undo", onAction: () => { setGoal(gid, on); save(); render(); }});
+  }
+  // The option (never automatic): every card of the set you don't have, onto the want list, cheapest printing
+  // of each, any edition. Ones already on the want list are left as they are.
+  function goalAddMissing(gid) {
+    const s = csFindSet("en:" + gid);
+    if (!s) return;
+    const needs = csSetNeeds(s);
+    if (!needs.toWant.length) { toast(needs.missing.length ? "The missing cards are already on your want list." : "You have every card in " + s.group.name + "."); return; }
+    const before = wants.slice();
+    for (const m of needs.toWant) addWant(Object.assign(wantFromProduct(m.p), {edition: "Any", notes: "For " + s.group.name}), {keepNotes: true});
+    save(); render();
+    toast("Added " + plural(needs.toWant.length, "card") + " from " + s.group.name + " to your want list" +
+      (needs.toWant.reduce((t, m) => t + (m.v || 0), 0) ? ", about " + usd(needs.toWant.reduce((t, m) => t + (m.v || 0), 0)) + " at today's prices" : "") + ".",
+      {action: "Undo", onAction: () => { wants = before; save(); render(); }});
+  }
+  const goalDone = new Map();   // (to notice a goal being finished while you add cards)
+  let lastAddAt = 0;
+  function checkGoalsDone() {
+    if (!catalog) return;
+    const ids = goalIds();
+    if (!ids.length) return;
+    const owned = csOwnedMap(), fresh = Date.now() - lastAddAt < 5000;
+    for (const g of ids) {
+      const s = csFindSet("en:" + g);
+      if (!s) continue;
+      const done = csSetProgress(s, owned).have >= csSetCount(s);
+      if (done && goalDone.get(g) === false && fresh) toast("You finished " + s.group.name + "! Every card in the set is in your collection.");
+      goalDone.set(g, done);
+    }
+  }
+  function goalCardHTML(s, needs) {
+    const pr = needs.pr, pct = pr.total ? Math.floor(pr.have / pr.total * 100) : 0, done = pr.have >= pr.total, gid = s.group.id;
+    return '<article class="goal' + (done ? " done" : "") + '"><div class="goal-top"><button type="button" class="goal-name" data-goal-open="' + gid + '">' + esc(s.group.name) + "</button>" +
+      '<button type="button" class="goal-x" data-goal-toggle="' + gid + '" aria-label="Remove ' + esc(s.group.name) + ' from your goals" title="Remove this goal">&times;</button></div>' +
+      '<span class="progress" aria-hidden="true"><span style="width:' + (pr.total ? pr.have / pr.total * 100 : 0).toFixed(1) + '%"></span></span>' +
+      '<p class="goal-nums">' + (done ? '<b class="gold">Complete!</b> You have all ' + pr.total + " cards."
+        : "<b>" + pr.have + " of " + pr.total + "</b> cards (" + pct + "%)" + (needs.cost ? " · about <b>" + esc(usd(needs.cost)) + "</b> to finish" : "") +
+          (needs.unpriced ? ' <span class="small">(' + needs.unpriced + " without a price)</span>" : "")) + "</p>" +
+      '<div class="goal-actions"><button class="btn btn-small" type="button" data-goal-open="' + gid + '">See the cards</button>' +
+      (done ? "" : needs.toWant.length ? '<button class="btn btn-small" type="button" data-goal-wants="' + gid + '">Add the ' + plural(needs.toWant.length, "missing card") + " to my want list</button>"
+        : '<span class="small">The missing ' + (needs.missing.length === 1 ? "card is" : "cards are") + " on your want list</span>") + "</div></article>";
+  }
+  function renderGoalsBar() {
+    const bar = $("goalsBar");
+    if (!bar) return;
+    const ids = catalog ? goalIds() : [];
+    if (!ids.length) { bar.innerHTML = ""; bar.hidden = true; return; }
+    bar.hidden = false;
+    const owned = csOwnedMap();
+    const cards = ids.map(g => {
+      const s = csFindSet("en:" + g);
+      if (!s) return '<article class="goal"><div class="goal-top"><span class="goal-name">A set TCGplayer no longer lists</span>' +
+        '<button type="button" class="goal-x" data-goal-toggle="' + g + '" aria-label="Remove this goal" title="Remove this goal">&times;</button></div>' +
+        '<p class="goal-nums">This goal\'s set isn\'t in TCGplayer\'s list anymore. Remove it to make room for another.</p></article>';
+      return goalCardHTML(s, csSetNeeds(s, owned));
+    });
+    bar.innerHTML = '<div class="goals-head"><h3 class="sub-h">Set goals</h3><button type="button" class="link-btn" data-goal-add>Add a goal</button></div>' +
+      '<div class="goal-list">' + cards.join("") + "</div>";
+  }
+  // "Add a goal": find the set in Card search
+  function openGoalPicker() {
+    settings.csMode = "sets"; cs.set = null; cs.q = ""; cs.limit = 30; saveSettings();
+    if ($("csQ")) $("csQ").value = "";
+    setTab("search");
+    toast("Find the set, open it, then tap Make this set a goal.");
+  }
+
   // A card's worth, in the drawer: every printing's price, its price over time, PSA 10 value, other markets, yours.
-  function openPriceCard(pid, edition) {
+  // opts.fromScan: opened from Scan to check (a button goes back to scanning)
+  function openPriceCard(pid, edition, opts) {
     const p = catalog ? catalog.byId.get(+pid) : null;
     if (!p) return;
     const eds = printingsFor(p), ed = eds.includes(edition) ? edition : eds[0] || "";
@@ -5481,7 +5683,9 @@
         '<button type="button" class="link-btn" data-cs-mine="' + esc(x.id) + '">Open</button></li>').join("") + "</ul>" : '<p class="small">Not in your collection.</p>') +
       (want ? '<p class="small">On your want list' + (want.target != null ? ", target " + esc(usd(want.target)) : "") + ".</p>" : "") +
       '<div class="form-actions"><button class="btn btn-primary" type="button" id="csHave">' + (mine.length ? "Add more" : "I have it") + "</button>" +
-      '<button class="btn" type="button" id="csWant">' + (want ? "Edit want" : "Want") + "</button></div></div>");
+      '<button class="btn" type="button" id="csWant">' + (want ? "Edit want" : "Want") + "</button>" +
+      (opts && opts.fromScan ? '<span class="spacer"></span><button class="btn" type="button" id="csScanMore">Scan another card</button>' : "") + "</div></div>");
+    if ($("csScanMore")) $("csScanMore").addEventListener("click", () => openScanner({check: true}));
     $("otherBtn").addEventListener("click", () => loadOtherMarkets(r));
     $("csSetLink").addEventListener("click", () => openSearchSet("en:" + p.group.id));
     $("csHave").addEventListener("click", () => { drawerCtx = null; openPickedForm(p, {edition: r.edition || null}); });
@@ -5917,7 +6121,7 @@
       settings: {condAdjust: settings.condAdjust, condPct: settings.condPct,
         alertsOn: settings.alertsOn, alertMinDollar: settings.alertMinDollar, alertMinPct: settings.alertMinPct,
         psa10Mult: settings.psa10Mult, psa10Floor: settings.psa10Floor, gradePct: settings.gradePct, pcToken: settings.pcToken || "",
-        gradingCost: settings.gradingCost, gradingMin: settings.gradingMin, gradingFees: cleanGradingFees(settings.gradingFees), gradingCo: settings.gradingCo || "PSA", ntfyTopic: settings.ntfyTopic || "", siteUrl: settings.siteUrl || "", sharedMod: settings.sharedMod || 0}};
+        gradingCost: settings.gradingCost, gradingMin: settings.gradingMin, gradingFees: cleanGradingFees(settings.gradingFees), gradingCo: settings.gradingCo || "PSA", ntfyTopic: settings.ntfyTopic || "", siteUrl: settings.siteUrl || "", setGoals: cleanGoals(settings.setGoals), sharedMod: settings.sharedMod || 0}};
   }
   const hasUnbackedChanges = () => !!settings.lastChangeAt && (!settings.lastBackupAt || settings.lastChangeAt > settings.lastBackupAt);
   const pause = ms => new Promise(r => setTimeout(r, ms));
@@ -6801,6 +7005,7 @@
     if (Array.isArray(data.valueHistory)) valueHistory = mergeHistory(valueHistory, data.valueHistory);
     const ds = data.settings;
     if (ds && typeof ds === "object") applySharedSettings(ds);
+    if (ds && Array.isArray(ds.setGoals)) settings.setGoals = cleanGoals(ds.setGoals);
     selected.clear();
     autoLink();
     save();
@@ -7302,7 +7507,8 @@
       (pts.length ? '<p class="small" style="margin:10px 0 0">One point for each day of TCGplayer prices Card Vault has seen. Jumps also come from cards you add or remove.' +
         (pts.some(p => p.est) ? " Points before you started tracking are estimated from TCGplayer's saved prices for the cards you have now." : "") + "</p>" : "") +
       "</div>" +
-      (ch && ch.covered ? '<div class="movers">' + moversHTML(ch, period) + "</div>" : "");
+      (ch && ch.covered ? '<div class="movers">' + moversHTML(ch, period) + "</div>" : "") +
+      (catalog && period ? '<p class="small movers-more"><button type="button" class="link-btn" data-to-movers>More in Price movers: by percent, your want list, and every card on TCGplayer</button></p>' : "");
     drawHistory(pts);
   }
   function moversHTML(ch, period) {
@@ -7318,6 +7524,106 @@
       (list.length ? '<div class="mover-list">' + list.map(item).join("") + "</div>" : '<p class="small" style="margin:0">' + none + "</p>") + "</section>";
     return box("Biggest gains", gains, "None of your cards went up.") + box("Biggest drops", drops, "None of your cards went down.");
   }
+  // ----- Price movers: the biggest TCGplayer price changes among your cards, your want list, and every card
+  const MOVER_MINS = [["0", "Any price"], ["1", "$1 and up"], ["5", "$5 and up"], ["20", "$20 and up"], ["100", "$100 and up"]];
+  function moverRowHTML(o) {
+    // o: {pic, name, sub, then, now, diff, pct, attr, badge}
+    return '<button type="button" class="mover" ' + o.attr + '><span class="sleeve' + (o.boxed ? " boxed" : "") + '"' + (o.foil || "") + ">" + imgTag(o.pic, o.name) + "</span>" +
+      '<span style="min-width:0"><span class="mover-name">' + esc(o.name) + '</span><span class="mover-sub">' + esc(o.sub) + (o.sub ? ": " : "") +
+      esc(usd(o.then)) + " to " + esc(usd(o.now)) + (o.each ? " each, " + o.each + " copies" : "") + "</span>" + (o.badge ? '<span class="mover-sub">' + o.badge + "</span>" : "") + "</span>" +
+      '<span class="mover-amt">' + changeHTML(o.diff, o.pct, true) + "</span></button>";
+  }
+  // Up and down lists, biggest first by dollars or by percent; each item: {diff, pct, ...}
+  function moverPair(items, by, n) {
+    const key = x => by === "pct" ? (x.pct == null ? 0 : x.pct) : x.diff;
+    const up = items.filter(x => x.diff > 0.004).sort((a, b) => key(b) - key(a)).slice(0, n);
+    const down = items.filter(x => x.diff < -0.004).sort((a, b) => key(a) - key(b)).slice(0, n);
+    return {up, down};
+  }
+  function moverBoxes(title, sub, pair, labels, none) {
+    const box = (h, list, empty) => '<section class="box"><div class="box-head"><h3>' + h + "</h3></div>" +
+      (list.length ? '<div class="mover-list">' + list.map(moverRowHTML).join("") + "</div>" : '<p class="small" style="margin:0">' + empty + "</p>") + "</section>";
+    return '<div class="mv-section"><h3 class="sub-h">' + esc(title) + "</h3>" + (sub ? '<p class="small mv-sub">' + sub + "</p>" : "") +
+      '<div class="movers">' + box(labels[0], pair.up, none[0]) + box(labels[1], pair.down, none[1]) + "</div></div>";
+  }
+  function renderMovers() {
+    const panel = insightBody();
+    if (!catalog) {
+      panel.innerHTML = emptyPanel("Price movers need TCGplayer data", SITE ? "Reload the page (it needs an internet connection)." : "Double-click <b>Update TCGplayer Data</b> in the Card Vault folder, then press F5 here.");
+      return;
+    }
+    const period = currentPeriod();
+    if (!period) {
+      panel.innerHTML = emptyPanel("No earlier prices yet", "Price movers compare today's TCGplayer prices with earlier ones. They show up after the next daily price update.");
+      return;
+    }
+    const by = settings.moverBy === "pct" ? "pct" : "usd";
+    const min = num(settings.moverMin) == null ? 1 : num(settings.moverMin);
+    const big = (now, then) => Math.max(now || 0, then || 0) >= min;
+    const owned = csOwnedMap();
+    // your cards: each printing once (copies added together)
+    const mine = new Map();
+    for (const m of periodChange(period).movers) {
+      if (!big(m.ch.marketNow, m.ch.marketThen)) continue;
+      const k = m.r.productId + "|" + m.r.edition;
+      const cur = mine.get(k);
+      if (cur) { cur.diff += m.total; cur.qty += m.r.qty; continue; }
+      mine.set(k, {r: m.r, qty: m.r.qty, diff: m.total, pct: m.ch.pct, then: m.ch.then, now: m.ch.now});
+    }
+    const mineItems = Array.from(mine.values()).map(x => ({diff: x.diff, pct: x.pct, then: x.then, now: x.now, pic: recordPics(x.r, "200w"), name: x.r.name, foil: foilAttr(x.r.rarity),
+      sub: [x.r.number, x.r.edition].filter(Boolean).join(", "), each: x.qty > 1 ? x.qty : 0, attr: 'data-open="' + esc(x.r.id) + '"'}));
+    // your want list: the printing you want (the cheapest when any will do)
+    const wantItems = [];
+    for (const w of wants) {
+      const p = w.productId ? catalog.byId.get(w.productId) : null;
+      if (!p) continue;
+      let pick = null;
+      for (const ed of (w.edition && w.edition !== "Any" ? [w.edition] : printingsFor(p))) {
+        const s = catalogPrice(p, ed);
+        if (s && s.market != null && s[period] != null && (!pick || s.market < pick.s.market)) pick = {ed, s};
+      }
+      if (!pick || !big(pick.s.market, pick.s[period])) continue;
+      const diff = pick.s.market - pick.s[period];
+      const hit = w.target != null && pick.s.market <= w.target;
+      wantItems.push({diff, pct: pick.s[period] > 0 ? diff / pick.s[period] : null, then: pick.s[period], now: pick.s.market, pic: wantPics(w, "200w"), name: w.name,
+        boxed: wantIsSealed(w), foil: wantIsSealed(w) ? "" : foilAttr(w.rarity), sub: [w.number, Object.keys(p.prices).length > 1 ? csPrinting(pick.ed) : ""].filter(Boolean).join(", "),
+        badge: hit ? '<span class="status"><span class="status-icon good" aria-hidden="true">&#10003;</span>At or below your target</span>' : "", attr: 'data-mv-want="' + esc(w.id) + '"'});
+    }
+    // every English card and sealed product
+    const market = [], sealed = [];
+    for (const p of catalog.products) {
+      for (const ed in p.prices) {
+        const s = p.prices[ed];
+        if (s.market == null || s[period] == null || !big(s.market, s[period])) continue;
+        const diff = s.market - s[period];
+        if (Math.abs(diff) < 0.005) continue;
+        (p.sealed ? sealed : market).push({p, ed, diff, pct: s[period] > 0 ? diff / s[period] : null, then: s[period], now: s.market});
+      }
+    }
+    const toRow = x => ({diff: x.diff, pct: x.pct, then: x.then, now: x.now, pic: productPics(x.p, "200w"), boxed: x.p.sealed, foil: x.p.sealed ? "" : foilAttr(x.p.rarity),
+      name: x.p.sealed ? x.p.name : cleanName(x.p.name, x.p.rarity),
+      sub: x.p.sealed ? x.p.group.name : [x.p.number, x.p.rarity, Object.keys(x.p.prices).length > 1 ? csPrinting(x.ed) : ""].filter(Boolean).join(", "),
+      badge: owned.get(x.p.id) ? '<span class="cs-own">You have ' + owned.get(x.p.id) + "</span>" : "",
+      attr: x.p.sealed ? 'data-mv-sealed="' + x.p.id + '"' : 'data-mv-card="' + esc(x.p.id + "|" + x.ed) + '"'});
+    const mkPair = list => { const pr = moverPair(list, by, 12); return {up: pr.up.map(toRow), down: pr.down.map(toRow)}; };
+    panel.innerHTML = '<div class="mv-tools"><div class="seg" role="group" aria-label="Compare prices with">' + PERIODS.map(([k, label]) => {
+        const day = catalog.refDays[k];
+        return '<button type="button" data-period="' + k + '" aria-pressed="' + (k === period) + '"' +
+          (day ? ' title="TCGplayer prices from ' + esc(fmtDate(parseDay(day))) + '"' : ' disabled title="No saved prices from then yet"') + ">" + label + "</button>";
+      }).join("") + "</div>" +
+      '<div class="seg" role="group" aria-label="Biggest by"><button type="button" data-mover-by="usd" aria-pressed="' + (by === "usd") + '">Dollars</button>' +
+      '<button type="button" data-mover-by="pct" aria-pressed="' + (by === "pct") + '">Percent</button></div>' +
+      '<select class="select" id="moverMin" aria-label="Cards worth">' + MOVER_MINS.map(([k, l]) => '<option value="' + k + '"' + (num(k) === min ? " selected" : "") + ">" + l + "</option>").join("") + "</select></div>" +
+      '<p class="small mv-note">TCGplayer market prices on ' + esc(fmtDate(parseDay(catalog.refDays[period]))) + " compared with " + esc(fmtDate(catalog.generated)) +
+      ". A card that sold only once or twice can jump, so the price filter leaves out the cheapest ones" + (min ? " (under " + esc(usd(min)) + ")" : "") + ".</p>" +
+      moverBoxes("Your cards", collection.length ? "All your copies of each printing together." : "", moverPair(mineItems, by, 10), ["Went up", "Went down"],
+        [collection.length ? "None of your cards went up." : "Add cards to see yours here.", collection.length ? "None of your cards went down." : ""]) +
+      (wants.length ? moverBoxes("Your want list", "The printing you want; the cheapest one when any will do.", moverPair(wantItems, by, 10), ["Went up", "Cheaper now"],
+        ["Nothing on your want list went up.", "Nothing on your want list got cheaper."]) : "") +
+      moverBoxes("Every card on TCGplayer", "", mkPair(market), ["Biggest risers", "Biggest drops"], ["No card went up.", "No card went down."]) +
+      (sealed.length ? moverBoxes("Sealed products", "Booster boxes, packs, tins, decks…", mkPair(sealed), ["Went up", "Went down"], ["None went up.", "None went down."]) : "");
+  }
+
   function drawHistory(pts) {
     const area = $("chartArea");
     if (!area) return;
@@ -7489,14 +7795,15 @@
   }
 
   /* ======================= Insights: price history, where your value is, worth grading, tidy up ======================= */
-  const INSIGHT_VIEWS = [["history", "Price history"], ["value", "Where your value is"], ["grading", "Worth grading"], ["tidy", "Tidy up"]];
+  const INSIGHT_VIEWS = [["history", "Price history"], ["movers", "Price movers"], ["value", "Where your value is"], ["grading", "Worth grading"], ["tidy", "Tidy up"]];
   function renderInsights() {
     const panel = $("panel-history");
     const view = INSIGHT_VIEWS.some(v => v[0] === settings.insightView) ? settings.insightView : "history";
     panel.innerHTML = '<div class="panel-head"><div><h2>Insights</h2></div><div class="panel-tools"><div class="seg seg-scroll" role="group" aria-label="Insights" id="insightSeg">' +
       INSIGHT_VIEWS.map(([k, l]) => '<button type="button" data-insight="' + k + '" aria-pressed="' + (k === view) + '">' + esc(l) + "</button>").join("") +
       '</div></div></div><div id="insightBody"></div>';
-    if (view === "value") renderValueBreakdown();
+    if (view === "movers") renderMovers();
+    else if (view === "value") renderValueBreakdown();
     else if (view === "grading") renderWorthGrading();
     else if (view === "tidy") renderTidy();
     else renderHistory();
@@ -8269,7 +8576,7 @@
     const shown = done ? 100 : Math.floor(s.have / s.total * 100);
     const year = s.group.published ? String(s.group.published).slice(0, 4) : "";
     return '<article class="set-row" data-gid="' + gid + '"><button type="button" class="set-toggle" aria-expanded="' + open + '" data-set="' + gid + '">' +
-      '<span style="min-width:0"><span class="set-name">' + esc(s.group.name) + '</span><span class="set-sub">' + esc([s.group.abbr, year].filter(Boolean).join(", ")) + "</span></span>" +
+      '<span style="min-width:0"><span class="set-name">' + esc(s.group.name) + (isGoal(gid) ? ' <span class="goal-tag">Goal</span>' : "") + '</span><span class="set-sub">' + esc([s.group.abbr, year].filter(Boolean).join(", ")) + "</span></span>" +
       '<span class="set-prog"><span class="progress" aria-hidden="true"><span style="width:' + (s.have / s.total * 100).toFixed(1) + '%"></span></span>' +
       '<span class="set-count"><b>' + s.have + " of " + s.total + "</b> (" + shown + "%)</span></span>" +
       '<span class="set-cost">' + (done ? "<b>Complete</b>" : "<b>" + esc(usd(s.cost)) + "</b><small>to finish" + (s.unpriced ? ", " + s.unpriced + " unpriced" : "") + "</small>") + "</span>" +
@@ -8277,7 +8584,9 @@
       (open ? '<div class="set-body">' + setMissingHTML(s) + "</div>" : "") + "</article>";
   }
   function setMissingHTML(s) {
-    const every = '<p class="small" style="margin:12px 0 0"><button type="button" class="link-btn" data-cs-browse="en:' + s.group.id + '">See every card in this set, with prices</button></p>';
+    const goal = isGoal(s.group.id);
+    const every = '<p class="small sets-links" style="margin:12px 0 0"><button type="button" class="link-btn" data-cs-browse="en:' + s.group.id + '">See every card in this set, with prices</button>' +
+      '<button type="button" class="link-btn" data-goal-toggle="' + s.group.id + '">' + (goal ? "Remove it from your goals" : "Make this set a goal") + "</button></p>";
     if (!s.missing.length) return '<p class="small" style="margin:12px 0 0">You have every card in this set.</p>' + every;
     const wanted = new Set(wants.map(w => w.productId));
     const shown = s.missing.slice(0, 150);
@@ -9854,23 +10163,27 @@
     return {sx, sy, sw: Math.min(vw - sx, box.width / k), sh: Math.min(vh - sy, box.height / k)};
   }
   // opts.batch: scan one card after another into the "Add several cards" list.
+  // opts.batch: several cards into the add list; opts.check: just see what each card is worth (Card search)
   function openScanner(opts) {
-    const many = !!(opts && opts.batch);
-    drawerCtx = {mode: "scan", batch: many};
-    openDrawer(many ? "Scan several cards" : "Scan a card",
+    const many = !!(opts && opts.batch), check = !many && !!(opts && opts.check);
+    drawerCtx = {mode: "scan", batch: many, check};
+    openDrawer(many ? "Scan several cards" : check ? "Scan to check a price" : "Scan a card",
       '<div class="scan-view" id="scanView"><video id="scanVideo" playsinline muted autoplay></video><div class="scan-box" id="scanBox" aria-hidden="true"></div></div>' +
       '<p class="scan-status" id="scanStatus" role="status">Starting the camera…</p>' +
       (many ? '<p class="hint" style="margin:4px 0 0">Hold up one card at a time, with its number inside the box. Each card it reads goes into the list; ' +
           "then hold up the next one. For more copies of the same card, change how many in the list.</p>" +
           '<div class="btn-row"><button class="btn btn-primary" type="button" id="scanList">' + batchListLabel() + "</button></div>"
+        : check ? '<p class="hint" style="margin:4px 0 0">Hold the card close, with its number (just under the picture, on the right) inside the box. Its prices show here; nothing is added to your collection.</p>'
         : '<p class="hint" style="margin:4px 0 0">Hold the card close, with its number (just under the picture, on the right) inside the box. Good light helps. ' +
           'Have a stack? <button type="button" class="link-btn" id="scanMany">Scan several in a row</button></p>') +
       '<div class="btn-row"><button class="btn' + (many ? "" : " btn-primary") + '" type="button" id="scanRead" disabled>Read it now</button>' +
       '<button class="btn" type="button" id="scanPhoto">Use a photo instead</button><input type="file" id="scanFile" accept="image/*" hidden>' +
       '<button class="btn" type="button" id="scanSwitch" hidden>Switch camera</button><button class="btn" type="button" id="scanAgain" hidden>Scan again</button></div>' +
-      '<form id="scanForm" class="lookup-row" style="margin-top:14px" hidden autocomplete="off"><input class="input" id="scanNumber" aria-label="Card number">' +
-      '<button class="btn" type="submit">Find</button></form><div id="lookupOut"></div>');
-    scan = {stream: null, active: true, busy: false, timer: null, tries: 0, devices: [], deviceIndex: -1, batch: many, recent: {}};
+      '<form id="scanForm" class="lookup-row" style="margin-top:14px"' + (check ? "" : " hidden") + ' autocomplete="off"><input class="input" id="scanNumber" aria-label="Card number"' +
+      (check ? ' placeholder="Or type its number, like LOB-EN001"' : "") + ">" +
+      '<button class="btn" type="submit">Find</button></form><div id="lookupOut"></div>' + (check ? '<div id="scanChecks"></div>' : ""));
+    scan = {stream: null, active: true, busy: false, timer: null, tries: 0, devices: [], deviceIndex: -1, batch: many, check, recent: {}};
+    if (check) renderScanChecks();
     if ($("scanList")) $("scanList").addEventListener("click", () => openBatch());
     if ($("scanMany")) $("scanMany").addEventListener("click", () => openScanner({batch: true}));
     $("scanRead").addEventListener("click", () => scanOnce(true));
@@ -9885,6 +10198,7 @@
     $("scanForm").addEventListener("submit", e => {
       e.preventDefault();
       const typed = $("scanNumber").value;
+      if (scan && scan.check) { if (normNumber(typed)) { scan.active = false; clearTimeout(scan.timer); showScanPrice({number: normNumber(typed), products: findByNumber(typed)}); } return; }
       if (!(scan && scan.batch)) { runNumberLookup(typed); return; }
       if (!normNumber(typed)) return;
       addBatchRows([batchRowFor(typed, 1)]);
@@ -9904,6 +10218,7 @@
   async function startCamera(deviceId) {
     const status = $("scanStatus");
     if (!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia) {
+      scan.noCamera = true;
       status.textContent = "This browser can't use a camera here. Use a photo instead.";
       return;
     }
@@ -9920,6 +10235,7 @@
         video: Object.assign(deviceId ? {deviceId: {exact: deviceId}} : {facingMode: {ideal: "environment"}}, size)});
     } catch (e) {
       if (!current()) return;
+      scan.noCamera = true;
       status.textContent = e && e.name === "NotAllowedError" ? "Card Vault isn't allowed to use the camera. Allow it with the camera icon in the address bar, or use a photo instead."
         : e && (e.name === "NotFoundError" || e.name === "OverconstrainedError") ? "No camera found. Use a photo instead." : "Couldn't start the camera. Use a photo instead.";
       return;
@@ -9937,9 +10253,10 @@
       $("scanSwitch").hidden = devices.length < 2;
     } catch (e) { /* only for the Switch camera button */ }
     $("scanRead").disabled = false;
-    status.textContent = "Loading the text reader (the first time takes a few seconds)…";
+    // (a number typed while the camera started keeps its "Found" message)
+    if (scan.active) status.textContent = "Loading the text reader (the first time takes a few seconds)…";
     try { await ocrWorker(); } catch (e) {
-      if (current()) status.textContent = "Couldn't load the text reader. It needs an internet connection the first time.";
+      if (current() && scan.active) status.textContent = "Couldn't load the text reader. It needs an internet connection the first time.";
       return;
     }
     if (!current() || !scan.active) return;
@@ -9995,6 +10312,7 @@
     scan.active = false;
     clearTimeout(scan.timer);
     if (scan.batch) { addScanToBatch(found); return; }
+    if (scan.check) { showScanPrice(found); return; }
     $("scanStatus").textContent = "Found " + found.number + (found.products.length ? ". Pick the printing that matches your card." : ".");
     $("scanForm").hidden = false;
     $("scanNumber").value = found.number;
@@ -10025,12 +10343,81 @@
       scanLoop();
     }, again ? 300 : 1200);
   }
+  // Scan to check (Card search): the card's prices right here, and a running list of what you've checked
+  const scanChecks = [];   // (this visit: cleared when the page is reloaded or with Clear)
+  function showScanPrice(found) {
+    const out = $("lookupOut");
+    if (!out) return;
+    const number = normNumber(found.number);
+    $("scanStatus").textContent = "Found " + number + ".";
+    $("scanForm").hidden = false;
+    $("scanNumber").value = number;
+    $("scanAgain").hidden = false;
+    $("scanAgain").textContent = "Scan the next card";
+    $("scanAgain").classList.add("btn-primary");
+    $("scanRead").classList.remove("btn-primary");
+    const products = ((found.products && found.products.length) ? found.products : findByNumber(number)).filter(p => !p.sealed);
+    if (!products.length) {
+      const m = number.match(/^([A-Z0-9]+)-(JP|KR)([A-Z]?\d+)$/);
+      // (in a box of its own: a newer scan replaces it, and this lookup's answer then goes nowhere)
+      if (m) { out.innerHTML = "<div></div>"; showOcgLookup(out.firstChild, number, m, {search: true}); return; }
+      out.innerHTML = '<div class="notice">No TCGplayer printing has the number ' + esc(number) + ". Check it, or type it below.</div>";
+      return;
+    }
+    const owned = csOwnedMap();
+    let top = null;
+    out.innerHTML = '<div class="scan-prices">' + products.map(p => {
+      const eds = printingsFor(p), name = cleanName(p.name, p.rarity), have = owned.get(p.id) || 0;
+      let best = null;
+      const lines = eds.map(ed => {
+        const sub = p.prices[ed], v = firstPrice(sub);
+        if (v != null && (!best || v > best.v)) best = {ed, v};
+        const chg = sub.market != null && sub.m30 != null ? changeHTML(sub.market - sub.m30, sub.m30 > 0 ? (sub.market - sub.m30) / sub.m30 : null, true) : "";
+        return '<div class="scan-ed"><span>' + esc(eds.length > 1 ? csPrinting(ed) : "Market price") + "</span><b>" + esc(sub.market == null ? "no sales" : usd(sub.market)) + "</b>" +
+          (sub.low != null ? '<span class="small">lowest ' + esc(usd(sub.low)) + "</span>" : "") + (chg ? '<span class="small">30 days: ' + chg + "</span>" : "") + "</div>";
+      }).join("");
+      if (best && (!top || best.v > top.v)) top = {name, v: best.v, number};
+      return '<div class="scan-card"><span class="sleeve"' + foilAttr(p.rarity) + ">" + imgTag(productPics(p, "200w"), name) + "</span>" +
+        '<div class="scan-info"><b class="scan-name">' + esc(name) + '</b><span class="small">' + esc([p.group.name, p.rarity].filter(Boolean).join(" · ")) + "</span>" +
+        (have ? '<span class="cs-own">You have ' + have + "</span>" : "") + lines +
+        '<button type="button" class="link-btn" data-scan-open="' + esc(p.id + "|" + (best ? best.ed : eds[0] || "")) + '">Details, price over time, PSA 10</button></div></div>';
+    }).join("") + "</div>" + (products.length > 1 ? '<p class="small" style="margin:6px 0 0">' + products.length + " printings have this number: compare the rarity and set with your card.</p>" : "") +
+      '<div class="btn-row"><button class="btn btn-primary" type="button" data-scan-next>Scan the next card</button></div>';
+    out.querySelector("[data-scan-next]").addEventListener("click", () => resumeScan());
+    $("scanAgain").hidden = true;   // (its own button is under the prices)
+    // (on a phone the camera fills the screen: bring the prices into view)
+    if (out.scrollIntoView) out.scrollIntoView({block: "start", behavior: "smooth"});
+    out.querySelectorAll("[data-scan-open]").forEach(b => b.addEventListener("click", () => {
+      const at = b.dataset.scanOpen.indexOf("|");
+      openPriceCard(b.dataset.scanOpen.slice(0, at), b.dataset.scanOpen.slice(at + 1), {fromScan: true});
+    }));
+    if (top && !(scanChecks[0] && scanChecks[0].number === number)) scanChecks.unshift(top);
+    renderScanChecks();
+  }
+  function renderScanChecks() {
+    const box = $("scanChecks");
+    if (!box) return;
+    if (!scanChecks.length) { box.innerHTML = ""; return; }
+    const total = scanChecks.reduce((t, x) => t + x.v, 0);
+    box.innerHTML = '<div class="scan-log"><div class="box-head"><h3>Checked so far</h3><button type="button" class="link-btn" id="scanClear">Clear</button></div>' +
+      '<p class="small" style="margin:0 0 6px">' + plural(scanChecks.length, "card") + ", " + esc(usd(total)) + " together (the most valuable printing of each).</p>" +
+      '<ul class="scan-log-list">' + scanChecks.slice(0, 20).map(x => "<li><span>" + esc(x.name) + ' <span class="small">' + esc(x.number) + "</span></span><b>" + esc(usd(x.v)) + "</b></li>").join("") + "</ul></div>";
+    $("scanClear").addEventListener("click", () => { scanChecks.length = 0; renderScanChecks(); });
+  }
   function resumeScan() {
     if (!scan) return;
     scan.active = true;
     scan.tries = 0;
     $("scanAgain").hidden = true;
     $("lookupOut").innerHTML = "";
+    if (scan.check) $("drawerBody").scrollTop = 0;   // (back to the camera)
+    if (scan.noCamera) {   // (no camera to read from: the number box and the photo button still work)
+      scan.active = false;
+      $("scanForm").hidden = false;
+      $("scanStatus").textContent = "The camera isn't available. Type the card number below, or use a photo.";
+      $("scanNumber").focus();
+      return;
+    }
     $("scanStatus").textContent = "Looking for a card number…";
     scanLoop();
   }
@@ -10556,9 +10943,25 @@
     $("bulkDelete").addEventListener("click", () => deleteRecords(Array.from(selected)));
 
     // ----- price history
+    $("panel-history").addEventListener("change", e => {
+      if (e.target.id === "moverMin") { settings.moverMin = num(e.target.value) || 0; saveSettings(); renderMovers(); }
+    });
     $("panel-history").addEventListener("click", e => {
       const per = e.target.closest("[data-period]");
-      if (per && !per.disabled) { settings.histPeriod = per.dataset.period; saveSettings(); renderHistory(); return; }
+      if (per && !per.disabled) { settings.histPeriod = per.dataset.period; saveSettings(); if (settings.insightView === "movers") renderMovers(); else renderHistory(); return; }
+      const mb = e.target.closest("[data-mover-by]");
+      if (mb) { settings.moverBy = mb.dataset.moverBy; saveSettings(); renderMovers(); const b = document.querySelector('[data-mover-by="' + settings.moverBy + '"]'); if (b) b.focus(); return; }
+      const mw = e.target.closest("[data-mv-want]");
+      if (mw) { const w = wants.find(x => x.id === mw.dataset.mvWant); if (w) openWantEdit(w); return; }
+      const mc = e.target.closest("[data-mv-card]");
+      if (mc) { const at = mc.dataset.mvCard.indexOf("|"); openPriceCard(mc.dataset.mvCard.slice(0, at), mc.dataset.mvCard.slice(at + 1)); return; }
+      const ms = e.target.closest("[data-mv-sealed]");
+      if (ms && catalog) {   // (sealed products: their prices and store links in the Market)
+        const pp = catalog.byId.get(+ms.dataset.mvSealed);
+        if (pp) { settings.mkRegion = "en"; settings.mkView = "sealed"; settings.mkKind = ""; settings.mkLine = ""; mk.q = pp.name; mk.limit = 40; saveSettings(); setTab("market"); }
+        return;
+      }
+      if (e.target.closest("[data-to-movers]")) { settings.insightView = "movers"; saveSettings(); renderInsights(); return; }
       if (e.target.closest("#chartMode")) {
         settings.chartTable = !settings.chartTable;
         saveSettings();
@@ -10613,6 +11016,16 @@
       }
     });
 
+    // ----- set goals (buttons on the Collection tab, the Sets tab and in Card search)
+    document.addEventListener("click", e => {
+      const g = e.target.closest("[data-goal-toggle], [data-goal-wants], [data-goal-open], [data-goal-add]");
+      if (!g) return;
+      if (g.dataset.goalToggle) toggleGoal(g.dataset.goalToggle);
+      else if (g.dataset.goalWants) goalAddMissing(g.dataset.goalWants);
+      else if (g.dataset.goalOpen) openSearchSet("en:" + g.dataset.goalOpen);
+      else openGoalPicker();
+    });
+
     // ----- card search
     const csPanel = $("panel-search");
     let csTimer = null;
@@ -10636,6 +11049,7 @@
       else if (e.target.id === "csSetShow") { cs.setShow = e.target.value; renderSetCards(); }
     });
     csPanel.addEventListener("click", e => {
+      if (e.target.closest("#csScan")) { openScanner({check: true}); return; }
       const md = e.target.closest("[data-csmode], [data-cs-mode]");
       if (md) {
         settings.csMode = (md.dataset.csmode || md.dataset.csMode) === "sets" ? "sets" : "cards"; saveSettings();
@@ -10989,7 +11403,8 @@
     silentSignInDue, maybeSilentSignIn, pageBusy, viewBusy, loadNewData, applyNewData, readDataText, dataLoad: () => dataLoad,
     loadOcgMarket, buildOcgMarket, ocgMk: () => ocgMk, loadYugiMarket, ymMatch, ymProduct, ymk: () => ymk, renderMarket, wantPrice,
     wantKind, wantSource, shopWantLive, ymWant, krBoxWant, gotWant, openWantEdit, tookWant, wantFromProduct, upgradeWant, renderWants,
-    csSearch, renderSearch, renderSearchResults, openPriceCard, cs: () => cs, csSetMatches, openSearchSet, csSetCode};
+    csSearch, renderSearch, renderSearchResults, openPriceCard, cs: () => cs, csSetMatches, openSearchSet, csSetCode,
+    toggleGoal, goalAddMissing, csSetNeeds, renderGoalsBar, cleanGoals, renderMovers, openScanner, showScanPrice, scanChecks: () => scanChecks};
 
   document.addEventListener("DOMContentLoaded", init);
 })();
