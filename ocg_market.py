@@ -106,6 +106,13 @@ def safe_name(prefix):
 
 
 # ------------------------------------------------------------------ the internet, politely
+BLOCKED_AFTER = 6          # failures in a row from a site: it isn't asked again this run
+
+
+class HostBlocked(Exception):
+    pass
+
+
 class Web:
     def __init__(self, budget):
         self.started = time.time()
@@ -114,13 +121,28 @@ class Web:
         self.count = 0
         self.failed = 0
         self.by_host = {}
+        self.errors = {}       # host -> {"403": n, "network": n, ...}
+        self.streak = {}       # host -> failures in a row
         self.lock = threading.Lock()
 
     def left(self):
         return self.budget - (time.time() - self.started)
 
+    def note_error(self, host, what):
+        with self.lock:
+            self.failed += 1
+            self.errors.setdefault(host, {})
+            self.errors[host][what] = self.errors[host].get(what, 0) + 1
+            self.streak[host] = self.streak.get(host, 0) + 1
+
+    def errors_text(self):
+        return "; ".join("%s: %s" % (re.sub(r"^(api|www)\.|:\d+$", "", h), ", ".join("%s ×%d" % (k, n) for k, n in sorted(e.items())))
+                         for h, e in sorted(self.errors.items()))
+
     def get_json(self, url, pause, headers=None):
         host = urllib.parse.urlsplit(url).netloc
+        if self.streak.get(host, 0) >= BLOCKED_AFTER:
+            raise HostBlocked("%s: %d failures in a row; not asked again this run" % (host, self.streak[host]))
         for attempt in range(3):
             with self.lock:   # (each site: one request at a time with a pause between, whichever thread asks)
                 slot = max(time.time(), self.last.get(host, 0) + pause * SLOW)
@@ -133,21 +155,22 @@ class Web:
             req = urllib.request.Request(url, headers=dict({"User-Agent": USER_AGENT, "Accept": "application/json"}, **(headers or {})))
             try:
                 with urllib.request.urlopen(req, timeout=40) as res:
-                    return json.loads(res.read().decode("utf-8", "replace"))
+                    out = json.loads(res.read().decode("utf-8", "replace"))
+                with self.lock:
+                    self.streak[host] = 0
+                return out
             except urllib.error.HTTPError as err:
                 # busy, or a hiccup on their side: a little later; anything else isn't going to change
                 if err.code in (429, 500, 502, 503, 504) and attempt < 2:
                     time.sleep((10 if err.code == 429 else 4) * SLOW)
                     continue
-                with self.lock:
-                    self.failed += 1
+                self.note_error(host, "HTTP %d" % err.code)
                 raise
-            except (urllib.error.URLError, OSError, ValueError):
+            except (urllib.error.URLError, OSError, ValueError) as err:
                 if attempt < 2:
                     time.sleep(3 * SLOW)
                     continue
-                with self.lock:
-                    self.failed += 1
+                self.note_error(host, "bad answer" if isinstance(err, ValueError) else "network")
                 raise
 
 
@@ -843,7 +866,7 @@ def run():
     # one thread each, so each one sees the same gentle pace as before and the run gets three times as much done.
     lists, prices = {}, {}
     lock = threading.Lock()
-    state = {"done": 0, "skipped": 0}
+    state = {"done": 0, "skipped": 0, "blocked": ""}
 
     def load(region, prefix):
         k = region + "|" + prefix
@@ -882,7 +905,7 @@ def run():
                 write_json(cache_path("prices", "%s-%s.json" % (region, safe_name(prefix))), prices[k])
 
     def worker(todo):
-        for region, s, kind in todo:
+        for i, (region, s, kind) in enumerate(todo):
             if web.left() <= 0:
                 with lock:
                     state["skipped"] += 1
@@ -894,6 +917,12 @@ def run():
                     state["done"] += 1
                     if state["done"] % 25 == 0:
                         write_json(cache_path("meta.json"), meta)
+            except HostBlocked as err:   # (the site keeps saying no: the rest of its list waits for another run)
+                say("  %s; %d lookups wait." % (err, len(todo) - i))
+                with lock:
+                    state["skipped"] += len(todo) - i
+                    state["blocked"] = str(err)
+                break
             except Exception as err:
                 say("  %s %s (%s): %s" % (s["prefix"], kind, region, err))
 
@@ -922,6 +951,7 @@ def run():
     say("  Japanese sets: %d (%d with prices, %d cards). Korean sets: %d (%d with prices, %d cards). %d lookups this time (%d requests: %s; %d failed), %d left for later. %.1f + %.1f MB, %d history files."
         % (len(data["jp"]), priced[0], n_cards[0], len(data["kr"]), priced[1], n_cards[1], done, web.count, hosts, web.failed, skipped,
            os.path.getsize(OUT_FILE) / 1048576, os.path.getsize(CARDS_FILE) / 1048576, hist) +
+        (" Errors: %s." % web.errors_text() if web.errors else "") + (" " + state["blocked"] + "." if state["blocked"] else "") +
         (" Bunjang: %d answers, %d with no listings.%s" % (BUNJANG_SEEN["answers"], BUNJANG_SEEN["empty"], " " + BUNJANG_SEEN["note"] if BUNJANG_SEEN["note"] else "") if BUNJANG_SEEN["answers"] or BUNJANG_SEEN["note"] else ""))
     return 0
 
