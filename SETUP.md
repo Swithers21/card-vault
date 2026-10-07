@@ -125,7 +125,8 @@ personal app: click **Continue**.
   without adding it: every printing with that number, market price and lowest listing, and a running "Checked so far"
   list with the total (handy at a card shop). You can also type the number there.
 - **Set goals**: open a set in Card search (or in the Sets tab) and tap **Make this set a goal**. Goals show at the top of
-  the Collection tab with your progress (each card number once) and about what the rest would cost. Nothing is added to
+  the Collection tab, folded to the set's name and progress bar; tap one to see its numbers (each card number once),
+  about what the rest would cost, and its buttons. Nothing is added to
   your want list by itself: **Add the missing cards to my want list** (on the goal or the set) adds one of each, the
   cheapest printing, any edition, and Undo takes them off again. Up to 12 goals; they sync with your other devices.
 - **Market** tab: every set on TCGplayer with its 25 most valuable cards, and every sealed product (booster packs and

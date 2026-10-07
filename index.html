@@ -700,14 +700,18 @@
   .goals{margin:0 0 18px}
   .goals-head{display:flex;align-items:baseline;justify-content:space-between;gap:10px;margin:0 0 10px}
   .goal-list{display:grid;grid-template-columns:repeat(auto-fill,minmax(270px,1fr));gap:12px}
-  .goal{background:linear-gradient(180deg,#1f1839,#1a1431);border:1px solid var(--line);border-radius:var(--radius);padding:12px 14px;display:flex;flex-direction:column;gap:8px;min-width:0}
+  .goal-list{align-items:start}
+  .goal{background:linear-gradient(180deg,#1f1839,#1a1431);border:1px solid var(--line);border-radius:var(--radius);padding:10px 14px 12px;display:flex;flex-direction:column;gap:8px;min-width:0}
   .goal.done{border-color:rgba(216,173,87,.55);box-shadow:0 0 0 1px rgba(216,173,87,.2) inset}
-  .goal-top{display:flex;align-items:flex-start;justify-content:space-between;gap:8px}
-  .goal-name{background:none;border:0;padding:0;color:#f6e6c4;font:700 15px/1.3 "Cinzel",Georgia,serif;letter-spacing:.02em;text-align:left;cursor:pointer;min-width:0}
-  .goal-name:hover{color:var(--gold-hi)}
-  .goal-x{background:none;border:1px solid transparent;border-radius:6px;color:var(--text-dim);font-size:18px;line-height:1;padding:0 6px;cursor:pointer}
-  .goal-x:hover{border-color:var(--line-2);color:#fff}
+  .goal-head{display:flex;align-items:center;justify-content:space-between;gap:10px;width:100%;background:none;border:0;padding:2px 0;color:inherit;text-align:left;cursor:pointer}
+  .goal-name{color:#f6e6c4;font:700 15px/1.3 "Cinzel",Georgia,serif;letter-spacing:.02em;min-width:0}
+  .goal-head:hover .goal-name{color:var(--gold-hi)}
+  .goal-head .caret{flex:none;margin-right:4px}
+  .goal-head[aria-expanded="true"] .caret{transform:rotate(225deg);margin-top:4px}
+  .goal-check{color:var(--gold-hi);font-family:"Archivo",system-ui,sans-serif;font-size:13px}
   .goal .progress{width:100%}
+  .goal-more{display:flex;flex-direction:column;gap:8px;padding-top:2px}
+  .goal-remove{align-self:flex-start;font-size:12.5px;color:var(--text-dim)}
   .goal-nums{margin:0;font-size:13px;color:var(--text-dim)}
   .goal-nums b{color:var(--text)}
   .goal-nums b.gold{color:var(--gold-hi)}
@@ -1479,7 +1483,7 @@
     condAdjust: true, condPct: Object.assign({}, DEFAULT_COND_PCT), histPeriod: "m7", chartTable: false,
     setsMode: "number", setsSort: "complete", lastBackupAt: null, lastChangeAt: null, backupSnoozeUntil: 0,
     backupRemindDays: 7, wantAlertSeen: "", alertsOn: false, alertMinDollar: 5, alertMinPct: 10, salesYear: "", deckId: null,
-    deckView: "check", mkView: "sets", mkLine: "", mkKind: "", mkSortSets: "newest", mkSortSealed: "deal", mkRegion: "en", mkLineOcg: "", mkKindOcg: "", wantsView: "", csSort: "best", csMode: "cards", csSetSort: "number", setGoals: [], moverBy: "usd", moverMin: 1,
+    deckView: "check", mkView: "sets", mkLine: "", mkKind: "", mkSortSets: "newest", mkSortSealed: "deal", mkRegion: "en", mkLineOcg: "", mkKindOcg: "", wantsView: "", csSort: "best", csMode: "cards", csSetSort: "number", setGoals: [], goalsOpen: [], moverBy: "usd", moverMin: 1,
     gradedView: false, psa10Mult: 4, psa10Floor: 25, gradePct: Object.assign({}, DEFAULT_GRADE_PCT), pcToken: "",
     insightView: "history", salesView: "trade", gradingCost: 30, gradingMin: 50, gradingFees: {}, gradingCo: "PSA", ntfyTopic: "", siteUrl: "", autoSignIn: true};
   const filters = {q: "", set: "", rarity: "", edition: "", language: "", location: "", show: ""};
@@ -5603,17 +5607,38 @@
       goalDone.set(g, done);
     }
   }
+  // Each goal folds down to its name and progress bar; tapping it shows the numbers and buttons. Which ones are
+  // open is remembered on this device.
+  const goalOpen = gid => (settings.goalsOpen || []).includes(+gid);
+  function foldGoal(gid) {
+    gid = +gid;
+    const open = (settings.goalsOpen || []).filter(g => g !== gid && isGoal(g));
+    if (!goalOpen(gid)) open.push(gid);
+    settings.goalsOpen = open;
+    saveSettings();
+    renderGoalsBar();
+    const again = document.querySelector('#goalsBar [data-goal-fold="' + gid + '"]');
+    if (again) again.focus();
+  }
+  function goalHeadHTML(gid, name, pr, done) {
+    const open = goalOpen(gid), pctW = pr && pr.total ? (pr.have / pr.total * 100).toFixed(1) : 0;
+    return '<button type="button" class="goal-head" data-goal-fold="' + gid + '" aria-expanded="' + open + '">' +
+      '<span class="goal-name">' + esc(name) + (done ? ' <span class="goal-check" aria-hidden="true">&#10003;</span>' : "") + "</span>" +
+      (pr ? '<span class="sr">, ' + (done ? "complete" : pr.have + " of " + pr.total + " cards") + "</span>" : "") +
+      '<span class="caret" aria-hidden="true"></span></button>' +
+      (pr ? '<span class="progress" aria-hidden="true"><span style="width:' + pctW + '%"></span></span>' : "");
+  }
   function goalCardHTML(s, needs) {
     const pr = needs.pr, pct = pr.total ? Math.floor(pr.have / pr.total * 100) : 0, done = pr.have >= pr.total, gid = s.group.id;
-    return '<article class="goal' + (done ? " done" : "") + '"><div class="goal-top"><button type="button" class="goal-name" data-goal-open="' + gid + '">' + esc(s.group.name) + "</button>" +
-      '<button type="button" class="goal-x" data-goal-toggle="' + gid + '" aria-label="Remove ' + esc(s.group.name) + ' from your goals" title="Remove this goal">&times;</button></div>' +
-      '<span class="progress" aria-hidden="true"><span style="width:' + (pr.total ? pr.have / pr.total * 100 : 0).toFixed(1) + '%"></span></span>' +
-      '<p class="goal-nums">' + (done ? '<b class="gold">Complete!</b> You have all ' + pr.total + " cards."
-        : "<b>" + pr.have + " of " + pr.total + "</b> cards (" + pct + "%)" + (needs.cost ? " · about <b>" + esc(usd(needs.cost)) + "</b> to finish" : "") +
-          (needs.unpriced ? ' <span class="small">(' + needs.unpriced + " without a price)</span>" : "")) + "</p>" +
-      '<div class="goal-actions"><button class="btn btn-small" type="button" data-goal-open="' + gid + '">See the cards</button>' +
-      (done ? "" : needs.toWant.length ? '<button class="btn btn-small" type="button" data-goal-wants="' + gid + '">Add the ' + plural(needs.toWant.length, "missing card") + " to my want list</button>"
-        : '<span class="small">The missing ' + (needs.missing.length === 1 ? "card is" : "cards are") + " on your want list</span>") + "</div></article>";
+    const open = goalOpen(gid);
+    return '<article class="goal' + (done ? " done" : "") + (open ? " open" : "") + '">' + goalHeadHTML(gid, s.group.name, pr, done) +
+      (open ? '<div class="goal-more"><p class="goal-nums">' + (done ? '<b class="gold">Complete!</b> You have all ' + pr.total + " cards."
+          : "<b>" + pr.have + " of " + pr.total + "</b> cards (" + pct + "%)" + (needs.cost ? " · about <b>" + esc(usd(needs.cost)) + "</b> to finish" : "") +
+            (needs.unpriced ? ' <span class="small">(' + needs.unpriced + " without a price)</span>" : "")) + "</p>" +
+        '<div class="goal-actions"><button class="btn btn-small" type="button" data-goal-open="' + gid + '">See the cards</button>' +
+        (done ? "" : needs.toWant.length ? '<button class="btn btn-small" type="button" data-goal-wants="' + gid + '">Add the ' + plural(needs.toWant.length, "missing card") + " to my want list</button>"
+          : '<span class="small">The missing ' + (needs.missing.length === 1 ? "card is" : "cards are") + " on your want list</span>") + "</div>" +
+        '<button type="button" class="link-btn goal-remove" data-goal-toggle="' + gid + '">Remove this goal</button></div>' : "") + "</article>";
   }
   function renderGoalsBar() {
     const bar = $("goalsBar");
@@ -5624,9 +5649,9 @@
     const owned = csOwnedMap();
     const cards = ids.map(g => {
       const s = csFindSet("en:" + g);
-      if (!s) return '<article class="goal"><div class="goal-top"><span class="goal-name">A set TCGplayer no longer lists</span>' +
-        '<button type="button" class="goal-x" data-goal-toggle="' + g + '" aria-label="Remove this goal" title="Remove this goal">&times;</button></div>' +
-        '<p class="goal-nums">This goal\'s set isn\'t in TCGplayer\'s list anymore. Remove it to make room for another.</p></article>';
+      if (!s) return '<article class="goal' + (goalOpen(g) ? " open" : "") + '">' + goalHeadHTML(g, "A set TCGplayer no longer lists", null, false) +
+        (goalOpen(g) ? '<div class="goal-more"><p class="goal-nums">This goal\'s set isn\'t in TCGplayer\'s list anymore. Remove it to make room for another.</p>' +
+          '<button type="button" class="link-btn goal-remove" data-goal-toggle="' + g + '">Remove this goal</button></div>' : "") + "</article>";
       return goalCardHTML(s, csSetNeeds(s, owned));
     });
     bar.innerHTML = '<div class="goals-head"><h3 class="sub-h">Set goals</h3><button type="button" class="link-btn" data-goal-add>Add a goal</button></div>' +
@@ -11018,9 +11043,10 @@
 
     // ----- set goals (buttons on the Collection tab, the Sets tab and in Card search)
     document.addEventListener("click", e => {
-      const g = e.target.closest("[data-goal-toggle], [data-goal-wants], [data-goal-open], [data-goal-add]");
+      const g = e.target.closest("[data-goal-toggle], [data-goal-wants], [data-goal-open], [data-goal-add], [data-goal-fold]");
       if (!g) return;
-      if (g.dataset.goalToggle) toggleGoal(g.dataset.goalToggle);
+      if (g.dataset.goalFold) foldGoal(g.dataset.goalFold);
+      else if (g.dataset.goalToggle) toggleGoal(g.dataset.goalToggle);
       else if (g.dataset.goalWants) goalAddMissing(g.dataset.goalWants);
       else if (g.dataset.goalOpen) openSearchSet("en:" + g.dataset.goalOpen);
       else openGoalPicker();
