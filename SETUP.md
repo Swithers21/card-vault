@@ -135,7 +135,9 @@ personal app: click **Continue**.
   Tournament Packs…) and sort by biggest discount. Each product has one-tap searches at eBay, Amazon, Walmart and Target,
   sorted cheapest first. **Want** puts a card or sealed product on your want list.
 - **Want list** sections: cards, booster boxes, booster packs, and other sealed products (decks, tins, collections), each
-  with its count and total, and a switch at the top to show just one. Add from the Market (English sealed products,
+  with its count and total, and a switch at the top to show just one. **Sort** orders each section: at target first,
+  closest to target, price (highest or lowest), biggest price drop this week, name, set and card number, or recently
+  added (remembered on each device). Add from the Market (English sealed products,
   Yugi-Market's Japanese boxes and packs, a Korean set's booster box), or with **Add sealed** on the want list. A
   Yugi-Market item follows that shop's price; a Korean box follows the middle of the Bunjang boxes; if the shop stops
   listing it, the price when you added it shows, marked "when added". **I got it** adds it to your collection as a sealed

@@ -524,8 +524,10 @@
   .table.want-table{min-width:820px}
   .table.want-table tbody tr{cursor:default}
   .table.want-table tr.hit{background:rgba(12,163,12,.06)}
-  .want-view{margin:0 0 4px;max-width:100%}
+  .want-view{margin:0 0 4px;max-width:100%;display:flex;flex-wrap:wrap;align-items:center;gap:10px 16px}
   .want-view .seg{max-width:100%}
+  .want-sort{display:inline-flex;align-items:center;gap:8px;margin-left:auto}
+  .want-sort .select{min-width:0}
   .want-view .seg button{display:inline-flex;align-items:center}
   /* (the sections' columns line up) */
   @media (min-width:701px){
@@ -541,6 +543,8 @@
     .want-view .seg button{flex:1 1 auto;justify-content:center;padding:8px 6px;font-size:13px}
     .want-view .seg .tab-count{min-width:18px;padding:0 5px;margin-left:5px}
     .want-view .long{display:none}
+    .want-sort{margin-left:0;width:100%}
+    .want-sort .select{flex:1 1 auto}
   }
   @media (max-width:380px){ .want-view .seg .tab-count{display:none} }
   @media (min-width:701px){ .want-view .short{display:none} }
@@ -1483,7 +1487,7 @@
     condAdjust: true, condPct: Object.assign({}, DEFAULT_COND_PCT), histPeriod: "m7", chartTable: false,
     setsMode: "number", setsSort: "complete", lastBackupAt: null, lastChangeAt: null, backupSnoozeUntil: 0,
     backupRemindDays: 7, wantAlertSeen: "", alertsOn: false, alertMinDollar: 5, alertMinPct: 10, salesYear: "", deckId: null,
-    deckView: "check", mkView: "sets", mkLine: "", mkKind: "", mkSortSets: "newest", mkSortSealed: "deal", mkRegion: "en", mkLineOcg: "", mkKindOcg: "", wantsView: "", csSort: "best", csMode: "cards", csSetSort: "number", setGoals: [], goalsOpen: [], moverBy: "usd", moverMin: 1,
+    deckView: "check", mkView: "sets", mkLine: "", mkKind: "", mkSortSets: "newest", mkSortSealed: "deal", mkRegion: "en", mkLineOcg: "", mkKindOcg: "", wantsView: "", wantsSort: "target", csSort: "best", csMode: "cards", csSetSort: "number", setGoals: [], goalsOpen: [], moverBy: "usd", moverMin: 1,
     gradedView: false, psa10Mult: 4, psa10Floor: 25, gradePct: Object.assign({}, DEFAULT_GRADE_PCT), pcToken: "",
     insightView: "history", salesView: "trade", gradingCost: 30, gradingMin: 50, gradingFees: {}, gradingCo: "PSA", ntfyTopic: "", siteUrl: "", autoSignIn: true};
   const filters = {q: "", set: "", rarity: "", edition: "", language: "", location: "", show: ""};
@@ -8704,13 +8708,44 @@
       toast("Saved " + cur.name + ".");
     });
   }
+  // How the want list is sorted (in each section); remembered on this device
+  const WANT_SORTS = [["target", "At target first"], ["close", "Closest to target"], ["high", "Price: highest first"], ["low", "Price: lowest first"],
+    ["drop", "Biggest price drop (7 days)"], ["name", "Name (A to Z)"], ["set", "Set and card number"], ["added", "Recently added"]];
+  function wantSorter(by) {
+    const byStr = (a, b) => String(a || "").localeCompare(String(b || ""), undefined, {numeric: true, sensitivity: "base"});
+    const byName = (a, b) => byStr(a.w.name, b.w.name) || byStr(a.w.setName, b.w.setName) || byStr(a.w.number, b.w.number) || byStr(a.w.rarity, b.w.rarity);
+    const none = (x, y) => (x == null) - (y == null);   // (no price, no target... at the end)
+    // how far above the target, as a share of it (at or below the target: 0 or less)
+    const gap = x => x.st.price != null && x.w.target != null && x.w.target > 0 ? (x.st.price - x.w.target) / x.w.target : null;
+    // the 7-day change in the price you'd pay (TCGplayer printings only)
+    const drop = x => {
+      const p = x.w.productId && catalog ? catalog.byId.get(x.w.productId) : null;
+      if (!p || x.st.price == null) return null;
+      let then = null;
+      for (const ed of (x.w.edition && x.w.edition !== "Any" ? [x.w.edition] : printingsFor(p))) {
+        const sub = catalogPrice(p, ed);
+        if (sub && firstPrice(sub) === x.st.price && sub.m7 != null) { then = sub.m7; break; }
+      }
+      return then == null ? null : x.st.price - then;
+    };
+    const sorters = {
+      target: (a, b) => b.st.hit - a.st.hit || byName(a, b),
+      close: (a, b) => none(gap(a), gap(b)) || (gap(a) - gap(b)) || byName(a, b),
+      high: (a, b) => none(a.st.price, b.st.price) || b.st.price - a.st.price || byName(a, b),
+      low: (a, b) => none(a.st.price, b.st.price) || a.st.price - b.st.price || byName(a, b),
+      drop: (a, b) => none(drop(a), drop(b)) || (drop(a) - drop(b)) || byName(a, b),
+      name: byName,
+      set: (a, b) => byStr(a.w.setName, b.w.setName) || byStr(a.w.number, b.w.number) || byName(a, b),
+      added: (a, b) => String(b.w.added || "").localeCompare(String(a.w.added || "")) || byName(a, b)
+    };
+    return sorters[by] || sorters.target;
+  }
   function renderWants() {
     const panel = $("panel-wants");
-    const byStr = (a, b) => String(a || "").localeCompare(String(b || ""), undefined, {numeric: true, sensitivity: "base"});
     // (Yugi-Market's prices now: read twice a day at most, as in the Market)
     if (wants.some(w => String(w.ref || "").startsWith("ym:"))) loadYugiMarket();
-    const rows = wants.map(w => ({w, st: wantStatus(w), kind: wantKind(w)})).sort((a, b) => b.st.hit - a.st.hit || byStr(a.w.name, b.w.name) ||
-      byStr(a.w.setName, b.w.setName) || byStr(a.w.number, b.w.number) || byStr(a.w.rarity, b.w.rarity));
+    const sortBy = WANT_SORTS.some(x => x[0] === settings.wantsSort) ? settings.wantsSort : "target";
+    const rows = wants.map(w => ({w, st: wantStatus(w), kind: wantKind(w)})).sort(wantSorter(sortBy));
     const hits = rows.filter(x => x.st.hit).length;
     const sum = list => list.reduce((s, x) => s + (x.st.price || 0) * x.w.qty, 0);
     const priced = rows.some(x => x.st.price != null);
@@ -8728,10 +8763,12 @@
     // Cards, booster boxes, booster packs, other sealed: a table each, and a switch to show just one
     const groups = WANT_GROUPS.filter(([k]) => rows.some(x => x.kind === k));
     const view = groups.length > 1 && groups.some(([k]) => k === settings.wantsView) ? settings.wantsView : "";
-    const seg = groups.length > 1 ? '<div class="want-view"><div class="seg seg-scroll" role="group" aria-label="Show" id="wantView">' +
+    const seg = '<div class="want-view">' + (groups.length > 1 ? '<div class="seg seg-scroll" role="group" aria-label="Show" id="wantView">' +
       [["", "All"]].concat(groups).map(([k, l]) => '<button type="button" data-wantview="' + k + '" aria-pressed="' + (view === k) + '">' +
         (WANT_SHORT[k] ? '<span class="long">' + esc(l) + '</span><span class="short">' + WANT_SHORT[k] + "</span>" : esc(l)) +
-        '<span class="tab-count">' + (k ? rows.filter(x => x.kind === k).length : rows.length) + "</span></button>").join("") + "</div></div>" : "";
+        '<span class="tab-count">' + (k ? rows.filter(x => x.kind === k).length : rows.length) + "</span></button>").join("") + "</div>" : "") +
+      '<label class="want-sort"><span class="small">Sort</span><select class="select" id="wantSort">' +
+      WANT_SORTS.map(([k, l]) => '<option value="' + k + '"' + (k === sortBy ? " selected" : "") + ">" + esc(l) + "</option>").join("") + "</select></label></div>";
     const owned = pid => collection.filter(r => r.productId === pid).reduce((s, r) => s + r.qty, 0);
     const table = (kind, list) => {
       const sealed = kind !== "card";
@@ -11244,6 +11281,11 @@
     });
 
     // ----- want list
+    $("panel-wants").addEventListener("change", e => {
+      if (e.target.id !== "wantSort") return;
+      settings.wantsSort = e.target.value; saveSettings(); renderWants();
+      if ($("wantSort")) $("wantSort").focus();
+    });
     $("panel-wants").addEventListener("click", e => {
       const v = e.target.closest("[data-wantview]");
       if (v) {
