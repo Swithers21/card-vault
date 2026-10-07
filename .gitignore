@@ -4,3 +4,8 @@ tcgplayer-data-version.js
 tcgplayer-cache/
 _site/
 __pycache__/
+ocg-cache/
+ocg-market.js
+ocg-cards.js
+ocg-history/
+card-images/

@@ -10,9 +10,15 @@ Japanese (OCG) and Korean sets this puts together:
 Sealed prices for Japanese sets come from Yugi-Market, which the website reads itself: that shop turns away GitHub's
 computers.
 
-It's polite to these sites: a time budget per run, pauses between requests, and everything is kept between runs in
-ocg-cache/ (the workflow saves it), so each set is looked up again only now and then. New sets are checked every
-day, recent ones every few days, older ones every week or two. The first runs fill things in, newest sets first.
+It's polite to these sites: a time budget per run, pauses between requests (the three sites are read side by side,
+each at its own gentle pace), and everything is kept between runs in ocg-cache/ (the workflow saves it), so each set
+is looked up again only now and then. New sets are checked every day, recent ones every few days, older ones every
+week. The first runs fill things in, newest sets first.
+
+Besides ocg-market.js (the sets and their most valuable cards), it writes ocg-cards.js: every card of every set, with
+its price, photo and how the price changed over the last day, week and month, for Card Vault to price your Japanese
+and Korean cards, finish sets and search by name; and ocg-history/, a file per set with each day's prices, for the
+price charts.
 """
 
 import html
@@ -20,6 +26,7 @@ import json
 import os
 import re
 import sys
+import threading
 import time
 import unicodedata
 import urllib.error
@@ -30,6 +37,8 @@ from datetime import date, datetime, timedelta, timezone
 HERE = os.path.dirname(os.path.abspath(__file__))
 CACHE = os.environ.get("CARDVAULT_OCG_CACHE", os.path.join(HERE, "ocg-cache"))
 OUT_FILE = os.environ.get("CARDVAULT_OCG_OUT", os.path.join(HERE, "ocg-market.js"))
+CARDS_FILE = os.environ.get("CARDVAULT_OCG_CARDS", os.path.join(HERE, "ocg-cards.js"))
+HISTORY_DIR = os.environ.get("CARDVAULT_OCG_HISTORY", os.path.join(HERE, "ocg-history"))
 YUGIPEDIA = os.environ.get("YUGIPEDIA_API", "https://yugipedia.com/api.php")
 BIGWEB = os.environ.get("BIGWEB_API", "https://api.bigweb.co.jp").rstrip("/")
 BUNJANG = os.environ.get("BUNJANG_API", "https://api.bunjang.co.kr/api/1/find_v2.json")
@@ -38,9 +47,14 @@ BUDGET = float(os.environ.get("CARDVAULT_OCG_BUDGET", "360"))   # seconds of loo
 SLOW = float(os.environ.get("CARDVAULT_OCG_PAUSE", "1"))         # pauses are multiplied by this (0 in tests)
 USER_AGENT = "CardVault/1.0 (personal Yu-Gi-Oh! collection tracker; daily, a few requests a minute)"
 DATA_FORMAT = 1
+CARDS_FORMAT = 1
 CHASE = 25                 # most valuable cards kept per set
 UPCOMING_DAYS = 45         # sets this close to release are listed (shops take pre-orders)
 INDEX_DAYS = 3             # the set lists from Yugipedia are read again after this long
+BUNJANG_PAGES = 4          # listings read per Korean set (100 a page): more pages, more of its cards priced
+HISTORY_DAYS = 400         # days of prices kept per set
+CHANGE_DAYS = (1, 7, 30)   # the price changes in ocg-cards.js: since a day, a week, a month ago
+BIGWEB_IMG = re.compile(r"^https://image\.bigweb\.co\.jp/new/imgc/(\d{3})/(\d{3})/(\d+)\.jpg$")
 
 
 def say(text):
@@ -99,6 +113,7 @@ class Web:
         self.last = {}
         self.count = 0
         self.failed = 0
+        self.lock = threading.Lock()
 
     def left(self):
         return self.budget - (time.time() - self.started)
@@ -106,11 +121,13 @@ class Web:
     def get_json(self, url, pause, headers=None):
         host = urllib.parse.urlsplit(url).netloc
         for attempt in range(3):
-            wait = self.last.get(host, 0) + pause * SLOW - time.time()
+            with self.lock:   # (each site: one request at a time with a pause between, whichever thread asks)
+                slot = max(time.time(), self.last.get(host, 0) + pause * SLOW)
+                self.last[host] = slot
+                self.count += 1
+            wait = slot - time.time()
             if wait > 0:
                 time.sleep(wait)
-            self.last[host] = time.time()
-            self.count += 1
             req = urllib.request.Request(url, headers=dict({"User-Agent": USER_AGENT, "Accept": "application/json"}, **(headers or {})))
             try:
                 with urllib.request.urlopen(req, timeout=40) as res:
@@ -120,13 +137,15 @@ class Web:
                 if err.code in (429, 500, 502, 503, 504) and attempt < 2:
                     time.sleep((10 if err.code == 429 else 4) * SLOW)
                     continue
-                self.failed += 1
+                with self.lock:
+                    self.failed += 1
                 raise
             except (urllib.error.URLError, OSError, ValueError):
                 if attempt < 2:
                     time.sleep(3 * SLOW)
                     continue
-                self.failed += 1
+                with self.lock:
+                    self.failed += 1
                 raise
 
 
@@ -379,7 +398,7 @@ BUNDLE = re.compile(r"일괄|묶음|세트|(?<![0-9])([2-9]|[1-9][0-9])\s*장|PS
 def read_bunjang_cards(web, prefix):
     code_re = re.compile(re.escape(prefix) + r"\s*-?\s*KR\s*-?\s*([A-Z]?\d{2,3})", re.I)
     groups = {}
-    for page in range(2):
+    for page in range(BUNJANG_PAGES):
         j = web.get_json(BUNJANG + "?" + urllib.parse.urlencode({"q": prefix + "-KR", "order": "score", "page": page, "n": 100}), 1.5)
         rows = j.get("list") or []
         for x in rows:
@@ -428,7 +447,7 @@ def interval(kind, released):
     age = (today() - (as_date(released) or today())).days
     if kind == "list":
         return 2 if age < 45 else 30 if age < 365 else 120
-    return 0.8 if age < 120 else 4 if age < 730 else 10
+    return 0.8 if age < 120 else 3 if age < 730 else 7
 
 
 def plan(sets_by_region, meta):
@@ -499,17 +518,267 @@ def assemble(sets_by_region, lists, prices, fx):
     return data
 
 
-def write_site_file(data):
-    tmp = OUT_FILE + ".tmp"
+def write_js(path, name, comment, data):
+    tmp = path + ".tmp"
     with open(tmp, "w", encoding="utf-8") as handle:
-        handle.write("/* Card Vault: Japanese and Korean sets for the Market tab. Rebuilt by ocg_market.py */\n")
-        handle.write("window.OCG_MARKET = ")
+        handle.write("/* Card Vault: " + comment + " Rebuilt by ocg_market.py */\n")
+        handle.write("window." + name + " = ")
         json.dump(data, handle, ensure_ascii=False, separators=(",", ":"))
         handle.write(";\n")
-    os.replace(tmp, OUT_FILE)
+    os.replace(tmp, path)
+
+
+def write_site_file(data):
+    write_js(OUT_FILE, "OCG_MARKET", "Japanese and Korean sets for the Market tab.", data)
+
+
+# ------------------------------------------------------------------ each day's prices, per set (for the changes and the charts)
+def history_path(region, prefix):
+    return cache_path("history", "%s-%s.json" % (region, safe_name(prefix)))
+
+
+def record_history(region, prefix, todays):
+    """todays: {"NUMBER|Rarity": price or None} as read today. One column per day; a set read twice in a day keeps the
+    later reading."""
+    h = read_json(history_path(region, prefix), {})
+    if not isinstance(h, dict):
+        h = {}
+    days = list(h.get("days") or [])
+    p = {k: list(v) for k, v in (h.get("p") or {}).items() if isinstance(v, list)}
+    day = today().isoformat()
+    if days and days[-1] == day:
+        days.pop()
+        for v in p.values():
+            v.pop()
+    elif days and days[-1] > day:
+        return   # (a day from the future: the clock is off; leave the history alone)
+    days.append(day)
+    n = len(days)
+    for k, v in p.items():
+        v.extend([None] * (n - 1 - len(v)))
+        v.append(todays.get(k))
+    for k, price in todays.items():
+        if k not in p:
+            p[k] = [None] * (n - 1) + [price]
+    if n > HISTORY_DAYS:
+        cut = n - HISTORY_DAYS
+        days = days[cut:]
+        p = {k: v[cut:] for k, v in p.items()}
+    p = {k: v for k, v in p.items() if any(x is not None for x in v)}
+    write_json(history_path(region, prefix), {"days": days, "p": p})
+
+
+def changes(h):
+    """For a set's history: the day to compare with for each of CHANGE_DAYS (the latest reading at least that long
+    ago), and a function giving a card's prices on those days."""
+    if not isinstance(h, dict):
+        h = {}
+    days = h.get("days") or []
+    idx = []
+    for n in CHANGE_DAYS:
+        limit = (today() - timedelta(days=n)).isoformat()
+        at = None
+        for i, d in enumerate(days):
+            if d <= limit:
+                at = i
+        idx.append(at)
+    refs = [days[i] if i is not None else "" for i in idx]
+    series = h.get("p") or {}
+
+    def then(key):
+        v = series.get(key) or []
+        return [(v[i] or 0) if i is not None and i < len(v) else 0 for i in idx]
+    return refs, then
+
+
+# ------------------------------------------------------------------ the website's files
+def img_ref(url):
+    """BIGWEB's photos all live at one address pattern: just the number, else the whole address."""
+    m = BIGWEB_IMG.match(url or "")
+    if m and ("%08d" % int(m.group(3)))[:6] == m.group(1) + m.group(2):
+        return int(m.group(3))
+    return url or 0
+
+
+def chase_jp(s, lists, prices):
+    names = (lists.get("jp|" + s["prefix"]) or {}).get("cards") or {}
+    out = []
+    for key, e in ((prices.get("jp|" + s["prefix"]) or {}).get("items") or {}).items():
+        number, rarity = key.split("|", 1)
+        price = e.get("p") or e.get("last")
+        if not price:
+            continue
+        name = (names.get(number) or [e.get("ja") or number])[0]
+        out.append([number, name, rarity, price, 1 if e.get("p") else 0, e.get("img") or ""])
+    out.sort(key=lambda c: (-c[3], c[0]))
+    return out[:CHASE]
+
+
+def twin_image(jp_items, number, rarity):
+    """A Korean print has the Japanese print's artwork: its photo, same number (same rarity when BIGWEB has it)."""
+    twin = number.replace("-KR", "-JP", 1) + "|"
+    return next((e.get("img") for k, e in jp_items.items() if k.startswith(twin) and same_rarity(k.split("|", 1)[1], rarity) and e.get("img")), "") or \
+        next((e.get("img") for k, e in jp_items.items() if k.startswith(twin) and e.get("img")), "")
+
+
+def chase_kr(s, lists, prices):
+    names = (lists.get("kr|" + s["prefix"]) or {}).get("cards") or {}
+    jp_items = (prices.get("jp|" + s["prefix"]) or {}).get("items") or {}
+    out = []
+    for key, (price, n) in ((prices.get("kr|" + s["prefix"]) or {}).get("cards") or {}).items():
+        number, rarity = key.split("|", 1)
+        if price is None:
+            continue
+        name, rarities = names.get(number) or [number, []]
+        if rarity == "?":
+            rarity = rarities[0] if len(rarities) == 1 else ""
+        out.append([number, name, rarity, price, n, twin_image(jp_items, number, rarity)])
+    out.sort(key=lambda c: (-c[3], c[0]))
+    return out[:CHASE]
+
+
+def assemble(sets_by_region, lists, prices, fx):
+    data = {"format": DATA_FORMAT, "generated": now_iso(), "fx": fx, "jp": [], "kr": []}
+    for s in sets_by_region["jp"]:
+        cards = len((lists.get("jp|" + s["prefix"]) or {}).get("cards") or {})
+        data["jp"].append([s["prefix"], s["name"], s["date"], s["line"], cards, chase_jp(s, lists, prices), s["local"]])
+    for s in sets_by_region["kr"]:
+        cards = len((lists.get("kr|" + s["prefix"]) or {}).get("cards") or {})
+        box = (prices.get("kr|" + s["prefix"]) or {}).get("box")
+        data["kr"].append([s["prefix"], s["name"], s["date"], s["line"], cards, chase_kr(s, lists, prices), s["local"], box])
+    return data
+
+
+class Table:
+    """Strings used over and over (names, rarities) go in a table once; the rows carry their index."""
+    def __init__(self):
+        self.items, self.index = [], {}
+
+    def __call__(self, text):
+        text = text or ""
+        if text not in self.index:
+            self.index[text] = len(self.items)
+            self.items.append(text)
+        return self.index[text]
+
+
+def number_tail(number, code):
+    return number[len(code):] if number.startswith(code) else number
+
+
+def cards_jp(s, lists, prices, names, ja, rar):
+    """Every card and rarity of a Japanese set: [tail, name, [[rarity, yen, in stock, photo, a day ago, a week ago, a month
+    ago, Japanese name, (the rarity name the history is kept under, when it differs)], ...]]. Yugipedia's list gives the
+    cards and rarities; BIGWEB the prices, photos and Japanese names, and any rarity it sells that Yugipedia doesn't
+    list yet."""
+    code = s["prefix"] + "-JP"
+    listed = (lists.get("jp|" + s["prefix"]) or {}).get("cards") or {}
+    items = (prices.get("jp|" + s["prefix"]) or {}).get("items") or {}
+    refs, then = changes(read_json(history_path("jp", s["prefix"]), {}))
+    by_number = {}
+    for number, (name, rarities) in listed.items():
+        by_number[number] = [name, [[r, None, ""] for r in rarities]]
+    for key, e in items.items():
+        number, rarity = key.split("|", 1)
+        card = by_number.setdefault(number, [e.get("ja") or number, []])
+        slot = next((x for x in card[1] if same_rarity(x[0], rarity)), None)
+        if slot is None:
+            card[1].append([rarity, e, key])
+        elif slot[1] is None or (e.get("p") and not slot[1].get("p")):
+            slot[1], slot[2] = e, key
+    rows = []
+    for number in sorted(by_number, key=lambda n: (len(n), n)):
+        name, slots = by_number[number]
+        out = []
+        for rarity, e, key in slots:
+            e = e or {}
+            m = then(key) if e else [0, 0, 0]
+            row = [rar(rarity), e.get("p") or e.get("last") or 0, (e.get("s") or 0) if e.get("p") else 0, img_ref(e.get("img")),
+                   m[0], m[1], m[2], ja(e.get("ja"))]
+            # (the history is kept under the shop's rarity name; when that isn't the one shown, the row says which)
+            if key and key.split("|", 1)[1] != rarity:
+                row.append(key.split("|", 1)[1])
+            out.append(row)
+        rows.append([number_tail(number, code), names(name), out])
+    return [s["prefix"], refs, rows]
+
+
+def cards_kr(s, lists, prices, names, rar):
+    """Every card of a Korean set, with Bunjang's asking price where it has listings: [tail, name, [[rarity, won,
+    listings, photo (the Japanese print's), a day ago, a week ago, a month ago, (the history's rarity name, when it
+    differs: "?" for listings that don't say)], ...]]."""
+    code = s["prefix"] + "-KR"
+    listed = (lists.get("kr|" + s["prefix"]) or {}).get("cards") or {}
+    found = (prices.get("kr|" + s["prefix"]) or {}).get("cards") or {}
+    jp_items = (prices.get("jp|" + s["prefix"]) or {}).get("items") or {}
+    refs, then = changes(read_json(history_path("kr", s["prefix"]), {}))
+    by_number = {}
+    for number, (name, rarities) in listed.items():
+        by_number[number] = [name, [[r, None] for r in rarities]]
+    for key, (price, n) in found.items():
+        number, rarity = key.split("|", 1)
+        card = by_number.setdefault(number, [number, []])
+        if rarity == "?":
+            if len(card[1]) == 1:
+                rarity = card[1][0][0]
+            else:
+                rarity = ""
+        slot = next((x for x in card[1] if same_rarity(x[0], rarity)), None)
+        if slot is None:
+            card[1].append([rarity, (price, n, key)])
+        elif slot[1] is None or (price and not slot[1][0]):
+            slot[1] = (price, n, key)
+    rows = []
+    for number in sorted(by_number, key=lambda n: (len(n), n)):
+        name, slots = by_number[number]
+        out = []
+        for rarity, hit in slots:
+            price, n, key = hit if hit else (0, 0, "")
+            m = then(key) if hit else [0, 0, 0]
+            row = [rar(rarity), price or 0, n or 0, img_ref(twin_image(jp_items, number, rarity)), m[0], m[1], m[2]]
+            if key and key.split("|", 1)[1] != rarity:   # (listings that don't say the rarity: kept under "?")
+                row.append(key.split("|", 1)[1])
+            out.append(row)
+        rows.append([number_tail(number, code), names(name), out])
+    return [s["prefix"], refs, rows]
+
+
+def assemble_cards(sets_by_region, lists, prices, fx):
+    names, ja, rar = Table(), Table(), Table()
+    data = {"format": CARDS_FORMAT, "generated": now_iso(), "fx": fx, "jp": [], "kr": []}
+    for s in sets_by_region["jp"]:
+        data["jp"].append(cards_jp(s, lists, prices, names, ja, rar))
+    for s in sets_by_region["kr"]:
+        data["kr"].append(cards_kr(s, lists, prices, names, rar))
+    data["names"], data["ja"], data["rar"] = names.items, ja.items, rar.items
+    return data
+
+
+def write_history_files(sets_by_region):
+    """ocg-history/jp-PHNI.json: each day's prices of the set's cards, for the charts (the cache's file as it is)."""
+    os.makedirs(HISTORY_DIR, exist_ok=True)
+    n = 0
+    for region, sets in sets_by_region.items():
+        for s in sets:
+            src = history_path(region, s["prefix"])
+            if not os.path.exists(src):
+                continue
+            dst = os.path.join(HISTORY_DIR, "%s-%s.json" % (region, safe_name(s["prefix"])))
+            try:
+                with open(src, "rb") as a, open(dst + ".tmp", "wb") as b:
+                    b.write(a.read())
+                os.replace(dst + ".tmp", dst)
+                n += 1
+            except OSError:
+                pass
+    return n
 
 
 # ------------------------------------------------------------------ the run
+def host_of(region, kind):
+    return "yugipedia" if kind == "list" else "bigweb" if region == "jp" else "bunjang"
+
+
 def run():
     web = Web(BUDGET)
     meta = read_json(cache_path("meta.json"), {})           # "region|prefix|kind" -> when it was last looked up
@@ -550,51 +819,86 @@ def run():
     except Exception as err:
         say("  Couldn't get today's exchange rates (%s); using the last ones." % err)
 
-    # Card lists and prices: as many as the time allows, newest sets first
+    # Card lists and prices: as many as the time allows, newest sets first. The three sites are read side by side,
+    # one thread each, so each one sees the same gentle pace as before and the run gets three times as much done.
     lists, prices = {}, {}
+    lock = threading.Lock()
+    state = {"done": 0, "skipped": 0}
+
     def load(region, prefix):
         k = region + "|" + prefix
         if k not in lists:
             lists[k] = read_json(cache_path("lists", "%s-%s.json" % (region, safe_name(prefix))), {})
             prices[k] = read_json(cache_path("prices", "%s-%s.json" % (region, safe_name(prefix))), {})
-    todo = plan(sets_by_region, meta)
-    done = skipped = 0
-    for region, s, kind in todo:
-        if web.left() <= 0:
-            skipped += 1
-            continue
+
+    def lookup(region, s, kind):
         prefix = s["prefix"]
-        load(region, prefix)
         k = region + "|" + prefix
-        try:
-            if kind == "list":
-                lists[k] = {"cards": read_card_list(web, prefix, region)}
+        with lock:
+            load(region, prefix)
+        if kind == "list":
+            cards = read_card_list(web, prefix, region)
+            with lock:
+                lists[k] = {"cards": cards}
                 write_json(cache_path("lists", "%s-%s.json" % (region, safe_name(prefix))), lists[k])
-            elif kind == "price" and region == "jp":
-                prices[k]["items"] = read_bigweb_prices(web, prefix, s["bigweb"], prices[k].get("items"))
+        elif kind == "price" and region == "jp":
+            items = read_bigweb_prices(web, prefix, s["bigweb"], prices[k].get("items"))
+            with lock:
+                prices[k]["items"] = items
                 write_json(cache_path("prices", "%s-%s.json" % (region, safe_name(prefix))), prices[k])
-            elif kind == "price":
-                prices[k]["cards"] = read_bunjang_cards(web, prefix)
+            record_history("jp", prefix, {key: e.get("p") or None for key, e in items.items()})
+        elif kind == "price":
+            cards = read_bunjang_cards(web, prefix)
+            with lock:
+                prices[k]["cards"] = cards
                 write_json(cache_path("prices", "%s-%s.json" % (region, safe_name(prefix))), prices[k])
-            else:
-                prices[k]["box"] = read_bunjang_box(web, s["local"])
+            record_history("kr", prefix, {key: v[0] for key, v in cards.items()})
+        else:
+            box = read_bunjang_box(web, s["local"])
+            with lock:
+                prices[k]["box"] = box
                 write_json(cache_path("prices", "%s-%s.json" % (region, safe_name(prefix))), prices[k])
-            meta["%s|%s|%s" % (region, prefix, kind)] = now_iso()
-            done += 1
-        except Exception as err:
-            say("  %s %s (%s): %s" % (prefix, kind, region, err))
-        if done % 25 == 0:
-            write_json(cache_path("meta.json"), meta)
+
+    def worker(todo):
+        for region, s, kind in todo:
+            if web.left() <= 0:
+                with lock:
+                    state["skipped"] += 1
+                continue
+            try:
+                lookup(region, s, kind)
+                with lock:
+                    meta["%s|%s|%s" % (region, s["prefix"], kind)] = now_iso()
+                    state["done"] += 1
+                    if state["done"] % 25 == 0:
+                        write_json(cache_path("meta.json"), meta)
+            except Exception as err:
+                say("  %s %s (%s): %s" % (s["prefix"], kind, region, err))
+
+    by_host = {}
+    for region, s, kind in plan(sets_by_region, meta):
+        by_host.setdefault(host_of(region, kind), []).append((region, s, kind))
+    threads = [threading.Thread(target=worker, args=(todo,), name=host, daemon=True) for host, todo in by_host.items()]
+    for t in threads:
+        t.start()
+    for t in threads:
+        t.join()
     write_json(cache_path("meta.json"), meta)
+    done, skipped = state["done"], state["skipped"]
 
     for region, sets in sets_by_region.items():
         for s in sets:
             load(region, s["prefix"])
     data = assemble(sets_by_region, lists, prices, fx)
     write_site_file(data)
+    cards = assemble_cards(sets_by_region, lists, prices, fx)
+    write_js(CARDS_FILE, "OCG_CARDS", "every card of the Japanese and Korean sets, with prices.", cards)
+    hist = write_history_files(sets_by_region)
     priced = sum(1 for row in data["jp"] if row[5]), sum(1 for row in data["kr"] if row[5])
-    say("  Japanese sets: %d (%d with prices). Korean sets: %d (%d with prices). %d lookups this time (%d requests), %d left for later. %.1f MB."
-        % (len(data["jp"]), priced[0], len(data["kr"]), priced[1], done, web.count, skipped, os.path.getsize(OUT_FILE) / 1048576))
+    n_cards = sum(len(s[2]) for s in cards["jp"]), sum(len(s[2]) for s in cards["kr"])
+    say("  Japanese sets: %d (%d with prices, %d cards). Korean sets: %d (%d with prices, %d cards). %d lookups this time (%d requests), %d left for later. %.1f + %.1f MB, %d history files."
+        % (len(data["jp"]), priced[0], n_cards[0], len(data["kr"]), priced[1], n_cards[1], done, web.count, skipped,
+           os.path.getsize(OUT_FILE) / 1048576, os.path.getsize(CARDS_FILE) / 1048576, hist))
     return 0
 
 

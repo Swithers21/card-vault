@@ -100,10 +100,19 @@ personal app: click **Continue**.
 - **Camera scanning** works on the iPhone (Add card > Scan with camera; allow the camera).
 - **Sealed products**: Add card > **Add a sealed product** (booster boxes and packs, tins, structure decks). They're priced
   with TCGplayer's market price like cards, and listed under **Sealed products** in the Show menu.
-- **Japanese and Korean cards**: type the card number (like `DUNE-JP004` or `DUNE-KR004`) in Add card. Card Vault looks the
-  card up on Yugipedia and shows each rarity it was printed in. Japanese prices and photos come from BIGWEB (a large
-  Japanese card shop); Korean prices are Bunjang (a Korean marketplace) asking prices, so treat them as a rough guide.
-  Both are converted to US$ and refreshed once a day. A ¥ or ₩ price you type on a card wins over them.
+- **Japanese and Korean cards** work like English ones. The website keeps a daily list of every card in every Japanese
+  and Korean set (`ocg-cards.js`, a few MB, loaded the first time it's needed): each rarity with its price, photo, how
+  many are in stock, its Japanese name, and the price a day, a week and a month before. Type the card number (like
+  `DUNE-JP004` or `DUNE-KR004`) in Add card and its rarities show right away with prices and photos; **Search by name**
+  finds them too. **Ask the shop now** asks Yugipedia and the shop instead (and that's what happens for a card the list
+  doesn't have yet, like a set out this week). Owned cards are priced from the list, show their changes and a price
+  chart (from `ocg-history/`, a file per set with each day's prices), count in the Insights change, the Sets tab (how
+  much of the set you have, what the rest costs, with Want and I have it) and Price movers (Every Japanese card, Every
+  Korean card). Japanese prices and photos come from BIGWEB (a large Japanese card shop): a shop's selling price for a
+  copy in stock. Korean prices are Bunjang (a Korean marketplace) asking prices, only for cards that have listings, so
+  treat them as a rough guide; a Korean card shows the Japanese print's photo. Both are converted to US$. A ¥ or ₩ price
+  you type on a card wins over them. A card's changes compare its set's latest earlier check at least that long ago (new
+  sets are checked daily, older ones weekly), so a week's change can be a little older than a week.
 - **PSA 10 value**: the switch under your collection's value shows what one gem-mint copy of each card would be worth,
   and cards you've had graded at their grade. Without more, it's a rough estimate from the raw price (Settings > Graded
   values). For real graded prices from eBay sales, add a PriceCharting key in Settings (it needs PriceCharting's
@@ -112,14 +121,16 @@ personal app: click **Continue**.
   (the last 30 days). Settings lists them; Restore puts one back on every device.
 - **Card search** tab: what any card is worth. Type a name (or part of one), a card number or a set; more words narrow it
   (`dark magician lob`). Each card lists every printing with TCGplayer's market price, lowest listing and 30-day change,
-  most valuable first, plus its Japanese and Korean prices when the Market has them. **Details** opens a card's price
-  page: every printing, its price over time, a PSA 10 value, other markets, and buttons to add it or want it. A
-  Japanese or Korean number (like DUNE-JP004) gets the same Yugipedia/BIGWEB/Bunjang lookup as Add card. It only uses
-  data Card Vault already has, so it works offline once the prices are loaded (except that lookup).
+  most valuable first, plus every Japanese and Korean printing with that name (price, 30-day change, Want, I have it,
+  Details). **Details** opens a card's price page: every printing, its price over time, a PSA 10 value, other markets,
+  and buttons to add it or want it; a Japanese or Korean card's page shows every rarity, its changes and its chart. A
+  Japanese or Korean number (like DUNE-JP004) shows that card's rarities from the daily list, with **Ask the shop now**
+  for the Yugipedia/BIGWEB/Bunjang lookup. A name only a Japanese or Korean card has is found too. It only uses data
+  Card Vault already has, so it works offline once the prices are loaded (except that lookup).
   Switch to **Sets** to find a set by name or code (`MAMO`, or a card number) and see every card in it: card number,
   rarity, each printing's price, which you have, how many of its cards you have and what the rest would cost, its
-  booster box price, with a filter by rarity and "Ones I don't have". Japanese and Korean sets show their most valuable
-  cards from the Market, with a link to Yugipedia's full card list. Sets matching a card search show on top of it, and a
+  booster box price, with a filter by rarity and "Ones I don't have". Japanese and Korean sets work the same from the
+  daily list (every card and rarity, prices, which you have, the rest's cost, the booster box). Sets matching a card search show on top of it, and a
   set's name on a card's price page, the Sets tab and the Market open the set here.
   **Scan a card** (next to the search box) points the camera at a card and shows what it's worth right in the scanner,
   without adding it: every printing with that number, market price and lowest listing, and a running "Checked so far"
@@ -154,8 +165,12 @@ personal app: click **Continue**.
     link to it.
   - Sets and English card names: Yugipedia.
 
-  The daily workflow puts this together in a few minutes at most (`ocg_market.py`, kept between runs like the prices).
-  New sets are checked every day, older ones every week or two. The first few days fill it in, newest sets first.
+  The daily workflow puts this together (`ocg_market.py`, up to 25 minutes a run, reading the three sites side by side
+  at a gentle pace; everything is kept between runs like the prices, with each day's prices per set). New sets are
+  checked every day, recent ones every few days, older ones weekly. The first runs fill it in, newest sets first; the
+  day, week and month changes appear as those days go by. It writes `ocg-market.js` (the sets and their most valuable
+  cards), `ocg-cards.js` (every card) and `ocg-history/` (each set's prices by day). The run's last line shows in the
+  workflow's summary ("Japanese sets: 590 (…cards)…").
 - **Deck check** can move the cards you own for a deck into a location named after it ("Deck: Blue-Eyes").
 - **Decks I can build** (in the Deck check tab): looks up every card you own on YGOPRODeck and shows the archetypes your
   collection is closest to: which of each archetype's key cards you have, your cards that support it, the key cards

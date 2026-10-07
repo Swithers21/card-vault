@@ -1341,8 +1341,8 @@
   <section id="panel-market" role="tabpanel" aria-labelledby="tab-market" hidden></section>
 
   <footer>
-    <p>Card photos, card numbers, rarities and market prices come from TCGplayer, through TCGCSV (tcgcsv.com), a free daily mirror of TCGplayer's catalog. <span class="local-only">Run "Update TCGplayer Data" to refresh them, or turn on daily updates.</span><span class="site-only">They update every evening.</span> "Other markets" reference prices come from YGOPRODeck. Photos of Japanese and Korean cards come from Yugipedia.</p>
-    <p>Your collection is saved in this browser. <span class="local-only">Turn on automatic backup in Settings to also keep it in a file.</span><span class="site-only">Sync with Google Drive (Settings) to also keep it in your Google Drive.</span> Card Vault isn't affiliated with TCGplayer, TCGCSV, YGOPRODeck, Yugipedia or Konami.</p>
+    <p>Card photos, card numbers, rarities and market prices come from TCGplayer, through TCGCSV (tcgcsv.com), a free daily mirror of TCGplayer's catalog. <span class="local-only">Run "Update TCGplayer Data" to refresh them, or turn on daily updates.</span><span class="site-only">They update every evening.</span> "Other markets" reference prices come from YGOPRODeck. Japanese prices and photos come from BIGWEB (a Japanese card shop), Korean prices from Bunjang (a Korean marketplace), and their card lists from Yugipedia.</p>
+    <p>Your collection is saved in this browser. <span class="local-only">Turn on automatic backup in Settings to also keep it in a file.</span><span class="site-only">Sync with Google Drive (Settings) to also keep it in your Google Drive.</span> Card Vault isn't affiliated with TCGplayer, TCGCSV, YGOPRODeck, Yugipedia, BIGWEB, Bunjang or Konami.</p>
   </footer>
 </div>
 
@@ -2116,7 +2116,9 @@
   }
   // How this copy's value moved since an earlier TCGplayer price day (ref: m1, m7 or m30).
   function changeFor(r, ref) {
-    if (!catalog || !r.productId || (r.grade && r.grade.value != null)) return null;
+    if (r.grade && r.grade.value != null) return null;
+    if (isOcg(r)) return ocgChangeFor(r, ref);
+    if (!catalog || !r.productId) return null;
     const sub = catalogPrice(catalog.byId.get(r.productId), r.edition);
     if (!sub || sub.market == null || sub[ref] == null) return null;
     const f = conditionFactor(r);
@@ -3095,7 +3097,7 @@
       '<span class="result-price">' + pricesSummary(p) + "</span></button>").join("") + "</div>";
   }
   function wireResults(container, list, onPick) {
-    container.querySelectorAll(".result").forEach(btn => btn.addEventListener("click", () => {
+    container.querySelectorAll(".result[data-idx]").forEach(btn => btn.addEventListener("click", () => {
       const p = list[+btn.dataset.idx];
       if (onPick) onPick(p); else openPickedForm(p);
     }));
@@ -3114,10 +3116,19 @@
       const q = $("nameQuery").value;
       if (q.trim().length < 2) { out.innerHTML = ""; return; }
       const res = searchByName(q, 60);
-      if (!res.items.length) { out.innerHTML = '<div class="notice">No TCGplayer card name contains "' + esc(q.trim()) + '".</div>'; return; }
-      out.innerHTML = '<p class="results-head">' + (res.more ? "First 60 of " + res.total.toLocaleString() + " printings. Add more of the name to narrow it down." : plural(res.items.length, "printing") + " found.") + "</p>" + resultsHTML(res.items);
+      const ocgHits = want || replaceId ? [] : ocgNameHits(q, 12);
+      if (!res.items.length && !ocgHits.length) { out.innerHTML = '<div class="notice">No TCGplayer card name contains "' + esc(q.trim()) + '".' + (ocgCd.data ? " No Japanese or Korean card either." : "") + "</div>"; return; }
+      out.innerHTML = (res.items.length ? '<p class="results-head">' + (res.more ? "First 60 of " + res.total.toLocaleString() + " printings. Add more of the name to narrow it down." : plural(res.items.length, "printing") + " found.") + "</p>" + resultsHTML(res.items) : "") +
+        (ocgHits.length ? '<p class="results-head">Japanese and Korean printings' + (res.items.length ? "" : ' (no English printing has this name)') + '.</p><div class="results">' +
+          ocgHits.map((c, i) => { const priced = c.rows.filter(x => x.local > 0); const row = priced.length ? priced.reduce((a, b) => (b.local < a.local ? b : a)) : c.rows[0] || {local: 0, img: "", rarity: ""}; const mkSet = ocgFindSet(c.set.id);
+            return '<button type="button" class="result" data-ocg-idx="' + i + '"><span class="sleeve"' + foilAttr(row.rarity) + ">" + imgTag({list: [row.img].concat(namePics(c.name, "in_400x400", row.rarity).list)}, c.name) + "</span>" +
+              '<span class="result-name">' + esc(c.name) + '</span><span class="result-meta">' + esc(mkSet ? mkSet.name : c.set.prefix) + ", " + esc(ocgLang(c.region)) + "</span>" +
+              '<span class="result-meta">' + esc(c.number) + (c.rows.length > 1 ? ", " + c.rows.length + " rarities" : ", " + esc(row.rarity || "rarity not stated")) + "</span>" +
+              '<span class="result-price">' + (row.local ? ocgMoneyHTML(row.local, c.region) + (c.rows.length > 1 ? ' <span class="small">and up</span>' : "") : '<span class="small">No price</span>') + "</span></button>"; }).join("") + "</div>" : "");
       wireResults(out, res.items);
+      out.querySelectorAll("[data-ocg-idx]").forEach(btn => btn.addEventListener("click", () => { const c = ocgHits[+btn.dataset.ocgIdx]; const m = c.number.match(/^([A-Z0-9]+)-(JP|KR)([A-Z]?\d+)$/); if (!m) return; out.innerHTML = ""; showOcgFromList(out, c, m, {}); if (out.scrollIntoView) out.scrollIntoView({block: "start"}); }));
     };
+    if (!want && !replaceId) ocgCardsReady();
     $("nameQuery").addEventListener("input", () => { clearTimeout(timer); timer = setTimeout(run, 220); });
   }
 
@@ -3520,12 +3531,13 @@
   }
   // A Japanese or Korean card's price: from BIGWEB or Bunjang, or yours.
   function ocgPriceHTML(r) {
-    const pi = priceInfo(r), op = ocgPrice(r), g = ocgRegion(r.number);
+    const pi = priceInfo(r), op = ocgPrice(r), g = ocgRegion(r.number), fp = ocgFilePrice(r);
     const fx = fxNow();
     let html = "";
     if (op && !op.none) {
       html += "<p>" + esc(op.src) + ": <b>" + esc(fmtLocal(op.local, op.cur)) + "</b>" + (op.usd != null ? " ≈ <b>" + esc(usd(op.usd)) + "</b>" : "") +
-        ' <span class="small">(' + esc(r.rarity || "") + (r.rarity ? ", " : "") + esc(op.note) + ")</span></p>";
+        ' <span class="small">(' + esc(r.rarity || "") + (r.rarity ? ", " : "") + esc(op.note) + ")</span></p>" +
+        (fp && !fp.none ? ocgChangesHTML(fp.row, "Price change") : "");
     } else if (op && op.none) {
       html += '<p class="small">' + esc(op.src) + " has no price for " + esc(r.rarity || "this card") + (op.note ? " (" + esc(op.note) + ")" : "") + ".</p>";
     } else {
@@ -3536,10 +3548,10 @@
       '</b>, is used. <span class="small">Clear the ' + (pi.cur === "JPY" ? "Japan" : "Korea") + " price below to use the one above.</span></p>";
     else if (pi.from === "ocg" && marketValue(r).factor != null && marketValue(r).factor !== 1) html += '<p class="price-yours">Your copy: <b>' + esc(usd(marketValue(r).unit)) +
       '</b> <span class="small">(' + esc(r.condition) + " at " + Math.round(marketValue(r).factor * 100) + "% of that price, see Settings)</span></p>";
-    const when = op && op.at ? fmtDateTime(new Date(op.at)) : "";
+    const when = op && op.at ? (op.file ? "From Card Vault's daily price list, " + fmtDate(new Date(op.at)) : "Checked " + fmtDateTime(new Date(op.at))) : "";
     html += '<p class="small">' + (g.region === "JP" ? '<a href="https://bigweb.co.jp/" target="_blank" rel="noopener">BIGWEB</a> is a large Japanese card shop; this is its selling price.'
       : '<a href="' + esc("https://m.bunjang.co.kr/search/products?q=" + encodeURIComponent(g.code)) + '" target="_blank" rel="noopener">Bunjang</a> is a Korean marketplace; this is the middle of what sellers ask, so treat it as a rough guide.') +
-      (when ? " Checked " + esc(when) + "." : "") + (fx ? " US$ at " + esc(fx.JPY.toFixed(1)) + " yen and " + esc(Math.round(fx.KRW).toLocaleString()) + " won to the dollar." : "") +
+      (when ? " " + esc(when) + "." : "") + (fx ? " US$ at " + esc(fx.JPY.toFixed(1)) + " yen and " + esc(Math.round(fx.KRW).toLocaleString()) + " won to the dollar." : "") +
       ' <button type="button" class="link-btn" id="ocgCheck">Check again now</button></p>';
     return html;
   }
@@ -3629,7 +3641,7 @@
         Math.round(mv.factor * 100) + "% of market. You can change the percentages in Settings.)</span></p>";
     }
     priceSection += (r.sealed ? "" : '<div id="otherMarkets"><button type="button" class="btn btn-small" id="otherBtn">Check other markets</button></div>') + "</div>" +
-      (product && SITE ? '<div class="section"><h3>Price over time</h3><div id="cardHist" class="card-hist"><p class="small">Loading…</p></div></div>' : "") +
+      ((product && SITE) || (isOcg(r) && ocgHistoryBase()) ? '<div class="section"><h3>Price over time</h3><div id="cardHist" class="card-hist"><p class="small">Loading…</p></div></div>' : "") +
       (r.sealed ? "" : '<div class="section"><h3>Graded value</h3><div id="gradedBox">' + gradedBoxHTML(r) + "</div></div>" +
         '<div class="section" id="gradeItSec"><h3>' + (r.grading ? "At the grader" : r.grade ? "Graded" : "Get it graded") + '</h3><div id="gradeIt">' +
         gradeItHTML(r, opts.grading === "back" ? "back" : opts.grading === "sent" ? "sent" : "") + "</div></div>");
@@ -3675,6 +3687,7 @@
     wireGradeIt(r.id);
     if (opts.grading && $("gradeItSec") && $("gradeItSec").scrollIntoView) $("gradeItSec").scrollIntoView({block: "start"});
     if (product && SITE) loadCardHistory(r, product);
+    else if (isOcg(r) && ocgHistoryBase()) loadOcgHistory(r);
     if (!r.sealed && pcOn() && !pcBad() && normNumber(r.number)) {
       const h = pcCache()[pcKey(r)];
       if (!h || Date.now() - h.t > PC_TTL) pcLookup(r).then(() => { const cur = collection.find(x => x.id === id); if (cur && drawerCtx && drawerCtx.id === id && $("gradedBox")) { $("gradedBox").innerHTML = gradedBoxHTML(cur); if (settings.gradedView) renderSoon(); } }).catch(() => {});
@@ -3697,8 +3710,8 @@
       };
       const wireOcgRefresh = () => { const b = $("ocgCheck"); if (b) b.addEventListener("click", () => { b.disabled = true; b.textContent = "Checking…"; refresh(true); }); };
       wireOcgRefresh();
-      const key = (g.region === "JP" ? "bw|" : "bj|") + g.code, hit = ocgCache()[key];
-      if (!hit || Date.now() - hit.t > OCG_TTL) refresh(false);
+      const key = (g.region === "JP" ? "bw|" : "bj|") + g.code, hit = ocgCache()[key], fp = ocgFilePrice(r);
+      if ((!hit || Date.now() - hit.t > OCG_TTL) && !(fp && !fp.none)) refresh(false);   // (the daily list covers it: the shop isn't asked by itself)
     }
     $("soldBtn").addEventListener("click", () => openSoldForm(r.id));
     ["moveBtn", "moveTop"].forEach(b => $(b).addEventListener("click", () => openMove([r.id], {back: r.id})));
@@ -4145,9 +4158,16 @@
 
   /* ----- a card's price, photo and source ----- */
   const ocgTwin = g => g.set + "-JP" + g.tail;   // the Japanese print with the same number (same artwork)
+  // The daily list's price and a live check from this browser: the newer one that has a price.
   function ocgPrice(r) {
     const g = isOcg(r) ? ocgRegion(r.number) : null;
     if (!g) return null;
+    const file = ocgFilePrice(r), live = ocgLivePrice(r, g);
+    const has = x => x && !x.none;
+    if (has(file) && has(live)) return live.at > file.at ? live : file;
+    return has(file) ? file : has(live) ? live : file || live;
+  }
+  function ocgLivePrice(r, g) {
     const cardHit = ocgCache()["card|" + g.code];
     const only = !!(cardHit && cardHit.card && cardHit.card.rarities.length === 1);
     if (g.region === "JP") {
@@ -4165,28 +4185,35 @@
   function ocgImage(r) {
     const g = isOcg(r) ? ocgRegion(r.number) : null;
     if (!g) return "";
+    const card = ocgCardAt(g.code) || (g.region === "KR" ? ocgCardAt(ocgTwin(g)) : null);
+    if (card) { const row = ocgRowFor(card, r.rarity); if (row && row.img) return row.img; const any = card.rows.find(x => x.img); if (any) return any.img; }
     const e = ocgCache()["bw|" + (g.region === "JP" ? g.code : ocgTwin(g))];
     const pick = e && (bigwebPick(e.items, r.rarity) || (e.items || []).find(it => it.image));
     return (pick && pick.image) || "";
   }
   // Brings the prices of your Japanese and Korean cards up to date (once a day), and the photo of the Japanese print
   // for Korean cards without one. Runs quietly in the background.
+  // The daily list covers most of them; the shops are only asked about cards it doesn't have a price for.
   async function refreshOcgPrices(force) {
     if (ocg.refreshing) return 0;
     const codes = new Map();
     for (const r of collection) if (isOcg(r)) { const g = ocgRegion(r.number); codes.set(g.code, {g, needsPhoto: (codes.get(g.code) || {}).needsPhoto || !safeImg(r.customImage)}); }
-    for (const w of wants) if (isOcg(w) && !codes.has(ocgRegion(w.number).code)) codes.set(ocgRegion(w.number).code, {g: ocgRegion(w.number), needsPhoto: false});
+    for (const w of wants) if (isOcg(w) && !w.ref && !codes.has(ocgRegion(w.number).code)) codes.set(ocgRegion(w.number).code, {g: ocgRegion(w.number), needsPhoto: false});
     if (!codes.size) return 0;
     ocg.refreshing = true;
     let fetched = 0;
     try {
+      await loadOcgCardsSoft();
       await fxRates();
       for (const {g, needsPhoto} of codes.values()) {
         const stale = key => { const h = ocgCache()[key]; return force || !h || Date.now() - h.t > OCG_TTL; };
+        const listed = r => { const f = ocgFilePrice(r); return f && !f.none; };
+        const covered = !force && collection.concat(wants).filter(r => !r.productId && !r.ref && normNumber(r.number) === g.code).every(listed);
+        const photoListed = !!(ocgCardAt(g.code) && ocgCardAt(g.code).rows.some(x => x.img));
         try {
-          if (g.region === "JP" && stale("bw|" + g.code)) { await bigwebFor(g.code, true); fetched++; }
-          if (g.region === "KR" && stale("bj|" + g.code)) { await bunjangFor(g.code, true); fetched++; }
-          if (g.region === "KR" && needsPhoto && !ocgCache()["bw|" + ocgTwin(g)]) { await bigwebFor(ocgTwin(g)); fetched++; }
+          if (g.region === "JP" && !covered && stale("bw|" + g.code)) { await bigwebFor(g.code, true); fetched++; }
+          if (g.region === "KR" && !covered && stale("bj|" + g.code)) { await bunjangFor(g.code, true); fetched++; }
+          if (g.region === "KR" && needsPhoto && !photoListed && !ocgCache()["bw|" + ocgTwin(g)]) { await bigwebFor(ocgTwin(g)); fetched++; }
         } catch (e) {
           if (typeof navigator !== "undefined" && navigator.onLine === false) break;
         }
@@ -4203,9 +4230,20 @@
 
   /* ----- adding a Japanese or Korean card by its number ----- */
   // opts.search: shown in Card search (adding is optional there)
+  // opts.live: ask Yugipedia and the shops now, instead of Card Vault's daily list
   async function showOcgLookup(out, code, m, opts) {
     const inOut = sel => out.querySelector(sel);   // (its buttons, not ones with the same id in a drawer)
     const lang = OCG_REGIONS[m[2]];
+    opts = opts || {};
+    if (!opts.live) {
+      if (!ocgCd.data && ocgCardsURL() && !(ocgCd.failed && Date.now() - ocgCd.failed < 10 * 60000)) {
+        out.innerHTML = '<p class="hint" role="status">Loading the Japanese and Korean card list…</p>';
+        await loadOcgCardsSoft();
+        if (!out.isConnected) return;
+      }
+      const card = ocgCardAt(code);
+      if (card && card.rows.length) { showOcgFromList(out, card, m, opts); return; }
+    }
     out.innerHTML = '<p class="hint" role="status">Looking up ' + esc(code) + " (" + esc(lang) + ")…</p>";
     let card = null, failed = false;
     try { card = await ocgCard(code); } catch (e) { failed = true; }
@@ -4260,6 +4298,28 @@
       ' <button type="button" class="link-btn" id="manualOcg">Add it manually instead</button></p>';
     inOut("#manualOcg").addEventListener("click", () => openManual({number: code, language: lang, name: card.name, setName: card.setName}));
     out.querySelectorAll(".result").forEach(btn => btn.addEventListener("click", () => openOcgForm(card, lang, choices[+btn.dataset.idx])));
+  }
+  // The card as the daily list has it: every rarity with its price and photo, right away.
+  function showOcgFromList(out, card, m, opts) {
+    const lang = OCG_REGIONS[m[2]], region = card.region, mkSet = ocgFindSet(card.set.id), code = card.number;
+    const info = {code, name: card.name, setName: mkSet ? mkSet.name : "", sets: [], rarities: card.rows.map(x => x.rarity).filter(Boolean)};
+    const choices = card.rows.map(row => ({rarity: row.rarity, image: row.img, backup: "", ja: row.ja, row,
+      price: row.local ? {local: row.local, cur: OCG_CUR[region], src: ocgSrc(region), note: rowNote(row)} : null}));
+    const priceText = pr => pr ? esc(fmtLocal(pr.local, pr.cur)) + (ocgUSD(pr.local, region) != null ? " ≈ " + esc(usd(ocgUSD(pr.local, region))) : "") +
+      '<br><span class="small">' + esc(pr.src) + ", " + esc(pr.note) + "</span>" : '<span class="small">No price' + (region === "jp" ? " (sold out)" : " (no listings)") + "</span>";
+    out.innerHTML = '<p class="results-head">' + esc(card.name) + (info.setName ? ", " + esc(info.setName) : "") + " (" + esc(lang) + "). " +
+      (opts && opts.search ? (choices.length > 1 ? "It was printed in " + choices.length + " rarities. Pick one to add it to your collection." : "Pick it to add it to your collection.")
+        : choices.length > 1 ? "It was printed in " + choices.length + " rarities: pick yours." : "Pick it to continue.") + "</p>" +
+      '<div class="results">' + choices.map((c, i) => '<button type="button" class="result" data-idx="' + i + '">' +
+        '<span class="sleeve"' + foilAttr(c.rarity) + ">" + imgTag({list: [c.image].concat(namePics(card.name, "in_400x400", c.rarity).list)}, card.name) + "</span>" +
+        '<span class="result-name">' + esc(card.name) + "</span>" + (c.ja ? '<span class="result-meta">' + esc(c.ja) + "</span>" : "") +
+        '<span class="result-meta">' + esc(code) + ", " + esc(c.rarity || "rarity not stated") + "</span>" +
+        '<span class="result-price">' + priceText(c.price) + ocgOneChangeHTML(c.row) + "</span></button>").join("") + "</div>" +
+      '<p class="small">From Card Vault\'s daily ' + esc(lang) + " price list (" + (region === "jp" ? "BIGWEB prices and photos" : "Bunjang asking prices; the photos are the Japanese prints") + "), " + esc(ocgListDate()) + ". " +
+      '<button type="button" class="link-btn" id="ocgLive">Ask the shop now</button> <button type="button" class="link-btn" id="manualOcg">Add it manually instead</button></p>';
+    out.querySelector("#manualOcg").addEventListener("click", () => openManual({number: code, language: lang, name: card.name, setName: info.setName}));
+    out.querySelector("#ocgLive").addEventListener("click", () => showOcgLookup(out, code, m, Object.assign({}, opts, {live: true})));
+    out.querySelectorAll(".result").forEach(btn => btn.addEventListener("click", () => openOcgForm(info, lang, choices[+btn.dataset.idx])));
   }
   // opts.fromWant: the want-list entry this card came from (it's taken off once the card is added)
   function openOcgForm(card, lang, choice, opts) {
@@ -4794,13 +4854,232 @@
     const cur = OCG_CUR[region];
     const v = toUSD(amount, cur);
     if (v != null) return v;
-    const rate = ocgMk.data && ocgMk.data.fx && ocgMk.data.fx[cur];
+    const rate = (ocgMk.data && ocgMk.data.fx && ocgMk.data.fx[cur]) || (ocgCd.data && ocgCd.data.fx && ocgCd.data.fx[cur]);
     return amount != null && rate > 0 ? round2(amount / rate) : null;
   }
   // US$ first (what the rest of Card Vault uses), the yen or won price beside it
   function ocgMoneyHTML(amount, region) {
     const u = ocgUSD(amount, region), local = fmtLocal(amount, OCG_CUR[region]);
     return u != null ? esc(usd(u)) + ' <span class="small">' + esc(local) + "</span>" : esc(local);
+  }
+
+  /* ----- every Japanese and Korean card: ocg-cards.js, built each night with ocg-market.js ----- */
+  // Each set's cards and rarities with BIGWEB's price, stock and photo (Japanese) or Bunjang's asking price (Korean),
+  // and the price a day, a week and a month before. It's a few MB, so it's read once per visit, the first time
+  // something needs it: your Japanese and Korean cards, a lookup, a set, the movers.
+  const ocgCd = {data: null, loading: null, failed: 0};
+  const ocgCardsURL = () => ocgMarketURL().replace(/ocg-market\.js$/, "ocg-cards.js");
+  const ocgHistoryBase = () => ocgMarketURL().replace(/ocg-market\.js$/, "ocg-history/");
+  // BIGWEB's photos all live at one address pattern, so the list carries just the number
+  const bigwebImg = ref => { if (typeof ref === "number" && ref > 0) { const s = String(ref).padStart(8, "0"); return "https://image.bigweb.co.jp/new/imgc/" + s.slice(0, 3) + "/" + s.slice(3, 6) + "/" + ref + ".jpg"; } return safeImg(ref) || ""; };
+  function buildOcgCards(raw) {
+    if (!raw || !Array.isArray(raw.jp) || !Array.isArray(raw.kr) || !Array.isArray(raw.names)) throw new Error("not the Japanese and Korean card data");
+    const names = raw.names.map(String), ja = (raw.ja || []).map(String), rar = (raw.rar || []).map(String);
+    const data = {generated: parseDate(raw.generated), fx: raw.fx || null, jp: new Map(), kr: new Map(), byNumber: new Map(), byName: new Map(), cards: []};
+    for (const region of ["jp", "kr"]) {
+      const tag = region === "jp" ? "-JP" : "-KR";
+      for (const row of raw[region]) {
+        if (!Array.isArray(row) || !row[0]) continue;
+        const refs = Array.isArray(row[1]) ? row[1] : [];
+        const set = {region, prefix: String(row[0]), id: region + ":" + row[0], refs: {m1: String(refs[0] || ""), m7: String(refs[1] || ""), m30: String(refs[2] || "")}, cards: []};
+        for (const c of (Array.isArray(row[2]) ? row[2] : [])) {
+          if (!Array.isArray(c)) continue;
+          const number = set.prefix + tag + String(c[0] || "");
+          const card = {region, set, number, name: names[c[1]] || number, rows: []};
+          for (const x of (Array.isArray(c[2]) ? c[2] : [])) {
+            if (!Array.isArray(x)) continue;
+            const hk = region === "jp" ? x[8] : x[7];   // (the rarity name its history is kept under, when that differs)
+            card.rows.push({card, rarity: rar[x[0]] || "", local: +x[1] || 0, stock: region === "jp" ? +x[2] || 0 : null, n: region === "kr" ? +x[2] || 0 : null,
+              img: bigwebImg(x[3]), m1: +x[4] || 0, m7: +x[5] || 0, m30: +x[6] || 0, ja: region === "jp" ? ja[x[7]] || "" : "", hk: typeof hk === "string" ? hk : null});
+          }
+          set.cards.push(card);
+          data.byNumber.set(number, card);
+          pushMap(data.byName, csNorm(card.name), card);
+          data.cards.push(card);
+        }
+        data[region].set(set.prefix, set);
+      }
+    }
+    return data;
+  }
+  function loadOcgCards() {
+    if (ocgCd.data || ocgCd.loading) return ocgCd.loading || Promise.resolve(ocgCd.data);
+    const url = ocgCardsURL();
+    if (!url) { ocgCd.failed = Date.now(); return Promise.resolve(null); }
+    const http = /^https?:$/.test(location.protocol);
+    ocgCd.loading = (http
+      ? fetch(url).then(res => { if (!res.ok) throw new Error("answered " + res.status); return res.text(); }).then(t => readWindowJSON(t, "OCG_CARDS"))
+      : new Promise((resolve, reject) => {
+        const s = document.createElement("script");
+        s.src = url + "?h=" + Math.floor(Date.now() / 3600000);
+        s.onload = () => { const raw = window.OCG_CARDS; window.OCG_CARDS = null; s.remove(); resolve(raw); };
+        s.onerror = () => { s.remove(); reject(new Error("didn't load")); };
+        document.head.appendChild(s);
+      }))
+      .then(raw => { ocgCd.data = buildOcgCards(raw); ocgCd.failed = 0; })
+      .catch(() => { ocgCd.failed = Date.now(); })
+      .then(() => ocgMk.data || ocgMarketURL() === "" ? null : loadOcgMarket())   // (the sets' names and dates come with it)
+      .then(() => { ocgCd.loading = null; renderSoon(); return ocgCd.data; });
+    return ocgCd.loading;
+  }
+  // The list when it's here or can be loaded; null after a failure, for 10 minutes (so nothing keeps asking)
+  function loadOcgCardsSoft() {
+    if (ocgCd.data) return Promise.resolve(ocgCd.data);
+    if (!ocgCardsURL() || (ocgCd.failed && Date.now() - ocgCd.failed < 10 * 60000)) return Promise.resolve(null);
+    return loadOcgCards();
+  }
+  // true when the list is here; otherwise starts loading it (once; after a failure, again 10 minutes later)
+  function ocgCardsReady() {
+    if (ocgCd.data) return true;
+    if (!ocgCd.loading && !(ocgCd.failed && Date.now() - ocgCd.failed < 10 * 60000) && ocgCardsURL()) loadOcgCards();
+    return false;
+  }
+  const ocgCardAt = number => ocgCd.data ? ocgCd.data.byNumber.get(normNumber(number)) || null : null;
+  const ocgSetOf = key => { const [region, prefix] = String(key).split(":"); return ocgCd.data && ocgCd.data[region] ? ocgCd.data[region].get(prefix) || null : null; };
+  const ocgLang = region => region === "jp" ? "Japanese" : "Korean";
+  const ocgSrc = region => region === "jp" ? "BIGWEB" : "Bunjang";
+  const ocgListDate = () => ocgCd.data && ocgCd.data.generated ? fmtDate(ocgCd.data.generated) : "";
+  // The row (printing) of the list that is this card: its rarity, else the only one, else the only one with a price
+  function ocgRowFor(card, rarity) {
+    if (!card || !card.rows.length) return null;
+    if (rarity) { const hit = card.rows.find(x => sameRarity(x.rarity, rarity)); if (hit) return hit; }
+    if (!rarity && card.rows.length === 1) return card.rows[0];
+    const priced = card.rows.filter(x => x.local > 0);
+    if (!rarity && priced.length === 1) return priced[0];
+    if (rarity) { const unk = card.rows.find(x => !x.rarity && x.local > 0); if (unk) return unk; }   // (Korean listings that don't say)
+    return null;
+  }
+  const rowNote = row => row.card.region === "jp" ? (row.stock ? plural(row.stock, "copy", "copies") + " in stock" : "sold out; last price seen") : "asking prices, middle of " + plural(row.n, "listing");
+  const rowFrom = row => row.card.region === "jp" ? (row.stock ? "BIGWEB" : "BIGWEB, sold out") : "Bunjang, " + plural(row.n, "listing");
+  // A card's price from the list, in the shape ocgPrice gives
+  function ocgFilePrice(r) {
+    const g = r.productId ? null : ocgRegion(r.number);
+    const card = g ? ocgCardAt(g.code) : null;
+    if (!card) return null;
+    const row = ocgRowFor(card, r.rarity), region = card.region, src = ocgSrc(region);
+    const at = ocgCd.data.generated ? ocgCd.data.generated.getTime() : Date.now();
+    if (!row || !row.local) return {none: true, src, at, file: true, row, card, note: !row ? (card.rows.length > 1 ? "which rarity is yours?" : "no price") : region === "jp" ? "sold out, no price seen yet" : "no listings"};
+    return {local: row.local, cur: OCG_CUR[region], usd: ocgUSD(row.local, region), src, note: rowNote(row), at, file: true, row, card,
+      url: region === "jp" ? "https://bigweb.co.jp/" : "https://m.bunjang.co.kr/search/products?q=" + encodeURIComponent(g.code)};
+  }
+  // How a card's price moved since a day, a week or a month ago (ref: m1, m7, m30), in US$ at today's rate
+  function ocgChangeFor(r, ref) {
+    const fp = ocgFilePrice(r);
+    if (!fp || fp.none || !fp.row[ref] || priceInfo(r).from !== "ocg") return null;
+    const region = fp.card.region, now0 = ocgUSD(fp.row.local, region), then0 = ocgUSD(fp.row[ref], region);
+    if (now0 == null || then0 == null) return null;
+    const f = conditionFactor(r), now = now0 * f, then = then0 * f;
+    return {now, then, diff: now - then, pct: then > 0 ? (now - then) / then : null, marketNow: now0, marketThen: then0, day: fp.card.set.refs[ref]};
+  }
+  // "Since Sep 10" for a row's earlier price
+  const ocgSince = (row, k) => row.card.set.refs[k] ? "Since " + fmtShortDate(parseDay(row.card.set.refs[k])) : periodLabel(k);
+  // The longest change there is, in a line: "30 days: ▲ $1.20 (10%)"
+  function ocgOneChangeHTML(row) {
+    if (!row.local) return "";
+    const k = ["m30", "m7", "m1"].find(x => row[x] > 0);
+    const now = k && ocgUSD(row.local, row.card.region), then = k && ocgUSD(row[k], row.card.region);
+    if (!k || now == null || then == null) return "";
+    return '<br><span class="small">' + (k === "m30" ? "30 days" : k === "m7" ? "7 days" : "A day") + ": " + changeHTML(now - then, then > 0 ? (now - then) / then : null, true) + "</span>";
+  }
+  function ocgChangesHTML(row, label) {
+    const list = PERIODS.filter(([k]) => row[k] > 0 && row.local > 0).map(([k]) => {
+      const now = ocgUSD(row.local, row.card.region), then = ocgUSD(row[k], row.card.region);
+      return now == null || then == null ? "" : "<span>" + esc(ocgSince(row, k)) + ": " + changeHTML(now - then, then > 0 ? (now - then) / then : null, true) + "</span>";
+    }).filter(Boolean);
+    return list.length ? '<div class="changes" aria-label="' + esc(label || "Price change") + '">' + list.join("") + "</div>" : "";
+  }
+  // A row of the list as the Market's chase-card shape, with its set, so the Want and I have it helpers work on it
+  // A set of the list as the Market knows it, or (before the Market's list is here) just its code
+  function ocgSetInfo(set) {
+    return ocgFindSet(set.id) || {region: set.region, id: set.id, prefix: set.prefix, name: set.prefix + (set.region === "jp" ? "-JP" : "-KR"), date: "", line: "other",
+      cards: set.cards.length, local: "", chase: [], top: null, box: null};
+  }
+  function ocgChaseLike(row) {
+    const card = row.card, region = card.region;
+    const s = ocgSetInfo(card.set);
+    return {s, c: {number: card.number, name: card.name, rarity: row.rarity, local: row.local, stock: region === "jp" ? !!row.stock : null, n: region === "kr" ? row.n : null, img: row.img, set: s, row}};
+  }
+  const ocgRef = row => row.card.number + "|" + row.rarity;
+  function ocgRefAt(ref) {
+    const at = String(ref || "").indexOf("|");
+    if (at < 0) return null;
+    const card = ocgCardAt(ref.slice(0, at)), rarity = ref.slice(at + 1);
+    const row = card && (card.rows.find(x => x.rarity === rarity) || ocgRowFor(card, rarity));
+    return row ? ocgChaseLike(row) : null;
+  }
+  // Cards of the list whose English name has these words, best matches first
+  function ocgNameHits(text, limit) {
+    if (!ocgCd.data) return [];
+    const phrase = csNorm(String(text || "").trim()), words = phrase.split(/\s+/).filter(Boolean);
+    if (!words.length || phrase.length < 2) return [];
+    const out = [];
+    for (const [key, cards] of ocgCd.data.byName) {
+      if (!words.every(w => key.includes(w))) continue;
+      const score = key === phrase ? 0 : key.startsWith(phrase) ? 1 : 2;
+      for (const c of cards) if (ocgRegion(c.number)) out.push({c, score});
+    }
+    out.sort((a, b) => a.score - b.score || a.c.name.localeCompare(b.c.name) || b.c.set.prefix.localeCompare(a.c.set.prefix));
+    return out.slice(0, limit || 40).map(x => x.c);
+  }
+  // Your Japanese and Korean cards: how many of each number, and of each number and rarity
+  function ocgOwnedMaps() {
+    const byNumber = new Map(), byRow = new Map();
+    for (const r of collection) {
+      if (!isOcg(r)) continue;
+      const n = normNumber(r.number);
+      byNumber.set(n, (byNumber.get(n) || 0) + r.qty);
+      const k = n + "|" + String(r.rarity || "").toLowerCase().replace(/[^a-z0-9]/g, "");
+      byRow.set(k, (byRow.get(k) || 0) + r.qty);
+    }
+    return {byNumber, byRow};
+  }
+  const ocgRowOwned = (owned, row) => owned.byRow.get(row.card.number + "|" + String(row.rarity || "").toLowerCase().replace(/[^a-z0-9]/g, "")) ||
+    (row.card.rows.length === 1 ? owned.byNumber.get(row.card.number) || 0 : 0);
+  // A set of the list: how many of its cards you have (each number once), and what the rest would cost
+  function ocgSetProgress(set, owned) {
+    owned = owned || ocgOwnedMaps();
+    let have = 0, cost = 0, unpriced = 0, top = null;
+    const missing = [];
+    for (const card of set.cards) {
+      const priced = card.rows.filter(x => x.local > 0);
+      for (const x of priced) { const u = ocgUSD(x.local, set.region); if (u != null && (!top || u > top.usd)) top = {row: x, usd: u}; }
+      if (owned.byNumber.get(card.number)) { have++; continue; }
+      const cheapest = priced.length ? priced.reduce((a, b) => (b.local < a.local ? b : a)) : null;
+      const u = cheapest ? ocgUSD(cheapest.local, set.region) : null;
+      if (u == null) unpriced++; else cost += u;
+      missing.push({card, row: cheapest || card.rows[0] || null, usd: u});
+    }
+    return {have, total: set.cards.length, missing, cost, unpriced, top};
+  }
+  // The price chart for a card of the list: each day's price from ocg-history/, in US$ at today's rate
+  const ocgHist = new Map();
+  function ocgSetHistory(region, prefix) {
+    const key = region + "-" + prefix;
+    if (!ocgHist.has(key)) ocgHist.set(key, fetch(ocgHistoryBase() + key + ".json").then(res => res.ok ? res.json() : null).catch(() => null).then(h => { if (!h) ocgHist.delete(key); return h; }));
+    return ocgHist.get(key);
+  }
+  // r: the card (number and rarity); exact: the list's row itself, when it's known
+  async function loadOcgHistory(r, exact) {
+    const ctx = drawerCtx && drawerCtx.id, g = ocgRegion(r.number);
+    const box = () => drawerCtx && drawerCtx.id === ctx ? $("cardHist") : null;
+    if (!g || !box()) return;
+    await loadOcgCardsSoft();
+    const fp = exact ? null : ocgFilePrice(r), card = exact ? exact.card : fp && fp.card, row = exact || (fp && fp.row);
+    if (!box()) return;
+    if (!card || !row) { box().innerHTML = '<p class="small">' + (card ? "Pick the card's rarity (edit it below) to see its price over time." : "This card isn't in Card Vault's daily price list yet.") + "</p>"; return; }
+    const h = await ocgSetHistory(card.region, card.set.prefix);
+    if (!box()) return;
+    const region = card.region, days = h && h.days;
+    const arr = h && h.p && (h.p[card.number + "|" + (row.hk != null ? row.hk : row.rarity || "?")] || h.p[card.number + "|" + (row.rarity || "?")]);
+    const all = (Array.isArray(arr) && Array.isArray(days) ? days.map((d, i) => ({date: parseDay(d), local: arr[i]})) : [])
+      .filter(x => x.date && x.local > 0).map(x => ({date: x.date, v: ocgUSD(x.local, region), local: x.local})).filter(x => x.v != null).sort((a, b) => a.date - b.date);
+    if (all.length < 2) {
+      box().innerHTML = '<p class="small">Card Vault saves ' + (region === "jp" ? "BIGWEB's price" : "Bunjang's asking price") + " for this set's cards each time it checks them (new sets daily, older ones weekly)" +
+        (days && days.length ? ", since " + esc(fmtDate(parseDay(days[0]))) : "") + ". The chart appears once this card has prices from two days.</p>";
+      return;
+    }
+    drawPriceHistory(box(), all, (row.rarity || "") + (row.rarity ? ", " : "") + (region === "jp" ? "BIGWEB price" : "Bunjang asking price") + " in US$",
+      x => "<b>" + esc(usd(x.v)) + "</b><span>" + esc(fmtLocal(x.local, OCG_CUR[region])) + ", " + esc(fmtDate(x.date)) + "</span>");
   }
 
   /* ----- Yugi-Market (Japan): sealed products for Japanese sets, in US$ ----- */
@@ -5049,8 +5328,8 @@
   }
   function ocgHave(s, c, opts) {
     const lang = s.region === "jp" ? "Japanese" : "Korean";
-    const price = {local: c.local, cur: OCG_CUR[s.region], src: s.region === "jp" ? "BIGWEB" : "Bunjang",
-      note: s.region === "jp" ? (c.stock ? "in stock" : "sold out; last price seen") : "asking prices, " + plural(c.n, "listing")};
+    const price = c.local > 0 ? {local: c.local, cur: OCG_CUR[s.region], src: s.region === "jp" ? "BIGWEB" : "Bunjang",
+      note: s.region === "jp" ? (c.stock ? "in stock" : "sold out; last price seen") : "asking prices, " + plural(c.n, "listing")} : null;
     drawerCtx = null;
     openOcgForm({code: c.number, name: c.name, setName: s.name, rarities: c.rarity ? [c.rarity] : []}, lang, {rarity: c.rarity, image: c.img, backup: "", ja: "", price}, opts);
   }
@@ -5150,7 +5429,7 @@
     // (the Japanese and Korean prices, once; after a failure, again 10 minutes later)
     if (!ocgMk.data && !ocgMk.loading && !(ocgMk.failed && Date.now() - ocgMk.failed < 10 * 60000) && ocgMarketURL()) loadOcgMarket();
     const intro = "What any card is worth, and every card in a set: TCGplayer's market price and lowest listing for every printing, from " + esc(fmtDate(catalog.generated)) +
-      ", with Japanese and Korean prices from the Market.";
+      ", and Japanese and Korean prices from BIGWEB and Bunjang.";
     // (the box you type in stays put while the results change, and when new prices arrive)
     if (!$("csQ")) {
       panel.innerHTML = '<div class="panel-head"><div><h2>Card search</h2><p id="csIntro">' + intro + "</p></div></div>" +
@@ -5187,7 +5466,7 @@
     return '<div class="cs-start"><p>Type a card\'s name (or part of it), its number from under the artwork, or a set. Add more words to narrow it down, like <b>dark magician lob</b> or <b>blue-eyes secret</b>. ' +
       'To see every card in a set, switch to <button type="button" class="link-btn" data-cs-mode="sets">Sets</button>.</p>' +
       chips("Looked up recently", recent.map(x => x.n)) + chips("Your most valuable cards", yours) +
-      '<p class="small">Japanese and Korean card numbers (like DUNE-JP004) are looked up on Yugipedia, with BIGWEB and Bunjang prices.</p></div>';
+      '<p class="small">Japanese and Korean cards too, by name or number (like DUNE-JP004): BIGWEB prices for Japanese cards and Bunjang asking prices for Korean ones, from Card Vault\'s daily list.</p></div>';
   }
   function renderSearchResults() {
     const out = $("csOut");
@@ -5205,8 +5484,9 @@
     for (const g of groups) cs.groups.set(g.key, g);
     if (!groups.length) {
       const region = normNumber(text).match(/^([A-Z0-9]+)-(JA|AE|TC|SC)([A-Z]?\d+)$/);
-      out.innerHTML = '<div class="notice">' + (region ? "TCGplayer only lists English cards, and " + esc(normNumber(text)) + " isn't one. Search for the card's name, or the English number " + esc(region[1] + "-EN" + region[3]) + "."
-        : "No card matches \"" + esc(text) + "\". Check the spelling, or try fewer words.") + "</div>" + csSetChipsHTML(text) + csMarketHint(text);
+      const ocgOnly = region ? "" : csOcgOnlyHTML(text);
+      out.innerHTML = (ocgOnly || '<div class="notice">' + (region ? "TCGplayer only lists English cards, and " + esc(normNumber(text)) + " isn't one. Search for the card's name, or the English number " + esc(region[1] + "-EN" + region[3]) + "."
+        : "No card matches \"" + esc(text) + "\". Check the spelling, or try fewer words.") + "</div>") + csSetChipsHTML(text) + csMarketHint(text);
       return;
     }
     const printings = groups.reduce((t, g) => t + g.rows.length, 0);
@@ -5253,18 +5533,20 @@
     return '<div class="table-wrap"><table class="table cs-table stack-table"><thead><tr><th class="c-thumb"><span class="sr">Image</span></th><th>Set</th><th>Printing</th>' +
       '<th class="num">Market</th><th class="num">Lowest listing</th><th class="num">30 days</th><th><span class="sr">Details</span></th></tr></thead><tbody>' + rows + "</tbody></table></div>" +
       (g.all > g.products.length ? '<p class="small cs-all"><button type="button" class="link-btn" data-cs-q="' + esc(g.name) + '">See every printing of ' + esc(g.name) + "</button></p>" : "") +
-      (ocg.length ? '<h3 class="mk-h">Japanese and Korean</h3><div class="table-wrap"><table class="table cs-table cs-ocg stack-table"><thead><tr><th>Set</th><th>Number</th><th>Rarity</th><th class="num">Price</th><th>From</th></tr></thead><tbody>' +
-        ocg.map(({s, c}) => "<tr><td>" + esc(s.name) + '<span class="cell-sub">' + esc(s.region === "jp" ? "Japanese" : "Korean") + "</span></td>" +
-          '<td data-label="Number">' + esc(c.number) + '</td><td data-label="Rarity">' + esc(c.rarity || "not stated") + "</td>" +
-          '<td class="num" data-label="Price">' + ocgMoneyHTML(c.local, s.region) + "</td>" +
-          '<td data-label="From">' + esc(s.region === "jp" ? (c.stock ? "BIGWEB" : "BIGWEB, sold out") : "Bunjang, " + plural(c.n, "listing")) + "</td></tr>").join("") +
-        '</tbody></table></div><p class="small">From the Market\'s Japanese and Korean lists, which have each set\'s most valuable cards. For any other printing, search its number (like DUNE-JP004).</p>' : "") +
+      (ocg.length ? '<h3 class="mk-h">Japanese and Korean</h3>' + csOcgTableHTML(ocg) +
+        '<p class="small">' + (ocgCd.data ? "From Card Vault\'s daily Japanese and Korean list (BIGWEB prices, Bunjang asking prices), " + esc(ocgListDate()) + "."
+          : "From the Market\'s Japanese and Korean lists, which have each set\'s most valuable cards. For any other printing, search its number (like DUNE-JP004).") + "</p>" : "") +
       '<div class="links cs-links"><a target="_blank" rel="noopener" href="https://www.ebay.com/sch/i.html?_nkw=' + q + '">eBay</a>' +
       '<a target="_blank" rel="noopener" href="https://www.cardmarket.com/en/YuGiOh/Products/Search?searchString=' + q + '">Cardmarket</a>' +
       '<a target="_blank" rel="noopener" href="https://auctions.yahoo.co.jp/search/search?p=' + q + '">Yahoo! Auctions JP</a></div>';
   }
-  // The Market's Japanese and Korean chase cards with this English name
+  // The Japanese and Korean printings with this English name: every one from the daily list, else the Market's chase cards
   function csOcgRows(key) {
+    if (ocgCardsReady()) {
+      const list = [];
+      for (const card of ocgCd.data.byName.get(key) || []) for (const row of card.rows) list.push(ocgChaseLike(row));
+      return list.sort((a, b) => (b.c.local > 0) - (a.c.local > 0) || (ocgUSD(b.c.local, b.s.region) || 0) - (ocgUSD(a.c.local, a.s.region) || 0) || a.c.number.localeCompare(b.c.number));
+    }
     if (!ocgMk.data) return [];
     if (!ocgMk.byName || ocgMk.byName.data !== ocgMk.data) {
       const map = new Map();
@@ -5273,9 +5555,52 @@
     }
     return (ocgMk.byName.map.get(key) || []).slice().sort((a, b) => (ocgUSD(b.c.local, b.s.region) || 0) - (ocgUSD(a.c.local, a.s.region) || 0));
   }
-  // A Japanese or Korean number: the Market's price when it has the card, and the Yugipedia/BIGWEB/Bunjang lookup.
+  // Japanese and Korean printings as a table: set, number, rarity, price, change, source, and what to do with it
+  function csOcgTableHTML(list, opts) {
+    opts = opts || {};
+    const owned = ocgOwnedMaps();
+    return '<div class="table-wrap"><table class="table cs-table cs-ocg stack-table"><thead><tr>' + (opts.thumbs ? '<th class="c-thumb"><span class="sr">Image</span></th>' : "") +
+      "<th>" + (opts.name ? "Card" : "Set") + '</th><th>Number</th><th>Rarity</th><th class="num">Price</th><th class="num">30 days</th><th>From</th><th><span class="sr">Actions</span></th></tr></thead><tbody>' +
+      list.map(({s, c}) => {
+        const row = c.row, have = row ? ocgRowOwned(owned, row) : ocgOwnedCount(c);
+        const chg = row && row.local && row.m30 && ocgUSD(row.local, s.region) != null && ocgUSD(row.m30, s.region) != null
+          ? changeHTML(ocgUSD(row.local, s.region) - ocgUSD(row.m30, s.region), row.m30 > 0 ? (row.local - row.m30) / row.m30 : null, true) : "";
+        const ref = row ? esc(ocgRef(row)) : "";
+        const name = row ? '<button type="button" class="cell-name" data-ocgc-open="' + ref + '">' + esc(opts.name ? c.name : s.name) + "</button>" : esc(opts.name ? c.name : s.name);
+        return "<tr" + (have ? ' class="cs-have"' : "") + ">" + (opts.thumbs ? '<td class="c-thumb"><span class="sleeve"' + foilAttr(c.rarity) + ">" + imgTag({list: [c.img].filter(Boolean).concat(namePics(c.name, "200w", c.rarity).list)}, c.name) + "</span></td>" : "") +
+          "<td>" + name + '<span class="cell-sub">' + esc(opts.inSet ? (row && row.ja) || "" : opts.name ? s.name + " · " + ocgLang(s.region) : ocgLang(s.region)) + (have ? ' <span class="cs-own">You have ' + have + "</span>" : "") + "</span></td>" +
+          '<td data-label="Number">' + esc(c.number) + '</td><td data-label="Rarity">' + esc(c.rarity || "not stated") + "</td>" +
+          '<td class="num" data-label="Price">' + (c.local ? ocgMoneyHTML(c.local, s.region) : '<span class="small">' + (s.region === "jp" ? "Sold out" : "No listings") + "</span>") + "</td>" +
+          '<td class="num" data-label="30 days"' + (chg ? "" : " data-empty") + ">" + chg + "</td>" +
+          '<td data-label="From"' + (c.local ? "" : " data-empty") + ">" + esc(c.local ? (s.region === "jp" ? (c.stock ? "BIGWEB" : "BIGWEB, sold out") : "Bunjang, " + plural(c.n, "listing")) : "") + "</td>" +
+          '<td><div class="want-actions">' + (ref ? (ocgWanted(c) ? '<span class="on-list">On want list</span>' : '<button class="btn btn-small" type="button" data-ocgc-want="' + ref + '">Want</button>') +
+            '<button class="btn btn-small" type="button" data-ocgc-have="' + ref + '">I have it</button><button class="btn btn-small" type="button" data-ocgc-open="' + ref + '">Details</button>' : "") + "</div></td></tr>";
+      }).join("") + "</tbody></table></div>";
+  }
+  // Japanese and Korean cards with these words in their English name, when no English card has them
+  function csOcgOnlyHTML(text) {
+    const hits = ocgNameHits(text, 40);
+    if (!hits.length) return "";
+    const list = [];
+    for (const c of hits) for (const row of c.rows) list.push(ocgChaseLike(row));
+    return '<p class="results-head">No English card, but ' + plural(hits.length, "Japanese or Korean card") + ' with that name.</p>' + csOcgTableHTML(list, {thumbs: true, name: true}) +
+      '<p class="small">From Card Vault\'s daily Japanese and Korean list, ' + esc(ocgListDate()) + ".</p>";
+  }
+  // A Japanese or Korean number: every rarity from the daily list, else the Yugipedia/BIGWEB/Bunjang lookup.
   function renderOcgSearch(out, code, m) {
     const region = m[2] === "JP" ? "jp" : "kr";
+    if (!ocgCd.data && !(ocgCd.failed && Date.now() - ocgCd.failed < 10 * 60000) && ocgCardsURL()) {
+      loadOcgCards(); out.innerHTML = '<p class="hint" role="status">Loading the Japanese and Korean card list…</p>'; return;
+    }
+    const card = ocgCardAt(code);
+    if (card && card.rows.length) {
+      const list = card.rows.map(ocgChaseLike), s = list[0].s;
+      out.innerHTML = '<p class="results-head">' + esc(card.name) + ": " + esc(s.name) + " (" + ocgLang(region) + ")" + (card.rows.length > 1 ? ", " + card.rows.length + " rarities" : "") + ".</p>" +
+        csOcgTableHTML(list, {thumbs: true, name: true}) +
+        '<p class="small">From Card Vault\'s daily list (' + (region === "jp" ? "BIGWEB prices and photos" : "Bunjang asking prices; the photos are the Japanese prints") + "), " + esc(ocgListDate()) +
+        '. <button type="button" class="link-btn" data-ocg-live="' + esc(code) + '">Ask the shop now</button></p><div id="csOcg"></div>';
+      return;
+    }
     const s = ocgSetsOf(region).find(x => x.prefix === m[1]);
     const known = s ? s.chase.filter(c => c.number === code) : [];
     out.innerHTML = (known.length ? '<p class="results-head">In the Market: ' + esc(s.name) + " (" + (region === "jp" ? "Japanese" : "Korean") + ")</p>" +
@@ -5335,13 +5660,14 @@
   function csSetRowHTML(s, owned) {
     const year = csSetDay(s).slice(0, 4);
     if (s.region) {
-      const top = s.top;
+      const top = s.top, full = ocgCd.data ? ocgSetOf(s.id) : null;
+      const pr = full && full.cards.length ? ocgSetProgress(full) : null;
       return '<article class="set-row mk-row cs-set"><button type="button" class="set-toggle" data-cs-set="' + esc(s.id) + '">' +
         '<span style="min-width:0"><span class="set-name">' + esc(s.name) + '</span><span class="set-sub">' +
         esc([s.prefix + (s.region === "jp" ? "-JP" : "-KR"), year, s.cards ? plural(s.cards, "card") : ""].filter(Boolean).join(", ")) +
         '<span class="mk-line">' + csLang(s) + "</span></span></span>" +
         '<span class="mk-top">' + (top ? "Top card: <b>" + esc(top.name) + '</b> <span class="gold">' + esc(usd(ocgUSD(top.local, s.region)) || fmtLocal(top.local, OCG_CUR[s.region])) + "</span>" : "No prices yet") + "</span>" +
-        '<span class="set-cost"><small>' + esc(ocgLineName(s.line)) + "</small></span>" +
+        '<span class="set-cost">' + (pr && pr.have ? "<b>" + pr.have + " of " + pr.total + "</b><small>you have</small>" : "<small>" + esc(ocgLineName(s.line)) + "</small>") + "</span>" +
         '<span class="caret go" aria-hidden="true"></span></button></article>';
     }
     const pr = csSetProgress(s, owned), top = s.top;
@@ -5361,7 +5687,7 @@
       const newest = csSetsEN().slice().sort((a, b) => csSetDay(b).localeCompare(csSetDay(a)) || a.group.name.localeCompare(b.group.name));
       out.innerHTML = '<div class="cs-start"><p>Type a set\'s name or code (like <b>MAMO</b> or <b>legend of blue eyes</b>) to see every card in it, with prices and the ones you have. ' +
         "Japanese and Korean sets are found by name or code too.</p>" +
-        (yours.length ? '<p class="cs-chips-h">Sets you collect</p><div class="cs-chips">' + yours.map(s => '<button type="button" class="chip" data-cs-set="en:' + s.group.id + '">' +
+        (yours.length ? '<p class="cs-chips-h">Sets you collect</p><div class="cs-chips">' + yours.map(s => '<button type="button" class="chip" data-cs-set="' + esc(s.ocg ? s.group.id : "en:" + s.group.id) + '">' +
           esc(s.group.name) + " · " + s.have + "/" + s.total + "</button>").join("") + "</div>" : "") + "</div>" +
         '<h3 class="mk-h">Newest sets</h3>' + newest.slice(0, cs.limit).map(s => csSetRowHTML(s, owned)).join("") +
         (newest.length > cs.limit ? '<div class="mk-more"><button class="btn" type="button" data-cs-more>Show more</button></div>' : "");
@@ -5390,7 +5716,8 @@
   function csFindSet(key) {
     const k = String(key || "");
     if (k.startsWith("en:")) return csSetsEN().find(s => String(s.group.id) === k.slice(3)) || null;
-    return ocgFindSet(k);
+    const full = ocgSetOf(k);
+    return ocgFindSet(k) || (full ? ocgSetInfo(full) : null);
   }
   // Open a set in Card search (from anywhere: a card's price page, the Sets tab, the Market)
   function openSearchSet(key) {
@@ -5412,6 +5739,12 @@
     const back = '<p class="cs-back"><button type="button" class="link-btn" data-cs-back>← Back to ' + (settings.csMode === "sets" ? "sets" : cs.q.trim().length >= 2 ? "results" : "search") + "</button></p>";
     if (s.region) {
       if (s.region === "jp") loadYugiMarket();   // (its booster box; read twice a day at most)
+      const full = ocgCardsReady() ? ocgSetOf(s.id) : null;
+      if (full && full.cards.length) {
+        if (out.dataset.view !== cs.set || !$("csSetList")) { out.dataset.view = cs.set; out.innerHTML = back + csOcgSetHeadHTML(s, full); }
+        renderOcgSetCards(s, full);
+        return;
+      }
       out.dataset.view = cs.set; out.innerHTML = back + csOcgSetHTML(s); return;
     }
     if (out.dataset.view !== cs.set || !$("csSetList")) {
@@ -5435,6 +5768,7 @@
     s = s || csFindSet(cs.set);
     const box = $("csSetList"), facts = $("csSetFacts");
     if (!s || !box) return;
+    if (s.region) { const full = ocgSetOf(s.id); if (full) renderOcgSetCards(s, full); return; }
     const owned = csOwnedMap(), pr = csSetProgress(s, owned);
     // the cheapest copy of each card you're missing
     const cheapest = new Map();
@@ -5488,7 +5822,56 @@
       }).join("") + "</tbody></table></div>" +
       '<p class="small">TCGplayer\'s market price for each printing (1st Edition, Unlimited…), from ' + esc(fmtDate(catalog.generated)) + ". \"You have\" counts each card number once.</p>";
   }
-  // A Japanese or Korean set: what the Market has (its most valuable cards), and where to see the rest
+  // A Japanese or Korean set from the daily list: every card, with prices, which you have, and what the rest would cost
+  function csOcgSetHeadHTML(s, full) {
+    const lang = csLang(s), code = s.prefix + (s.region === "jp" ? "-JP" : "-KR");
+    const rarities = Array.from(new Set(full.cards.flatMap(c => c.rows.map(x => x.rarity)).filter(Boolean))).sort();
+    const opt = (list, cur) => list.map(([k, l]) => '<option value="' + esc(k) + '"' + (k === cur ? " selected" : "") + ">" + esc(l) + "</option>").join("");
+    return '<div class="cs-set-head"><h3 class="cs-set-title">' + esc(s.name) + "</h3>" +
+      '<p class="cs-set-sub">' + esc([code, s.date ? "released " + fmtDate(parseDay(s.date.slice(0, 10))) : "", ocgLineName(s.line), plural(full.cards.length, "card"), lang].filter(Boolean).join(" · ")) + "</p></div>" +
+      '<div id="csSetFacts" class="cs-set-facts"></div>' +
+      '<div class="cs-set-tools"><input class="search" id="csSetFind" type="search" autocomplete="off" placeholder="Find in this set" aria-label="Find in this set" value="' + esc(cs.setFind || "") + '">' +
+      '<select class="select" id="csSetRarity" aria-label="Rarity">' + opt([["", "All rarities"]].concat(rarities.map(r => [r, r])), cs.setRarity || "") + "</select>" +
+      '<select class="select" id="csSetShow" aria-label="Show">' + opt(CS_SET_SHOWS, cs.setShow || "") + "</select>" +
+      '<select class="select" id="csSetSort" aria-label="Sort">' + opt(CS_SET_SORTS, settings.csSetSort || "number") + "</select></div>" +
+      '<div id="csSetList"></div>';
+  }
+  function renderOcgSetCards(s, full) {
+    const box = $("csSetList"), facts = $("csSetFacts");
+    if (!box) return;
+    const region = s.region, owned = ocgOwnedMaps(), pr = ocgSetProgress(full, owned);
+    const box2 = region === "jp" ? ymBox(s) : null;
+    const yp = "https://yugipedia.com/wiki/Set_Card_Lists:" + encodeURIComponent(s.name.replace(/ /g, "_")) + "_(OCG-" + (region === "jp" ? "JP" : "KR") + ")";
+    if (facts) facts.innerHTML = '<div class="cs-fact"><span class="small">You have</span> <b>' + pr.have + " of " + pr.total + "</b>" +
+      '<span class="progress" aria-hidden="true"><span style="width:' + (pr.total ? pr.have / pr.total * 100 : 0).toFixed(1) + '%"></span></span></div>' +
+      (pr.have < pr.total ? '<div class="cs-fact"><span class="small">The rest, one of each</span> <b>' + esc(usd(pr.cost)) + '</b> <span class="small">cheapest rarities' + (pr.unpriced ? ", " + pr.unpriced + " without a price" : "") + "</span></div>"
+        : '<div class="cs-fact"><span class="small">Complete</span> <b>Every card</b></div>') +
+      (pr.top ? '<div class="cs-fact"><span class="small">Most valuable</span> <b class="gold">' + esc(usd(pr.top.usd)) + '</b> <span class="small">' + esc(pr.top.row.card.name) + "</span></div>" : "") +
+      (box2 ? '<div class="cs-fact"><span class="small">Booster box, Yugi-Market</span> <b>' + esc(usd(box2.price)) + '</b> <a target="_blank" rel="noopener" href="' + esc(ymLink(box2)) + '">Yugi-Market</a></div>' : "") +
+      (s.box ? '<div class="cs-fact"><span class="small">Booster box, Bunjang</span> <b>' + esc(usd(ocgUSD(s.box.price, "kr")) || fmtLocal(s.box.price, "KRW")) + '</b> <a target="_blank" rel="noopener" href="' + esc(bunjangBoxURL(s)) + '">Bunjang</a></div>' : "");
+    const words = csNorm(cs.setFind || "").split(/\s+/).filter(Boolean);
+    let rows = [];
+    for (const c of full.cards) for (const x of c.rows) rows.push(x);
+    const usdOf = x => x.local ? ocgUSD(x.local, region) : null;
+    rows = rows.filter(x => (!cs.setRarity || x.rarity === cs.setRarity) &&
+      (cs.setShow !== "have" || ocgRowOwned(owned, x)) && (cs.setShow !== "missing" || !owned.byNumber.get(x.card.number)) &&
+      (!words.length || words.every(w => csNorm(x.card.name + " " + x.card.number + " " + x.rarity + " " + x.ja).includes(w))));
+    const byNum = (a, b) => a.card.number.localeCompare(b.card.number, undefined, {numeric: true}) || a.rarity.localeCompare(b.rarity);
+    const sorters = {
+      number: byNum,
+      value: (a, b) => ((usdOf(b) == null ? -1 : usdOf(b)) - (usdOf(a) == null ? -1 : usdOf(a))) || byNum(a, b),
+      name: (a, b) => a.card.name.localeCompare(b.card.name) || byNum(a, b),
+      rarity: (a, b) => a.rarity.localeCompare(b.rarity) || byNum(a, b)
+    };
+    rows.sort(sorters[settings.csSetSort] || sorters.number);
+    const total = full.cards.reduce((t, c) => t + c.rows.length, 0);
+    if (!rows.length) { box.innerHTML = '<div class="notice">No card in this set matches. ' + (cs.setShow === "have" ? "You don't have any of these yet." : "Try fewer words, or All rarities.") + "</div>"; return; }
+    box.innerHTML = '<p class="results-head">' + (rows.length === total ? plural(rows.length, "printing") : rows.length + " of " + plural(total, "printing")) + ".</p>" +
+      csOcgTableHTML(rows.map(ocgChaseLike), {thumbs: true, name: true, inSet: true}) +
+      '<p class="small">' + (region === "jp" ? "BIGWEB's price for a copy in stock (a large Japanese shop), with its photos" : "Bunjang asking prices (a Korean marketplace), the middle of the listings; the photos are the Japanese prints") +
+      ", from Card Vault's daily list, " + esc(ocgListDate()) + '. "You have" counts each card number once. Yugipedia: <a target="_blank" rel="noopener" href="' + esc(yp) + '">the set\'s card list</a>.</p>';
+  }
+  // A Japanese or Korean set the daily list doesn't have yet: what the Market has (its most valuable cards), and where to see the rest
   function csOcgSetHTML(s) {
     const lang = csLang(s), code = s.prefix + (s.region === "jp" ? "-JP" : "-KR");
     const yp = "https://yugipedia.com/wiki/Set_Card_Lists:" + encodeURIComponent(s.name.replace(/ /g, "_")) + "_(OCG-" + (s.region === "jp" ? "JP" : "KR") + ")";
@@ -7515,7 +7898,7 @@
     if (ch && ch.covered) {
       head = '<div class="value-label">Price change for the cards you have now</div>' +
         '<div class="hist-value">' + changeHTML(ch.diff, ch.pct, true) + "</div>" +
-        '<div class="hist-change">' + esc(sinceLabel(period)) + ", from TCGplayer's market prices</div>" +
+        '<div class="hist-change">' + esc(sinceLabel(period)) + ", from TCGplayer's market prices" + (ch.movers.some(m => isOcg(m.r)) ? " and the Japanese and Korean lists" : "") + "</div>" +
         '<div class="hist-note">' + esc(valueLine) + " " + plural(ch.covered, "card") + " had a price on both days.</div>";
     } else {
       head = '<div class="value-label">Collection value (TCGplayer market' + (adjusted ? ", adjusted for condition" : "") + ")</div>" +
@@ -7594,7 +7977,7 @@
     const mine = new Map();
     for (const m of periodChange(period).movers) {
       if (!big(m.ch.marketNow, m.ch.marketThen)) continue;
-      const k = m.r.productId + "|" + m.r.edition;
+      const k = (m.r.productId || normNumber(m.r.number) + "|" + m.r.rarity) + "|" + m.r.edition;
       const cur = mine.get(k);
       if (cur) { cur.diff += m.total; cur.qty += m.r.qty; continue; }
       mine.set(k, {r: m.r, qty: m.r.qty, diff: m.total, pct: m.ch.pct, then: m.ch.then, now: m.ch.now});
@@ -7644,13 +8027,41 @@
       '<button type="button" data-mover-by="pct" aria-pressed="' + (by === "pct") + '">Percent</button></div>' +
       '<select class="select" id="moverMin" aria-label="Cards worth">' + MOVER_MINS.map(([k, l]) => '<option value="' + k + '"' + (num(k) === min ? " selected" : "") + ">" + l + "</option>").join("") + "</select></div>" +
       '<p class="small mv-note">TCGplayer market prices on ' + esc(fmtDate(parseDay(catalog.refDays[period]))) + " compared with " + esc(fmtDate(catalog.generated)) +
-      ". A card that sold only once or twice can jump, so the price filter leaves out the cheapest ones" + (min ? " (under " + esc(usd(min)) + ")" : "") + ".</p>" +
+      ". A card that sold only once or twice can jump, so the price filter leaves out the cheapest ones" + (min ? " (under " + esc(usd(min)) + ")" : "") + "." +
+      (ocgCd.data ? " Japanese and Korean cards: each set's prices against its latest earlier check at least that long ago." : "") + "</p>" +
       moverBoxes("Your cards", collection.length ? "All your copies of each printing together." : "", moverPair(mineItems, by, 10), ["Went up", "Went down"],
         [collection.length ? "None of your cards went up." : "Add cards to see yours here.", collection.length ? "None of your cards went down." : ""]) +
       (wants.length ? moverBoxes("Your want list", "The printing you want; the cheapest one when any will do.", moverPair(wantItems, by, 10), ["Went up", "Cheaper now"],
         ["Nothing on your want list went up.", "Nothing on your want list got cheaper."]) : "") +
       moverBoxes("Every card on TCGplayer", "", mkPair(market), ["Biggest risers", "Biggest drops"], ["No card went up.", "No card went down."]) +
-      (sealed.length ? moverBoxes("Sealed products", "Booster boxes, packs, tins, decks…", mkPair(sealed), ["Went up", "Went down"], ["None went up.", "None went down."]) : "");
+      (sealed.length ? moverBoxes("Sealed products", "Booster boxes, packs, tins, decks…", mkPair(sealed), ["Went up", "Went down"], ["None went up.", "None went down."]) : "") +
+      ocgMoversHTML(period, by, min);
+  }
+  // Japanese and Korean cards, from the daily list: each set's prices are compared with its latest earlier reading
+  // at least a day, a week or a month old (new sets are checked daily, older ones weekly).
+  function ocgMoversHTML(period, by, min) {
+    if (!ocgCardsReady()) return ocgCardsURL() && !ocgCd.failed ? '<p class="small mv-sub">Loading the Japanese and Korean card list…</p>' : "";
+    const big = (now, then) => Math.max(now || 0, then || 0) >= min;
+    const owned = ocgOwnedMaps();
+    let html = "";
+    for (const region of ["jp", "kr"]) {
+      const items = [];
+      for (const set of ocgCd.data[region].values()) for (const card of set.cards) for (const row of card.rows) {
+        if (!row.local || !row[period]) continue;
+        const now = ocgUSD(row.local, region), then = ocgUSD(row[period], region);
+        if (now == null || then == null || !big(now, then)) continue;
+        const diff = now - then;
+        if (Math.abs(diff) < 0.005) continue;
+        items.push({row, diff, pct: then > 0 ? diff / then : null, then, now});
+      }
+      const toRow = x => { const c = x.row.card, s = ocgFindSet(c.set.id), have = ocgRowOwned(owned, x.row); return {diff: x.diff, pct: x.pct, then: x.then, now: x.now,
+        pic: {list: [x.row.img].filter(Boolean).concat(namePics(c.name, "200w", x.row.rarity).list)}, name: c.name, foil: foilAttr(x.row.rarity),
+        sub: [c.number, x.row.rarity, s ? s.name : ""].filter(Boolean).join(", "), badge: have ? '<span class="cs-own">You have ' + have + "</span>" : "", attr: 'data-ocgc-open="' + esc(ocgRef(x.row)) + '"'}; };
+      const pr = moverPair(items, by, 12);
+      html += moverBoxes("Every " + ocgLang(region) + " card", region === "jp" ? "BIGWEB's prices, in US$ at today's rate." : "Bunjang asking prices, in US$ at today's rate.",
+        {up: pr.up.map(toRow), down: pr.down.map(toRow)}, ["Biggest risers", "Biggest drops"], ["No card went up.", "No card went down."]);
+    }
+    return html;
   }
 
   function drawHistory(pts) {
@@ -8498,17 +8909,20 @@
         ". The chart appears once this printing has prices from two days.</p>";
       return;
     }
+    drawPriceHistory(box, all, (r.edition || printingsFor(p)[0] || "") + ", market price", x => "<b>" + esc(usd(x.v)) + "</b><span>" + esc(fmtDate(x.date)) + "</span>");
+  }
+  // The chart with its time range, from the points {date, v} (and whatever else the tooltip wants)
+  function drawPriceHistory(box, all, label, tip) {
     const draw = range => {
       const cut = range === "all" ? 0 : Date.now() - (+range) * 86400000;
       let pts = all.filter(x => x.date.getTime() >= cut);
       if (pts.length < 2) pts = all.slice(-2);
       const first = pts[0].v, last = pts[pts.length - 1].v;
-      box.innerHTML = '<div class="box-head"><span class="small">' + esc(r.edition || printingsFor(p)[0] || "") + ", market price. " + esc(fmtShortDate(pts[0].date)) + " to " + esc(fmtShortDate(pts[pts.length - 1].date)) + ": " +
+      box.innerHTML = '<div class="box-head"><span class="small">' + esc(label) + ". " + esc(fmtShortDate(pts[0].date)) + " to " + esc(fmtShortDate(pts[pts.length - 1].date)) + ": " +
         changeHTML(last - first, first > 0 ? (last - first) / first : null, true) + '</span><div class="seg" role="group" aria-label="Time range">' +
         HIST_RANGES.map(([k, l]) => '<button type="button" data-hr="' + k + '" aria-pressed="' + (k === range) + '">' + l + "</button>").join("") + "</div></div>" +
-        '<div class="chart" id="cardChart" tabindex="0" role="img" aria-label="Market price over time, ' + esc(usd(first)) + " to " + esc(usd(last)) + '. Use the arrow keys to read each day."></div><p class="sr" id="cardChartLive" aria-live="polite"></p>';
-      renderChart($("cardChart"), pts, {tip: (ps, i) => "<b>" + esc(usd(ps[i].v)) + "</b><span>" + esc(fmtDate(ps[i].date)) + "</span>", live: "cardChartLive",
-        liveText: q => usd(q.v) + " on " + fmtDate(q.date)});
+        '<div class="chart" id="cardChart" tabindex="0" role="img" aria-label="Price over time, ' + esc(usd(first)) + " to " + esc(usd(last)) + '. Use the arrow keys to read each day."></div><p class="sr" id="cardChartLive" aria-live="polite"></p>';
+      renderChart($("cardChart"), pts, {tip: (ps, i) => tip(ps[i]), live: "cardChartLive", liveText: q => usd(q.v) + " on " + fmtDate(q.date)});
       box.querySelectorAll("[data-hr]").forEach(b => b.addEventListener("click", () => { settings.cardHistRange = b.dataset.hr; saveSettings(); draw(b.dataset.hr); }));
     };
     draw(HIST_RANGES.some(x => x[0] === settings.cardHistRange) ? settings.cardHistRange : "90");
@@ -8518,8 +8932,9 @@
   let setsCache = null;
   // For every set you have a card from: how many of its cards you have, and the cheapest way to finish it.
   function setsData() {
-    if (!catalog) return [];
     const master = settings.setsMode === "master";
+    const out = ocgSetsData(master);
+    if (!catalog) return out;
     const byGroup = productsByGroup();
     const owned = new Map();
     for (const r of collection) {
@@ -8530,7 +8945,6 @@
       o.ids.add(p.id);
       o.numbers.add(normNumber(p.number));
     }
-    const out = [];
     for (const [gid, o] of owned) {
       const prods = (byGroup.get(gid) || []).filter(p => !p.sealed);
       if (!prods.length) continue;
@@ -8555,17 +8969,62 @@
     }
     return out;
   }
+  // The Japanese and Korean sets you have cards from, from the daily list: each card number once, or every rarity
+  function ocgSetsData(master) {
+    const mine = new Map();
+    for (const r of collection) {
+      if (!isOcg(r)) continue;
+      const g = ocgRegion(r.number), k = (g.region === "JP" ? "jp:" : "kr:") + g.set;
+      if (!mine.has(k)) mine.set(k, true);
+    }
+    if (!mine.size || !ocgCardsReady()) return [];
+    const owned = ocgOwnedMaps(), out = [];
+    for (const k of mine.keys()) {
+      const set = ocgSetOf(k);
+      if (!set || !set.cards.length) continue;
+      const mkSet = ocgFindSet(k), tag = set.region === "jp" ? "-JP" : "-KR";
+      const group = {id: k, name: mkSet ? mkSet.name : set.prefix + tag, abbr: set.prefix + tag, published: mkSet ? mkSet.date : ""};
+      const items = [];
+      for (const card of set.cards) {
+        if (master) { for (const row of card.rows) items.push({key: ocgRef(row), card, row, owned: !!ocgRowOwned(owned, row)}); continue; }
+        const priced = card.rows.filter(x => x.local > 0);
+        items.push({key: card.number, card, row: priced.length ? priced.reduce((a, b) => (b.local < a.local ? b : a)) : card.rows[0] || null, owned: !!owned.byNumber.get(card.number)});
+      }
+      for (const it of items) it.best = it.row && it.row.local ? {price: ocgUSD(it.row.local, set.region), row: it.row} : null;
+      const missing = items.filter(it => !it.owned);
+      out.push({group, ocg: set, total: items.length, have: items.length - missing.length, missing,
+        cost: missing.reduce((t, it) => t + (it.best && it.best.price != null ? it.best.price : 0), 0), unpriced: missing.filter(it => !it.best || it.best.price == null).length});
+    }
+    return out;
+  }
+  function ocgSetMissingHTML(s) {
+    const region = s.ocg.region, master = settings.setsMode === "master";
+    const every = '<p class="small sets-links" style="margin:12px 0 0"><button type="button" class="link-btn" data-cs-browse="' + esc(s.group.id) + '">See every card in this set, with prices</button></p>';
+    if (!s.missing.length) return '<p class="small" style="margin:12px 0 0">You have every card in this set.</p>' + every;
+    const shown = s.missing.slice(0, 150);
+    return every + '<p class="results-head" style="margin-top:12px">Missing ' + plural(s.missing.length, "card") + (master ? " (every rarity counts separately)" : "") + ':</p><div class="results">' + shown.map(it => {
+      const c = it.card, row = it.row, rarities = master ? [row ? row.rarity : ""] : c.rows.map(x => x.rarity).filter(Boolean);
+      const ref = row ? esc(ocgRef(row)) : "", like = row ? ocgChaseLike(row).c : {number: c.number, rarity: ""};
+      return '<div class="result static"><span class="sleeve"' + foilAttr(row && row.rarity) + ">" + imgTag({list: [row && row.img].filter(Boolean).concat(namePics(c.name, "200w", row && row.rarity).list)}, c.name) + "</span>" +
+        '<span class="result-name">' + esc(c.name) + "</span>" +
+        '<span class="result-meta">' + esc(c.number) + ", " + esc(rarities.join(" / ") || "rarity not stated") + "</span>" +
+        '<span class="result-price">' + (it.best && it.best.price != null ? ocgMoneyHTML(row.local, region) + (!master && c.rows.filter(x => x.local).length > 1 ? ' <span class="small">' + esc(row.rarity) + "</span>" : "")
+          : '<span class="small">' + (region === "jp" ? "Sold out at BIGWEB" : "No Bunjang listings") + "</span>") + "</span>" +
+        '<span class="result-actions">' + (ref ? (ocgWanted(like) ? '<span class="on-list">On want list</span>' : '<button class="btn" type="button" data-ocgc-want="' + ref + '">Want</button>') +
+          '<button class="btn" type="button" data-ocgc-have="' + ref + '">I have it</button>' : "") + "</span></div>";
+    }).join("") + "</div>" + (s.missing.length > shown.length ? '<p class="small">Showing the first ' + shown.length + ".</p>" : "");
+  }
   function renderSets() {
     const panel = $("panel-sets");
     setsCache = null;
-    if (!catalog) {
+    if (!catalog && !(collection.some(isOcg) && ocgCardsReady())) {
       panel.innerHTML = emptyPanel("Set completion needs TCGplayer data", (SITE ? "Reload the page (it needs an internet connection)." : "Double-click <b>Update TCGplayer Data</b> in the Card Vault folder, then press F5 here.") + " Card Vault then shows how much of each set you have and what the rest would cost.");
       return;
     }
     setsCache = setsData();
     if (!setsCache.length) {
       panel.innerHTML = emptyPanel("No sets yet", collection.length
-        ? "Sets come from TCGplayer's English catalog, so cards you added manually (like Japanese or Korean prints) aren't counted."
+        ? (collection.some(isOcg) && !ocgCd.data ? "Loading the Japanese and Korean card list…" : "Sets come from TCGplayer's English catalog and Card Vault's Japanese and Korean lists, so cards added manually with other numbers aren't counted.")
         : "Add cards and Card Vault shows how complete each set is.");
       return;
     }
@@ -8579,8 +9038,8 @@
       '<label class="basis">Sort <select class="select" id="setsSort">' + sorts.map(([v, l]) => '<option value="' + v + '"' + (settings.setsSort === v ? " selected" : "") + ">" + l + "</option>").join("") +
       "</select></label></div></div>" +
       '<div id="setsList"></div>' +
-      '<p class="small">Cost to finish adds up the cheapest TCGplayer market price of one copy of each card you\'re missing. ' +
-      "Sets come from TCGplayer's English catalog; cards you added manually aren't counted.</p>";
+      '<p class="small">Cost to finish adds up the cheapest price of one copy of each card you\'re missing: TCGplayer\'s market price, BIGWEB\'s price for Japanese sets, Bunjang asking prices for Korean ones. ' +
+      "Sets come from TCGplayer's English catalog and Card Vault's Japanese and Korean lists; cards added manually with other numbers aren't counted.</p>";
     renderSetsList();
   }
   function renderSetsList() {
@@ -8594,7 +9053,7 @@
       name: (a, b) => a.group.name.localeCompare(b.group.name),
       newest: (a, b) => String(b.group.published || "").localeCompare(String(a.group.published || "")) || a.group.name.localeCompare(b.group.name)
     };
-    const list = setsCache.filter(s => !q || s.group.name.toLowerCase().includes(q) || String(s.group.abbr || "").toLowerCase().includes(q))
+    const list = setsCache.filter(s => !q || s.group.name.toLowerCase().includes(q) || String(s.group.abbr || "").toLowerCase().includes(q) || (s.ocg && ocgLang(s.ocg.region).toLowerCase().includes(q)))
       .sort(sorters[settings.setsSort] || sorters.complete);
     box.innerHTML = list.length ? list.map(setRowHTML).join("") : '<p class="small">No set name contains "' + esc(setsQuery.trim()) + '".</p>';
   }
@@ -8605,7 +9064,7 @@
     const shown = done ? 100 : Math.floor(s.have / s.total * 100);
     const year = s.group.published ? String(s.group.published).slice(0, 4) : "";
     return '<article class="set-row" data-gid="' + gid + '"><button type="button" class="set-toggle" aria-expanded="' + open + '" data-set="' + gid + '">' +
-      '<span style="min-width:0"><span class="set-name">' + esc(s.group.name) + (isGoal(gid) ? ' <span class="goal-tag">Goal</span>' : "") + '</span><span class="set-sub">' + esc([s.group.abbr, year].filter(Boolean).join(", ")) + "</span></span>" +
+      '<span style="min-width:0"><span class="set-name">' + esc(s.group.name) + (isGoal(gid) ? ' <span class="goal-tag">Goal</span>' : "") + '</span><span class="set-sub">' + esc([s.group.abbr, year, s.ocg ? ocgLang(s.ocg.region) : ""].filter(Boolean).join(", ")) + "</span></span>" +
       '<span class="set-prog"><span class="progress" aria-hidden="true"><span style="width:' + (s.have / s.total * 100).toFixed(1) + '%"></span></span>' +
       '<span class="set-count"><b>' + s.have + " of " + s.total + "</b> (" + shown + "%)</span></span>" +
       '<span class="set-cost">' + (done ? "<b>Complete</b>" : "<b>" + esc(usd(s.cost)) + "</b><small>to finish" + (s.unpriced ? ", " + s.unpriced + " unpriced" : "") + "</small>") + "</span>" +
@@ -8613,6 +9072,7 @@
       (open ? '<div class="set-body">' + setMissingHTML(s) + "</div>" : "") + "</article>";
   }
   function setMissingHTML(s) {
+    if (s.ocg) return ocgSetMissingHTML(s);
     const goal = isGoal(s.group.id);
     const every = '<p class="small sets-links" style="margin:12px 0 0"><button type="button" class="link-btn" data-cs-browse="en:' + s.group.id + '">See every card in this set, with prices</button>' +
       '<button type="button" class="link-btn" data-goal-toggle="' + s.group.id + '">' + (goal ? "Remove it from your goals" : "Make this set a goal") + "</button></p>";
@@ -8632,6 +9092,54 @@
           '<span class="result-actions">' + (onList ? '<span class="on-list">On want list</span>' : '<button class="btn" type="button" data-want="' + p.id + '">Want</button>') +
           '<button class="btn" type="button" data-have="' + p.id + '">I have it</button></span></div>';
       }).join("") + "</div>" + (s.missing.length > shown.length ? '<p class="small">Showing the first ' + shown.length + ".</p>" : "");
+  }
+
+  // A Japanese or Korean card from the daily list: its prices by rarity, changes, chart, and the buttons to own or want it
+  function openOcgCardPage(number, rarity, opts) {
+    const card = ocgCardAt(number);
+    if (!card) return;
+    const region = card.region, lang = ocgLang(region), mkSet = ocgFindSet(card.set.id);
+    const row = (typeof rarity === "string" ? card.rows.find(x => x.rarity === rarity) : null) || ocgRowFor(card, rarity) || card.rows.find(x => x.local) || card.rows[0] || null;
+    const id = "ocg:" + card.number + ":" + (row ? row.rarity : "");
+    drawerCtx = {mode: "price", id};
+    csRemember(card.name);
+    const mine = collection.filter(r => isOcg(r) && normNumber(r.number) === card.number);
+    const want = wants.find(w => !w.productId && !w.ref && normNumber(w.number) === card.number && (!row || !w.rarity || !row.rarity || sameRarity(w.rarity, row.rarity)));
+    const pics = {list: [row && row.img].filter(Boolean).concat(card.rows.map(x => x.img).filter(Boolean)).concat(namePics(card.name, "in_1000x1000", row && row.rarity).list)};
+    const big = firstPhoto(pics);
+    const q = encodeURIComponent((card.number + " " + card.name).trim());
+    const ref = row ? esc(ocgRef(row)) : "";
+    openDrawer(lang + " card price",
+      '<a href="' + esc(big || "#") + '" target="_blank" rel="noopener" class="detail-img" title="Open full-size image"' + (big ? "" : ' onclick="return false"') + ">" +
+      '<span class="sleeve"' + foilAttr(row && row.rarity) + ">" + imgTag(pics, card.name, true) + "</span></a>" +
+      '<h3 class="detail-title">' + esc(card.name) + "</h3>" + (row && row.ja ? '<p class="detail-sub">' + esc(row.ja) + "</p>" : "") +
+      '<p class="detail-sub"><button type="button" class="link-btn" id="csSetLink" title="Every card in this set">' + esc(mkSet ? mkSet.name : card.set.prefix + (region === "jp" ? "-JP" : "-KR")) + "</button>" +
+      (mkSet && mkSet.date ? " (" + esc(mkSet.date.slice(0, 4)) + ")" : "") + "<br>" + esc(card.number) + (row && row.rarity ? ", " + esc(row.rarity) : "") + ", " + esc(lang) + "</p>" +
+      '<div class="links">' + (region === "jp" ? '<a target="_blank" rel="noopener" href="https://auctions.yahoo.co.jp/search/search?p=' + q + '">Yahoo! Auctions JP</a>'
+        : '<a target="_blank" rel="noopener" href="https://m.bunjang.co.kr/search/products?q=' + encodeURIComponent(card.number) + '">Bunjang</a>') +
+      '<a target="_blank" rel="noopener" href="https://www.ebay.com/sch/i.html?_nkw=' + q + '">eBay</a>' +
+      '<a target="_blank" rel="noopener" href="https://www.cardmarket.com/en/YuGiOh/Products/Search?searchString=' + encodeURIComponent(card.name) + '">Cardmarket</a></div>' +
+      '<div class="section"><h3>' + (region === "jp" ? "BIGWEB price" : "Bunjang asking price") + "</h3>" +
+      '<table class="price-table"><thead><tr><th>Rarity</th><th class="num">Price</th><th>' + (region === "jp" ? "Stock" : "Listings") + "</th></tr></thead><tbody>" +
+      card.rows.map(x => "<tr" + (x === row && card.rows.length > 1 ? ' class="mine"' : "") + "><td>" + esc(x.rarity || "not stated") + '</td><td class="num">' +
+        (x.local ? ocgMoneyHTML(x.local, region) : '<span class="small">' + (region === "jp" ? "sold out" : "none") + "</span>") + "</td><td>" +
+        esc(region === "jp" ? (x.stock ? String(x.stock) : x.local ? "sold out, last price" : "") : x.n ? String(x.n) : "") + "</td></tr>").join("") + "</tbody></table>" +
+      (row ? ocgChangesHTML(row, "Price change" + (card.rows.length > 1 ? " for " + (row.rarity || "this rarity") : "")) : "") +
+      '<p class="small">From Card Vault\'s daily list, ' + esc(ocgListDate()) + ". " + (region === "jp" ? "BIGWEB is a large Japanese card shop; this is its selling price for a copy in stock."
+        : "Bunjang is a Korean marketplace; this is the middle of what sellers ask, so treat it as a rough guide.") + "</p></div>" +
+      (ocgHistoryBase() ? '<div class="section"><h3>Price over time</h3><div id="cardHist" class="card-hist"><p class="small">Loading…</p></div></div>' : "") +
+      '<div class="section"><h3>Yours</h3>' +
+      (mine.length ? '<ul class="cs-mine">' + mine.map(x => "<li><span>" + esc([x.qty > 1 ? x.qty + " ×" : "", x.rarity, x.grade ? gradeLabel(x.grade) : x.condition].filter(Boolean).join(" ")) +
+        '<span class="small">' + esc(x.location ? " · " + x.location : "") + "</span></span>" +
+        '<button type="button" class="link-btn" data-cs-mine="' + esc(x.id) + '">Open</button></li>').join("") + "</ul>" : '<p class="small">Not in your collection.</p>') +
+      (want ? '<p class="small">On your want list' + (want.target != null ? ", target " + esc(usd(want.target)) : "") + ".</p>" : "") +
+      '<div class="form-actions">' + (ref ? '<button class="btn btn-primary" type="button" data-ocgc-have="' + ref + '">' + (mine.length ? "Add more" : "I have it") + "</button>" +
+        (want ? "" : '<button class="btn" type="button" data-ocgc-want="' + ref + '">Want</button>') : "") +
+      (opts && opts.fromScan ? '<span class="spacer"></span><button class="btn" type="button" id="csScanMore">Scan another card</button>' : "") + "</div></div>");
+    if ($("csScanMore")) $("csScanMore").addEventListener("click", () => openScanner({check: true}));
+    $("csSetLink").addEventListener("click", () => openSearchSet(card.set.id));
+    $("drawerBody").querySelectorAll("[data-cs-mine]").forEach(b => b.addEventListener("click", () => openDetails(b.dataset.csMine)));
+    if (ocgHistoryBase() && row) loadOcgHistory({number: card.number, rarity: row.rarity}, row);
   }
 
   /* ======================= Want list tab ======================= */
@@ -10107,6 +10615,20 @@
     }
     return catalog.scanIndex;
   }
+  function ocgScanIndex() {
+    const d = ocgCd.data;
+    if (!d.scanIndex) {
+      d.scanIndex = new Map();
+      for (const number of d.byNumber.keys()) {
+        const m = number.match(/^([A-Z0-9]+)-(JP|KR)([A-Z])?(\d+)$/);
+        if (!m) continue;
+        const tail = (m[3] || "") + m[4];
+        pushMap(d.scanIndex, m[1], {number, set: m[1], region: m[2], tail, canonRest: canon(m[2] + tail), ocg: true});
+      }
+      for (const [set, list] of d.scanIndex) list.canonSet = canon(set);
+    }
+    return d.scanIndex;
+  }
   const OCG_CODES = ["JP", "JA", "KR", "AE", "TC", "SC"];
   // "DUNE-KR0OO1" -> "DUNE-KR001": a region code, then an optional letter and 3 digits. Text readers
   // sometimes double a round character (0 read as "0O"), so one repeated character may be dropped.
@@ -10131,20 +10653,26 @@
     const tokens = [];
     let m;
     while ((m = re.exec(up))) tokens.push([m[1], m[2]]);
-    // 1) an exact reading, allowing for look-alike characters
-    if (catalog) for (const [set, rest] of tokens) {
-      for (const v of numberVariants(set, rest)) { const hits = catalog.byNumber.get(v); if (hits && hits.length) return {number: v, products: hits, sure: true}; }
+    // 1) an exact reading, allowing for look-alike characters (TCGplayer's numbers, and the Japanese and Korean list's)
+    for (const [set, rest] of tokens) {
+      for (const v of numberVariants(set, rest)) {
+        const hits = catalog ? catalog.byNumber.get(v) : null;
+        if (hits && hits.length) return {number: v, products: hits, sure: true};
+        if (ocgCd.data && ocgCd.data.byNumber.has(v)) return {number: v, products: [], sure: true};
+      }
     }
-    // 2) the closest TCGplayer number, or 3) a Japanese/Korean print of a set TCGplayer also sells in English
-    if (catalog) {
+    // 2) the closest known number, or 3) a Japanese/Korean print of a set TCGplayer also sells in English
+    const indexes = (catalog ? [scanIndex()] : []).concat(ocgCd.data ? [ocgScanIndex()] : []);
+    if (indexes.length) {
       let best = null;
       for (const [setRead, restRead] of tokens) {
         if (setRead.length + restRead.length < 6) continue;
         const cs = canon(setRead), cr = canon(restRead);
-        for (const [, list] of scanIndex()) {
+        for (const [, list] of indexes.flatMap(ix => Array.from(ix))) {
           const ds = lev(cs, list.canonSet);
           if (ds > 1) continue;
           for (const e of list) {
+            if (e.ocg && canon(restRead.slice(0, 2)) !== canon(e.region)) continue;
             let d = ds + lev(cr, e.canonRest), number = e.number;
             if (e.region === "EN") {
               for (const code of OCG_CODES) {
@@ -10157,7 +10685,7 @@
           }
         }
       }
-      if (best && !best.amb) return {number: best.number, products: catalog.byNumber.get(best.number) || [], sure: true};
+      if (best && !best.amb) return {number: best.number, products: (catalog && catalog.byNumber.get(best.number)) || [], sure: true};
     }
     // 4) a number that looks right but can't be checked (a set TCGplayer doesn't sell, or no TCGplayer data)
     for (const [set, rest] of tokens) {
@@ -10229,6 +10757,7 @@
   function openScanner(opts) {
     const many = !!(opts && opts.batch), check = !many && !!(opts && opts.check);
     drawerCtx = {mode: "scan", batch: many, check};
+    ocgCardsReady();   // (so a Japanese or Korean card is known right away)
     openDrawer(many ? "Scan several cards" : check ? "Scan to check a price" : "Scan a card",
       '<div class="scan-view" id="scanView"><video id="scanVideo" playsinline muted autoplay></video><div class="scan-box" id="scanBox" aria-hidden="true"></div></div>' +
       '<p class="scan-status" id="scanStatus" role="status">Starting the camera…</p>' +
@@ -11004,6 +11533,17 @@
     });
     $("bulkDelete").addEventListener("click", () => deleteRecords(Array.from(selected)));
 
+    // ----- a Japanese or Korean card from the daily list, wherever it's shown
+    document.addEventListener("click", e => {
+      const b = e.target.closest("[data-ocgc-have], [data-ocgc-want], [data-ocgc-open]");
+      if (!b) return;
+      const hit = ocgRefAt(b.dataset.ocgcHave || b.dataset.ocgcWant || b.dataset.ocgcOpen);
+      if (!hit) return;
+      if (b.dataset.ocgcOpen != null) openOcgCardPage(hit.c.number, hit.c.rarity);
+      else if (b.dataset.ocgcWant != null) { ocgWant(hit.s, hit.c); render(); if (drawerCtx && drawerCtx.mode === "price") openOcgCardPage(hit.c.number, hit.c.rarity); }
+      else ocgHave(hit.s, hit.c);
+    });
+
     // ----- price history
     $("panel-history").addEventListener("change", e => {
       if (e.target.id === "moverMin") { settings.moverMin = num(e.target.value) || 0; saveSettings(); renderMovers(); }
@@ -11053,7 +11593,7 @@
       if (br) { openSearchSet(br.dataset.csBrowse); return; }
       const toggle = e.target.closest("[data-set]");
       if (toggle) {
-        const gid = +toggle.dataset.set;
+        const gid = /^(jp|kr):/.test(toggle.dataset.set) ? toggle.dataset.set : +toggle.dataset.set;   // (a Japanese or Korean set's id is "jp:DUNE")
         if (openSets.has(gid)) openSets.delete(gid); else openSets.add(gid);
         renderSetsList();
         const again = document.querySelector('#setsList [data-set="' + gid + '"]');
@@ -11139,6 +11679,12 @@
       if (oc) {
         const hit = ocgChaseAt(oc.dataset.csOcgwant || oc.dataset.csOcghave);
         if (hit) { if (oc.dataset.csOcgwant) { ocgWant(hit.s, hit.c); renderSearchResults(); } else ocgHave(hit.s, hit.c); }
+        return;
+      }
+      const lv = e.target.closest("[data-ocg-live]");
+      if (lv) {   // (the shop's prices right now, under the daily list's)
+        const code = lv.dataset.ocgLive, m = code.match(/^([A-Z0-9]+)-(JP|KR)([A-Z]?\d+)$/), box = $("csOcg");
+        if (m && box) { lv.disabled = true; showOcgLookup(box, code, m, {search: true, live: true}); }
         return;
       }
       const chip = e.target.closest("[data-cs-q]");
@@ -11472,7 +12018,8 @@
     loadOcgMarket, buildOcgMarket, ocgMk: () => ocgMk, loadYugiMarket, ymMatch, ymProduct, ymk: () => ymk, renderMarket, wantPrice,
     wantKind, wantSource, shopWantLive, ymWant, krBoxWant, gotWant, openWantEdit, tookWant, wantFromProduct, upgradeWant, renderWants,
     csSearch, renderSearch, renderSearchResults, openPriceCard, cs: () => cs, csSetMatches, openSearchSet, csSetCode,
-    toggleGoal, goalAddMissing, csSetNeeds, renderGoalsBar, cleanGoals, renderMovers, openScanner, showScanPrice, scanChecks: () => scanChecks};
+    toggleGoal, goalAddMissing, csSetNeeds, renderGoalsBar, cleanGoals, renderMovers, openScanner, showScanPrice, scanChecks: () => scanChecks,
+    loadOcgCards, buildOcgCards, ocgCd: () => ocgCd, ocgCardAt, ocgFilePrice, ocgRowFor, ocgSetProgress, openOcgCardPage, ocgNameHits, upgradeRecord, addOrMerge};
 
   document.addEventListener("DOMContentLoaded", init);
 })();
