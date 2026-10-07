@@ -4139,10 +4139,12 @@
     code = normNumber(code);
     const key = "bj|" + code, hit = ocgCache()[key];
     if (hit && !fresh && Date.now() - hit.t < OCG_TTL) return hit;
-    const j = await politeJSON("https://api.bunjang.co.kr/api/1/find_v2.json?q=" + encodeURIComponent(code) + "&order=score&page=0&n=60", 1500);
+    // (Bunjang's website's own search, since October 2026: 60 listings a page; ads among them are left out)
+    const j = await politeJSON("https://api.bunjang.co.kr/api/search/v8/web/search?policyKey=mw.product.keyword&q=" + encodeURIComponent(code) + "&size=60", 1500);
+    const sr = j && j.data && j.data.responses && j.data.responses.mainGrid && j.data.responses.mainGrid.searchResponse;
     const flat = code.replace(/-/g, "");
     // Listings for this exact card number, not "wanted" posts or bundles of several cards.
-    const list = (j && Array.isArray(j.list) ? j.list : []).map(x => ({name: String((x && x.name) || ""), price: num(x && x.price)}))
+    const list = (sr && Array.isArray(sr.data) ? sr.data : []).filter(x => x && x.type === "PRODUCT" && !x.ad).map(x => ({name: String(x.name || ""), price: num(x.price)}))
       .filter(x => x.price >= 100 && x.price <= 50000000 && x.name.toUpperCase().replace(/[\s\-_.]/g, "").includes(flat) &&
         !/삽니다|구매합니다|구합니다|구해요|매입|일괄|묶음/.test(x.name));
     const groups = {};

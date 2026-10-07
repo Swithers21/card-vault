@@ -41,7 +41,7 @@ CARDS_FILE = os.environ.get("CARDVAULT_OCG_CARDS", os.path.join(HERE, "ocg-cards
 HISTORY_DIR = os.environ.get("CARDVAULT_OCG_HISTORY", os.path.join(HERE, "ocg-history"))
 YUGIPEDIA = os.environ.get("YUGIPEDIA_API", "https://yugipedia.com/api.php")
 BIGWEB = os.environ.get("BIGWEB_API", "https://api.bigweb.co.jp").rstrip("/")
-BUNJANG = os.environ.get("BUNJANG_API", "https://api.bunjang.co.kr/api/1/find_v2.json")
+BUNJANG = os.environ.get("BUNJANG_API", "https://api.bunjang.co.kr/api/search/v8/web/search")   # (the site's own search, since October 2026)
 FX_API = os.environ.get("FX_API", "https://api.frankfurter.dev/v1/latest?from=USD&to=JPY,KRW")
 BUDGET = float(os.environ.get("CARDVAULT_OCG_BUDGET", "360"))   # seconds of looking things up per run
 SLOW = float(os.environ.get("CARDVAULT_OCG_PAUSE", "1"))         # pauses are multiplied by this (0 in tests)
@@ -51,7 +51,7 @@ CARDS_FORMAT = 1
 CHASE = 25                 # most valuable cards kept per set
 UPCOMING_DAYS = 45         # sets this close to release are listed (shops take pre-orders)
 INDEX_DAYS = 3             # the set lists from Yugipedia are read again after this long
-BUNJANG_PAGES = 4          # listings read per Korean set (100 a page): more pages, more of its cards priced
+BUNJANG_PAGES = 5          # listings read per Korean set (60 a page): more pages, more of its cards priced
 HISTORY_DAYS = 400         # days of prices kept per set
 CHANGE_DAYS = (1, 7, 30)   # the price changes in ocg-cards.js: since a day, a week, a month ago
 BIGWEB_IMG = re.compile(r"^https://image\.bigweb\.co\.jp/new/imgc/(\d{3})/(\d{3})/(\d+)\.jpg$")
@@ -424,40 +424,50 @@ BUNJANG_PAUSE = 3          # seconds between Bunjang requests (it's read on its 
 BUNJANG_SEEN = {"answers": 0, "empty": 0, "note": ""}   # (what Bunjang answered this run, for the summary)
 
 
-def bunjang_rows(web, params):
-    """One page of Bunjang listings. An answer that isn't a search result (blocked, an error, a changed API) raises,
-    so the set keeps its last prices and is tried again next time."""
-    j = web.get_json(BUNJANG + "?" + urllib.parse.urlencode(params), BUNJANG_PAUSE)
-    if not isinstance(j, dict) or "list" not in j or (j.get("result") not in (None, "success")):
-        keys = list(j.keys())[:6] if isinstance(j, dict) else type(j).__name__
-        BUNJANG_SEEN["note"] = "Bunjang answered %s result=%r reason=%r" % (keys, (j or {}).get("result") if isinstance(j, dict) else None,
-                                                                             (j or {}).get("reason") or (j or {}).get("message") if isinstance(j, dict) else None)
-        raise ValueError("not a Bunjang search result (%s)" % BUNJANG_SEEN["note"])
-    rows = j.get("list") or []
-    BUNJANG_SEEN["answers"] += 1
-    if not rows:
-        BUNJANG_SEEN["empty"] += 1
-    return rows
+def bunjang_rows(web, q, pages):
+    """The listings a Bunjang search finds (its website's own search: 60 a page, the next page by a cursor), ads left
+    out. An answer that isn't a search result (blocked, an error, a changed API) raises, so the set keeps its last
+    prices and is tried again next time."""
+    seen, out, cursor = set(), [], None
+    for _ in range(pages):
+        params = {"policyKey": "mw.product.keyword", "q": q, "size": 60, "sort": "score"}
+        if cursor:
+            params["cursor"] = cursor
+        j = web.get_json(BUNJANG + "?" + urllib.parse.urlencode(params), BUNJANG_PAUSE)
+        sr = ((((j.get("data") or {}).get("responses") or {}).get("mainGrid") or {}).get("searchResponse")) if isinstance(j, dict) else None
+        if not isinstance(sr, dict) or not isinstance(sr.get("data"), list):
+            keys = list(j.keys())[:6] if isinstance(j, dict) else type(j).__name__
+            BUNJANG_SEEN["note"] = "Bunjang answered %s %r" % (keys, ((j.get("errorCode") or j.get("reason") or j.get("message")) if isinstance(j, dict) else None))
+            raise ValueError("not a Bunjang search result (%s)" % BUNJANG_SEEN["note"])
+        rows = sr["data"]
+        BUNJANG_SEEN["answers"] += 1
+        if not rows:
+            BUNJANG_SEEN["empty"] += 1
+        for x in rows:
+            if not isinstance(x, dict) or x.get("type") != "PRODUCT" or x.get("ad") or x.get("pid") in seen:
+                continue
+            seen.add(x.get("pid"))
+            out.append(x)
+        cursor = sr.get("cursor")
+        if not cursor or len(rows) < 60:
+            break
+    return out
 
 
 def read_bunjang_cards(web, prefix):
     code_re = re.compile(re.escape(prefix) + r"\s*-?\s*KR\s*-?\s*([A-Z]?\d{2,3})", re.I)
     groups = {}
-    for page in range(BUNJANG_PAGES):
-        rows = bunjang_rows(web, {"q": prefix + "-KR", "order": "score", "page": page, "n": 100})
-        for x in rows:
-            title = str((x or {}).get("name") or "")
-            try:
-                price = int(float(x.get("price")))
-            except (TypeError, ValueError):
-                continue
-            m = code_re.search(unicodedata.normalize("NFKC", title))
-            if not m or not 100 <= price <= 50000000 or NOT_FOR_SALE.search(title) or BUNDLE.search(title):
-                continue
-            number = prefix + "-KR" + m.group(1).upper()
-            groups.setdefault(number + "|" + (ko_rarity(title) or "?"), []).append(price)
-        if len(rows) < 100:
-            break
+    for x in bunjang_rows(web, prefix + "-KR", BUNJANG_PAGES):
+        title = str(x.get("name") or "")
+        try:
+            price = int(float(x.get("price")))
+        except (TypeError, ValueError):
+            continue
+        m = code_re.search(unicodedata.normalize("NFKC", title))
+        if not m or not 100 <= price <= 50000000 or NOT_FOR_SALE.search(title) or BUNDLE.search(title):
+            continue
+        number = prefix + "-KR" + m.group(1).upper()
+        groups.setdefault(number + "|" + (ko_rarity(title) or "?"), []).append(price)
     return {k: [median(v), len(v)] for k, v in groups.items()}
 
 
@@ -471,8 +481,8 @@ def read_bunjang_box(web, local_name):
     if len(key) < 3:
         return None
     prices = []
-    for x in bunjang_rows(web, {"q": local_name + " 박스", "order": "score", "page": 0, "n": 100}):
-        title = str((x or {}).get("name") or "")
+    for x in bunjang_rows(web, local_name + " 박스", 1):
+        title = str(x.get("name") or "")
         try:
             price = int(float(x.get("price")))
         except (TypeError, ValueError):
