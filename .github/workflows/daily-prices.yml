@@ -25,16 +25,16 @@ jobs:
     permissions:
       contents: read
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v7
         with:
           persist-credentials: false
 
-      - uses: actions/setup-python@v5
+      - uses: actions/setup-python@v7
         with:
           python-version: "3.12"
 
       - name: Bring back yesterday's card lists and earlier prices
-        uses: actions/cache/restore@v4
+        uses: actions/cache/restore@v6
         with:
           path: |
             tcgplayer-cache
@@ -50,7 +50,7 @@ jobs:
         run: python update_tcgplayer_data.py
 
       - name: Keep the card lists and prices for tomorrow
-        uses: actions/cache/save@v4
+        uses: actions/cache/save@v6
         with:
           path: |
             tcgplayer-cache
@@ -61,7 +61,7 @@ jobs:
       # Pictures of cards TCGplayer has no photo of yet (new sets, promos), from YGOPRODeck. YGOPRODeck asks apps to
       # download each picture once and keep their own copy, so the folder is kept between runs.
       - name: Bring back the card pictures kept so far
-        uses: actions/cache/restore@v4
+        uses: actions/cache/restore@v6
         with:
           path: card-images
           key: card-images-${{ github.run_id }}
@@ -72,7 +72,7 @@ jobs:
         run: python stand_in_images.py
 
       - name: Keep the card pictures for tomorrow
-        uses: actions/cache/save@v4
+        uses: actions/cache/save@v6
         with:
           path: card-images
           key: card-images-${{ github.run_id }}
@@ -81,7 +81,7 @@ jobs:
       # and Bunjang (Korean prices and boxes). A few minutes at most; what was looked up is kept between runs, so each
       # set is looked up again only now and then (new sets daily).
       - name: Bring back the Japanese and Korean set data kept so far
-        uses: actions/cache/restore@v4
+        uses: actions/cache/restore@v6
         with:
           path: |
             ocg-cache
@@ -97,7 +97,7 @@ jobs:
           echo "::notice title=Japanese and Korean sets::$(tail -n 1 ocg.log)"
 
       - name: Keep the Japanese and Korean set data for tomorrow
-        uses: actions/cache/save@v4
+        uses: actions/cache/save@v6
         with:
           path: |
             ocg-cache
@@ -116,7 +116,7 @@ jobs:
           python card_history.py _site/history || echo "No price history files this time."
           ls -la _site
 
-      - uses: actions/upload-pages-artifact@v3
+      - uses: actions/upload-pages-artifact@v5
         with:
           path: _site
 
@@ -130,9 +130,9 @@ jobs:
       name: github-pages
       url: ${{ steps.deployment.outputs.page_url }}
     steps:
-      - uses: actions/configure-pages@v5
+      - uses: actions/configure-pages@v6
       - id: deployment
-        uses: actions/deploy-pages@v4
+        uses: actions/deploy-pages@v5
 
   # GitHub pauses scheduled workflows in a repository with no new commits for 60 days.
   # A one-line note twice a month keeps the daily prices coming.
@@ -143,7 +143,7 @@ jobs:
     permissions:
       contents: write
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v7
       - name: Note that the daily prices are running (on the 1st and 15th)
         run: |
           day=$(date -u +%d)
