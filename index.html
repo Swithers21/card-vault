@@ -6906,16 +6906,21 @@
     }));
   }
   // Finds "Card Vault backup.json" that Card Vault made in this Google account (from any device), or makes one.
+  // The one in the "Card Vault" folder comes first: a file with the same name elsewhere in Google Drive (a PC's own
+  // backup file in a folder that Google Drive for desktop syncs, say) may hold an older collection.
   async function driveFindOrCreate() {
     const about = await (await driveFetch("about?fields=user(emailAddress)")).json();
     const email = about && about.user ? about.user.emailAddress || "" : "";
-    const q = encodeURIComponent("name = '" + GDRIVE_FILE + "' and trashed = false");
-    const list = await (await driveFetch("files?q=" + q + "&orderBy=modifiedTime desc&pageSize=10&fields=files(id,modifiedTime,size)")).json();
-    const files = list && Array.isArray(list.files) ? list.files : [];
-    if (files.length) return {fileId: files[0].id, email, created: false};
     const fq = encodeURIComponent("name = 'Card Vault' and mimeType = 'application/vnd.google-apps.folder' and trashed = false");
     const folders = await (await driveFetch("files?q=" + fq + "&pageSize=1&fields=files(id)")).json();
     let folderId = folders && folders.files && folders.files[0] ? folders.files[0].id : null;
+    const find = async where => {
+      const q = encodeURIComponent("name = '" + GDRIVE_FILE + "' and trashed = false" + (where ? " and '" + where + "' in parents" : ""));
+      const list = await (await driveFetch("files?q=" + q + "&orderBy=modifiedTime desc&pageSize=10&fields=files(id,modifiedTime,size)")).json();
+      return list && Array.isArray(list.files) && list.files.length ? list.files[0].id : null;
+    };
+    const fileId = (folderId && await find(folderId)) || await find(null);
+    if (fileId) return {fileId, email, created: false};
     if (!folderId) {
       folderId = (await (await driveFetch("files?fields=id", {method: "POST", headers: {"Content-Type": "application/json"},
         body: JSON.stringify({name: "Card Vault", mimeType: "application/vnd.google-apps.folder"})})).json()).id;
