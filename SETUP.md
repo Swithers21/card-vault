@@ -110,9 +110,11 @@ personal app: click **Continue**.
   much of the set you have, what the rest costs, with Want and I have it) and Price movers (Every Japanese card, Every
   Korean card). Japanese prices and photos come from BIGWEB (a large Japanese card shop): a shop's selling price for a
   copy in stock. Korean prices are Bunjang (a Korean marketplace) asking prices, only for cards that have listings, so
-  treat them as a rough guide; a Korean card shows the Japanese print's photo. Both are converted to US$. A ¥ or ₩ price
-  you type on a card wins over them. A card's changes compare its set's latest earlier check at least that long ago (new
-  sets are checked daily, older ones weekly), so a week's change can be a little older than a week.
+  treat them as a rough guide; a Korean card shows the Japanese print's photo. Both are converted to US$. The shop's
+  price is used whenever there is one, like TCGplayer's for English cards; an estimate or ¥/₩ price you typed on a card
+  only counts while the shop has none (cards you priced by hand before switch over by themselves). A card's changes
+  compare its set's latest earlier check at least that long ago (new sets are checked daily, older ones weekly), so a
+  week's change can be a little older than a week.
 - **PSA 10 value**: the switch under your collection's value shows what one gem-mint copy of each card would be worth,
   and cards you've had graded at their grade. Without more, it's a rough estimate from the raw price (Settings > Graded
   values). For real graded prices from eBay sales, add a PriceCharting key in Settings (it needs PriceCharting's

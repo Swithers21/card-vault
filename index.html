@@ -2082,15 +2082,18 @@
       return {unit: r.snap.market != null ? r.snap.market : r.snap.low, kind: r.snap.market != null ? "market" : "low",
         from: "saved", date: parseDate(r.snap.date)};
     }
-    if (r.manualPrice != null) return {unit: r.manualPrice, kind: "estimate", from: "manual"};
-    // Japanese and Korean cards: your own ¥/₩ price if you entered one, else BIGWEB's or Bunjang's, in US$.
+    // Japanese and Korean cards: BIGWEB's or Bunjang's price (in US$) when there is one, like TCGplayer's for English
+    // cards; your own estimate or ¥/₩ price only while there isn't.
     const g = isOcg(r) ? ocgRegion(r.number) : null;
+    if (g) {
+      const op = ocgPrice(r);
+      if (op && op.usd != null) return {unit: op.usd, kind: "market", from: "ocg", local: op.local, cur: op.cur, src: op.src, note: op.note, at: op.at, url: op.url};
+    }
+    if (r.manualPrice != null) return {unit: r.manualPrice, kind: "estimate", from: "manual"};
     if (g) {
       const cur = g.region === "JP" ? "JPY" : "KRW", mine = g.region === "JP" ? r.jp : r.kr;
       const u = mine != null ? toUSD(mine, cur) : null;
       if (u != null) return {unit: u, kind: "estimate", from: "local", local: mine, cur};
-      const op = ocgPrice(r);
-      if (op && op.usd != null) return {unit: op.usd, kind: "market", from: "ocg", local: op.local, cur: op.cur, src: op.src, note: op.note, at: op.at, url: op.url};
     }
     return {unit: null};
   }
@@ -3543,10 +3546,12 @@
     } else {
       html += '<p class="small">Checking ' + (g.region === "JP" ? "BIGWEB" : "Bunjang") + "…</p>";
     }
-    if (pi.from === "manual") html += '<p class="price-yours">Your estimate, <b>' + esc(usd(pi.unit)) + '</b>, is used. <span class="small">Clear "Value per card" below to use the price above.</span></p>';
-    else if (pi.from === "local") html += '<p class="price-yours">Your price, <b>' + esc(fmtLocal(pi.local, pi.cur)) + " ≈ " + esc(usd(pi.unit)) +
-      '</b>, is used. <span class="small">Clear the ' + (pi.cur === "JPY" ? "Japan" : "Korea") + " price below to use the one above.</span></p>";
-    else if (pi.from === "ocg" && marketValue(r).factor != null && marketValue(r).factor !== 1) html += '<p class="price-yours">Your copy: <b>' + esc(usd(marketValue(r).unit)) +
+    const mine = g.region === "JP" ? r.jp : r.kr;
+    if (pi.from === "manual") html += '<p class="price-yours">Your estimate, <b>' + esc(usd(pi.unit)) + '</b>, is used while no shop price is found.</p>';
+    else if (pi.from === "local") html += '<p class="price-yours">Your price, <b>' + esc(fmtLocal(pi.local, pi.cur)) + " ≈ " + esc(usd(pi.unit)) + "</b>, is used while no shop price is found.</p>";
+    else if (pi.from === "ocg" && (r.manualPrice != null || mine != null)) html += '<p class="small">The price above is used' +
+      (r.manualPrice != null ? ", not your estimate of " + esc(usd(r.manualPrice)) : ", not the " + esc(fmtLocal(mine, g.region === "JP" ? "JPY" : "KRW")) + " you entered") + ".</p>";
+    if (pi.from === "ocg" && marketValue(r).factor != null && marketValue(r).factor !== 1) html += '<p class="price-yours">Your copy: <b>' + esc(usd(marketValue(r).unit)) +
       '</b> <span class="small">(' + esc(r.condition) + " at " + Math.round(marketValue(r).factor * 100) + "% of that price, see Settings)</span></p>";
     const when = op && op.at ? (op.file ? "From Card Vault's daily price list, " + fmtDate(new Date(op.at)) : "Checked " + fmtDateTime(new Date(op.at))) : "";
     html += '<p class="small">' + (g.region === "JP" ? '<a href="https://bigweb.co.jp/" target="_blank" rel="noopener">BIGWEB</a> is a large Japanese card shop; this is its selling price.'
