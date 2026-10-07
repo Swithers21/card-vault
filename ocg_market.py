@@ -113,6 +113,7 @@ class Web:
         self.last = {}
         self.count = 0
         self.failed = 0
+        self.by_host = {}
         self.lock = threading.Lock()
 
     def left(self):
@@ -125,6 +126,7 @@ class Web:
                 slot = max(time.time(), self.last.get(host, 0) + pause * SLOW)
                 self.last[host] = slot
                 self.count += 1
+                self.by_host[host] = self.by_host.get(host, 0) + 1
             wait = slot - time.time()
             if wait > 0:
                 time.sleep(wait)
@@ -395,12 +397,31 @@ NOT_FOR_SALE = re.compile(r"삽니다|구매합니다|구합니다|구해요|매
 BUNDLE = re.compile(r"일괄|묶음|세트|(?<![0-9])([2-9]|[1-9][0-9])\s*장|PSA|BRG|BGS|CGC|등급|그레이딩|감정", re.I)
 
 
+BUNJANG_PAUSE = 3          # seconds between Bunjang requests (it's read on its own for a long stretch)
+BUNJANG_SEEN = {"answers": 0, "empty": 0, "note": ""}   # (what Bunjang answered this run, for the summary)
+
+
+def bunjang_rows(web, params):
+    """One page of Bunjang listings. An answer that isn't a search result (blocked, an error, a changed API) raises,
+    so the set keeps its last prices and is tried again next time."""
+    j = web.get_json(BUNJANG + "?" + urllib.parse.urlencode(params), BUNJANG_PAUSE)
+    if not isinstance(j, dict) or "list" not in j or (j.get("result") not in (None, "success")):
+        keys = list(j.keys())[:6] if isinstance(j, dict) else type(j).__name__
+        BUNJANG_SEEN["note"] = "Bunjang answered %s result=%r reason=%r" % (keys, (j or {}).get("result") if isinstance(j, dict) else None,
+                                                                             (j or {}).get("reason") or (j or {}).get("message") if isinstance(j, dict) else None)
+        raise ValueError("not a Bunjang search result (%s)" % BUNJANG_SEEN["note"])
+    rows = j.get("list") or []
+    BUNJANG_SEEN["answers"] += 1
+    if not rows:
+        BUNJANG_SEEN["empty"] += 1
+    return rows
+
+
 def read_bunjang_cards(web, prefix):
     code_re = re.compile(re.escape(prefix) + r"\s*-?\s*KR\s*-?\s*([A-Z]?\d{2,3})", re.I)
     groups = {}
     for page in range(BUNJANG_PAGES):
-        j = web.get_json(BUNJANG + "?" + urllib.parse.urlencode({"q": prefix + "-KR", "order": "score", "page": page, "n": 100}), 1.5)
-        rows = j.get("list") or []
+        rows = bunjang_rows(web, {"q": prefix + "-KR", "order": "score", "page": page, "n": 100})
         for x in rows:
             title = str((x or {}).get("name") or "")
             try:
@@ -426,9 +447,8 @@ def read_bunjang_box(web, local_name):
     key = squash(local_name)
     if len(key) < 3:
         return None
-    j = web.get_json(BUNJANG + "?" + urllib.parse.urlencode({"q": local_name + " 박스", "order": "score", "page": 0, "n": 100}), 1.5)
     prices = []
-    for x in j.get("list") or []:
+    for x in bunjang_rows(web, {"q": local_name + " 박스", "order": "score", "page": 0, "n": 100}):
         title = str((x or {}).get("name") or "")
         try:
             price = int(float(x.get("price")))
@@ -849,6 +869,8 @@ def run():
             record_history("jp", prefix, {key: e.get("p") or None for key, e in items.items()})
         elif kind == "price":
             cards = read_bunjang_cards(web, prefix)
+            if not cards and len(prices[k].get("cards") or {}) >= 3:
+                cards = prices[k]["cards"]   # (every listing gone at once: more likely Bunjang holding back than the market; kept)
             with lock:
                 prices[k]["cards"] = cards
                 write_json(cache_path("prices", "%s-%s.json" % (region, safe_name(prefix))), prices[k])
@@ -896,9 +918,11 @@ def run():
     hist = write_history_files(sets_by_region)
     priced = sum(1 for row in data["jp"] if row[5]), sum(1 for row in data["kr"] if row[5])
     n_cards = sum(len(s[2]) for s in cards["jp"]), sum(len(s[2]) for s in cards["kr"])
-    say("  Japanese sets: %d (%d with prices, %d cards). Korean sets: %d (%d with prices, %d cards). %d lookups this time (%d requests), %d left for later. %.1f + %.1f MB, %d history files."
-        % (len(data["jp"]), priced[0], n_cards[0], len(data["kr"]), priced[1], n_cards[1], done, web.count, skipped,
-           os.path.getsize(OUT_FILE) / 1048576, os.path.getsize(CARDS_FILE) / 1048576, hist))
+    hosts = ", ".join("%s %d" % (re.sub(r"^(api|www)\.|:\d+$", "", h), n) for h, n in sorted(web.by_host.items()))
+    say("  Japanese sets: %d (%d with prices, %d cards). Korean sets: %d (%d with prices, %d cards). %d lookups this time (%d requests: %s; %d failed), %d left for later. %.1f + %.1f MB, %d history files."
+        % (len(data["jp"]), priced[0], n_cards[0], len(data["kr"]), priced[1], n_cards[1], done, web.count, hosts, web.failed, skipped,
+           os.path.getsize(OUT_FILE) / 1048576, os.path.getsize(CARDS_FILE) / 1048576, hist) +
+        (" Bunjang: %d answers, %d with no listings.%s" % (BUNJANG_SEEN["answers"], BUNJANG_SEEN["empty"], " " + BUNJANG_SEEN["note"] if BUNJANG_SEEN["note"] else "") if BUNJANG_SEEN["answers"] or BUNJANG_SEEN["note"] else ""))
     return 0
 
 
