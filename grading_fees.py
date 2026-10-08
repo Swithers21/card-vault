@@ -238,9 +238,12 @@ def read_company(co):
             # PSA turns GitHub's computers away: its page as the Internet Archive last saw it, if that's recent
             if err.code != 403:
                 raise
-            snap = archived_copy(URLS["PSA"])
+            try:
+                snap = archived_copy(URLS["PSA"])
+            except Exception as err2:   # (say what happened, for the update status)
+                raise ValueError("HTTP 403; the Internet Archive didn't answer (%s)" % (("HTTP %d" % err2.code) if isinstance(err2, urllib.error.HTTPError) else err2))
             if not snap:
-                raise
+                raise ValueError("HTTP 403; the Internet Archive has no copy from the last %d days" % ARCHIVE_DAYS)
             got = parse_psa(snap["html"])
             got["via"] = snap["day"]
             return got
