@@ -1465,7 +1465,7 @@
     if (/rare|parallel|mosaic|shatterfoil|starfoil/.test(s)) return 2;
     return 0;
   }
-  const OCG_REGIONS = {JP: "Japanese", JA: "Japanese", KR: "Korean", AE: "English", TC: "Chinese (Traditional)", SC: "Chinese (Simplified)"};
+  const OCG_REGIONS = {JP: "Japanese", JA: "Japanese", KR: "Korean", K: "Korean", AE: "English", TC: "Chinese (Traditional)", SC: "Chinese (Simplified)"};
 
   /* ======================= State ======================= */
   let collection = [];
@@ -3043,7 +3043,7 @@
     const out = $("lookupOut");
     const q = normNumber(value);
     if (!q) { out.innerHTML = '<div class="notice">Type the card number first, for example MAMO-EN040.</div>'; return; }
-    const ocgM = q.match(/^([A-Z0-9]+)-(JP|KR)([A-Z]?\d+)$/);
+    const ocgM = ocgKey(ocgRegion(q));
     if (!catalog && ocgM && !(drawerCtx && (drawerCtx.want || drawerCtx.replaceId))) { showOcgLookup(out, q, ocgM); return; }
     if (!catalog) { out.innerHTML = noCatalogNotice(); return; }
     const found = findByNumber(q);
@@ -3055,7 +3055,7 @@
       wireResults(out, found);
       return;
     }
-    const region = q.match(/^([A-Z0-9]+)-(JP|JA|KR|AE|TC|SC)([A-Z]?\d+)$/);
+    const region = ocgM || q.match(/^([A-Z0-9]+)-(JP|JA|KR|AE|TC|SC)([A-Z]?\d+)$/);
     if (region && (region[2] === "JP" || region[2] === "KR") && !(drawerCtx && (drawerCtx.want || drawerCtx.replaceId))) { showOcgLookup(out, q, region); return; }
     if (region && region[2] !== "AE" && drawerCtx && drawerCtx.want) {
       out.innerHTML = '<div class="notice"><strong>TCGplayer only sells English cards, so ' + esc(q) + " isn't in its catalog.</strong> The want list tracks TCGplayer prices, so look up the English printing instead: " +
@@ -3129,7 +3129,7 @@
               '<span class="result-meta">' + esc(c.number) + (c.rows.length > 1 ? ", " + c.rows.length + " rarities" : ", " + esc(row.rarity || "rarity not stated")) + "</span>" +
               '<span class="result-price">' + (row.local ? ocgMoneyHTML(row.local, c.region) + (c.rows.length > 1 ? ' <span class="small">and up</span>' : "") : '<span class="small">No price</span>') + "</span></button>"; }).join("") + "</div>" : "");
       wireResults(out, res.items);
-      out.querySelectorAll("[data-ocg-idx]").forEach(btn => btn.addEventListener("click", () => { const c = ocgHits[+btn.dataset.ocgIdx]; const m = c.number.match(/^([A-Z0-9]+)-(JP|KR)([A-Z]?\d+)$/); if (!m) return; out.innerHTML = ""; showOcgFromList(out, c, m, {}); if (out.scrollIntoView) out.scrollIntoView({block: "start"}); }));
+      out.querySelectorAll("[data-ocg-idx]").forEach(btn => btn.addEventListener("click", () => { const c = ocgHits[+btn.dataset.ocgIdx]; const m = ocgKey(ocgRegion(c.number)); if (!m) return; out.innerHTML = ""; showOcgFromList(out, c, m, {}); if (out.scrollIntoView) out.scrollIntoView({block: "start"}); }));
     };
     if (!want && !replaceId) ocgCardsReady();
     $("nameQuery").addEventListener("input", () => { clearTimeout(timer); timer = setTimeout(run, 220); });
@@ -4000,7 +4000,16 @@
   const OCG_TTL = 20 * 3600000;        // prices: about once a day
   const OCG_CARD_TTL = 30 * 86400000;  // card names and rarities
   const ocg = {cache: null, queue: Promise.resolve(), last: 0, refreshing: false, timer: null};
-  const ocgRegion = number => { const m = normNumber(number).match(/^([A-Z0-9]+)-(JP|KR)([A-Z]?\d+)$/); return m ? {set: m[1], region: m[2], tail: m[3], code: m[0]} : null; };
+  // A Japanese or Korean card number: DUNE-JP004, DUNE-KR004, LOB-K025 (Korean sets up to the late 2000s), and, once the
+  // daily list is here, the older Japanese forms it knows (LB-35, 302-001...). region is "JP" or "KR".
+  // ocgKey(m): what showOcgLookup and friends get: [code, set, region, tail].
+  const ocgRegion = number => {
+    const n = normNumber(number), m = n.match(/^([A-Z0-9]+)-(JP|KR|K)([A-Z]?\d+)$/);
+    if (m) return {set: m[1], region: m[2] === "K" ? "KR" : m[2], tail: m[3], code: m[0], old: m[2] === "K"};
+    const card = ocgCd.data ? ocgCd.data.byNumber.get(n) : null;
+    return card ? {set: card.set.prefix, region: card.region === "jp" ? "JP" : "KR", tail: n.slice(card.set.prefix.length + 1), code: n, old: true} : null;
+  };
+  const ocgKey = g => g ? [g.code, g.set, g.region, g.tail] : null;
   const isOcg = r => !r.productId && !r.sealed && !!ocgRegion(r.number);
   function ocgCache() {
     if (!ocg.cache) { const c = readJSON(OCG_CACHE_KEY, {}); ocg.cache = c && typeof c === "object" && !Array.isArray(c) ? c : {}; }
@@ -4891,7 +4900,7 @@
         const set = {region, prefix: String(row[0]), id: region + ":" + row[0], refs: {m1: String(refs[0] || ""), m7: String(refs[1] || ""), m30: String(refs[2] || "")}, cards: []};
         for (const c of (Array.isArray(row[2]) ? row[2] : [])) {
           if (!Array.isArray(c)) continue;
-          const number = set.prefix + tag + String(c[0] || "");
+          const t = String(c[0] || ""), number = t.startsWith("*") ? set.prefix + "-" + t.slice(1) : set.prefix + tag + t;
           const card = {region, set, number, name: names[c[1]] || number, rows: []};
           for (const x of (Array.isArray(c[2]) ? c[2] : [])) {
             if (!Array.isArray(x)) continue;
@@ -5485,7 +5494,7 @@
     const text = cs.q.trim();
     cs.groups = new Map();
     if (text.length < 2) { out.innerHTML = csStartHTML(); return; }
-    const ocgM = normNumber(text).match(/^([A-Z0-9]+)-(JP|KR)([A-Z]?\d{3,})$/);
+    const ocgG = ocgRegion(text), ocgM = ocgG && (ocgG.old || /\d{3}/.test(ocgG.tail)) ? ocgKey(ocgG) : null;
     if (ocgM && !findByNumber(text).length) { renderOcgSearch(out, normNumber(text), ocgM); return; }
     const groups = csSort(csSearch(text));
     for (const g of groups) cs.groups.set(g.key, g);
@@ -10632,10 +10641,10 @@
     if (!d.scanIndex) {
       d.scanIndex = new Map();
       for (const number of d.byNumber.keys()) {
-        const m = number.match(/^([A-Z0-9]+)-(JP|KR)([A-Z])?(\d+)$/);
+        const m = number.match(/^([A-Z0-9]+)-(JP|KR|K)?([A-Z])?(\d+)$/);
         if (!m) continue;
-        const tail = (m[3] || "") + m[4];
-        pushMap(d.scanIndex, m[1], {number, set: m[1], region: m[2], tail, canonRest: canon(m[2] + tail), ocg: true});
+        const region = m[2] || "", tail = (m[3] || "") + m[4];
+        pushMap(d.scanIndex, m[1], {number, set: m[1], region, tail, canonRest: canon(region + tail), ocg: true});
       }
       for (const [set, list] of d.scanIndex) list.canonSet = canon(set);
     }
@@ -10684,7 +10693,7 @@
           const ds = lev(cs, list.canonSet);
           if (ds > 1) continue;
           for (const e of list) {
-            if (e.ocg && canon(restRead.slice(0, 2)) !== canon(e.region)) continue;
+            if (e.ocg && e.region && canon(restRead.slice(0, e.region.length)) !== canon(e.region)) continue;
             let d = ds + lev(cr, e.canonRest), number = e.number;
             if (e.region === "EN") {
               for (const code of OCG_CODES) {
@@ -10961,7 +10970,7 @@
     $("scanRead").classList.remove("btn-primary");
     const products = ((found.products && found.products.length) ? found.products : findByNumber(number)).filter(p => !p.sealed);
     if (!products.length) {
-      const m = number.match(/^([A-Z0-9]+)-(JP|KR)([A-Z]?\d+)$/);
+      const m = ocgKey(ocgRegion(number));
       // (in a box of its own: a newer scan replaces it, and this lookup's answer then goes nowhere)
       if (m) { out.innerHTML = "<div></div>"; showOcgLookup(out.firstChild, number, m, {search: true}); return; }
       out.innerHTML = '<div class="notice">No TCGplayer printing has the number ' + esc(number) + ". Check it, or type it below.</div>";
@@ -11695,7 +11704,7 @@
       }
       const lv = e.target.closest("[data-ocg-live]");
       if (lv) {   // (the shop's prices right now, under the daily list's)
-        const code = lv.dataset.ocgLive, m = code.match(/^([A-Z0-9]+)-(JP|KR)([A-Z]?\d+)$/), box = $("csOcg");
+        const code = lv.dataset.ocgLive, m = ocgKey(ocgRegion(code)), box = $("csOcg");
         if (m && box) { lv.disabled = true; showOcgLookup(box, code, m, {search: true, live: true}); }
         return;
       }

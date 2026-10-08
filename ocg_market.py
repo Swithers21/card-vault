@@ -341,24 +341,35 @@ def build_sets(rows, region):
 
 # ------------------------------------------------------------------ Yugipedia: a set's cards, in English
 def read_card_list(web, prefix, region):
-    code = prefix + ("-JP" if region == "jp" else "-KR")
-    cards, offset = {}, 0
-    for _ in range(4):
-        page, nxt = yp_ask(web, "[[Card number::~%s*]]|?Card number|?Rarity|?Set contains|limit=500|offset=%d" % (code, offset))
-        for r in page:
-            numbers = [n.strip().upper() for n in printout(r, "Card number") if n.strip().upper().startswith(code)]
-            name = plain_text((printout(r, "Set contains") or [""])[0])
-            if not numbers or not name:
-                continue
-            for number in numbers:
-                entry = cards.setdefault(number, [name, []])
-                for rar in printout(r, "Rarity"):
-                    if not any(same_rarity(rar, x) for x in entry[1]):
-                        entry[1].append(rar)
-        if not nxt or not page:
-            break
-        offset = int(nxt)
-    return cards
+    """A set's cards from Yugipedia's list page for the region ("Set Card Lists:Phantom Nightmare (OCG-KR)"). Numbers are
+    PREFIX-JP001 and PREFIX-KR001; Korean sets up to the late 2000s used PREFIX-K001 (LOB-K025), and the oldest
+    Japanese sets their own forms (LB-35, 302-001), so those are read with a wider search when the usual one finds
+    nothing."""
+    tag = "(OCG-%s)" % ("JP" if region == "jp" else "KR")
+    searches = [prefix + "-JP", prefix + "-"] if region == "jp" else [prefix + "-K"]   # (~LOB-K* finds LOB-K001 and LOB-KR001)
+    for search in searches:
+        cards, offset = {}, 0
+        for _ in range(4):
+            page, nxt = yp_ask(web, "[[Card number::~%s*]]|?Card number|?Rarity|?Set contains|limit=500|offset=%d" % (search, offset))
+            for r in page:
+                title = str(r.get("fulltext") or "")
+                if "Set Card Lists:" in title and tag not in title:
+                    continue
+                numbers = [n.strip().upper() for n in printout(r, "Card number") if n.strip().upper().startswith(search)]
+                name = plain_text((printout(r, "Set contains") or [""])[0])
+                if not numbers or not name:
+                    continue
+                for number in numbers:
+                    entry = cards.setdefault(number, [name, []])
+                    for rar in printout(r, "Rarity"):
+                        if not any(same_rarity(rar, x) for x in entry[1]):
+                            entry[1].append(rar)
+            if not nxt or not page:
+                break
+            offset = int(nxt)
+        if cards:
+            return cards
+    return {}
 
 
 # ------------------------------------------------------------------ BIGWEB: Japanese prices
@@ -382,7 +393,7 @@ def read_bigweb_prices(web, prefix, ids, old):
             j = web.get_json(BIGWEB + "/products?game_id=9&cardsets=%s&page=%d" % (set_id, page), 1.5)
             for it in j.get("items") or []:
                 number = unicodedata.normalize("NFKC", it.get("fname") or "").strip().upper()
-                if not number.startswith(code):
+                if not number.startswith(code) and not re.match(re.escape(prefix) + r"-\d", number):   # (LB-35: the oldest sets' form)
                     continue
                 rarity = ja_rarity(((it.get("rarity") or {}).get("web")) or "")
                 cond = ((it.get("condition") or {}).get("web")) or ""
@@ -454,8 +465,9 @@ def bunjang_rows(web, q, pages):
     return out
 
 
-def read_bunjang_cards(web, prefix):
-    code_re = re.compile(re.escape(prefix) + r"\s*-?\s*KR\s*-?\s*([A-Z]?\d{2,3})", re.I)
+def read_bunjang_cards(web, prefix, listed=None):
+    """listed: the set's card numbers from Yugipedia, so a listing's number takes their form (LOB-K025 or LOB-KR025)."""
+    code_re = re.compile(re.escape(prefix) + r"\s*-?\s*K(R?)\s*-?\s*([A-Z]?\d{2,3})", re.I)
     groups = {}
     for x in bunjang_rows(web, prefix + "-KR", BUNJANG_PAGES):
         title = str(x.get("name") or "")
@@ -466,7 +478,11 @@ def read_bunjang_cards(web, prefix):
         m = code_re.search(unicodedata.normalize("NFKC", title))
         if not m or not 100 <= price <= 50000000 or NOT_FOR_SALE.search(title) or BUNDLE.search(title):
             continue
-        number = prefix + "-KR" + m.group(1).upper()
+        number = prefix + "-K" + m.group(1).upper() + m.group(2).upper()
+        if listed and number not in listed:
+            other = number.replace("-KR", "-K", 1) if "-KR" in number else number.replace("-K", "-KR", 1)
+            if other in listed:
+                number = other
         groups.setdefault(number + "|" + (ko_rarity(title) or "?"), []).append(price)
     return {k: [median(v), len(v)] for k, v in groups.items()}
 
@@ -716,7 +732,11 @@ class Table:
 
 
 def number_tail(number, code):
-    return number[len(code):] if number.startswith(code) else number
+    """The part after PREFIX-KR (or -JP); for another form (LOB-K025), "*" and the whole part after the dash."""
+    if number.startswith(code):
+        return number[len(code):]
+    prefix = code.split("-", 1)[0] + "-"
+    return "*" + (number[len(prefix):] if number.startswith(prefix) else number)
 
 
 def cards_jp(s, lists, prices, names, ja, rar):
@@ -901,7 +921,7 @@ def run():
                 write_json(cache_path("prices", "%s-%s.json" % (region, safe_name(prefix))), prices[k])
             record_history("jp", prefix, {key: e.get("p") or None for key, e in items.items()})
         elif kind == "price":
-            cards = read_bunjang_cards(web, prefix)
+            cards = read_bunjang_cards(web, prefix, (lists[k].get("cards") or {}))
             if not cards and len(prices[k].get("cards") or {}) >= 3:
                 cards = prices[k]["cards"]   # (every listing gone at once: more likely Bunjang holding back than the market; kept)
             with lock:
