@@ -40,7 +40,9 @@ URLS = {
     "TAG_BOOT": "https://core.service.elfsight.com/p/boot/",
     "WAYBACK": "https://archive.org/wayback/available",
     "WAYBACK_WEB": "https://web.archive.org/web/",
+    "WAYBACK_SAVE": "https://web.archive.org/save/",
 }
+ASK_ARCHIVE_DAYS = 7       # with no recent copy, the Internet Archive is asked to save one this often
 ARCHIVE_DAYS = 30          # an Internet Archive copy this recent stands in for a page that turns GitHub away (PSA's)
 URLS.update(json.loads(os.environ.get("CARDVAULT_FEES_URLS", "{}")))   # (stand-ins, for the tests)
 KEEP_CHANGES_DAYS = 45
@@ -230,6 +232,24 @@ def archived_copy(url):
     return {"html": fetch(URLS["WAYBACK_WEB"] + stamp + "id_/" + url), "day": day}
 
 
+def ask_archive(url):
+    """Asks the Internet Archive to save a copy of a page (at most once a week), for the next nights to read."""
+    path = os.path.join(CACHE, "archive-asked.json")
+    asked = read_json(path, {}) or {}
+    from datetime import date
+    last = asked.get(url, "")
+    if last and (date.fromisoformat(today()) - date.fromisoformat(last)).days < ASK_ARCHIVE_DAYS:
+        return " (asked it to save one on %s)" % last
+    try:
+        fetch(URLS["WAYBACK_SAVE"] + url, limit=65536)
+        note = "; asked it to save one now"
+    except Exception as err:
+        note = "; asking it to save one didn't work (%s)" % (("HTTP %d" % err.code) if isinstance(err, urllib.error.HTTPError) else str(err)[:80])
+    asked[url] = today()
+    write_json(path, asked)
+    return note
+
+
 def read_company(co):
     if co == "PSA":
         try:
@@ -243,7 +263,7 @@ def read_company(co):
             except Exception as err2:   # (say what happened, for the update status)
                 raise ValueError("HTTP 403; the Internet Archive didn't answer (%s)" % (("HTTP %d" % err2.code) if isinstance(err2, urllib.error.HTTPError) else err2))
             if not snap:
-                raise ValueError("HTTP 403; the Internet Archive has no copy from the last %d days" % ARCHIVE_DAYS)
+                raise ValueError("HTTP 403; the Internet Archive has no copy from the last %d days%s" % (ARCHIVE_DAYS, ask_archive(URLS["PSA"])))
             got = parse_psa(snap["html"])
             got["via"] = snap["day"]
             return got
