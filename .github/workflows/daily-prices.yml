@@ -25,6 +25,9 @@ jobs:
     permissions:
       contents: read
     steps:
+      - name: Note when this run started (for the update status)
+        run: echo "RUN_STARTED=$(date -u +%FT%TZ)" >> "$GITHUB_ENV"
+
       - uses: actions/checkout@v7
         with:
           persist-credentials: false
@@ -44,6 +47,7 @@ jobs:
           restore-keys: tcgplayer-
 
       - name: Download today's TCGplayer prices
+        id: tcg
         continue-on-error: true   # if TCGCSV is down, the website keeps the last prices
         env:
           CARDVAULT_PAUSE: "0.2"
@@ -93,6 +97,7 @@ jobs:
           restore-keys: ocg-
 
       - name: Japanese and Korean sets, cards, prices and boxes
+        id: ocg
         continue-on-error: true   # the website then keeps the last ones
         timeout-minutes: 32
         env:
@@ -100,6 +105,24 @@ jobs:
         run: |
           python ocg_market.py | tee ocg.log
           echo "::notice title=Japanese and Korean cards::$(tail -n 1 ocg.log)"
+
+      # The grading companies' price lists (PSA, Beckett, CGC, SGC, TAG), read from their own pages once a day.
+      - name: Grading companies' fees
+        id: fees
+        continue-on-error: true   # the website then uses the last ones it read, or its built-in list
+        timeout-minutes: 8
+        run: python grading_fees.py
+
+      # How it all went: the website shows it in Settings, with a notice when something broke.
+      - name: Note how tonight's update went
+        if: always()
+        continue-on-error: true   # (never in the way of publishing the prices)
+        env:
+          TCG_OUTCOME: ${{ steps.tcg.outcome }}
+          OCG_OUTCOME: ${{ steps.ocg.outcome }}
+          FEES_OUTCOME: ${{ steps.fees.outcome }}
+          RUN_URL: ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}
+        run: python site_status.py
 
       - name: Keep the Japanese and Korean card data for tomorrow
         uses: actions/cache/save@v6
@@ -119,6 +142,8 @@ jobs:
           if [ -f tcgplayer-data.js ]; then cp tcgplayer-data.js tcgplayer-data-version.js _site/; fi
           if [ -f ocg-market.js ]; then cp ocg-market.js _site/; fi
           if [ -f ocg-cards.js ]; then cp ocg-cards.js _site/; fi
+          if [ ! -f grading-fees.js ]; then python grading_fees.py --from-cache || true; fi
+          for f in grading-fees.json grading-fees.js update-status.json update-status.js; do if [ -f "$f" ]; then cp "$f" _site/; fi; done
           if ls ocg-history/*.json >/dev/null 2>&1; then mkdir -p _site/ocg-history && cp ocg-history/*.json _site/ocg-history/; fi
           if ls card-images/*.jpg >/dev/null 2>&1; then cp card-images/*.jpg _site/card-images/; fi
           echo "$(ls _site/card-images | wc -l) card pictures"

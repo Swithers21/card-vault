@@ -9,3 +9,7 @@ ocg-market.js
 ocg-cards.js
 ocg-history/
 card-images/
+grading-fees.json
+grading-fees.js
+update-status.json
+update-status.js

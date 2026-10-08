@@ -109,8 +109,9 @@ personal app: click **Continue**.
   chart (from `ocg-history/`, a file per set with each day's prices), count in the Insights change, the Sets tab (how
   much of the set you have, what the rest costs, with Want and I have it) and Price movers (Every Japanese card, Every
   Korean card). Japanese prices and photos come from BIGWEB (a large Japanese card shop): a shop's selling price for a
-  copy in stock. Korean prices are Bunjang (a Korean marketplace) asking prices, only for cards that have listings, so
-  treat them as a rough guide; a Korean card shows the Japanese print's photo. Both are converted to US$. The shop's
+  copy in stock. Korean prices are from Bunjang (a Korean marketplace): what a card sold for (the middle of its sales in
+  the last four months) once it has sold twice, else the middle of the asking prices, only for cards with listings or
+  sales, so treat them as a rough guide; a Korean card shows the Japanese print's photo. Both are converted to US$. The shop's
   price is used whenever there is one, like TCGplayer's for English cards; an estimate or ¥/₩ price you typed on a card
   only counts while the shop has none (cards you priced by hand before switch over by themselves). A card's changes
   compare its set's latest earlier check at least that long ago (new sets are checked daily, older ones weekly), so a
@@ -161,8 +162,10 @@ personal app: click **Continue**.
   - Japanese cards: BIGWEB (a large card shop in Japan), the cheapest copy for play it has in stock.
   - Japanese sealed products: Yugi-Market (based in Japan, ships worldwide), read by the website when you open the
     Japanese market (twice a day at most), because that shop turns away GitHub's computers.
-  - Korean cards and unopened boxes: Bunjang asking prices (a Korean marketplace), the middle of the listings. Listings of
-    several copies, graded cards and wanted posts are left out; treat them as a rough guide.
+  - Korean cards: Bunjang (a Korean marketplace): what each card sold for once it sold twice in the last four months
+    (Bunjang's search with `status=SOLD_OUT` brings sold listings along), else the middle of the asking prices. Unopened
+    boxes: asking prices. Listings of several copies, graded cards and wanted posts are left out; treat them as a rough
+    guide.
   - Korean sealed products at God of Cards: its prices can't be read from another website, so each Korean set has a
     link to it.
   - Sets and English card names: Yugipedia.
@@ -189,18 +192,43 @@ personal app: click **Continue**.
   (what got cheaper), every card on TCGplayer, and sealed products, with a price floor (default $1 and up) to leave out
   cheap cards whose prices jump around.
 - **Get it graded** (in a card's details): links to start a submission at PSA, Beckett, CGC, SGC and TAG, the card's
-  details to paste into their form, and tracking while it's away ("I sent it", then "It's back" with the grade).
-- **Grading fees** (Settings): each company's price list (PSA, Beckett, CGC, SGC, TAG) is built in, as read on their
-  sites on Oct 8, 2026 (`GRADING_FEE_TABLE` in `index.html`: level, fee, declared-value cap, business days, paused).
-  Pick the service level you use and its fee fills in; until then each company's usual level is assumed (PSA Standard
-  $59.99, Beckett Express $79.95, CGC Economy $20, SGC Standard $50, TAG Priority $149). A fee you type wins. Add
-  shipping per card. Worth grading lets you pick the company to estimate with, each card's details show every
-  company's cost and gain at a 10, and "I sent it" fills in that company's cost. They sync to your other devices.
-  To refresh the table, check each company's price list (linked in Settings) and update the entries and `checked`.
+  details to paste into their form, and tracking while it's away ("I sent it", with the service level, then "It's back"
+  with the grade). A card at the grader shows when it should be back (the date sent plus the level's wait in business
+  days, the long end of "90–100"); once it's past that, its tile says "late", a notice appears at the top, and the PC's
+  daily update sends a phone alert (once per card).
+- **Grading fees** (Settings): each company's price list (PSA, Beckett, CGC, SGC, TAG) is built in (`GRADING_FEE_TABLE`
+  in `index.html`: level, fee, declared-value cap, business days, paused, minimum cards), and the nightly update reads
+  their own pages again (`grading_fees.py` → `grading-fees.json`/`.js` on the website: PSA's and CGC's pages, Beckett's
+  temporary submission form, SGC's price table inside its site's program, TAG's pricing widget). Card Vault uses the
+  newest: changed fees, levels pausing or reopening, new levels. A fee change shows as a notice and a phone alert. If a
+  page can't be read, that company keeps its last good list (Settings says so). Pick the service level you use and its
+  fee fills in; until then each company's usual level is assumed (the cheapest open one if that's paused). A fee you
+  type wins. Add shipping per card. Worth grading lets you pick the company to estimate with, each card's details show
+  every company's cost and gain at a 10, and "I sent it" fills in that company's cost. They sync to your other devices.
+- **Grading plan** (Insights > Worth grading: tick cards, then **Plan a grading order**; or **Add to a grading plan** in a
+  card): what sending those cards costs at each company, the level each card needs for its declared value (its PSA 10
+  value unless you change it; levels take cards up to a value), minimums (CGC's Bulk Economy needs 25 cards), when
+  they'd be back, and the gain if they all get a 10; plus the cheapest mix of companies when that saves money.
+- **Insurance record** (Export > Print inventory or insurance report > An insurance record): every item numbered, with
+  photo, condition (graded cards with their certification number), where its value comes from, quantity and value; the
+  cards worth more than an amount you choose (default $250) listed on their own with a larger photo; totals for
+  ungraded, graded and sealed; your name and policy number; and a line to sign. Print it or save it as a PDF.
 - **Price over time** (in a card's details): a chart of its TCGplayer market price. The daily update keeps every
   evening's prices (120 days, then monthly) and publishes them with the website, so the charts fill in day by day.
 - **Phone alerts** (Settings): the want-list and big-move alerts on your iPhone through the free ntfy app. Your PC's
-  daily update sends them, so that PC needs the latest Card Vault folder.
+  daily update sends them, so that PC needs the latest Card Vault folder. It also sends, once each: a part of the
+  website's nightly update that stopped working, grading fee changes, and cards late back from the grader.
+- **The nightly update's report** (Settings > Daily price updates): `site_status.py` runs last in the workflow and writes
+  `update-status.json`/`.js`: TCGplayer prices' date, how many Japanese and Korean cards are priced, which sites answered,
+  the grading fee reads, and anything that went wrong in plain words (a site that stopped answering, far fewer cards
+  priced than the night before, prices not updated in over two days). Card Vault shows a notice at the top when
+  something broke (Dismiss hides it until it breaks again) and when the update hasn't run for a day and a half.
+- **The sync safety check**: if changes from another device would take away 10 or more cards (cards removed, or
+  quantities going down, after anything it adds), 5 or more want-list cards, or your whole want list, syncing stops on
+  that device and asks: **Keep them** (they stay, and go back to your other devices) or **Remove them here too**. It
+  names the device that last saved the backup (Settings > This device's name sets what your other devices see) and
+  can list the cards. Nothing syncs either way until you choose; if the file is put right on the other device first,
+  syncing carries on by itself.
 - **Share…** (select cards, or Show: Extras > Share trade binder, or the Want list tab) makes a link to a page with those
   cards, their photos and TCGplayer prices. The cards are in the link itself; nothing else of yours is shared.
 - **Moving cards** between binders, boxes and decks: open a card and tap **Move** (next to where it's kept), or tick

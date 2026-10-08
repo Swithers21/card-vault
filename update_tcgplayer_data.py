@@ -577,7 +577,7 @@ def alert_lines(alerts):
     return lines
 
 
-def send_phone_alert(settings, title, lines):
+def send_phone_alert(settings, title, lines, tags=None):
     """Sends the alert to the phone through ntfy, if phone alerts are set up in the website's Settings."""
     topic = str((settings or {}).get("ntfyTopic") or "")
     if not re.match(r"^[A-Za-z0-9_-]{8,64}$", topic):
@@ -586,7 +586,7 @@ def send_phone_alert(settings, title, lines):
     shown = list(lines)[:12]
     if len(lines) > len(shown):
         shown.append("%d more in Card Vault" % (len(lines) - len(shown)))
-    message = {"topic": topic, "title": title[:200], "message": "\n".join(shown)[:3500], "tags": ["moneybag"]}
+    message = {"topic": topic, "title": title[:200], "message": "\n".join(shown)[:3500], "tags": tags or ["moneybag"]}
     if re.match(r"^https://[^\s\"<>]+$", site):
         message["click"] = site
     request = urllib.request.Request(NTFY_URL, data=json.dumps(message).encode("utf-8"), method="POST",
@@ -618,6 +618,109 @@ def notify_about_changes(today_prices, previous):
         send_notification(*message)
         send_phone_alert(backup.get("settings"), message[0], alert_lines(alerts))
 
+
+
+# ---- Alerts besides prices: the website's nightly update going wrong, grading fees changing, cards late back
+USUAL_WAIT = {"PSA": 100, "BGS": 15, "Beckett (BGS)": 15, "CGC": 90, "CGC Cards": 90, "SGC": 40, "TAG": 5}   # business days, each company's usual level
+
+
+def wait_days(text):
+    """'90–100' -> 100, '40+' -> 40, '2–3' -> 3."""
+    found = re.search(r"(\d+)\s*(?:[\u2013-]\s*(\d+))?", str(text or ""))
+    return int(found.group(2) or found.group(1)) if found else None
+
+
+def add_business_days(start, n):
+    day = start
+    while n > 0:
+        day += timedelta(days=1)
+        if day.weekday() < 5:
+            n -= 1
+    return day
+
+
+def late_at_grader(backup, today=None):
+    """Cards at a grading company past the end of their level's wait (Card Vault's own rule)."""
+    today = today or date.today()
+    out = []
+    for r in backup.get("collection") or []:
+        g = r.get("grading") if isinstance(r, dict) else None
+        if not isinstance(g, dict) or not g.get("company"):
+            continue
+        try:
+            sent = date.fromisoformat(str(g.get("sent") or "")[:10])
+        except ValueError:
+            continue
+        # (a level without a posted wait, like PSA's Value levels: no due date, as in Card Vault)
+        n = wait_days(g.get("days")) or (None if g.get("level") else USUAL_WAIT.get(str(g.get("company"))))
+        if not n:
+            continue
+        due = add_business_days(sent, n)
+        if today > due:
+            out.append({"key": "late-%s@%s" % (r.get("id"), due.isoformat()), "name": str(r.get("name") or "A card"), "company": str(g["company"]), "due": due})
+    return out
+
+
+def fetch_site_status(site):
+    """How the website's nightly update went (update-status.json, next to the website)."""
+    if not re.match(r"^https://[^\s\"<>]+$", site or ""):
+        return None
+    url = site.rstrip("/") + "/update-status.json?h=%d" % int(time.time() // 600)
+    request = urllib.request.Request(url, headers={"User-Agent": USER_AGENT})
+    try:
+        with urllib.request.urlopen(request, timeout=20) as response:
+            data = json.loads(response.read().decode("utf-8"))
+    except (OSError, ValueError, urllib.error.URLError):
+        return None
+    return data if isinstance(data, dict) and data.get("format") == 1 else None
+
+
+def notify_extras(state, backup=None, today=None):
+    """Phone (and Windows) alerts besides prices, each sent once: a part of the website's nightly update that stopped
+    working (again when it breaks after working), grading fee changes, and cards late back from the grader."""
+    if backup is None:
+        path = find_backup_file()
+        try:
+            backup = read_backup(path) if path else None
+        except (OSError, ValueError):
+            backup = None
+    if not backup:
+        return []
+    settings = backup.get("settings") or {}
+    alerted = list(state.get("alerted") or [])
+    sent = []
+    status = fetch_site_status(str(settings.get("siteUrl") or ""))
+    if status:
+        active = [p for p in status.get("problems") or [] if isinstance(p, dict) and not p.get("minor") and p.get("key") and p.get("text")]
+        before = set(state.get("activeProblems") or [])
+        new = [p for p in active if p["key"] not in before]
+        state["activeProblems"] = [p["key"] for p in active]
+        if new:
+            title = "Card Vault: last night's price update had a problem"
+            lines = [p["text"] for p in new]
+            send_notification(title, lines[:2])
+            send_phone_alert(settings, title, lines, ["warning"])
+            sent.append(title)
+        cutoff = ((today or date.today()) - timedelta(days=14)).isoformat()
+        news = [n for n in status.get("news") or [] if isinstance(n, dict) and n.get("key") and n.get("text") and n["key"] not in alerted and str(n.get("day") or "") >= cutoff]
+        if news:
+            title = "Card Vault: grading fees changed"
+            lines = [n["text"] for n in news]
+            send_notification(title, lines[:2])
+            send_phone_alert(settings, title, lines, ["receipt"])
+            alerted += [n["key"] for n in news]
+            sent.append(title)
+    late = [x for x in late_at_grader(backup, today) if x["key"] not in alerted]
+    if late:
+        title = "Card Vault: %s late back from the grader" % ("%s is" % late[0]["name"] if len(late) == 1 else "%d cards are" % len(late))
+        lines = ["%s at %s: due back by %s %d" % (x["name"], x["company"], x["due"].strftime("%b"), x["due"].day) for x in late]
+        send_notification(title, lines[:2])
+        send_phone_alert(settings, title, lines, ["hourglass"])
+        alerted += [x["key"] for x in late]
+        sent.append(title)
+    state["alerted"] = alerted[-300:]
+    save_json(STATE_FILE, state)
+    return sent
 
 
 def main():
@@ -656,6 +759,11 @@ def main():
             and state.get("format") == DATA_FORMAT and os.path.exists(OUT_FILE)):
         say("  Already up to date. Your prices are from %s." % friendly_date(last_updated))
         say("  TCGCSV refreshes once a day, so try again tomorrow for newer prices.")
+        try:
+            if not os.environ.get("GITHUB_ACTIONS"):
+                notify_extras(state)
+        except Exception as error:  # an alert problem never spoils the update itself
+            say("  (Couldn't check for other alerts: %s)" % error)
         return 0
 
     say("  Downloading the list of Yu-Gi-Oh! sets...")
@@ -847,6 +955,7 @@ def main():
     try:
         if not os.environ.get("GITHUB_ACTIONS"):  # (on GitHub it only builds the website's price file)
             notify_about_changes(today_prices, references["d1"])
+            notify_extras(state)
     except Exception as error:  # a notification problem never spoils the update itself
         say("  (Couldn't check for notifications: %s)" % error)
     say("")

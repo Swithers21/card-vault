@@ -6,7 +6,8 @@ Japanese (OCG) and Korean sets this puts together:
   - the sets: Yugipedia (English names, set codes, release dates, set types);
   - each set's cards with their English names and rarities: Yugipedia;
   - Japanese card prices: BIGWEB, a large Japanese card shop (yen, with how many copies it has);
-  - Korean card prices and sealed boxes: Bunjang, a Korean marketplace (asking prices, in won).
+  - Korean card prices and sealed boxes: Bunjang, a Korean marketplace (in won: what cards sold for once they've sold
+    a couple of times lately, else what sellers ask).
 Sealed prices for Japanese sets come from Yugi-Market, which the website reads itself: that shop turns away GitHub's
 computers.
 
@@ -51,7 +52,7 @@ CARDS_FORMAT = 1
 CHASE = 25                 # most valuable cards kept per set
 UPCOMING_DAYS = 45         # sets this close to release are listed (shops take pre-orders)
 INDEX_DAYS = 3             # the set lists from Yugipedia are read again after this long
-BUNJANG_PAGES = 5          # listings read per Korean set (60 a page): more pages, more of its cards priced
+BUNJANG_PAGES = 6          # listings read per Korean set (60 a page, for sale and sold): more pages, more of its cards priced
 HISTORY_DAYS = 400         # days of prices kept per set
 CHANGE_DAYS = (1, 7, 30)   # the price changes in ocg-cards.js: since a day, a week, a month ago
 BIGWEB_IMG = re.compile(r"^https://image\.bigweb\.co\.jp/new/imgc/(\d{3})/(\d{3})/(\d+)\.jpg$")
@@ -123,6 +124,7 @@ class Web:
         self.by_host = {}
         self.errors = {}       # host -> {"403": n, "network": n, ...}
         self.streak = {}       # host -> failures in a row
+        self.missed = {}       # host -> requests that didn't get an answer (each try, retries too)
         self.lock = threading.Lock()
 
     def left(self):
@@ -160,6 +162,8 @@ class Web:
                     self.streak[host] = 0
                 return out
             except urllib.error.HTTPError as err:
+                with self.lock:
+                    self.missed[host] = self.missed.get(host, 0) + 1
                 # busy, or a hiccup on their side: a little later; anything else isn't going to change
                 if err.code in (429, 500, 502, 503, 504) and attempt < 2:
                     time.sleep((10 if err.code == 429 else 4) * SLOW)
@@ -167,6 +171,8 @@ class Web:
                 self.note_error(host, "HTTP %d" % err.code)
                 raise
             except (urllib.error.URLError, OSError, ValueError) as err:
+                with self.lock:
+                    self.missed[host] = self.missed.get(host, 0) + 1
                 if attempt < 2:
                     time.sleep(3 * SLOW)
                     continue
@@ -435,13 +441,16 @@ BUNJANG_PAUSE = 3          # seconds between Bunjang requests (it's read on its 
 BUNJANG_SEEN = {"answers": 0, "empty": 0, "note": ""}   # (what Bunjang answered this run, for the summary)
 
 
-def bunjang_rows(web, q, pages):
+def bunjang_rows(web, q, pages, sold=False):
     """The listings a Bunjang search finds (its website's own search: 60 a page, the next page by a cursor), ads left
-    out. An answer that isn't a search result (blocked, an error, a changed API) raises, so the set keeps its last
+    out. sold: listings that have sold come too (status "SOLD_OUT"; Bunjang's "status=SOLD_OUT" adds them to the ones
+    for sale). An answer that isn't a search result (blocked, an error, a changed API) raises, so the set keeps its last
     prices and is tried again next time."""
     seen, out, cursor = set(), [], None
     for _ in range(pages):
         params = {"policyKey": "mw.product.keyword", "q": q, "size": 60, "sort": "score"}
+        if sold:
+            params["status"] = "SOLD_OUT"
         if cursor:
             params["cursor"] = cursor
         j = web.get_json(BUNJANG + "?" + urllib.parse.urlencode(params), BUNJANG_PAUSE)
@@ -465,11 +474,27 @@ def bunjang_rows(web, q, pages):
     return out
 
 
+SOLD_DAYS = 120            # sales this recent count toward a Korean card's sold price
+SOLD_MIN = 2               # sales needed before the sold price is used instead of the asking price
+
+
+def sold_day(x):
+    """The day a sold listing last changed (when it sold, near enough), or None when it's too old or unknown."""
+    try:
+        when = date.fromisoformat(str(x.get("updatedAt") or "")[:10])
+    except ValueError:
+        return None
+    return when if -1 <= (today() - when).days <= SOLD_DAYS else None   # (-1: Korea is a day ahead of the evening run)
+
+
 def read_bunjang_cards(web, prefix, listed=None):
-    """listed: the set's card numbers from Yugipedia, so a listing's number takes their form (LOB-K025 or LOB-KR025)."""
+    """Each card's price from Bunjang: {"NUMBER|Rarity": [price, listings, asking, sold price, sales, last sale]}.
+    The price is what it sold for (the middle of its sales in the last SOLD_DAYS) once it sold SOLD_MIN times or more,
+    else what sellers are asking (the middle of the listings for sale). listed: the set's card numbers from Yugipedia,
+    so a listing's number takes their form (LOB-K025 or LOB-KR025)."""
     code_re = re.compile(re.escape(prefix) + r"\s*-?\s*K(R?)\s*-?\s*([A-Z]?\d{2,3})", re.I)
-    groups = {}
-    for x in bunjang_rows(web, prefix + "-KR", BUNJANG_PAGES):
+    asking, sold = {}, {}
+    for x in bunjang_rows(web, prefix + "-KR", BUNJANG_PAGES, sold=True):
         title = str(x.get("name") or "")
         try:
             price = int(float(x.get("price")))
@@ -483,8 +508,22 @@ def read_bunjang_cards(web, prefix, listed=None):
             other = number.replace("-KR", "-K", 1) if "-KR" in number else number.replace("-K", "-KR", 1)
             if other in listed:
                 number = other
-        groups.setdefault(number + "|" + (ko_rarity(title) or "?"), []).append(price)
-    return {k: [median(v), len(v)] for k, v in groups.items()}
+        key = number + "|" + (ko_rarity(title) or "?")
+        if str(x.get("status") or "").upper() == "SOLD_OUT":
+            day = sold_day(x)
+            if day:
+                sold.setdefault(key, []).append((price, day))
+        else:
+            asking.setdefault(key, []).append(price)
+    out = {}
+    for key in set(asking) | set(sold):
+        ask = asking.get(key) or []
+        sales = sold.get(key) or []
+        ask_mid = median(ask) if ask else None
+        sold_mid = median([p for p, _ in sales]) if sales else None
+        value = sold_mid if len(sales) >= SOLD_MIN else ask_mid if ask_mid is not None else sold_mid
+        out[key] = [value, len(ask), ask_mid, sold_mid, len(sales), max(d for _, d in sales).isoformat() if sales else None]
+    return out
 
 
 EMPTY_BOX = re.compile(r"빈\s*박스|공\s*박스|박스\s*만|(?<!미)개봉|오픈|낱장|낱개|팩\s*만|카드\s*\d")
@@ -559,7 +598,8 @@ def chase_kr(s, lists, prices):
     names = (lists.get("kr|" + s["prefix"]) or {}).get("cards") or {}
     jp_items = (prices.get("jp|" + s["prefix"]) or {}).get("items") or {}
     out = []
-    for key, (price, n) in ((prices.get("kr|" + s["prefix"]) or {}).get("cards") or {}).items():
+    for key, v in ((prices.get("kr|" + s["prefix"]) or {}).get("cards") or {}).items():
+        price, n = v[0], v[1]   # (then, since October 2026: asking price, sold price, sales, last sale)
         number, rarity = key.split("|", 1)
         if price is None:
             continue
@@ -694,14 +734,16 @@ def chase_kr(s, lists, prices):
     names = (lists.get("kr|" + s["prefix"]) or {}).get("cards") or {}
     jp_items = (prices.get("jp|" + s["prefix"]) or {}).get("items") or {}
     out = []
-    for key, (price, n) in ((prices.get("kr|" + s["prefix"]) or {}).get("cards") or {}).items():
+    for key, v in ((prices.get("kr|" + s["prefix"]) or {}).get("cards") or {}).items():
+        price, n = v[0], v[1]   # (then, since October 2026: asking price, sold price, sales, last sale)
         number, rarity = key.split("|", 1)
         if price is None:
             continue
         name, rarities = names.get(number) or [number, []]
         if rarity == "?":
             rarity = rarities[0] if len(rarities) == 1 else ""
-        out.append([number, name, rarity, price, n, twin_image(jp_items, number, rarity)])
+        # (then, when it has sold: sales, the middle of them, the last sale's day)
+        out.append([number, name, rarity, price, n, twin_image(jp_items, number, rarity)] + ([v[4], v[3], v[5]] if len(v) >= 6 and v[4] else []))
     out.sort(key=lambda c: (-c[3], c[0]))
     return out[:CHASE]
 
@@ -777,9 +819,10 @@ def cards_jp(s, lists, prices, names, ja, rar):
 
 
 def cards_kr(s, lists, prices, names, rar):
-    """Every card of a Korean set, with Bunjang's asking price where it has listings: [tail, name, [[rarity, won,
+    """Every card of a Korean set, with Bunjang's price where it has listings or sales: [tail, name, [[rarity, won,
     listings, photo (the Japanese print's), a day ago, a week ago, a month ago, (the history's rarity name, when it
-    differs: "?" for listings that don't say)], ...]]."""
+    differs: "?" for listings that don't say; else ""), [asking, sold, sales, last sale] when it has sold], ...]].
+    The price is the sold price once a card sold SOLD_MIN times lately, else the asking price."""
     code = s["prefix"] + "-KR"
     listed = (lists.get("kr|" + s["prefix"]) or {}).get("cards") or {}
     found = (prices.get("kr|" + s["prefix"]) or {}).get("cards") or {}
@@ -788,7 +831,9 @@ def cards_kr(s, lists, prices, names, rar):
     by_number = {}
     for number, (name, rarities) in listed.items():
         by_number[number] = [name, [[r, None] for r in rarities]]
-    for key, (price, n) in found.items():
+    for key, v in found.items():
+        price, n = v[0], v[1]
+        sold = [v[2], v[3], v[4], v[5]] if len(v) >= 6 and v[4] else None
         number, rarity = key.split("|", 1)
         card = by_number.setdefault(number, [number, []])
         if rarity == "?":
@@ -798,19 +843,23 @@ def cards_kr(s, lists, prices, names, rar):
                 rarity = ""
         slot = next((x for x in card[1] if same_rarity(x[0], rarity)), None)
         if slot is None:
-            card[1].append([rarity, (price, n, key)])
+            card[1].append([rarity, (price, n, key, sold)])
         elif slot[1] is None or (price and not slot[1][0]):
-            slot[1] = (price, n, key)
+            slot[1] = (price, n, key, sold)
     rows = []
     for number in sorted(by_number, key=lambda n: (len(n), n)):
         name, slots = by_number[number]
         out = []
         for rarity, hit in slots:
-            price, n, key = hit if hit else (0, 0, "")
+            price, n, key, sold = hit if hit else (0, 0, "", None)
             m = then(key) if hit else [0, 0, 0]
             row = [rar(rarity), price or 0, n or 0, img_ref(twin_image(jp_items, number, rarity)), m[0], m[1], m[2]]
             if key and key.split("|", 1)[1] != rarity:   # (listings that don't say the rarity: kept under "?")
                 row.append(key.split("|", 1)[1])
+            if sold:
+                if len(row) == 7:
+                    row.append("")
+                row.append([sold[0] or 0, sold[1] or 0, sold[2] or 0, sold[3] or ""])
             out.append(row)
         rows.append([number_tail(number, code), names(name), out])
     return [s["prefix"], refs, rows]
@@ -848,6 +897,42 @@ def write_history_files(sets_by_region):
 
 
 # ------------------------------------------------------------------ the run
+RUN_REPORT = os.environ.get("CARDVAULT_OCG_REPORT", os.path.join(CACHE, "last-run.json"))
+SITE_NAMES = {"yugipedia": "Yugipedia", "bigweb": "BIGWEB", "bunjang": "Bunjang", "frankfurter": "the exchange rates"}
+
+
+def site_key(host):
+    """Which site a host is: "yugipedia", "bigweb", "bunjang" or "frankfurter" (by the addresses this run uses)."""
+    for k, url in (("yugipedia", YUGIPEDIA), ("bigweb", BIGWEB), ("bunjang", BUNJANG), ("frankfurter", FX_API)):
+        if urllib.parse.urlsplit(url).netloc == host:
+            return k
+    return re.sub(r"^(api|www)\.|:\d+$", "", host or "").lower()
+
+
+def write_run_report(web, state, data, cards, priced, n_cards):
+    """ocg-cache/last-run.json: what this run did, for the update status the website shows (site_status.py)."""
+    def cards_priced(region):
+        # (each card: [tail, name, [[rarity, price, ...], ...]]; priced when any of its rarities has a price)
+        return sum(1 for s in cards[region] for c in s[2] if any((x[1] or 0) > 0 for x in c[2]))
+    sites = {}
+    for host, n in web.by_host.items():
+        k = site_key(host)
+        e = web.errors.get(host) or {}
+        site = sites.setdefault(k, {"requests": 0, "failed": 0, "errors": {}, "blocked": False})
+        site["requests"] += n
+        site["failed"] += web.missed.get(host, 0)   # (every request without an answer, retries included)
+        site["blocked"] = site["blocked"] or web.streak.get(host, 0) >= BLOCKED_AFTER
+        for what, count in e.items():
+            site["errors"][what] = site["errors"].get(what, 0) + count
+    report = {"ran": now_iso(), "sets": {"jp": len(data["jp"]), "kr": len(data["kr"])}, "setsPriced": {"jp": priced[0], "kr": priced[1]},
+              "cards": {"jp": n_cards[0], "kr": n_cards[1]}, "cardsPriced": {"jp": cards_priced("jp"), "kr": cards_priced("kr")},
+              "krSold": sum(1 for s in cards["kr"] for c in s[2] if any(len(x) > 8 and (x[8][2] or 0) >= SOLD_MIN for x in c[2])),
+              "lookups": state["done"], "left": state["skipped"], "blocked": state["blocked"], "sites": sites,
+              "bunjang": dict(BUNJANG_SEEN), "budget": BUDGET, "seconds": round(time.time() - web.started)}
+    write_json(RUN_REPORT, report)
+    return report
+
+
 def host_of(region, kind):
     return "yugipedia" if kind == "list" else "bigweb" if region == "jp" else "bunjang"
 
@@ -977,6 +1062,7 @@ def run():
     hist = write_history_files(sets_by_region)
     priced = sum(1 for row in data["jp"] if row[5]), sum(1 for row in data["kr"] if row[5])
     n_cards = sum(len(s[2]) for s in cards["jp"]), sum(len(s[2]) for s in cards["kr"])
+    write_run_report(web, state, data, cards, priced, n_cards)
     hosts = ", ".join("%s %d" % (re.sub(r"^(api|www)\.|:\d+$", "", h), n) for h, n in sorted(web.by_host.items()))
     say("  Japanese sets: %d (%d with prices, %d cards). Korean sets: %d (%d with prices, %d cards). %d lookups this time (%d requests: %s; %d failed), %d left for later. %.1f + %.1f MB, %d history files."
         % (len(data["jp"]), priced[0], n_cards[0], len(data["kr"]), priced[1], n_cards[1], done, web.count, hosts, web.failed, skipped,

@@ -629,6 +629,8 @@
     .stack-table td.num{text-align:left}
     .stack-table td[data-label]::before{content:attr(data-label) ": ";color:var(--text-dim)}
     .stack-table td[data-empty]{display:none}
+    .stack-table.wg-table td.c-pick{order:20;grid-column:2}
+    .stack-table.gp-cards tr,.stack-table.gp-compare tr{grid-template-columns:minmax(0,1fr)}
   }
 
   /* ---------- card search ---------- */
@@ -775,6 +777,21 @@
   .sub-h{margin:0;font:400 19px/1.2 "Cinzel",Georgia,serif;letter-spacing:.03em}
   .seg .tab-count{margin-left:6px}
   .ed-away{border-color:rgba(76,187,165,.65);color:var(--spell)}
+  .ed-away.ed-late{border-color:rgba(216,173,87,.8);color:var(--gold)}
+  b.late{color:var(--gold)}
+  .update-status{margin:0 0 14px;padding:0 0 12px;border-bottom:1px solid var(--line)}
+  .update-status .status-line{margin:4px 0}
+  .status-probs{margin:8px 0 0;padding-left:20px;font-size:13.5px}
+  .status-probs li{margin:2px 0}
+  .wg-plan-bar{display:flex;flex-wrap:wrap;align-items:center;gap:8px 10px;margin:0 0 10px}
+  .c-pick{width:34px}
+  .table.gp-cards,.table.gp-compare{min-width:0}
+  .gp-cards .pct{display:inline-flex;align-items:center;gap:4px}
+  .gp-cards .pct .input{width:96px}
+  .gp-order{border:1px solid var(--line);border-radius:10px;padding:10px 12px;margin:10px 0}
+  .gp-head{display:flex;justify-content:space-between;gap:10px;font-variant-numeric:tabular-nums}
+  .gp-order p{margin:6px 0 8px}
+  .gp-compare tr.gp-yours{background:rgba(216,173,87,.07)}
 
   /* ---------- Where your value is ---------- */
   .vb-top{margin-bottom:16px}
@@ -838,6 +855,9 @@
   .fee-fields [data-gother]{grid-column:1 / -1}
   .fee-fields [data-gother][hidden]{display:none}
   .fee-note{margin:6px 0 0}
+  .hold-list{margin:8px 0 0}
+  .hold-list summary{cursor:pointer;text-decoration:underline;text-underline-offset:2px}
+  .hold-list ul{margin:6px 0 0;padding-left:18px;max-height:180px;overflow:auto;columns:2 220px;font-size:13px}
   @media (max-width:420px){ .fee-fields{grid-template-columns:1fr 1fr} .fee-fields label:first-child{grid-column:1 / -1} }
   .grade-status{padding:12px 14px;border-radius:10px;background:var(--bg-2);border:1px solid rgba(76,187,165,.4);font-size:13.5px}
   .card-hist .box-head{align-items:center;margin-bottom:6px}
@@ -926,6 +946,13 @@
     .report td span{color:#444}
     .report img{width:26pt;height:auto;display:block}
     .rep-note{color:#444;font-size:8.5pt;margin-top:8pt}
+    .report h2{font:700 12pt/1.2 system-ui,-apple-system,"Segoe UI",Roboto,Arial,sans-serif;margin:12pt 0 5pt}
+    .rep-big{display:grid;grid-template-columns:1fr 1fr;gap:8pt 14pt;margin:0 0 6pt}
+    .rep-item{display:grid;grid-template-columns:62pt 1fr;gap:8pt;break-inside:avoid;border:.5pt solid #bbb;border-radius:3pt;padding:5pt}
+    .report .rep-item img{width:62pt}
+    .rep-noimg{width:62pt;height:88pt;background:#eee}
+    .rep-sign{display:flex;gap:40pt;margin-top:28pt}
+    .rep-sign div{flex:1;border-top:.75pt solid #000;padding-top:3pt;font-size:8.5pt;color:#333}
   }
 
   .preview-summary{margin:0 0 12px;font-size:14px}
@@ -1233,6 +1260,8 @@
     <div class="banner" id="updateBanner" hidden></div>
     <div class="banner" id="backupBanner" hidden></div>
     <div class="banner" id="wantBanner" hidden></div>
+    <div class="banner" id="statusBanner" hidden></div>
+    <div class="banner" id="gradingBanner" hidden></div>
   </div>
 
   <section class="summary" id="summary" aria-label="Collection summary">
@@ -1315,7 +1344,7 @@
           <div class="menu" id="exportMenu" role="menu" aria-labelledby="exportMenuBtn" hidden>
             <button type="button" role="menuitem" id="exportBtn">Export CSV<small>Your whole collection, to open in a spreadsheet or import later</small></button>
             <button type="button" role="menuitem" id="phoneBtn">Save a phone copy<small>A file to look through on your phone, even offline</small></button>
-            <button type="button" role="menuitem" id="reportBtn">Print inventory report<small>Every card with its value, for insurance. Can be saved as a PDF</small></button>
+            <button type="button" role="menuitem" id="reportBtn">Print inventory or insurance report<small>Every card with its value, or an insurance record with photos, value sources and a dated total. Saves as a PDF too</small></button>
           </div>
         </div>
       </div>
@@ -1493,7 +1522,7 @@
     backupRemindDays: 7, wantAlertSeen: "", alertsOn: false, alertMinDollar: 5, alertMinPct: 10, salesYear: "", deckId: null,
     deckView: "check", mkView: "sets", mkLine: "", mkKind: "", mkSortSets: "newest", mkSortSealed: "deal", mkRegion: "en", mkLineOcg: "", mkKindOcg: "", wantsView: "", wantsSort: "target", csSort: "best", csMode: "cards", csSetSort: "number", setGoals: [], goalsOpen: [], moverBy: "usd", moverMin: 1,
     gradedView: false, psa10Mult: 4, psa10Floor: 25, gradePct: Object.assign({}, DEFAULT_GRADE_PCT), pcToken: "",
-    insightView: "history", salesView: "trade", gradingCost: 30, gradingMin: 50, gradingFees: {}, gradingCo: "PSA", ntfyTopic: "", siteUrl: "", autoSignIn: true};
+    insightView: "history", salesView: "trade", gradingCost: 30, gradingMin: 50, gradingFees: {}, gradingCo: "PSA", ntfyTopic: "", siteUrl: "", autoSignIn: true, deviceName: ""};
   const filters = {q: "", set: "", rarity: "", edition: "", language: "", location: "", show: ""};
   const selected = new Set();
   let selectMode = false;   // "Select" on: tapping a card ticks it instead of opening it (phones show no checkboxes otherwise)
@@ -1938,6 +1967,102 @@
     if (res.settings) parts.push("card-value settings");
     if (res.goals) parts.push("set goals");
     return parts.join("; ");
+  }
+  // ----- The safety check: changes from another device that would take away many cards (10 or more, after
+  // anything they add), 5 or more want-list cards, or your whole want list wait for your OK instead of going
+  // through by themselves. That's what a wrong or out-of-date backup file looks like (the October 2026 loss).
+  const HOLD_CARDS = 10, HOLD_WANTS = 5;
+  const cardTotal = list => list.reduce((s, r) => s + (num(r.qty) || 0), 0);
+  // What combining with this file would do here, worked out on a copy (nothing here changes).
+  function dryMerge(data) {
+    const keep = {collection, wants, decks, sales, deleted, settings, valueHistory};
+    const copy = v => JSON.parse(JSON.stringify(v));
+    try {
+      collection = copy(collection); wants = copy(wants); decks = copy(decks); sales = copy(sales); deleted = copy(deleted); settings = copy(settings);
+      const res = mergeBackup(data, {});
+      return {res, cards: cardTotal(collection), wants: wants.length, qty: new Map(collection.map(r => [r.id, num(r.qty) || 0]))};
+    } finally {
+      ({collection, wants, decks, sales, deleted, settings, valueHistory} = keep);
+    }
+  }
+  // null when the file's changes can go ahead; else what they'd take away here, for the question: cards removed,
+  // and cards whose quantity would go down (an old copy brought back on another device looks like that).
+  // Approved removals and drops ("Remove them here too") don't ask again.
+  function holdFor(data) {
+    if (!data || !hasLocalData()) return null;
+    const after = dryMerge(data), res = after.res;
+    const ok = sync.okRemove || new Set();
+    const removed = {collection: collection.filter(r => res.removedIds.has(r.id) && !ok.has(r.id)), wants: wants.filter(w => res.removedIds.has(w.id) && !ok.has(w.id))};
+    const reduced = collection.filter(r => after.qty.has(r.id) && after.qty.get(r.id) < (num(r.qty) || 0) && !ok.has(r.id + "@" + after.qty.get(r.id)))
+      .map(r => ({r, to: after.qty.get(r.id)}));
+    if (!removed.collection.length && !removed.wants.length && !reduced.length) return null;
+    // (what this would take away that you haven't already said yes to, but never more than the net loss: a card
+    // replaced by another one, or merged into another line, isn't a loss)
+    const asked = cardTotal(removed.collection) + reduced.reduce((t, x) => t + (num(x.r.qty) || 0) - x.to, 0);
+    const lostCards = Math.max(0, Math.min(cardTotal(collection) - after.cards, asked));
+    const lostWants = Math.max(0, Math.min(wants.length - after.wants, removed.wants.length));
+    const allWants = wants.length >= 2 && after.wants === 0 && removed.wants.length > 0;
+    if (!(lostCards >= HOLD_CARDS || lostWants >= HOLD_WANTS || allWants)) return null;
+    // when each was deleted or changed on the other device, so "Keep them" can make this device's newer than that
+    const theirGone = cleanDeleted(data.deleted), when = {};
+    for (const k of ["collection", "wants"]) for (const x of removed[k]) when[x.id] = theirGone[k][x.id] || 0;
+    const theirMod = new Map((Array.isArray(data.collection) ? data.collection : []).filter(x => x && x.id).map(x => [x.id, modTime(x.mod)]));
+    for (const x of reduced) when[x.r.id] = theirMod.get(x.r.id) || 0;
+    return {removed, reduced, lostCards, lostWants, allWants, when,
+      savedOn: typeof data.savedOn === "string" ? data.savedOn.slice(0, 80) : "", savedAt: data.savedAt || ""};
+  }
+  // "Remove them here too": these removals and drops go through (and only these: a later, bigger one asks again).
+  async function holdApply() {
+    const info = backup.holdInfo;
+    if (!info || backup.state !== "hold") return;
+    sync.okRemove = new Set([...(sync.okRemove || []), ...info.removed.collection.map(r => r.id), ...info.removed.wants.map(w => w.id),
+      ...(info.reduced || []).map(x => x.r.id + "@" + x.to)]);
+    backup.state = "active"; backup.holdInfo = null;
+    renderBackupBanner(); refreshBackupSection();
+    if (await writeBackup({manual: true})) toast("Done: " + HERE + " matches your other devices again.");
+  }
+  // "Keep them": they stay here as they are, and are saved back to the file, newer than the other device's change, so
+  // your other devices get them back too.
+  async function holdKeep() {
+    const info = backup.holdInfo;
+    if (!info || backup.state !== "hold") return;
+    const now = Date.now();
+    const bump = (k, id) => {
+      const live = listOf(k).find(y => y.id === id);
+      if (!live) return;
+      live.mod = Math.max(now, (live.mod || 0) + 1, (info.when[id] || 0) + 1, (deleted[k][id] || 0) + 1);
+      delete deleted[k][id];
+    };
+    for (const k of ["collection", "wants"]) for (const x of info.removed[k]) bump(k, x.id);
+    for (const x of info.reduced || []) bump("collection", x.r.id);
+    rebuildPrints();
+    save({quiet: true, noBackup: true});
+    backup.state = "active"; backup.holdInfo = null;
+    renderBackupBanner(); refreshBackupSection();
+    if (await writeBackup({manual: true})) toast("Kept them. Your other devices get them back the next time they sync.");
+  }
+  function holdTextHTML() {
+    const info = backup.holdInfo || {};
+    const from = info.savedOn ? esc(info.savedOn) : "another device";
+    const when = parseDate(info.savedAt);
+    const names = (info.removed ? info.removed.collection.map(r => r.name + (r.number ? " (" + r.number + ")" : "") + (r.qty > 1 ? " ×" + r.qty : ""))
+      .concat((info.reduced || []).map(x => x.r.name + (x.r.number ? " (" + x.r.number + ")" : "") + ": ×" + x.r.qty + " would become ×" + x.to))
+      .concat(info.removed.wants.map(w => w.name + " (want list)")) : []);
+    return "The last save to your backup " + (onDriveNow() ? "in Google Drive" : "file") + " came from <b>" + from + "</b>" + (when ? " (" + esc(fmtDateTime(when)) + ")" : "") +
+      ", and syncing with it would remove " + esc(holdWhat(info)) + " here. If you didn't do that, it's probably an old or wrong copy: choose Keep them. " +
+      "Nothing syncs until you choose." +
+      (names.length ? '<details class="hold-list"><summary>Show them (' + names.length + ")</summary><ul>" + names.slice(0, 200).map(n => "<li>" + esc(n) + "</li>").join("") +
+        (names.length > 200 ? "<li>…and " + (names.length - 200) + " more</li>" : "") + "</ul></details>" : "");
+  }
+  const onDriveNow = () => !!(backup.handle && backup.handle.kind === "gdrive");
+  // What this device is called in "came from …": the name you gave it in Settings, or what it is.
+  function deviceLabel(auto) {   // (auto: what it is, ignoring the name you gave it)
+    const own = String(settings.deviceName || "").trim();
+    if (own && !auto) return own.slice(0, 60);
+    const ua = navigator.userAgent || "", touch = (navigator.maxTouchPoints || 0) > 1;
+    const kind = /iPhone/.test(ua) ? "iPhone" : /iPad/.test(ua) || (/Macintosh/.test(ua) && touch) ? "iPad" : /Android/.test(ua) ? (/Mobile/.test(ua) ? "Android phone" : "Android tablet")
+      : /Windows/.test(ua) ? "Windows PC" : /CrOS/.test(ua) ? "Chromebook" : /Macintosh|Mac OS/.test(ua) ? "Mac" : /Linux/.test(ua) ? "Linux computer" : "computer";
+    return kind + (SITE ? ", website" : ", Card Vault file");
   }
   // Saves the collection, want list and value history (and settings). Every data change
   // goes through here, which also keeps the value history current and triggers a backup.
@@ -2481,6 +2606,7 @@
     renderDataStatus();
     renderBackupBanner();
     renderWantBanner();
+    renderGradingBanner();
     renderSummary();
     renderTabs();
     renderFilterOptions();
@@ -2895,7 +3021,7 @@
       : '<span class="tile-meta">' + esc(r.number || "No card number") + "</span>" +
         '<span class="tile-meta" title="' + esc(r.rarity) + '">' + esc(r.rarity || " ") + "</span></button>") +
       '<div class="tile-foot"><span class="badges">' + (r.sealed ? '<span class="ed ed-sealed">Sealed</span>' : editionBadge(r.edition)) + gradeBadge(r.grade) +
-      (r.grading ? '<span class="ed ed-away">At ' + esc(r.grading.company) + "</span>" : "") +
+      (r.grading ? '<span class="ed ed-away' + (expectedBack(r.grading) && expectedBack(r.grading).late ? " ed-late" : "") + '">At ' + esc(r.grading.company) + (expectedBack(r.grading) && expectedBack(r.grading).late ? ", late" : "") + "</span>" : "") +
       (extra ? '<span class="ed ed-extra">' + extra + " extra</span>" : "") + "</span>" + priceHTML(r, extra) + "</div></article>";
   }
   const settingsGradedNote = r => { if (!settings.gradedView) return ""; const gv = gradedValue(r); return gv ? '<span class="cell-gv">' + esc(gv.grade || "PSA 10") + (gradedShort(gv) ? ", " + gradedShort(gv) : "") + "</span>" : ""; };
@@ -4153,18 +4279,28 @@
     const key = "bj|" + code, hit = ocgCache()[key];
     if (hit && !fresh && Date.now() - hit.t < OCG_TTL) return hit;
     // (Bunjang's website's own search, since October 2026: 60 listings a page; ads among them are left out)
-    const j = await politeJSON("https://api.bunjang.co.kr/api/search/v8/web/search?policyKey=mw.product.keyword&q=" + encodeURIComponent(code) + "&size=60", 1500);
+    // ("status=SOLD_OUT" brings the listings that sold along with the ones for sale)
+    const j = await politeJSON("https://api.bunjang.co.kr/api/search/v8/web/search?policyKey=mw.product.keyword&q=" + encodeURIComponent(code) + "&size=60&status=SOLD_OUT", 1500);
     const sr = j && j.data && j.data.responses && j.data.responses.mainGrid && j.data.responses.mainGrid.searchResponse;
     const flat = code.replace(/-/g, "");
     // Listings for this exact card number, not "wanted" posts or bundles of several cards.
-    const list = (sr && Array.isArray(sr.data) ? sr.data : []).filter(x => x && x.type === "PRODUCT" && !x.ad).map(x => ({name: String(x.name || ""), price: num(x.price)}))
+    const list = (sr && Array.isArray(sr.data) ? sr.data : []).filter(x => x && x.type === "PRODUCT" && !x.ad)
+      .map(x => ({name: String(x.name || ""), price: num(x.price), sold: String(x.status || "").toUpperCase() === "SOLD_OUT", day: String(x.updatedAt || "").slice(0, 10)}))
       .filter(x => x.price >= 100 && x.price <= 50000000 && x.name.toUpperCase().replace(/[\s\-_.]/g, "").includes(flat) &&
         !/삽니다|구매합니다|구합니다|구해요|매입|일괄|묶음/.test(x.name));
-    const groups = {};
-    for (const x of list) { const k = koRarity(x.name, code) || "?"; (groups[k] = groups[k] || []).push(x.price); }
+    // Sales in the last 120 days count; once a card sold twice, what it sold for is its price, else what sellers ask
+    const groups = {}, recent = localDay(new Date(Date.now() - 120 * 86400000));
+    for (const x of list) {
+      if (x.sold && !(x.day >= recent)) continue;
+      const k = koRarity(x.name, code) || "?", gr = groups[k] = groups[k] || {ask: [], sold: [], last: ""};
+      if (x.sold) { gr.sold.push(x.price); if (x.day > gr.last) gr.last = x.day; } else gr.ask.push(x.price);
+    }
     const byRarity = {};
-    for (const [k, ps] of Object.entries(groups)) byRarity[k] = {median: median(ps), n: ps.length};
-    const out = {t: Date.now(), byRarity, n: list.length};
+    for (const [k, gr] of Object.entries(groups)) {
+      const ask = gr.ask.length ? median(gr.ask) : null, sold = gr.sold.length ? median(gr.sold) : null;
+      byRarity[k] = {median: gr.sold.length >= 2 ? sold : ask != null ? ask : sold, n: gr.ask.length, ask, sold, sales: gr.sold.length, last: gr.last};
+    }
+    const out = {t: Date.now(), byRarity, n: list.filter(x => !x.sold).length};
     ocgPut(key, out);
     return out;
   }
@@ -4199,7 +4335,7 @@
     const e = ocgCache()["bj|" + g.code];
     const b = e && bunjangPick(e, r.rarity, only);
     if (!b) return e ? {none: true, src: "Bunjang", at: e.t, note: e.n ? "no listing for this rarity" : "no listings"} : null;
-    return {local: b.median, cur: "KRW", usd: toUSD(b.median, "KRW"), src: "Bunjang", note: "asking prices, middle of " + plural(b.n, "listing"), at: e.t,
+    return {local: b.median, cur: "KRW", usd: toUSD(b.median, "KRW"), src: "Bunjang", note: krNote(b), at: e.t,
       url: "https://m.bunjang.co.kr/search/products?q=" + encodeURIComponent(g.code)};
   }
   function ocgImage(r) {
@@ -4294,7 +4430,7 @@
       let price = null;
       if (m[2] === "JP" && pick && pick.price != null) price = {local: pick.price, cur: "JPY", src: "BIGWEB", note: pick.note};
       const b = m[2] === "KR" ? bunjangPick(bj, rar, rarities.length === 1) : null;
-      if (b) price = {local: b.median, cur: "KRW", src: "Bunjang", note: plural(b.n, "listing")};
+      if (b) price = {local: b.median, cur: "KRW", src: "Bunjang", note: (+b.sales || 0) >= 2 ? plural(+b.sales, "sale") : plural(b.n, "listing")};
       return {rarity: rar, image: "", backup: pick ? pick.image : "", ja: pick ? pick.name : "", price};
     });
     // Photos: Yugipedia's scan of this printing (or the closest one), with BIGWEB's photo as the backup.
@@ -4314,7 +4450,7 @@
         '<span class="result-name">' + esc(card.name) + "</span>" + (c.ja ? '<span class="result-meta">' + esc(c.ja) + "</span>" : "") +
         '<span class="result-meta">' + esc(code) + ", " + esc(c.rarity || "rarity unknown") + "</span>" +
         '<span class="result-price">' + priceText(c.price) + "</span></button>").join("") + "</div>" +
-      '<p class="small">Card details and photos from Yugipedia. ' + (m[2] === "JP" ? "Prices from BIGWEB (Japan)." : "Prices are Bunjang (Korea) asking prices; a missing Korean photo shows the Japanese print.") +
+      '<p class="small">Card details and photos from Yugipedia. ' + (m[2] === "JP" ? "Prices from BIGWEB (Japan)." : "Prices are from Bunjang (Korea): what it sold for once it sold twice lately, else asking prices; a missing Korean photo shows the Japanese print.") +
       ' <button type="button" class="link-btn" id="manualOcg">Add it manually instead</button></p>';
     inOut("#manualOcg").addEventListener("click", () => openManual({number: code, language: lang, name: card.name, setName: card.setName}));
     out.querySelectorAll(".result").forEach(btn => btn.addEventListener("click", () => openOcgForm(card, lang, choices[+btn.dataset.idx])));
@@ -4335,7 +4471,7 @@
         '<span class="result-name">' + esc(card.name) + "</span>" + (c.ja ? '<span class="result-meta">' + esc(c.ja) + "</span>" : "") +
         '<span class="result-meta">' + esc(code) + ", " + esc(c.rarity || "rarity not stated") + "</span>" +
         '<span class="result-price">' + priceText(c.price) + ocgOneChangeHTML(c.row) + "</span></button>").join("") + "</div>" +
-      '<p class="small">From Card Vault\'s daily ' + esc(lang) + " price list (" + (region === "jp" ? "BIGWEB prices and photos" : "Bunjang asking prices; the photos are the Japanese prints") + "), " + esc(ocgListDate()) + ". " +
+      '<p class="small">From Card Vault\'s daily ' + esc(lang) + " price list (" + (region === "jp" ? "BIGWEB prices and photos" : "Bunjang sales, or asking prices before a card has sold twice; the photos are the Japanese prints") + "), " + esc(ocgListDate()) + ". " +
       '<button type="button" class="link-btn" id="ocgLive">Ask the shop now</button> <button type="button" class="link-btn" id="manualOcg">Add it manually instead</button></p>';
     out.querySelector("#manualOcg").addEventListener("click", () => openManual({number: code, language: lang, name: card.name, setName: info.setName}));
     out.querySelector("#ocgLive").addEventListener("click", () => showOcgLookup(out, code, m, Object.assign({}, opts, {live: true})));
@@ -4717,8 +4853,8 @@
       jp: "Card prices are BIGWEB's (a large card shop in Japan): the cheapest copy for play it has in stock, in yen, shown in US$ at today's exchange rate. " +
         "Sealed prices are Yugi-Market's, checked when you open this page (twice a day at most). Sets and English card names are from Yugipedia. " +
         "The list is updated every day" + gen + ": new sets daily, older ones every week or two.",
-      kr: "Card prices are asking prices on Bunjang (a Korean marketplace): the middle of the listings for each card and rarity, in won, shown in US$ at today's exchange rate. " +
-        "Listings of several copies, graded cards and wanted posts are left out, so treat them as a rough guide. God of Cards (Germany) sells Korean sealed products: each set links to it. " +
+      kr: "Card prices are from Bunjang (a Korean marketplace), in won, shown in US$ at today's exchange rate: what each card and rarity sold for once it sold twice in the last four months, " +
+        "else the middle of the asking prices. Listings of several copies, graded cards and wanted posts are left out, so treat them as a rough guide. God of Cards (Germany) sells Korean sealed products: each set links to it. " +
         "Sets and English card names are from Yugipedia. The list is updated every day" + gen + "."
     }[region];
     panel.innerHTML = '<div class="panel-head"><div><h2>Market</h2><p>' + intro + "</p></div>" +
@@ -4836,7 +4972,8 @@
       const s = {region, id: region + ":" + r[0], prefix: String(r[0]), name: String(r[1] || r[0]), date: String(r[2] || ""), line: String(r[3] || "other"),
         cards: +r[4] || 0, local: String(r[6] || ""), box: region === "kr" && Array.isArray(r[7]) && +r[7][0] > 0 ? {price: +r[7][0], n: +r[7][1] || 0} : null};
       s.chase = (Array.isArray(r[5]) ? r[5] : []).filter(Array.isArray).map(c => ({number: normNumber(c[0]), name: String(c[1] || c[0]), rarity: String(c[2] || ""),
-        local: +c[3] || 0, stock: region === "jp" ? !!c[4] : null, n: region === "kr" ? +c[4] || 0 : null, img: safeImg(c[5]), set: s})).filter(c => c.local > 0);
+        local: +c[3] || 0, stock: region === "jp" ? !!c[4] : null, n: region === "kr" ? +c[4] || 0 : null, img: safeImg(c[5]), set: s,
+        sales: region === "kr" ? +c[6] || 0 : 0, sold: region === "kr" ? +c[7] || null : null, last: region === "kr" ? String(c[8] || "") : ""})).filter(c => c.local > 0);
       s.top = s.chase[0] || null;
       return s;
     });
@@ -4908,9 +5045,11 @@
           const card = {region, set, number, name: names[c[1]] || number, rows: []};
           for (const x of (Array.isArray(c[2]) ? c[2] : [])) {
             if (!Array.isArray(x)) continue;
-            const hk = region === "jp" ? x[8] : x[7];   // (the rarity name its history is kept under, when that differs)
+            const hk = region === "jp" ? x[8] : x[7] || null;   // (the rarity name its history is kept under, when that differs)
+            const sold = region === "kr" && Array.isArray(x[8]) ? x[8] : null;   // (Korean: [asking, sold for, sales, last sale] once it has sold)
             card.rows.push({card, rarity: rar[x[0]] || "", local: +x[1] || 0, stock: region === "jp" ? +x[2] || 0 : null, n: region === "kr" ? +x[2] || 0 : null,
-              img: bigwebImg(x[3]), m1: +x[4] || 0, m7: +x[5] || 0, m30: +x[6] || 0, ja: region === "jp" ? ja[x[7]] || "" : "", hk: typeof hk === "string" ? hk : null});
+              img: bigwebImg(x[3]), m1: +x[4] || 0, m7: +x[5] || 0, m30: +x[6] || 0, ja: region === "jp" ? ja[x[7]] || "" : "", hk: typeof hk === "string" ? hk : null,
+              ask: sold ? +sold[0] || null : null, sold: sold ? +sold[1] || null : null, sales: sold ? +sold[2] || 0 : 0, last: sold ? String(sold[3] || "") : ""});
           }
           set.cards.push(card);
           data.byNumber.set(number, card);
@@ -4954,6 +5093,128 @@
     if (!ocgCd.loading && !(ocgCd.failed && Date.now() - ocgCd.failed < 10 * 60000) && ocgCardsURL()) loadOcgCards();
     return false;
   }
+  /* ----- How last night's update went (update-status.js) and the grading fees it read (grading-fees.js) ----- */
+  // Both are made by the nightly update on GitHub, next to the website's other files. Card Vault.html on a computer
+  // reads them from the website (Settings > the website address), like the Japanese and Korean cards.
+  const live = {status: null, fees: null, at: 0, loading: null};
+  function siteFileURL(name) {
+    if (/^https?:$/.test(location.protocol)) return name;
+    const site = String(settings.siteUrl || "");
+    return /^https:\/\/[^\s]+$/.test(site) ? site.replace(/\/?$/, "/") + name : "";
+  }
+  function loadSiteJS(name, global) {
+    const url = siteFileURL(name);
+    if (!url) return Promise.resolve(null);
+    // (on the website: past the browser's own cache, one copy kept for offline; on a computer: a script, new every 10 minutes)
+    const fresh = url + "?h=" + Math.floor(Date.now() / 600000);
+    if (/^https?:$/.test(location.protocol)) {
+      return fetch(url, {cache: "no-store"}).then(res => res.ok ? res.text() : null).then(t => t ? readWindowJSON(t, global) : null).catch(() => null);
+    }
+    return new Promise(resolve => {
+      const s = document.createElement("script");
+      s.src = fresh;
+      s.onload = () => { const v = window[global]; try { delete window[global]; } catch (e) { window[global] = null; } s.remove(); resolve(v || null); };
+      s.onerror = () => { s.remove(); resolve(null); };
+      document.head.appendChild(s);
+    });
+  }
+  // (every half hour at most, unless asked; a failure keeps what was there)
+  function loadLive(force) {
+    if (live.loading) return live.loading;
+    if (!force && live.at && Date.now() - live.at < 30 * 60000) return Promise.resolve(false);
+    live.loading = Promise.all([loadSiteJS("update-status.js", "CARDVAULT_STATUS"), loadSiteJS("grading-fees.js", "GRADING_FEES")]).then(([s, f]) => {
+      if (s && s.format === 1 && s.parts) {
+        live.status = s;
+        // (a problem you dismissed that has since been fixed is forgotten, so if it breaks again you're told again)
+        const now = new Set((s.problems || []).concat(s.news || []).map(x => x && x.key).filter(Boolean));
+        const seen = Array.isArray(settings.statusSeen) ? settings.statusSeen : [];
+        const kept = seen.filter(k => now.has(k) || /^stale-/.test(k));
+        if (kept.length !== seen.length) { settings.statusSeen = kept; saveSettings(); }
+      }
+      if (f && f.format === 1 && f.companies) { live.fees = f; feeTables = null; }
+      live.at = Date.now();
+      live.loading = null;
+      renderStatusBanner();
+      const box = document.getElementById("updateStatus");
+      if (box) box.innerHTML = updateStatusHTML();
+      if (settings.tab === "history") renderPanel();
+      return true;
+    });
+    return live.loading;
+  }
+  const statusSeen = () => new Set(Array.isArray(settings.statusSeen) ? settings.statusSeen : []);
+  const seriousProblems = () => live.status ? (live.status.problems || []).filter(p => p && !p.minor && p.text) : [];
+  // The nightly update hasn't run for a day and a half: GitHub may have paused it, or the website isn't being built.
+  function statusStale() {
+    const t = live.status && parseDate(live.status.checked);
+    return t && Date.now() - t.getTime() > 36 * 3600000 ? t : null;
+  }
+  // The notice at the top: something broke last night (until you dismiss it), or grading fees changed.
+  function renderStatusBanner() {
+    const b = $("statusBanner");
+    if (!b) return;
+    const seen = statusSeen(), stale = statusStale();
+    const probs = seriousProblems().filter(p => !seen.has(p.key));
+    const news = live.status ? (live.status.news || []).filter(n => n && n.key && !seen.has(n.key) && n.day && Date.now() - (parseDay(n.day) || new Date(0)).getTime() < 14 * 86400000) : [];
+    let html = "", keys = [];
+    if (stale && !seen.has("stale-" + localDay(stale))) {
+      keys = ["stale-" + localDay(stale)];
+      html = "<strong>The nightly price update hasn't run since " + esc(fmtDate(stale)) + ".</strong> Prices stay as they were until it runs again. " +
+        "GitHub pauses scheduled updates now and then; " + (live.status.run ? '<a href="' + esc(safeUrl(live.status.run)) + '" target="_blank" rel="noopener">its page on GitHub</a> shows what happened.' : "the Actions tab on GitHub shows what happened.");
+    } else if (probs.length) {
+      keys = probs.map(p => p.key);
+      html = "<strong>" + (probs.length === 1 ? "Part of last night's price update didn't work." : probs.length + " parts of last night's price update didn't work.") + "</strong> " +
+        probs.map(p => esc(p.text)).join(" ") + " Card Vault tries again tonight.";
+    } else if (news.length) {
+      keys = news.map(n => n.key);
+      html = "<strong>Grading fees changed.</strong> " + news.slice(0, 4).map(n => esc(n.text)).join(" ") + (news.length > 4 ? " And " + (news.length - 4) + " more (Settings &gt; Grading fees)." : "") +
+        " Card Vault's grading estimates use the new fees.";
+    }
+    if (html) html += '<div class="banner-actions"><button class="btn btn-small" type="button" data-banner="status-details">Details</button>' +
+      '<button class="btn btn-small" type="button" data-banner="status-dismiss">Dismiss</button></div>';
+    b.dataset.keys = keys.join(" ");
+    b.hidden = !html;
+    b.innerHTML = html;
+    syncBanners();
+  }
+  function dismissStatusBanner() {
+    const keys = ($("statusBanner").dataset.keys || "").split(" ").filter(Boolean);
+    settings.statusSeen = Array.from(new Set(keys.concat(Array.from(statusSeen())))).slice(0, 200);
+    saveSettings();
+    renderStatusBanner();
+  }
+  const safeUrl = u => /^https:\/\/[^\s"<>]+$/.test(String(u || "")) ? String(u) : "#";
+  // Settings > Daily price updates: last night's update, part by part
+  function updateStatusHTML() {
+    const s = live.status;
+    if (!s) {
+      return '<p class="small" style="margin:0">' + (siteFileURL("update-status.js") ? (live.at ? "No report from the nightly update yet: it appears after its next run." : "Looking for last night's report…")
+        : "Add the website's address (below) to see how the nightly update went.") + "</p>";
+    }
+    const at = parseDate(s.checked), p = s.parts || {}, ocg = p.ocg || {}, fees = p.fees || {};
+    const line = (ok, text) => '<div class="status-line ' + (ok ? "on" : "warn") + '"><span class="dot" aria-hidden="true"></span><span>' + text + "</span></div>";
+    const n = v => (+v || 0).toLocaleString("en-US");
+    const tcgAt = parseDate((p.tcg || {}).generated);
+    const sites = ocg.sites || {}, siteNames = {yugipedia: "Yugipedia", bigweb: "BIGWEB", bunjang: "Bunjang", frankfurter: "exchange rates"};
+    const siteBits = Object.keys(sites).filter(k => siteNames[k]).map(k => siteNames[k] + (sites[k].failed ? " (" + n(sites[k].failed) + " of " + n(sites[k].requests) + " failed)" : ""));
+    const probs = (s.problems || []).filter(x => x && x.text);
+    const feeCos = Object.entries(fees.companies || {});
+    const recent = Array.isArray(s.recent) ? s.recent : [];
+    return '<p style="margin:0 0 8px"><b>Last night\'s update' + (at ? " (" + esc(fmtDateTime(at)) + ")" : "") + ":</b> " +
+        (probs.filter(x => !x.minor).length ? plural(probs.filter(x => !x.minor).length, "problem") + "." : "everything worked.") +
+        (statusStale() ? " <b>It hasn't run since then.</b>" : "") + "</p>" +
+      line((p.tcg || {}).ok !== false, "TCGplayer prices: " + (tcgAt ? "from " + esc(fmtDate(tcgAt)) : "none yet") + ".") +
+      line(ocg.ok !== false, "Japanese cards: " + n((ocg.cardsPriced || {}).jp) + " of " + n((ocg.cards || {}).jp) + " priced (BIGWEB). Korean cards: " + n((ocg.cardsPriced || {}).kr) +
+        " of " + n((ocg.cards || {}).kr) + " priced (Bunjang)" + (ocg.krSold ? ", " + n(ocg.krSold) + " of them from what they sold for" : "") + "." +
+        (siteBits.length ? " Sites read: " + esc(siteBits.join(", ")) + "." : "") + (ocg.left ? " " + n(ocg.left) + " lookups wait for the next nights." : "")) +
+      line(fees.ok !== false, "Grading fees: " + (feeCos.length ? feeCos.filter(([, c]) => c.ok).length + " of " + feeCos.length + " price lists read" +
+        (feeCos.some(([, c]) => !c.ok) ? " (not " + esc(feeCos.filter(([, c]) => !c.ok).map(([co]) => gradingCoName(co)).join(", ")) + ")" : "") : "not checked") + ".") +
+      (probs.length ? '<ul class="status-probs">' + probs.map(x => "<li>" + esc(x.text) + "</li>").join("") + "</ul>" : "") +
+      ((s.news || []).length ? '<p class="small" style="margin:8px 0 0"><b>Grading fee changes:</b> ' + s.news.slice(-6).map(x => esc(x.text) + (x.day ? " (" + esc(fmtDate(parseDay(x.day))) + ")" : "")).join(" ") + "</p>" : "") +
+      (recent.length > 1 ? '<p class="small" style="margin:8px 0 0">' + recent.filter(x => x.ok).length + " of the last " + recent.length + " runs went fine." : '<p class="small" style="margin:8px 0 0">') +
+      (s.run ? ' <a href="' + esc(safeUrl(s.run)) + '" target="_blank" rel="noopener">The run on GitHub</a>.' : "") + "</p>";
+  }
+
   const ocgCardAt = number => ocgCd.data ? ocgCd.data.byNumber.get(normNumber(number)) || null : null;
   const ocgSetOf = key => { const [region, prefix] = String(key).split(":"); return ocgCd.data && ocgCd.data[region] ? ocgCd.data[region].get(prefix) || null : null; };
   const ocgLang = region => region === "jp" ? "Japanese" : "Korean";
@@ -4969,8 +5230,16 @@
     if (rarity) { const unk = card.rows.find(x => !x.rarity && x.local > 0); if (unk) return unk; }   // (Korean listings that don't say)
     return null;
   }
-  const rowNote = row => row.card.region === "jp" ? (row.stock ? plural(row.stock, "copy", "copies") + " in stock" : "sold out; last price seen") : "asking prices, middle of " + plural(row.n, "listing");
-  const rowFrom = row => row.card.region === "jp" ? (row.stock ? "BIGWEB" : "BIGWEB, sold out") : "Bunjang, " + plural(row.n, "listing");
+  const rowNote = row => row.card.region === "jp" ? (row.stock ? plural(row.stock, "copy", "copies") + " in stock" : "sold out; last price seen") : krNote(row);
+  const rowFrom = row => row.card.region === "jp" ? (row.stock ? "BIGWEB" : "BIGWEB, sold out") : krFrom(row);
+  // Korean prices: what the card sold for on Bunjang once it sold twice in the last four months, else what sellers ask.
+  // x: {n: listings for sale, sales, sold: the middle of the sales, last: the last sale's day}
+  function krNote(x) {
+    const sales = +x.sales || 0, n = +x.n || 0;
+    if (sales >= 2) return "what it sold for, middle of " + plural(sales, "sale") + (x.last ? " (last " + fmtDate(parseDay(x.last)) + ")" : "") + (n ? "; " + plural(n, "listing") + " for sale" : "");
+    return "asking prices, middle of " + plural(n, "listing") + (sales === 1 && x.sold ? "; sold once for " + fmtLocal(x.sold, "KRW") + (x.last ? " (" + fmtDate(parseDay(x.last)) + ")" : "") : "");
+  }
+  const krFrom = x => "Bunjang, " + ((+x.sales || 0) >= 2 ? plural(+x.sales, "sale") : plural(+x.n || 0, "listing"));
   // A card's price from the list, in the shape ocgPrice gives
   function ocgFilePrice(r) {
     const g = r.productId ? null : ocgRegion(r.number);
@@ -5212,7 +5481,7 @@
   function ocgChaseHTML(s) {
     return '<div class="results">' + s.chase.map((c, i) => {
       const owned = ocgOwnedCount(c), key = esc(s.id + "|" + i);
-      const src = s.region === "jp" ? (c.stock ? "BIGWEB" : "BIGWEB, sold out (last price)") : "Bunjang, " + plural(c.n, "listing");
+      const src = s.region === "jp" ? (c.stock ? "BIGWEB" : "BIGWEB, sold out (last price)") : krFrom(c);
       return '<div class="result static"><span class="sleeve"' + foilAttr(c.rarity) + '><span class="mk-rank">#' + (i + 1) + "</span>" + imgTag({list: [c.img].filter(Boolean).concat(namePics(c.name, "200w", c.rarity).list)}, c.name) + "</span>" +
         '<span class="result-name">' + esc(c.name) + "</span>" +
         '<span class="result-meta">' + esc(c.number) + ", " + esc(c.rarity || "rarity not stated") + "</span>" +
@@ -5349,7 +5618,7 @@
   function ocgHave(s, c, opts) {
     const lang = s.region === "jp" ? "Japanese" : "Korean";
     const price = c.local > 0 ? {local: c.local, cur: OCG_CUR[s.region], src: s.region === "jp" ? "BIGWEB" : "Bunjang",
-      note: s.region === "jp" ? (c.stock ? "in stock" : "sold out; last price seen") : "asking prices, " + plural(c.n, "listing")} : null;
+      note: s.region === "jp" ? (c.stock ? "in stock" : "sold out; last price seen") : krNote(c)} : null;
     drawerCtx = null;
     openOcgForm({code: c.number, name: c.name, setName: s.name, rarities: c.rarity ? [c.rarity] : []}, lang, {rarity: c.rarity, image: c.img, backup: "", ja: "", price}, opts);
   }
@@ -5486,7 +5755,7 @@
     return '<div class="cs-start"><p>Type a card\'s name (or part of it), its number from under the artwork, or a set. Add more words to narrow it down, like <b>dark magician lob</b> or <b>blue-eyes secret</b>. ' +
       'To see every card in a set, switch to <button type="button" class="link-btn" data-cs-mode="sets">Sets</button>.</p>' +
       chips("Looked up recently", recent.map(x => x.n)) + chips("Your most valuable cards", yours) +
-      '<p class="small">Japanese and Korean cards too, by name or number (like DUNE-JP004): BIGWEB prices for Japanese cards and Bunjang asking prices for Korean ones, from Card Vault\'s daily list.</p></div>';
+      '<p class="small">Japanese and Korean cards too, by name or number (like DUNE-JP004): BIGWEB prices for Japanese cards and Bunjang prices (sales, else asking) for Korean ones, from Card Vault\'s daily list.</p></div>';
   }
   function renderSearchResults() {
     const out = $("csOut");
@@ -5592,7 +5861,7 @@
           '<td data-label="Number">' + esc(c.number) + '</td><td data-label="Rarity">' + esc(c.rarity || "not stated") + "</td>" +
           '<td class="num" data-label="Price">' + (c.local ? ocgMoneyHTML(c.local, s.region) : '<span class="small">' + (s.region === "jp" ? "Sold out" : "No listings") + "</span>") + "</td>" +
           '<td class="num" data-label="30 days"' + (chg ? "" : " data-empty") + ">" + chg + "</td>" +
-          '<td data-label="From"' + (c.local ? "" : " data-empty") + ">" + esc(c.local ? (s.region === "jp" ? (c.stock ? "BIGWEB" : "BIGWEB, sold out") : "Bunjang, " + plural(c.n, "listing")) : "") + "</td>" +
+          '<td data-label="From"' + (c.local ? "" : " data-empty") + ">" + esc(c.local ? (s.region === "jp" ? (c.stock ? "BIGWEB" : "BIGWEB, sold out") : krFrom(c)) : "") + "</td>" +
           '<td><div class="want-actions">' + (ref ? (ocgWanted(c) ? '<span class="on-list">On want list</span>' : '<button class="btn btn-small" type="button" data-ocgc-want="' + ref + '">Want</button>') +
             '<button class="btn btn-small" type="button" data-ocgc-have="' + ref + '">I have it</button><button class="btn btn-small" type="button" data-ocgc-open="' + ref + '">Details</button>' : "") + "</div></td></tr>";
       }).join("") + "</tbody></table></div>";
@@ -5626,7 +5895,7 @@
     out.innerHTML = (known.length ? '<p class="results-head">In the Market: ' + esc(s.name) + " (" + (region === "jp" ? "Japanese" : "Korean") + ")</p>" +
       '<div class="table-wrap"><table class="table cs-table cs-ocg stack-table"><thead><tr><th>Card</th><th>Rarity</th><th class="num">Price</th><th>From</th></tr></thead><tbody>' +
       known.map(c => "<tr><td>" + esc(c.name) + '<span class="cell-sub">' + esc(c.number) + '</span></td><td data-label="Rarity">' + esc(c.rarity || "not stated") + "</td>" +
-        '<td class="num" data-label="Price">' + ocgMoneyHTML(c.local, region) + '</td><td data-label="From">' + esc(region === "jp" ? "BIGWEB" : "Bunjang, " + plural(c.n, "listing")) + "</td></tr>").join("") +
+        '<td class="num" data-label="Price">' + ocgMoneyHTML(c.local, region) + '</td><td data-label="From">' + esc(region === "jp" ? "BIGWEB" : krFrom(c)) + "</td></tr>").join("") +
       "</tbody></table></div>" : "") + '<div id="csOcg"></div>';
     showOcgLookup($("csOcg"), code, m, {search: true});
   }
@@ -5909,7 +6178,7 @@
           const owned = ocgOwnedCount(c), k = esc(s.id + "|" + i);
           return "<tr" + (owned ? ' class="cs-have"' : "") + '><td class="c-thumb"><span class="sleeve"' + foilAttr(c.rarity) + ">" + imgTag({list: [c.img].filter(Boolean).concat(namePics(c.name, "200w", c.rarity).list)}, c.name) + "</span></td>" +
             '<td data-label="No.">' + esc(c.number) + "</td><td>" + esc(c.name) + '<span class="cell-sub">' + esc(c.rarity || "rarity not stated") + (owned ? ' <span class="cs-own">You have ' + owned + "</span>" : "") + "</span></td>" +
-            '<td class="num" data-label="Price">' + ocgMoneyHTML(c.local, s.region) + '</td><td data-label="From">' + esc(s.region === "jp" ? (c.stock ? "BIGWEB" : "BIGWEB, sold out") : "Bunjang, " + plural(c.n, "listing")) + "</td>" +
+            '<td class="num" data-label="Price">' + ocgMoneyHTML(c.local, s.region) + '</td><td data-label="From">' + esc(s.region === "jp" ? (c.stock ? "BIGWEB" : "BIGWEB, sold out") : krFrom(c)) + "</td>" +
             '<td><div class="want-actions">' + (ocgWanted(c) ? '<span class="on-list">On want list</span>' : '<button class="btn btn-small" type="button" data-cs-ocgwant="' + k + '">Want</button>') +
             '<button class="btn btn-small" type="button" data-cs-ocghave="' + k + '">I have it</button></div></td></tr>';
         }).join("") + "</tbody></table></div>" : '<div class="notice">The Market has no prices for this set\'s cards yet.</div>') +
@@ -6548,7 +6817,7 @@
     });
   }
   function backupPayload(stamp) {
-    return {app: "Card Vault", kind: "backup", format: 1, savedAt: stamp || new Date().toISOString(),
+    return {app: "Card Vault", kind: "backup", format: 1, savedAt: stamp || new Date().toISOString(), savedOn: deviceLabel(),
       collection, wants, valueHistory, decks, sales, deleted, syncId: settings.syncId || null,
       settings: {condAdjust: settings.condAdjust, condPct: settings.condPct,
         alertsOn: settings.alertsOn, alertMinDollar: settings.alertMinDollar, alertMinPct: settings.alertMinPct,
@@ -6976,9 +7245,26 @@
     render();
     if (!quietly) toast("Updated with changes from another device (" + mergeSummary(res) + ").");
   }
+  // The safety check stops syncing (both ways) until you choose; the file is still looked at, so if it's put right on
+  // the other device, syncing carries on by itself.
+  function holdNow(info, quiet) {
+    const first = backup.state !== "hold";
+    backup.state = "hold";
+    backup.holdInfo = info;
+    renderBackupBanner();
+    refreshBackupSection();
+    if (first && !quiet) toast("Syncing is paused: the backup file would remove " + holdWhat(info) + " here. Choose what to do at the top.", {kind: "error"});
+  }
+  function holdWhat(info) {
+    const bits = [];
+    if (info.lostCards) bits.push(plural(info.lostCards, "card") + " from your collection");
+    if (info.allWants) bits.push("your whole want list");
+    else if (info.lostWants) bits.push(wantCount(info.lostWants) + " from your want list");
+    return bits.join(" and ") || "several cards";
+  }
   async function checkBackupFile(manual) {
     const h = backup.handle;
-    const live = () => backup.state === "active" || backup.state === "shrink";
+    const live = () => backup.state === "active" || backup.state === "shrink" || backup.state === "hold";
     if (!h || !live()) return false;
     if (manual) while (backup.busy) await pause(50);
     if (backup.busy || !live()) return false;
@@ -7002,11 +7288,21 @@
             // what's here is newest (or the file is empty): save it
             if (rel === "mine" || hasLocalData()) backup.again = true;
           } else {
-            if (data.syncId) settings.syncId = data.syncId;
-            else backup.again = true;   // (a file from before syncing: give it a sync id)
-            if (rel === "load") deleted = cleanDeleted({});
-            res = mergeBackup(data, {fileWins: rel === "load"});
-            if (res.changed || res.touched) afterMerge(res);
+            const hold = rel !== "load" && holdFor(data);
+            if (hold) {
+              holdNow(hold);
+            } else {
+              if (backup.state === "hold") {   // (the file was put right on the other device)
+                backup.state = "active"; backup.holdInfo = null;
+                renderBackupBanner(); refreshBackupSection();
+              }
+              if (data.syncId) settings.syncId = data.syncId;
+              else backup.again = true;   // (a file from before syncing: give it a sync id)
+              if (rel === "load") deleted = cleanDeleted({});
+              res = mergeBackup(data, {fileWins: rel === "load"});
+              if (res.changed) sync.lastFrom = typeof data.savedOn === "string" ? data.savedOn.slice(0, 80) : "";
+              if (res.changed || res.touched) afterMerge(res);
+            }
           }
         }
       }
@@ -7114,7 +7410,7 @@
     if (backup.state !== "active") return "";
     const bits = [];
     if (sync.lastCheck) bits.push("Last checked " + esc(fmtTime(sync.lastCheck)) + ".");
-    if (sync.lastChange) bits.push("Last changes from another device: " + esc(fmtDateTime(sync.lastChange)) + ".");
+    if (sync.lastChange) bits.push("Last changes from another device: " + esc(fmtDateTime(sync.lastChange)) + (sync.lastFrom ? " (" + esc(sync.lastFrom) + ")" : "") + ".");
     if (backup.handle && backup.handle.kind === "gdrive") {
       return '<p class="small" style="margin:8px 0 0">On your other devices, open this website and choose Sync with Google Drive with the same Google account. ' +
         "Card Vault checks Google Drive every 15 seconds while it's open, and before every save, and brings in the changes made on the others. " + bits.join(" ") + "</p>";
@@ -7203,9 +7499,13 @@
         // so saving here doesn't undo them.
         if (old && old.syncId) settings.syncId = old.syncId;
         if (old) {
+          // (the safety check: a file that would take away many cards here waits for your OK, and isn't saved over)
+          const hold = rel !== "load" && holdFor(old);
+          if (hold) throw {hold};
           // (nothing here yet: everything comes from the file, card-value settings too)
           if (rel === "load") deleted = cleanDeleted({});
           const res = mergeBackup(old, {fileWins: rel === "load"});
+          if (res.changed) sync.lastFrom = typeof old.savedOn === "string" ? old.savedOn.slice(0, 80) : "";
           if (res.changed || res.touched) afterMerge(res, opts.quiet);
         }
       } else if ((rel === "mine" || rel === "replace") && old) {
@@ -7238,7 +7538,8 @@
     } catch (e) {
       if (w) { try { await w.abort(); } catch (e2) { /* nothing more to undo */ } }
       if (backup.handle === h) {  // (ignore a write that finished after backups were turned off or moved)
-        if (e && e.shrink) backup.state = "shrink";
+        if (e && e.hold) holdNow(e.hold, true);
+        else if (e && e.shrink) backup.state = "shrink";
         else if (e && e.link) backup.state = "link";
         else if (e && e.name === "NetworkError") {
           // No internet (at a card shop, say): changes stay on this device and go to Google Drive once it's back.
@@ -7310,7 +7611,7 @@
         : synced ? "Automatic backup is on, and " + HERE + " is in sync with " + h.name + ": " + plural(collection.length, "printing") + "."
         : "Automatic backup is on. Card Vault keeps " + h.name + " up to date whenever you make a change.");
     }
-    else if (backup.state !== "shrink" && backup.state !== "link") toast("Couldn't write to " + h.name + ": " + backup.error, {kind: "error"});
+    else if (backup.state !== "shrink" && backup.state !== "link" && backup.state !== "hold") toast("Couldn't write to " + h.name + ": " + backup.error, {kind: "error"});
   }
   async function resumeBackup() {
     const paused = [backup, phone].filter(t => t.handle && t.state === "paused");
@@ -7484,6 +7785,10 @@
       html = "<strong>Card Vault couldn't reach your backup file in Google Drive.</strong> " + esc(backup.error ? backup.error.charAt(0).toUpperCase() + backup.error.slice(1) + "." : "") +
         '<div class="banner-actions"><button class="btn btn-small btn-primary" type="button" data-banner="retry">Try again</button>' +
         '<button class="btn btn-small" type="button" data-banner="choose">Set up Google Drive again</button></div>';
+    } else if (backup.state === "hold") {
+      html = "<strong>Syncing is paused: your backup would remove " + esc(holdWhat(backup.holdInfo || {})) + ".</strong> " + holdTextHTML() +
+        '<div class="banner-actions"><button class="btn btn-small btn-primary" type="button" data-banner="hold-keep">Keep them</button>' +
+        '<button class="btn btn-small" type="button" data-banner="hold-apply">Remove them here too</button></div>';
     } else if (backup.state === "paused" || phone.state === "paused") {
       const names = [backup.state === "paused" ? name : "", phone.state === "paused" && phone.handle ? "<b>" + esc(phone.handle.name) + "</b>" : ""].filter(Boolean);
       html = "<strong>" + (backup.state === "paused" ? "Automatic backup is paused." : "Your phone copy isn't being updated.") + "</strong> After the browser restarts, " +
@@ -7591,6 +7896,9 @@
     } else if (backup.state === "error") {
       cls = "off"; text = "Couldn't save to " + name + " (" + esc(backup.error) + "). " + lastText;
       buttons = btn("now", "Try again", true) + btn("choose", "Choose a backup file") + btn("stop", "Turn off");
+    } else if (backup.state === "hold") {
+      cls = "warn"; text = "Syncing is paused. " + holdTextHTML() + " " + lastText;
+      buttons = btn("hold-keep", "Keep them", true) + btn("hold-apply", "Remove them here too") + btn("stop", "Turn off");
     } else if (backup.state === "link") {
       cls = "warn"; text = name + " has a different collection from " + HERE + ". " + linkTextHTML();
       buttons = linkButtonsHTML("bk") + btn("stop", "Turn off");
@@ -7627,6 +7935,8 @@
       : '<p class="small" style="margin:0 0 10px">Your collection is saved in this browser. A backup file keeps it safe if the browser\'s data is ever cleared, and lets you move it to another computer. ' +
         "Save it in a folder that syncs, like OneDrive, Google Drive or Dropbox, for a copy that's off this computer too.</p>") +
       '<div id="backupSection">' + backupSectionHTML() + "</div>" + '<div id="syncNote">' + syncNoteHTML() + "</div>" +
+      '<label class="field" style="margin:10px 0 0"><span>This device\'s name, shown on your other devices when a change comes from here</span>' +
+      '<input class="input" id="sDeviceName" maxlength="60" placeholder="' + esc(deviceLabel(true)) + '" value="' + esc(settings.deviceName || "") + '"></label>' +
       (backup.drive ? '<label class="check-row" style="margin:10px 0 0"><input type="checkbox" class="check" id="sAutoSignIn"' + (settings.autoSignIn !== false ? " checked" : "") +
         "><span>Renew the Google Drive sign-in by itself when its hour runs out. Card Vault goes to Google and straight back, which looks like a quick reload; " +
         "it waits if you're in the middle of something.</span></label>" : "") +
@@ -7682,8 +7992,8 @@
       '<p class="small" style="margin:8px 0 0">These are rough starting points: a PSA 10 of a cheap modern card often sells for 5 to 30 times the raw price, and a vintage 1st Edition for far more. Real prices from PriceCharting replace them.</p></div>' +
 
       '<div class="section" id="gradingFeesSection"><h3>Grading fees</h3>' +
-      '<p class="small" style="margin:0 0 4px">What grading a card costs you at each company. Their price lists are built in (as of ' + esc(fmtDate(parseDay(GRADING_FEE_TABLE.PSA.checked))) +
-      '): choose the service level you use and its fee fills in; a fee you type yourself wins. Add shipping and insurance per card (your share of an order\'s, both ways). ' +
+      '<p class="small" style="margin:0 0 4px">What grading a card costs you at each company. Their price lists are built in, and Card Vault reads their sites again every night (last read ' +
+      esc(fmtDate(parseDay(GRADING_COS.map(c => feeTable(c.id).checked).sort().pop()))) + '): choose the service level you use and its fee fills in; a fee you type yourself wins. Add shipping and insurance per card (your share of an order\'s, both ways). ' +
       "Card Vault uses these in Insights &gt; Worth grading and when you send a card. Fees change often, so each company's own price list is linked.</p>" +
       GRADING_COS.map(c => {
         const f = (settings.gradingFees || {})[c.id] || {}, levels = gradingLevels(c.id), picked = f.level ? gradingLevel(c.id, f.level) : null, custom = !!(f.level && !picked);
@@ -7703,7 +8013,8 @@
       '<label class="field" style="margin-top:12px"><span>For another company: cost per card</span>' +
       '<span class="pct">$<input class="input" type="number" min="0" step="1" id="sGradeCost" value="' + esc(String(gradingCostEach())) + '"></span></label></div>' +
 
-      '<div class="section"><h3>Daily price updates</h3>' +
+      '<div class="section" id="updatesSection"><h3>Daily price updates</h3>' +
+      '<div id="updateStatus" class="update-status">' + updateStatusHTML() + "</div>" +
       (SITE ? '<p style="margin:0">New TCGplayer prices arrive every evening on their own: GitHub runs the update for this website.</p>'
       : '<p style="margin:0">To get new TCGplayer prices every day without doing anything, double-click <b>Turn On Daily Updates</b> in the Card Vault folder once. ' +
         "Windows then runs the updater every evening at 6 PM, or as soon as your computer is on after that. <b>Turn Off Daily Updates</b> stops it.</p>") +
@@ -7725,13 +8036,18 @@
   // Under a company's fields: the chosen level's details (or the usual level's), the company's note, and when its
   // price list was checked. When you typed a fee that differs from the list's, offers the list's.
   function feeNoteHTML(co) {
-    const f = gradingFee(co), t = GRADING_FEE_TABLE[co], l = f && f.info;
+    const f = gradingFee(co), t = feeTable(co), l = f && f.info;
     const parts = [];
     if (l) parts.push("<b>" + esc(l.name) + "</b>" + (f.builtin && !(settings.gradingFees || {})[co] ? " (their usual level, assumed until you choose one)" : "") + (l.paused ? ", <b>paused</b> when checked" : "") +
       (levelDetails(l) ? ": " + esc(levelDetails(l)) : "") + ".");
     if (l && !f.builtin && l.fee != null && l.fee !== f.fee) parts.push("Their price list says " + esc(usdFee(l.fee)) + '. <button type="button" class="link-btn" data-gfee-use="' + co + '">Use it</button>');
     if (f && !l && f.level) parts.push("Your own service level.");
-    if (t) parts.push(esc(t.note) + " " + esc(feeCheckedText(co).replace(/^c/, "C")) + " on their site.");
+    if (t) {
+      const paused = t.levels.filter(x => x.paused).map(x => x.name);
+      parts.push(esc(t.note) + (paused.length ? " Paused when checked: " + esc(paused.join(", ")) + "." : " Every level was open when checked.") + " " +
+        esc(feeCheckedText(co).replace(/^c/, "C")) + " on their site" + (t.auto ? " (Card Vault checks every night)" : "") + "." +
+        (t.error ? " Last night's check didn't work (" + esc(t.error) + "), so this is the list from then." : ""));
+    }
     return parts.join(" ");
   }
   // opts.section: scroll to that part (gradingFees)
@@ -7791,12 +8107,22 @@
       document.querySelectorAll("#drawerBody [data-gfee-total]").forEach(el => { el.innerHTML = feeTotalText(el.dataset.gfeeTotal); });
       if (settings.tab === "history") renderPanel();
     });
+    if (opts && opts.section === "updates") {
+      loadLive(true);
+      const sec = $("updatesSection");
+      if (sec) setTimeout(() => { if (sec.scrollIntoView) sec.scrollIntoView({block: "start"}); }, 60);
+    }
     if (opts && opts.section === "gradingFees") {
       const sec = $("gradingFeesSection");
       if (sec) setTimeout(() => { if (sec.scrollIntoView) sec.scrollIntoView({block: "start"}); const first = sec.querySelector("select, input"); if (first) first.focus({preventScroll: true}); }, 60);
     }
     fillSnapshots();
     fillDriveCopies();
+    $("sDeviceName").addEventListener("change", () => {
+      settings.deviceName = $("sDeviceName").value.trim().slice(0, 60);
+      $("sDeviceName").value = settings.deviceName;
+      saveSettings();
+    });
     $("sRemind").addEventListener("change", () => {
       settings.backupRemindDays = num($("sRemind").value) || 0;
       settings.backupSnoozeUntil = 0;
@@ -7950,6 +8276,8 @@
     else if (act === "phone-stop") stopPhoneCopy();
     else if (act === "force") forceBackup();
     else if (act === "link-both" || act === "link-file" || act === "link-mine") resolveLink(act.slice(5));
+    else if (act === "hold-keep") holdKeep();
+    else if (act === "hold-apply") holdApply();
     else if (act === "sync") checkBackupFile(true).then(changed => { if (!changed && backup.state === "active") toast("No new changes from your other devices."); });
   }
 
@@ -8435,7 +8763,7 @@
     const el = insightBody();
     const away = collection.filter(r => r.grading);
     const min = gradingMinGain();
-    const co = gradingCoNow(), fee = gradingFee(co), cost = gradingCostFor(co);
+    const co = gradingCoNow(), fee = gradingFee(co), cost = gradingCostFor(co), inPlan = new Set(planIds());
     const list = collection.filter(r => !r.grading && /^near mint/i.test(r.condition || "Near Mint"))
       .map(r => ({r, e: gradingEstimate(r)})).filter(x => x.e && x.e.gain10 >= min).sort((a, b) => b.e.gain10 - a.e.gain10);
     const estimates = list.filter(x => x.e.ten.from === "estimate").length;
@@ -8444,7 +8772,8 @@
       '<ul class="away-list">' + away.map(r => {
         const days = Math.max(0, Math.round((Date.now() - (parseDay(r.grading.sent) || new Date()).getTime()) / 86400000));
         return "<li>" + miniThumb(r) + '<span><button type="button" class="cell-name" data-open="' + esc(r.id) + '">' + esc(r.name) + '</button><span class="cell-sub">' +
-          esc(r.grading.company) + ", sent " + esc(fmtDate(parseDay(r.grading.sent))) + " (" + plural(days, "day") + " ago)" + (r.grading.order ? ", order " + esc(r.grading.order) : "") +
+          esc(r.grading.company) + (r.grading.level ? " " + esc(r.grading.level) : "") + ", sent " + esc(fmtDate(parseDay(r.grading.sent))) + " (" + plural(days, "day") + " ago)" + (r.grading.order ? ", order " + esc(r.grading.order) : "") +
+          (backText(r.grading) ? ". " + (expectedBack(r.grading).late ? '<b class="late">' + esc(backText(r.grading).replace(/^d/, "D")) + "</b>" : esc(backText(r.grading).replace(/^b/, "B"))) : "") +
           '</span></span><button type="button" class="btn btn-small" data-grade-back="' + esc(r.id) + '">It\'s back</button></li>';
       }).join("") + "</ul></div>" : "") +
       '<div class="wg-controls"><label class="basis">Grading with <select class="select" id="wgCo">' +
@@ -8456,9 +8785,12 @@
         : "No fees for " + esc(gradingCoName(co)) + " yet: this is your general estimate. ") +
         '<button type="button" class="link-btn" data-wg-fees>' + (fee && !fee.builtin ? "Edit grading fees" : "Choose a service level") + "</button></p>" +
       (!list.length ? '<div class="notice">No ungraded Near Mint card gains ' + esc(usd(min)) + " or more at a PSA 10 after " + esc(usd(cost)) + " in grading costs. Try a lower amount.</div>"
-      : '<div class="table-wrap"><table class="table stack-table wg-table"><thead><tr><th class="c-thumb"><span class="sr">Image</span></th><th>Card</th><th class="num">Raw</th><th class="num">PSA 10</th>' +
+      : '<div class="wg-plan-bar"><button type="button" class="btn btn-small btn-primary" data-wg-plan>' + esc(planButtonText()) + "</button>" +
+        '<button type="button" class="btn btn-small" data-wg-top>Add the top 10</button><span class="small">Tick cards to see what sending them costs at each company.</span></div>' +
+        '<div class="table-wrap"><table class="table stack-table wg-table"><thead><tr><th class="c-pick"><span class="sr">In the grading plan</span></th><th class="c-thumb"><span class="sr">Image</span></th><th>Card</th><th class="num">Raw</th><th class="num">PSA 10</th>' +
         '<th class="num">If it gets a 10</th><th class="num">If it gets a 9</th><th><span class="sr">Actions</span></th></tr></thead><tbody>' +
-        list.slice(0, 100).map(({r, e}) => '<tr><td class="c-thumb"><span class="sleeve">' + imgTag(recordPics(r, "200w"), r.name) + "</span></td>" +
+        list.slice(0, 100).map(({r, e}) => '<tr><td class="c-pick"><input type="checkbox" class="check" data-wg-pick="' + esc(r.id) + '" aria-label="Add ' + esc(r.name) + ' to the grading plan"' +
+          (inPlan.has(r.id) ? " checked" : "") + '></td><td class="c-thumb"><span class="sleeve">' + imgTag(recordPics(r, "200w"), r.name) + "</span></td>" +
           '<td><button type="button" class="cell-name" data-open="' + esc(r.id) + '">' + esc(r.name) + '</button><span class="cell-sub">' + esc([r.number, r.rarity, r.edition].filter(Boolean).join(", ")) +
           (r.qty > 1 ? ". You have " + r.qty : "") + "</span></td>" +
           '<td class="num" data-label="Raw">' + esc(usd(e.raw)) + '</td><td class="num" data-label="PSA 10">' + esc(usd(e.ten.unit)) + '<span class="cell-sub">' + tenSource(e.ten) + "</span></td>" +
@@ -8576,6 +8908,12 @@
       const g = e.target.closest("[data-grade-it]");
       if (g) { openDetails(g.dataset.gradeIt, {grading: "start"}); return; }
       if (e.target.closest("[data-wg-fees]")) { openSettings({section: "gradingFees"}); return; }
+      if (e.target.closest("[data-wg-plan]")) { openGradePlan(); return; }
+      if (e.target.closest("[data-wg-top]")) {
+        const top = collection.filter(r => !r.grading && /^near mint/i.test(r.condition || "Near Mint")).map(r => ({r, e: gradingEstimate(r)}))
+          .filter(x => x.e && x.e.gain10 >= gradingMinGain()).sort((a, b) => b.e.gain10 - a.e.gain10).slice(0, 10).map(x => x.r.id);
+        setPlanIds(planIds().concat(top)); renderWorthGrading(); return;
+      }
       const td = e.target.closest("[data-tidy]");
       if (td) {
         const a = td.dataset.tidy;
@@ -8589,6 +8927,8 @@
       if (settings.tab !== "history") return;
       const ed = e.target.closest("[data-tidy-ed]");
       if (ed && ed.value) { const r = collection.find(x => x.id === ed.dataset.tidyEd); if (r) { r.edition = ed.value; save(); render(); toast("Saved " + r.name + " as " + ed.value + "."); } return; }
+      const pick = e.target.closest("[data-wg-pick]");
+      if (pick) { togglePlan(pick.dataset.wgPick, pick.checked); const b = document.querySelector("[data-wg-plan]"); if (b) b.textContent = planButtonText(); return; }
       if (e.target.id === "wgCost" || e.target.id === "wgMin" || e.target.id === "wgCo") {
         const v = num(e.target.value);
         if (e.target.id === "wgCo") settings.gradingCo = e.target.value;
@@ -8614,16 +8954,18 @@
     {id: "SGC", name: "SGC", start: "https://gosgc.com/card-grading", prices: "https://gosgc.com/card-grading/services-pricing"},
     {id: "TAG", name: "TAG", start: "https://my.taggrading.com/", prices: "https://taggrading.com/pages/pricing"}
   ];
-  // Each company's public price list for standard-size cards, as read on their own site on the "checked" day.
+  // Each company's public price list for standard-size cards, as read on their own site on the "checked" day. The
+  // nightly update reads their pages again (grading_fees.py) and feeTable() puts that on top of this list.
   // Settings > Grading fees offers these levels; a fee you type yourself always wins. Per level: fee in US$ per card
   // (null when the company isn't posting it), max = the highest declared value it takes, days = business days
-  // (the company's estimate), paused = not taking cards when checked (its last posted price is kept),
-  // usual = what Card Vault assumes for that company until you choose a level.
+  // (the company's estimate), paused = not taking cards when checked (its last posted price is kept), min = the
+  // fewest cards in an order, pct = plus this % of the card's value, per10k = plus this for each $10,000 over
+  // $100,000, usual = what Card Vault assumes for that company until you choose a level.
   const GRADING_FEE_TABLE = {
     PSA: {checked: "2026-10-08", source: "https://www.psacard.com/services/tradingcardgrading",
-      note: "The Value levels are paused; their last posted prices (February 2026) are kept here. The paused Value levels also needed a Collectors Club membership.",
+      note: "The Value levels need a Collectors Club membership; while they're paused, their last posted prices (February 2026) are kept here.",
       levels: [
-        {name: "Value Bulk", fee: 24.99, max: 500, days: "", paused: true, note: "20 cards or more, Collectors Club members only"},
+        {name: "Value Bulk", fee: 24.99, max: 500, days: "", paused: true, min: 20, note: "Collectors Club members only"},
         {name: "Value", fee: 32.99, max: 500, days: "", paused: true},
         {name: "Value Plus", fee: 49.99, max: 500, days: "45", paused: true},
         {name: "Value Max", fee: 64.99, max: 1000, days: "35", paused: true},
@@ -8633,21 +8975,21 @@
         {name: "Super Express", fee: 349, max: 5000, days: "10–15"},
         {name: "Premier", fee: 599, max: 10000, days: "7–10"}]},
     BGS: {checked: "2026-10-08", source: "https://www.beckett.com/grading",
-      note: "Beckett.com is offline for maintenance and submissions go through a temporary form, where only Express is open. Subgrades are included; a card that grades a 10 costs $3 more, an autograph $5 more. Return insurance is $1.50 per $100 of declared value (count it as shipping).",
+      note: "Beckett.com is offline for maintenance, so submissions go through a temporary form. Subgrades are included; a card that grades a 10 costs $3 more, an autograph $5 more. Return insurance is $1.50 per $100 of declared value (count it as shipping).",
       levels: [
         {name: "Base", fee: 17.95, max: null, days: "75", paused: true},
         {name: "Standard", fee: 34.95, max: null, days: "45", paused: true},
         {name: "Express", fee: 79.95, max: null, days: "15", usual: true},
-        {name: "Priority", fee: 124.95, max: null, days: "5", paused: true, note: "not on the temporary form"}]},
+        {name: "Priority", fee: 124.95, max: null, days: "5", paused: true}]},
     CGC: {checked: "2026-10-08", source: "https://www.cgcgrading.com/submit/services/",
-      note: "No membership needed; CGC's paid memberships take 10 to 20% off. Every level was open when checked.",
+      note: "No membership needed; CGC's paid memberships take 10 to 20% off.",
       levels: [
-        {name: "Bulk Economy", fee: 17, max: 500, days: "150", note: "25 cards or more"},
+        {name: "Bulk Economy", fee: 17, max: 500, days: "150", min: 25},
         {name: "Economy", fee: 20, max: 500, days: "90", usual: true},
         {name: "Standard", fee: 55, max: 3000, days: "10"},
         {name: "Express", fee: 100, max: 10000, days: "5"},
         {name: "WalkThrough", fee: 300, max: 100000, days: "2"},
-        {name: "Unlimited Value", fee: 300, max: null, days: "2", note: "plus 1% of the card's value"}]},
+        {name: "Unlimited Value", fee: 300, max: null, days: "2", pct: 1}]},
     SGC: {checked: "2026-10-08", source: "https://gosgc.com/card-grading/services-pricing",
       note: "No membership or minimum. Prices went up on September 2, 2026, and SGC says to expect more changes into early 2027. The fee depends on the card's declared value.",
       levels: [
@@ -8658,9 +9000,9 @@
         {name: "Expedited (to $20,000)", fee: 500, max: 20000, days: "2–3"},
         {name: "Expedited (to $50,000)", fee: 1000, max: 50000, days: "2–3"},
         {name: "Expedited (to $100,000)", fee: 2000, max: 100000, days: "2–3"},
-        {name: "Expedited (over $100,000)", fee: 3750, max: null, days: "2–3", note: "plus $375 for each $10,000 over $100,000"}]},
+        {name: "Expedited (over $100,000)", fee: 3750, max: null, days: "2–3", per10k: 375}]},
     TAG: {checked: "2026-10-08", source: "https://taggrading.com/pages/pricing",
-      note: "Basic, Standard and Express are at capacity, and TAG isn't showing their prices while they are. Priority and Walkthrough have limited slots.",
+      note: "TAG doesn't show a level's price while it's at capacity. Priority and Walkthrough have limited slots.",
       levels: [
         {name: "Basic", fee: null, max: 300, days: "75+", paused: true},
         {name: "Standard", fee: null, max: 500, days: "45", paused: true},
@@ -8668,18 +9010,140 @@
         {name: "Priority", fee: 149, max: 2500, days: "5", usual: true},
         {name: "Walkthrough", fee: 299, max: 5000, days: "2–3"}]}
   };
-  const gradingLevels = co => (GRADING_FEE_TABLE[co] || {levels: []}).levels;
-  const gradingLevel = (co, name) => gradingLevels(co).find(l => l.name === name) || null;
-  const gradingUsual = co => gradingLevels(co).find(l => l.usual && l.fee != null) || null;
-  const feeCheckedText = co => GRADING_FEE_TABLE[co] ? "checked " + fmtDate(parseDay(GRADING_FEE_TABLE[co].checked)) : "";
+  // A company's price list as Card Vault uses it: the built-in one, with what the nightly update read from the
+  // company's own page on top (newer fees, levels pausing or reopening, new levels). auto: from the nightly read;
+  // checked: the day it was last read; error: why last night's read didn't work (the list is then the last good one).
+  let feeTables = null;
+  const levelKey = name => String(name || "").toLowerCase().replace(/[^a-z0-9$]+/g, " ").trim();
+  function feeTable(co) {
+    if (!feeTables) feeTables = {};
+    if (feeTables[co]) return feeTables[co];
+    const base = GRADING_FEE_TABLE[co];
+    if (!base) return null;
+    const t = {checked: base.checked, source: base.source, note: base.note, levels: base.levels.map(l => Object.assign({}, l)), auto: false, error: ""};
+    const lc = live.fees && live.fees.companies ? live.fees.companies[co] : null;
+    const lastOk = lc && typeof lc.lastOk === "string" ? lc.lastOk.slice(0, 10) : "";
+    if (lc && Array.isArray(lc.levels) && lc.levels.length && lastOk >= base.checked) {
+      const byKey = new Map(t.levels.map(l => [levelKey(l.name), l])), seen = new Set();
+      for (const f of lc.levels) {
+        if (!f || !f.name) continue;
+        const k = levelKey(f.name), fee = num(f.fee), max = num(f.max);
+        seen.add(k);
+        let l = byKey.get(k);
+        if (!l) { l = {name: String(f.name).slice(0, 60), fee: null, max: null, days: "", isNew: true}; t.levels.push(l); byKey.set(k, l); }
+        if (fee != null) l.fee = fee;            // (a paused level keeps its last price)
+        if (max != null) l.max = max; else if (!f.paused && l.isNew) l.max = null;
+        if (f.days) l.days = String(f.days).slice(0, 20);
+        l.paused = !!f.paused;
+        if (num(f.min)) l.min = num(f.min);
+        if (num(f.pct)) l.pct = num(f.pct);
+        if (f.note && l.isNew) l.note = String(f.note).slice(0, 120);
+      }
+      // (a list of only what's open, like Beckett's form: what isn't on it is paused)
+      if (lc.complete) for (const l of t.levels) if (!seen.has(levelKey(l.name))) l.paused = true;
+      t.auto = true;
+      t.checked = lastOk;
+      t.error = lc.ok ? "" : String(lc.error || "couldn't read it");
+    }
+    feeTables[co] = t;
+    return t;
+  }
+  const gradingLevels = co => (feeTable(co) || {levels: []}).levels;
+  const gradingLevel = (co, name) => gradingLevels(co).find(l => l.name === name) || gradingLevels(co).find(l => levelKey(l.name) === levelKey(name)) || null;
+  // The level assumed until you choose one: the usual one while it's open, else the cheapest open one.
+  const gradingUsual = co => {
+    const ls = gradingLevels(co), open = ls.filter(l => !l.paused && l.fee != null);
+    return open.find(l => l.usual) || open.slice().sort((a, b) => a.fee - b.fee)[0] || ls.find(l => l.usual && l.fee != null) || null;
+  };
+  const feeCheckedText = co => feeTable(co) ? "checked " + fmtDate(parseDay(feeTable(co).checked)) : "";
   const usdFee = v => v == null ? "" : Number.isInteger(v) ? "$" + v.toLocaleString("en-US") : usd(v);
+  // What a level costs for a card declared at this value (CGC's Unlimited Value adds 1%, SGC's top band $375 per $10,000)
+  function levelFee(l, value) {
+    if (!l || l.fee == null) return null;
+    let fee = l.fee;
+    const v = num(value) || 0;
+    if (l.pct) fee += v * l.pct / 100;
+    if (l.per10k && v > 100000) fee += Math.ceil((v - 100000) / 10000) * l.per10k;
+    return round2(fee);
+  }
   // For the pick-list: "Standard — $59.99, 90–100 business days" (and "(paused)" or "price not posted")
-  const levelLabel = l => l.name + " — " + (l.fee != null ? usdFee(l.fee) : "price not posted") + (l.days ? ", " + l.days + " business days" : "") + (l.paused ? " (paused)" : "");
+  const levelLabel = l => l.name + " — " + (l.fee != null ? usdFee(l.fee) + (l.pct ? " + " + l.pct + "%" : "") : "price not posted") + (l.days ? ", " + l.days + " business days" : "") + (l.paused ? " (paused)" : "");
   // Under it: "cards up to $1,000 declared value, 90–100 business days, 20 cards or more"
-  const levelDetails = l => [l.max != null ? "cards up to " + usdFee(l.max) + " declared value" : "", l.days ? l.days + " business days" : "", l.note || ""].filter(Boolean).join(", ");
+  const levelDetails = l => [l.max != null ? "cards up to " + usdFee(l.max) + " declared value" : "", l.days ? l.days + " business days" : "",
+    l.min ? l.min + " cards or more" : "", l.pct ? "plus " + l.pct + "% of the card's value" : "", l.per10k ? "plus " + usdFee(l.per10k) + " for each $10,000 over $100,000" : "",
+    l.note || "", l.isNew ? "new since Card Vault's list" : ""].filter(Boolean).join(", ");
   function normGrading(g) {
     if (!g || typeof g !== "object" || !String(g.company || "").trim()) return null;
-    return {company: String(g.company).trim(), sent: parseDay(g.sent) ? g.sent : localDay(new Date()), order: String(g.order || "").trim(), cost: g.cost === "" || g.cost == null ? null : num(g.cost)};
+    const out = {company: String(g.company).trim(), sent: parseDay(g.sent) ? g.sent : localDay(new Date()), order: String(g.order || "").trim(), cost: g.cost === "" || g.cost == null ? null : num(g.cost)};
+    // (the service level, and its wait in business days as the company gave it when the card went: "90–100", "40+")
+    if (g.level) out.level = String(g.level).trim().slice(0, 60);
+    if (g.days) out.days = String(g.days).trim().slice(0, 20);
+    return out;
+  }
+  // The service levels to pick from when you send a card: its open levels (yours or the usual one first chosen)
+  function levelOptionsHTML(co) {
+    const f = gradingFee(co), chosen = f ? f.level : "";
+    const levels = GRADING_COS.some(c => c.id === co) ? gradingLevels(co).filter(l => !l.paused || l.name === chosen) : [];
+    return levels.map(l => '<option value="' + esc(l.name) + '"' + (l.name === chosen ? " selected" : "") + ">" + esc(levelLabel(l)) + "</option>").join("") +
+      '<option value=""' + (!levels.some(l => l.name === chosen) ? " selected" : "") + ">" + (levels.length ? "Something else / not sure" : "Not sure") + "</option>";
+  }
+  // What a card costs at this level: your own fee when it's the level you use, else the price list's, plus your shipping
+  function costForLevel(co, name) {
+    const f = gradingFee(co);
+    if (!name || (f && f.level === name)) return f ? f.total : gradingCostEach();
+    const l = gradingLevel(co, name), ship = num(((settings.gradingFees || {})[co] || {}).ship) || 0;
+    return l && l.fee != null ? round2(l.fee + ship) : gradingCostFor(co);
+  }
+  // ----- When a card at the grader should be back: the date it went, plus its level's wait in business days (the
+  // longer end of "90–100"). Cards sent before Card Vault kept the level use the company's usual one.
+  function addBusinessDays(day, n) {
+    const d = parseDay(day) || new Date();
+    let left = Math.max(0, Math.round(n));
+    while (left > 0) { d.setDate(d.getDate() + 1); if (d.getDay() !== 0 && d.getDay() !== 6) left--; }
+    return d;
+  }
+  const waitDays = text => { const m = String(text || "").match(/(\d+)\s*(?:[–-]\s*(\d+))?/); return m ? +(m[2] || m[1]) : null; };
+  function expectedBack(g) {
+    if (!g) return null;
+    const co = GRADING_COS.find(c => c.id === g.company || c.name === g.company);
+    let days = g.days, guess = false;
+    if (!days && co) { const l = (g.level && gradingLevel(co.id, g.level)) || gradingUsual(co.id); days = l ? l.days : ""; guess = !g.level; }
+    const n = waitDays(days);
+    if (n == null) return null;
+    const by = addBusinessDays(g.sent, n), today = parseDay(localDay(new Date()));
+    return {by, days, guess, late: today > by, left: Math.round((by - today) / 86400000)};
+  }
+  // "back around Feb 20" / "due back by Oct 20: 3 days late"
+  function backText(g) {
+    const e = expectedBack(g);
+    if (!e) return "";
+    if (e.late) { const over = Math.round((parseDay(localDay(new Date())) - e.by) / 86400000); return "due back by " + fmtDate(e.by) + ": " + plural(over, "day") + " late"; }
+    return "back around " + fmtDate(e.by) + (e.guess ? " (if it went " + (g.company === "PSA" || g.company === "TAG" ? "" : "at ") + "their usual level)" : "");
+  }
+  // The notice at the top when a card is late back from the grader (once per card and due date, until dismissed)
+  function lateAtGrader() {
+    const seen = new Set(Array.isArray(settings.gradingSeen) ? settings.gradingSeen : []);
+    return collection.filter(r => r.grading).map(r => ({r, e: expectedBack(r.grading)})).filter(x => x.e && x.e.late && !seen.has(x.r.id + "@" + localDay(x.e.by)));
+  }
+  function renderGradingBanner() {
+    const b = $("gradingBanner");
+    if (!b) return;
+    const late = lateAtGrader();
+    b.dataset.keys = late.map(x => x.r.id + "@" + localDay(x.e.by)).join(" ");
+    b.hidden = !late.length;
+    b.innerHTML = late.length ? "<strong>" + (late.length === 1 ? esc(late[0].r.name) + " is late back from " + esc(late[0].r.grading.company) + "."
+        : plural(late.length, "card") + " are late back from the grader.") + "</strong> " +
+      (late.length === 1 ? "It was due back by " + esc(fmtDate(late[0].e.by)) + " (" + esc(late[0].e.days) + " business days). " : "") +
+      "Check the order on the company's site; they post delays there." +
+      '<div class="banner-actions"><button class="btn btn-small btn-primary" type="button" data-banner="grading-show">Show ' + (late.length === 1 ? "it" : "them") + "</button>" +
+      '<button class="btn btn-small" type="button" data-banner="grading-dismiss">Dismiss</button></div>' : "";
+    syncBanners();
+  }
+  function dismissGradingBanner() {
+    const keys = ($("gradingBanner").dataset.keys || "").split(" ").filter(Boolean);
+    settings.gradingSeen = Array.from(new Set(keys.concat(Array.isArray(settings.gradingSeen) ? settings.gradingSeen : []))).slice(0, 300);
+    saveSettings();
+    renderGradingBanner();
   }
   // What the grading forms ask for, ready to paste.
   function gradingDetailsText(r) {
@@ -8695,8 +9159,8 @@
     if (r.grade && !r.grading) return '<p class="small">Graded ' + esc(gradeLabel(r.grade)) + (r.grade.cert ? ", certification " + esc(r.grade.cert) : "") + ".</p>";
     if (r.grading && mode !== "back") {
       const g = r.grading;
-      return '<div class="grade-status"><b>At ' + esc(g.company) + "</b> since " + esc(fmtDate(parseDay(g.sent))) + (g.order ? ", order " + esc(g.order) : "") +
-        (g.cost != null ? ", " + esc(usd(g.cost)) + " to grade" : "") + '.<div class="btn-row"><button type="button" class="btn btn-small btn-primary" data-gi="back">It\'s back</button>' +
+      return '<div class="grade-status"><b>At ' + esc(g.company) + "</b>" + (g.level ? " (" + esc(g.level) + ")" : "") + " since " + esc(fmtDate(parseDay(g.sent))) + (g.order ? ", order " + esc(g.order) : "") +
+        (g.cost != null ? ", " + esc(usd(g.cost)) + " to grade" : "") + "." + (backText(g) ? " " + (expectedBack(g).late ? '<b class="late">' + esc(backText(g).replace(/^d/, "D")) + ".</b>" : esc(backText(g).replace(/^b/, "B")) + ".") : "") + '<div class="btn-row"><button type="button" class="btn btn-small btn-primary" data-gi="back">It\'s back</button>' +
         '<button type="button" class="btn btn-small" data-gi="unsend">I didn\'t send it after all</button></div></div>';
     }
     if (mode === "back") {
@@ -8713,8 +9177,9 @@
         "Card Vault keeps it in your collection, marked as at the grader.</p>" +
         '<div class="grid-2"><label class="field"><span>Sent to</span><select class="input" id="giCo">' + options(GRADING_COS.map(c => c.id).concat(["Other"]), gradingCoNow()) + "</select></label>" +
         '<label class="field"><span>Date sent</span><input class="input" id="giSent" type="date" value="' + localDay(new Date()) + '"></label></div>' +
+        '<label class="field"><span>Service level (for when it should be back)</span><select class="input" id="giLevel">' + levelOptionsHTML(gradingCoNow()) + "</select></label>" +
         '<div class="grid-2"><label class="field"><span>Order or submission number</span><input class="input" id="giOrder"></label>' +
-        '<label class="field"><span>Cost for this card (US$)</span><input class="input" id="giCost" type="number" min="0" step="0.01" value="' + gradingCostFor(gradingCoNow()) + '"></label></div>' +
+        '<label class="field"><span>Cost for this card (US$)</span><input class="input" id="giCost" type="number" min="0" step="0.01" value="' + costForLevel(gradingCoNow(), (gradingFee(gradingCoNow()) || {}).level || "") + '"></label></div>' +
         '<div class="btn-row"><button class="btn btn-primary" type="submit">Mark as sent</button><button class="btn" type="button" data-gi="cancel">Cancel</button></div></form>';
     }
     const co = gradingCoNow(), e = gradingEstimate(r, co);
@@ -8729,7 +9194,8 @@
           '<a class="btn btn-small" target="_blank" rel="noopener" href="' + esc(c.start) + '">Start a submission</a>' +
           '<a class="small" target="_blank" rel="noopener" href="' + esc(c.prices) + '">Prices</a></li>';
       }).join("") + "</ul>" +
-      '<div class="btn-row"><button type="button" class="btn btn-small" data-gi="copy">Copy card details for the form</button><button type="button" class="btn btn-small" data-gi="sent">I sent it…</button></div>' +
+      '<div class="btn-row"><button type="button" class="btn btn-small" data-gi="copy">Copy card details for the form</button><button type="button" class="btn btn-small" data-gi="sent">I sent it…</button>' +
+      '<button type="button" class="btn btn-small" data-gi="plan">' + (planIds().includes(r.id) ? "In your grading plan: open it" : "Add to a grading plan") + "</button></div>" +
       '<p class="small" style="margin:8px 0 0">Each link opens that company\'s site, where you sign in, choose a service and pay them. The fees are from their price lists (' +
       esc(feeCheckedText("PSA")) + ') and change often, so check their prices. <button type="button" class="link-btn" data-gi="fees">' + (ownFees ? "Edit your grading fees" : "Choose your service level at each company") + "</button></p>";
   }
@@ -8746,6 +9212,7 @@
       const a = b.dataset.gi;
       if (a === "copy") copyText(gradingDetailsText(r), () => toast("Copied the card's details. Paste them into the grading form."));
       else if (a === "fees") openSettings({section: "gradingFees"});
+      else if (a === "plan") { if (!planIds().includes(r.id)) togglePlan(r.id, true); openGradePlan(); }
       else if (a === "sent" || a === "back") show(a);
       else if (a === "cancel") show("");
       else if (a === "unsend") { r.grading = null; save(); render(); show(""); toast("It's no longer marked as at the grader."); }
@@ -8754,14 +9221,20 @@
     box.addEventListener("input", e => { if (e.target.id === "giCost") e.target.dataset.typed = "1"; });
     box.addEventListener("change", e => {
       const cost = $("giCost");
-      if (e.target.id === "giCo" && $("giSentForm") && cost && !cost.dataset.typed) cost.value = GRADING_COS.some(c => c.id === e.target.value) ? gradingCostFor(e.target.value) : gradingCostEach();
+      if (e.target.id === "giCo" && $("giSentForm") && $("giLevel")) $("giLevel").innerHTML = levelOptionsHTML(e.target.value);
+      if ((e.target.id === "giCo" || e.target.id === "giLevel") && $("giSentForm") && cost && !cost.dataset.typed) {
+        const co = $("giCo").value;
+        cost.value = GRADING_COS.some(c => c.id === co) ? costForLevel(co, $("giLevel") ? $("giLevel").value : "") : gradingCostEach();
+      }
     });
     box.addEventListener("submit", e => {
       e.preventDefault();
       const r = cur();
       if (!r) return;
       if (e.target.id === "giSentForm") {
-        const g = normGrading({company: $("giCo").value, sent: $("giSent").value, order: $("giOrder").value, cost: $("giCost").value});
+        const lvl = $("giLevel") && $("giLevel").value ? gradingLevel($("giCo").value, $("giLevel").value) : null;
+        const g = normGrading({company: $("giCo").value, sent: $("giSent").value, order: $("giOrder").value, cost: $("giCost").value,
+          level: lvl ? lvl.name : "", days: lvl ? lvl.days : ""});
         let target = r;
         if (r.qty > 1) {   // one copy goes; the rest stay on their own line
           r.qty -= 1;
@@ -8783,6 +9256,140 @@
         toast("Saved: " + r.name + " is a " + gradeLabel(grade) + ".");
         openDetails(r.id);
       }
+    });
+  }
+
+  /* ======================= Planning a grading order ======================= */
+  // Pick several cards (Insights > Worth grading, or a card's Get it graded) and see what sending them costs at each
+  // company, which service level each card needs for its declared value (what it would be worth graded: the companies'
+  // insurance and fee bands go by it), the wait, and what you'd gain if they all got a 10. Also the cheapest mix.
+  // The cards and the values you type are kept on this device (settings.gradePlan, settings.gradePlanValues).
+  const planButtonText = () => { const n = planIds().length; return n ? "Plan a grading order (" + plural(n, "card") + ")" : "Plan a grading order"; };
+  const planIds = () => (Array.isArray(settings.gradePlan) ? settings.gradePlan : []).filter(id => collection.some(r => r.id === id && !r.grading && !r.grade && !r.sealed));
+  function setPlanIds(ids) { settings.gradePlan = Array.from(new Set(ids)).slice(0, 200); saveSettings(); }
+  function togglePlan(id, on) { const ids = planIds().filter(x => x !== id); if (on) ids.push(id); setPlanIds(ids); }
+  // A card's declared value: what you typed, else its PSA 10 value, else its raw price
+  function planValue(r) {
+    const own = num((settings.gradePlanValues || {})[r.id]);
+    if (own != null) return Math.max(0, own);
+    const ten = psa10Value(r);
+    return round2((ten && ten.unit) || marketValue(r).unit || 0);
+  }
+  // One company: each card at the cheapest open level that takes its declared value, then any level that needs more
+  // cards than it got (CGC's Bulk Economy: 25) gives them up to the next cheapest. Your own fee for a company counts as
+  // a level of its own (for the cards its level takes).
+  function planCompany(co, cards) {
+    const ship = num(((settings.gradingFees || {})[co] || {}).ship) || 0;
+    const levels = gradingLevels(co).filter(l => !l.paused && l.fee != null).map(l => Object.assign({}, l));
+    const own = gradingFee(co);
+    if (own && !own.builtin) {
+      // (a fee typed without a level takes what the company's usual level takes)
+      const lv = own.info || (own.level ? gradingLevel(co, own.level) : null) || gradingUsual(co);
+      levels.push({name: own.level || "your fee", fee: own.fee, max: lv ? lv.max : null, days: lv ? lv.days : "", own: true, min: lv && lv.min ? lv.min : null});
+    }
+    const choices = r => { const v = planValue(r); return levels.filter(l => l.max == null || l.max >= v).map(l => ({l, cost: round2((l.own ? l.fee : levelFee(l, v)) + ship)})).sort((a, b) => a.cost - b.cost || (a.l.own ? -1 : 1)); };
+    const rows = cards.map(r => ({r, value: planValue(r), opts: choices(r), pick: 0}));
+    for (let round = 0; round < 10; round++) {
+      let moved = false;
+      for (const l of levels.filter(x => x.min)) {
+        const on = rows.filter(x => x.opts[x.pick] && x.opts[x.pick].l === l);
+        if (on.length && on.length < l.min) for (const x of on) { x.opts = x.opts.filter(o => o.l !== l); x.pick = 0; moved = true; }
+      }
+      if (!moved) break;
+    }
+    const fit = rows.filter(x => x.opts.length), unfit = rows.filter(x => !x.opts.length).map(x => x.r);
+    const lines = fit.map(x => {
+      const o = x.opts[0], ten = psa10Value(x.r), raw = rawMarket(x.r);
+      return {r: x.r, value: x.value, level: o.l, cost: o.cost, gain: ten && raw != null ? round2(ten.unit - raw - o.cost) : null};
+    });
+    const total = round2(lines.reduce((s, x) => s + x.cost, 0));
+    const slowest = lines.reduce((m, x) => Math.max(m, waitDays(x.level.days) || 0), 0);
+    return {co, lines, unfit, total, slowest, ship, gain: round2(lines.reduce((s, x) => s + (x.gain || 0), 0)), byLevel: groupBy(lines, x => x.level.name)};
+  }
+  const groupBy = (list, key) => { const m = new Map(); for (const x of list) { const k = key(x); if (!m.has(k)) m.set(k, []); m.get(k).push(x); } return m; };
+  // The cheapest mix: each card where it costs least, then each company's share planned again (minimums may move some)
+  function planMix(cards) {
+    const each = GRADING_COS.map(c => planCompany(c.id, cards));
+    const best = new Map();
+    for (const p of each) for (const x of p.lines) { const b = best.get(x.r.id); if (!b || x.cost < b.cost) best.set(x.r.id, {co: p.co, cost: x.cost}); }
+    const plans = GRADING_COS.map(c => planCompany(c.id, cards.filter(r => (best.get(r.id) || {}).co === c.id))).filter(p => p.lines.length);
+    return {plans, unfit: cards.filter(r => !best.has(r.id)), total: round2(plans.reduce((s, p) => s + p.total, 0)), gain: round2(plans.reduce((s, p) => s + p.gain, 0))};
+  }
+  function planLevelsText(p) {
+    return Array.from(p.byLevel.entries()).map(([name, xs]) => plural(xs.length, "card") + " at " + name + (xs[0].level.own ? "" : " (" + usdFee(xs[0].level.fee) + (xs[0].level.pct ? " + " + xs[0].level.pct + "%" : "") + ")")).join(", ");
+  }
+  function planBackText(p) {
+    if (!p.slowest) return "";
+    return "back around " + fmtDate(addBusinessDays(localDay(new Date()), p.slowest)) + " if sent today";
+  }
+  function gradePlanHTML() {
+    const cards = planIds().map(id => collection.find(r => r.id === id)).filter(Boolean);
+    const sign = v => (v >= 0 ? "+" : "−") + usd(Math.abs(v));
+    if (!cards.length) {
+      return '<p>No cards in the plan yet. In Insights &gt; Worth grading, tick the cards you\'re thinking of sending (or tap "Add the top 10"), or use "Add to a grading plan" in a card\'s details.</p>';
+    }
+    const one = GRADING_COS.map(c => planCompany(c.id, cards)).sort((a, b) => (a.unfit.length - b.unfit.length) || (a.total - b.total));
+    const mix = planMix(cards);
+    const shipNote = GRADING_COS.some(c => num(((settings.gradingFees || {})[c.id] || {}).ship)) ? "" : " Shipping isn't counted: add yours in Settings &gt; Grading fees.";
+    return '<div class="table-wrap"><table class="table stack-table gp-cards"><thead><tr><th>Card</th><th class="num">Raw</th><th class="num">PSA 10</th><th class="num">Declared value</th><th><span class="sr">Remove</span></th></tr></thead><tbody>' +
+      cards.map(r => {
+        const ten = psa10Value(r), raw = rawMarket(r), own = num((settings.gradePlanValues || {})[r.id]);
+        return '<tr><td><button type="button" class="cell-name" data-open="' + esc(r.id) + '">' + esc(r.name) + '</button><span class="cell-sub">' + esc([r.number, r.rarity].filter(Boolean).join(", ")) + "</span></td>" +
+          '<td class="num" data-label="Raw">' + esc(raw == null ? "" : usd(raw)) + '</td><td class="num" data-label="PSA 10">' + esc(ten ? usd(ten.unit) : "") + "</td>" +
+          '<td class="num" data-label="Declared value"><span class="pct">$<input class="input" type="number" min="0" step="1" data-gp-value="' + esc(r.id) + '" value="' + esc(String(planValue(r))) + '"' + (own != null ? ' data-own="1"' : "") + "></span></td>" +
+          '<td><button type="button" class="btn btn-small" data-gp-remove="' + esc(r.id) + '">Remove</button></td></tr>';
+      }).join("") + "</tbody></table></div>" +
+      '<div id="gpResults">' + gradePlanResultsHTML(one, mix, sign) + "</div>" +
+      '<p class="small">Declared value is what the card would be worth graded (its PSA 10 value, unless you change it): each company\'s levels take cards up to a value, and insure them for it. ' +
+      "Gains count a 10 from any company like a PSA 10, though PSA 10s usually sell for more. Fees are from each company's price list (" + esc(feeCheckedText("PSA")) + ")." + shipNote + "</p>" +
+      '<div class="btn-row"><button type="button" class="btn btn-small" data-gp-copy>Copy the list</button><button type="button" class="btn btn-small" data-gp-clear>Empty the plan</button></div>';
+  }
+  function gradePlanResultsHTML(one, mix, sign) {
+    const co = gradingCoNow();
+    const orderHTML = (p, label) => '<div class="gp-order"><div class="gp-head"><b>' + esc(label || gradingCoName(p.co)) + "</b><span>" + esc(usd(p.total)) + "</span></div>" +
+      '<p class="small">' + esc(planLevelsText(p)) + (p.ship ? ", " + esc(usd(p.ship)) + " shipping each" : "") + ". " + esc(planBackText(p).replace(/^b/, "B")) +
+      (p.gain ? ". If they all get a 10: <b>" + esc(sign(p.gain)) + "</b>" : "") + ".</p>" +
+      (p.unfit.length ? '<p class="small">Not taken here (declared value too high for every open level): ' + esc(p.unfit.map(r => r.name).join(", ")) + ".</p>" : "") +
+      '<a class="btn btn-small" target="_blank" rel="noopener" href="' + esc((GRADING_COS.find(c => c.id === p.co) || {}).start || "#") + '">Start a submission at ' + esc(gradingCoName(p.co)) + "</a></div>";
+    return "<h3>All at one company</h3>" +
+      '<div class="table-wrap"><table class="table stack-table gp-compare"><thead><tr><th>Company</th><th class="num">Cost</th><th>Levels</th><th>Back around</th><th class="num">If all get a 10</th></tr></thead><tbody>' +
+      one.map(p => "<tr" + (p.co === co ? ' class="gp-yours"' : "") + "><td><b>" + esc(gradingCoName(p.co)) + "</b>" + (p.co === co ? ' <span class="small">(yours)</span>' : "") + "</td>" +
+        '<td class="num" data-label="Cost">' + esc(usd(p.total)) + (p.unfit.length ? '<span class="cell-sub">' + plural(p.unfit.length, "card") + " not taken</span>" : "") + "</td>" +
+        '<td data-label="Levels">' + esc(planLevelsText(p) || "none open") + '</td><td data-label="Back around">' + esc(p.slowest ? fmtDate(addBusinessDays(localDay(new Date()), p.slowest)) : "") + "</td>" +
+        '<td class="num" data-label="If all get a 10">' + esc(p.lines.length ? sign(p.gain) : "") + "</td></tr>").join("") + "</tbody></table></div>" +
+      orderHTML(one[0], "Cheapest at one company: " + gradingCoName(one[0].co)) +
+      (mix.plans.length > 1 && mix.total < one[0].total - 0.005 ? "<h3>Cheapest mix: " + esc(usd(mix.total)) + "</h3>" +
+        '<p class="small">' + esc(usd(round2(one[0].total - mix.total))) + " less than all at " + esc(gradingCoName(one[0].co)) + ", as " + mix.plans.length + " separate orders (each with its own shipping).</p>" +
+        mix.plans.map(p => orderHTML(p)).join("") : "");
+  }
+  function openGradePlan() {
+    drawerCtx = {mode: "gradeplan"};
+    openDrawer("Grading plan", '<div id="gpWrap">' + gradePlanHTML() + "</div>");
+    $("drawer").classList.add("wide");
+    const wrap = $("gpWrap");
+    const redraw = () => { wrap.innerHTML = gradePlanHTML(); };
+    wrap.addEventListener("click", e => {
+      const rm = e.target.closest("[data-gp-remove]");
+      if (rm) { togglePlan(rm.dataset.gpRemove, false); redraw(); if (settings.tab === "history") renderPanel(); return; }
+      const op = e.target.closest("[data-open]");
+      if (op) { openDetails(op.dataset.open); return; }
+      if (e.target.closest("[data-gp-clear]")) { setPlanIds([]); redraw(); if (settings.tab === "history") renderPanel(); return; }
+      if (e.target.closest("[data-gp-copy]")) {
+        const cards = planIds().map(id => collection.find(r => r.id === id)).filter(Boolean);
+        copyText(cards.map(r => [lookupName(r.name), r.setName, r.number, r.rarity, r.edition, "declared value " + usd(planValue(r))].filter(Boolean).join(" | ")).join("\n"),
+          () => toast("Copied " + plural(cards.length, "card") + " with their declared values."));
+      }
+    });
+    wrap.addEventListener("change", e => {
+      const inp = e.target.closest("[data-gp-value]");
+      if (!inp) return;
+      const v = num(inp.value), vals = Object.assign({}, settings.gradePlanValues);
+      if (v == null || inp.value === "") delete vals[inp.dataset.gpValue]; else vals[inp.dataset.gpValue] = Math.max(0, round2(v));
+      settings.gradePlanValues = vals;
+      saveSettings();
+      const cards = planIds().map(id => collection.find(r => r.id === id)).filter(Boolean);
+      const one = GRADING_COS.map(c => planCompany(c.id, cards)).sort((a, b) => (a.unfit.length - b.unfit.length) || (a.total - b.total));
+      $("gpResults").innerHTML = gradePlanResultsHTML(one, planMix(cards), v2 => (v2 >= 0 ? "+" : "−") + usd(Math.abs(v2)));
     });
   }
 
@@ -9624,8 +10231,16 @@
     drawerCtx = {mode: "report"};
     const shown = visibleRecords().length;
     const filtered = filtersActive() && settings.tab === "collection";
-    openDrawer("Print inventory report",
+    openDrawer("Print a report",
       '<form id="reportForm" class="stack">' +
+      '<fieldset class="plain"><legend>What it\'s for</legend>' +
+      '<label class="check-row"><input type="radio" name="rKind" value="inventory" checked><span>An inventory: every card with its value</span></label>' +
+      '<label class="check-row" style="margin-top:6px"><input type="radio" name="rKind" value="insurance"><span>An insurance record: photos, condition, where each value comes from, ' +
+      "the most valuable cards listed on their own, and a dated total to sign</span></label></fieldset>" +
+      '<div id="rInsurance" class="stack" hidden><div class="grid-2"><label class="field"><span>Owner\'s name (printed on it)</span><input class="input" id="rOwner" maxlength="80" value="' + esc(settings.reportOwner || "") + '"></label>' +
+      '<label class="field"><span>Policy number (optional)</span><input class="input" id="rPolicy" maxlength="60" value="' + esc(settings.reportPolicy || "") + '"></label></div>' +
+      '<label class="field"><span>List cards worth this much or more on their own, with a larger photo</span><span class="pct">$<input class="input" type="number" min="0" step="25" id="rOver" value="' +
+      esc(String(settings.reportOver != null ? settings.reportOver : 250)) + '"></span></label></div>' +
       '<fieldset class="plain"><legend>Which cards</legend>' +
       '<label class="check-row"><input type="radio" name="rWhich" value="all" checked><span>Your whole collection (' + plural(collection.length, "printing") + ")</span></label>" +
       (filtered ? '<label class="check-row" style="margin-top:6px"><input type="radio" name="rWhich" value="shown"><span>Only the cards shown now (' + plural(shown, "printing") + ")</span></label>" : "") +
@@ -9637,10 +10252,24 @@
       '<label class="check-row"><input type="checkbox" class="check" id="rPhotos"><span>Include small photos (uses more paper)</span></label>' +
       '<p class="hint" style="margin:0">Your browser\'s print window opens next. To make a PDF, choose "Save as PDF" or "Microsoft Print to PDF" as the printer.</p>' +
       '<div class="form-actions"><button class="btn btn-primary" type="submit">Print or save as PDF</button></div></form>');
+    // (an insurance record: photos on, most valuable first, and its own few questions)
+    document.querySelectorAll('#reportForm input[name="rKind"]').forEach(x => x.addEventListener("change", () => {
+      const ins = document.querySelector('#reportForm input[name="rKind"]:checked').value === "insurance";
+      $("rInsurance").hidden = !ins;
+      if (ins) { $("rPhotos").checked = true; $("rSort").value = "value"; }
+    }));
     $("reportForm").addEventListener("submit", async e => {
       e.preventDefault();
       const which = document.querySelector('#reportForm input[name="rWhich"]:checked');
-      buildReport({which: which ? which.value : "all", sort: $("rSort").value, paid: $("rPaid").checked, notes: $("rNotes").checked, photos: $("rPhotos").checked});
+      const kind = (document.querySelector('#reportForm input[name="rKind"]:checked') || {}).value || "inventory";
+      if (kind === "insurance") {
+        settings.reportOwner = $("rOwner").value.trim().slice(0, 80);
+        settings.reportPolicy = $("rPolicy").value.trim().slice(0, 60);
+        settings.reportOver = num($("rOver").value) != null ? Math.max(0, num($("rOver").value)) : 250;
+        saveSettings();
+      }
+      buildReport({which: which ? which.value : "all", sort: $("rSort").value, paid: $("rPaid").checked, notes: $("rNotes").checked, photos: $("rPhotos").checked,
+        kind, owner: settings.reportOwner, policy: settings.reportPolicy, over: settings.reportOver});
       reportPrint.chosen = true;
       closeDrawer();
       await reportPhotosLoaded();
@@ -9663,8 +10292,30 @@
     try { buildReport({which: "all", sort: "value", paid: true, notes: false, photos: false}); } catch (e) { /* prints what's there */ }
   });
   window.addEventListener("afterprint", () => { reportPrint.chosen = false; });
+  // Where a copy's value comes from, for the insurance record
+  function valueSource(r) {
+    if (r.grade) {
+      const gv = gradedValue(r);
+      if (gv && gv.from === "yours") return "owner's value for the graded card";
+      if (gv && gv.from === "pricecharting") return "PriceCharting, recent sales at this grade";
+    }
+    const mv = marketValue(r);
+    const cond = mv.factor != null && mv.factor < 1 ? ", " + Math.round(mv.factor * 100) + "% for " + r.condition : "";
+    if (mv.from === "tcgplayer") return (mv.kind === "low" ? "TCGplayer lowest listing" : "TCGplayer market price") + (catalog ? " (" + fmtDate(catalog.generated) + ")" : "") + cond;
+    if (mv.from === "saved") return "TCGplayer price saved " + fmtDate(mv.date) + cond;
+    if (mv.from === "ocg") return (mv.src || "shop") + (mv.note ? ", " + mv.note : "") + (mv.local != null ? " (" + fmtLocal(mv.local, mv.cur) + ")" : "") + cond;
+    if (mv.from === "manual") return "owner's estimate";
+    if (mv.from === "local") return "owner's price (" + fmtLocal(mv.local, mv.cur) + ")";
+    return "no price found";
+  }
+  // What a copy counts for in the insurance record: a graded card at its graded value when there is one
+  function insuredValue(r) {
+    if (r.grade && !r.sealed) { const gv = gradedValue(r); if (gv && (gv.from === "yours" || gv.from === "pricecharting")) return gv.unit; }
+    return marketValue(r).unit;
+  }
   function buildReport(opts) {
     const list = (opts.which === "shown" ? visibleRecords() : collection).slice();
+    if (opts.kind === "insurance") return buildInsuranceReport(list, opts);
     const val = r => marketValue(r).unit;
     const byStr = (a, b) => String(a || "").localeCompare(String(b || ""), undefined, {numeric: true, sensitivity: "base"});
     const bySet = (a, b) => byStr(a.setName, b.setName) || byStr(a.number, b.number) || byStr(a.name, b.name);
@@ -9712,6 +10363,52 @@
       '<p class="rep-note">Market prices are for Near Mint copies' + (adjusted ? "; played cards are valued at a share of them" : "") +
       ". Graded cards are valued at the amount entered for them, and cards added by hand at their owner's estimate." +
       (unpriced ? " " + plural(unpriced, "card") + " had no price and count as $0." : "") + "</p>";
+    return list.length;
+  }
+
+  function buildInsuranceReport(list, opts) {
+    const val = r => insuredValue(r);
+    list.sort((a, b) => ((val(b) == null ? -1 : val(b)) - (val(a) == null ? -1 : val(a))) || String(a.name).localeCompare(String(b.name)));
+    const over = num(opts.over) != null ? num(opts.over) : 250;
+    const today = new Date();
+    let total = 0, cards = 0, unpriced = 0;
+    const groups = {singles: {label: "Ungraded cards", v: 0, n: 0}, graded: {label: "Graded cards", v: 0, n: 0}, sealed: {label: "Sealed products", v: 0, n: 0}};
+    for (const r of list) {
+      const u = val(r), g = r.sealed ? groups.sealed : r.grade ? groups.graded : groups.singles;
+      cards += r.qty; g.n += r.qty;
+      if (u == null) unpriced += r.qty; else { total += u * r.qty; g.v += u * r.qty; }
+    }
+    const big = over > 0 ? list.filter(r => (val(r) || 0) >= over) : [];
+    const desc = r => [r.setName, r.number, r.rarity, r.edition, r.language && r.language !== "English" ? r.language : ""].filter(Boolean).join(" · ");
+    const cond = r => r.grade ? gradeLabel(r.grade) + (r.grade.cert ? ", certification " + r.grade.cert : "") : r.sealed ? "Sealed" : r.condition || "";
+    let n = 0;
+    const item = r => {
+      const u = val(r), img = opts.photos ? imageFor(r, "200w") : "";
+      n++;
+      return '<tr><td class="num">' + n + "</td>" + (opts.photos ? "<td>" + (img ? '<img src="' + esc(img) + '" alt="">' : "") + "</td>" : "") +
+        "<td><b>" + esc(r.name) + "</b><br><span>" + esc(desc(r)) + "</span>" + (opts.notes && r.notes ? "<br><i>" + esc(r.notes) + "</i>" : "") + "</td>" +
+        "<td>" + esc(cond(r)) + "</td><td>" + esc(valueSource(r)) + "</td>" + '<td class="num">' + r.qty + '</td><td class="num">' + esc(u == null ? "" : usd(u)) +
+        '</td><td class="num">' + esc(u == null ? "" : usd(u * r.qty)) + "</td>" + (opts.paid ? '<td class="num">' + esc(r.paid == null ? "" : usd(r.paid)) + "</td>" : "") + "</tr>";
+    };
+    const head = "<thead><tr><th class=\"num\">#</th>" + (opts.photos ? "<th></th>" : "") + "<th>Item</th><th>Condition</th><th>Value from</th><th class=\"num\">Qty</th><th class=\"num\">Value each</th>" +
+      '<th class="num">Total</th>' + (opts.paid ? '<th class="num">Paid each</th>' : "") + "</tr></thead>";
+    const bigHTML = big.length ? "<h2>Cards worth " + esc(usd(over)) + " or more each (" + big.length + ")</h2>" +
+      '<div class="rep-big">' + big.map(r => {
+        const u = val(r), img = imageFor(r, "400w") || imageFor(r, "200w");
+        return '<div class="rep-item">' + (img ? '<img src="' + esc(img) + '" alt="">' : '<div class="rep-noimg"></div>') + "<div><b>" + esc(r.name) + "</b><br>" + esc(desc(r)) + "<br>" +
+          esc(cond(r)) + (r.qty > 1 ? " · " + r.qty + " copies" : "") + "<br><b>" + esc(u == null ? "No price found" : usd(u) + (r.qty > 1 ? " each, " + usd(u * r.qty) + " in all" : "")) + "</b><br><span>" + esc(valueSource(r)) + "</span>" +
+          (r.location ? "<br><span>Kept in: " + esc(r.location) + "</span>" : "") + "</div></div>";
+      }).join("") + "</div>" : "";
+    $("report").innerHTML = '<header><h1>Collectible card inventory for insurance</h1><p>' +
+      [opts.owner ? "Owner: " + esc(opts.owner) : "", opts.policy ? "Policy: " + esc(opts.policy) : "", "Prepared " + esc(fmtDate(today))].filter(Boolean).join(" · ") + "</p></header>" +
+      '<div class="rep-sum"><div><b>' + esc(usd(total)) + "</b><span>total value</span></div><div><b>" + cards.toLocaleString() + "</b><span>cards and products</span></div>" +
+      Object.values(groups).filter(g => g.n).map(g => "<div><b>" + esc(usd(g.v)) + "</b><span>" + esc(g.label) + " (" + g.n.toLocaleString() + ")</span></div>").join("") + "</div>" +
+      bigHTML + "<h2>Every item</h2><table>" + head + "<tbody>" + list.map(item).join("") + "</tbody>" +
+      '<tfoot><tr><td colspan="' + (opts.photos ? 5 : 4) + '">Total</td><td class="num">' + cards.toLocaleString() + '</td><td></td><td class="num">' + esc(usd(total)) + "</td>" + (opts.paid ? "<td></td>" : "") + "</tr></tfoot></table>" +
+      '<p class="rep-note">Values are current market prices from the sources listed for each item, as of ' + esc(fmtDate(today)) + ': TCGplayer for English cards (what Near Mint copies have recently sold for' +
+      (settings.condAdjust ? ", reduced for played copies" : "") + "), BIGWEB (a Japanese card shop) and Bunjang (a Korean marketplace) for Japanese and Korean cards, and PriceCharting's recent sales for graded cards where available. " +
+      "They are not a professional appraisal. Photos are of the card printing, not necessarily the owner's copy." + (unpriced ? " " + plural(unpriced, "item") + " had no price and count as $0." : "") + "</p>" +
+      '<div class="rep-sign"><div>Signature</div><div>Date</div></div>';
     return list.length;
   }
 
@@ -11577,6 +12274,12 @@
       else if (a === "load-file") loadBackupFile();
       else if (a === "force") forceBackup();
       else if (a === "link-both" || a === "link-file" || a === "link-mine") resolveLink(a.slice(5));
+      else if (a === "hold-keep") holdKeep();
+      else if (a === "hold-apply") holdApply();
+      else if (a === "status-details") openSettings({section: "updates"});
+      else if (a === "status-dismiss") dismissStatusBanner();
+      else if (a === "grading-show") { settings.insightView = "grading"; saveSettings(); setTab("history"); }
+      else if (a === "grading-dismiss") dismissGradingBanner();
       else if (a === "choose") chooseBackupFile();
       else if (a === "download") downloadBackup();
       else if (a === "settings") openSettings();
@@ -12094,7 +12797,7 @@
       yugi.cache = null; ocg.cache = null; pc.cache = null;
       render();
     });
-    setInterval(() => { if (document.visibilityState === "visible") checkForNewData(); }, 30 * 60000);
+    setInterval(() => { if (document.visibilityState === "visible") { checkForNewData(); loadLive(); renderGradingBanner(); } }, 30 * 60000);
 
     // A photo that doesn't load: try the next one on its list, and when none is left, draw a stand-in.
     document.addEventListener("error", e => {
@@ -12144,6 +12847,9 @@
     snapshotToday();
     // Japanese/Korean and graded prices refresh in the background, about once a day, when online.
     setTimeout(() => { refreshOcgPrices(); if (settings.gradedView) refreshGradedPrices(); }, 2500);
+    // how last night's update went, and today's grading fees; cards back late from the grader
+    setTimeout(() => loadLive(), 1200);
+    renderGradingBanner();
     window.addEventListener("online", () => { refreshOcgPrices(); if (settings.gradedView) refreshGradedPrices(); });
     if (loadProblem) toast("Card Vault couldn't read your saved collection, so it started empty. Your backup file wasn't changed: restore it from Settings.", {kind: "error", sticky: true});
     if (!storageOK) toast("This browser is blocking storage, so changes won't be kept after you close the page. Use Export CSV to keep a copy.", {kind: "error", sticky: true});
@@ -12168,7 +12874,9 @@
     csSearch, renderSearch, renderSearchResults, openPriceCard, cs: () => cs, csSetMatches, openSearchSet, csSetCode,
     toggleGoal, goalAddMissing, csSetNeeds, renderGoalsBar, cleanGoals, renderMovers, openScanner, showScanPrice, scanChecks: () => scanChecks,
     loadOcgCards, buildOcgCards, ocgCd: () => ocgCd, ocgCardAt, ocgFilePrice, ocgRowFor, ocgSetProgress, openOcgCardPage, ocgNameHits, upgradeRecord, addOrMerge,
-    GRADING_FEE_TABLE, GRADING_COS, gradingFee, gradingLevels, gradingUsual, gradingCostFor};
+    GRADING_FEE_TABLE, GRADING_COS, gradingFee, gradingLevels, gradingUsual, gradingCostFor, holdFor, holdKeep, holdApply, deviceLabel,
+    loadLive, live: () => live, feeTable, levelFee, updateStatusHTML, renderStatusBanner, expectedBack, addBusinessDays, renderGradingBanner, lateAtGrader,
+    openGradePlan, planCompany, planMix, planIds, setPlanIds, planValue, gradingEstimate, renderWorthGrading};
 
   document.addEventListener("DOMContentLoaded", init);
 })();
