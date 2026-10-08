@@ -199,7 +199,9 @@ personal app: click **Continue**.
 - **Grading fees** (Settings): each company's price list (PSA, Beckett, CGC, SGC, TAG) is built in (`GRADING_FEE_TABLE`
   in `index.html`: level, fee, declared-value cap, business days, paused, minimum cards), and the nightly update reads
   their own pages again (`grading_fees.py` → `grading-fees.json`/`.js` on the website: PSA's and CGC's pages, Beckett's
-  temporary submission form, SGC's price table inside its site's program, TAG's pricing widget). Card Vault uses the
+  temporary submission form, SGC's price table inside its site's program, TAG's pricing widget; PSA turns GitHub's
+  computers away, so its page is read from the Internet Archive's copy when there's one from the last 30 days, and the
+  check asks the Archive to save one each week; until then PSA uses the built-in list). Card Vault uses the
   newest: changed fees, levels pausing or reopening, new levels. A fee change shows as a notice and a phone alert. If a
   page can't be read, that company keeps its last good list (Settings says so). Pick the service level you use and its
   fee fills in; until then each company's usual level is assumed (the cheapest open one if that's paused). A fee you
