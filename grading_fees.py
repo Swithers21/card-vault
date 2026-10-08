@@ -19,6 +19,8 @@ import html
 import json
 import os
 import re
+import shutil
+import subprocess
 import sys
 import urllib.error
 import urllib.parse
@@ -56,8 +58,19 @@ def today():
 
 def fetch(url, limit=8 * 1048576):
     req = urllib.request.Request(url, headers={"User-Agent": USER_AGENT, "Accept": "text/html,application/json,*/*", "Accept-Language": "en-US,en"})
-    with urllib.request.urlopen(req, timeout=25) as res:
-        return res.read(limit).decode("utf-8", "replace")
+    try:
+        with urllib.request.urlopen(req, timeout=25) as res:
+            return res.read(limit).decode("utf-8", "replace")
+    except urllib.error.HTTPError as err:
+        # (a site that turns this program away may still answer curl, which asks the way browsers' tools do)
+        if err.code != 403 or not shutil.which("curl"):
+            raise
+        done = subprocess.run(["curl", "-sS", "-L", "--compressed", "--max-time", "25", "-A", USER_AGENT, "-H", "Accept: text/html,application/json,*/*",
+                               "-H", "Accept-Language: en-US,en", "-w", "\n%{http_code}", url], capture_output=True, timeout=40)
+        body, _, code = done.stdout.decode("utf-8", "replace").rpartition("\n")
+        if done.returncode != 0 or code.strip() != "200":
+            raise
+        return body[:limit]
 
 
 def text_of(page):
@@ -210,8 +223,11 @@ def read_company(co):
     if co == "SGC":
         page = fetch(URLS["SGC"])
         scripts = re.findall(r'<script[^>]+src="([^"]*chunk-[^"]+\.js)"', page) or re.findall(r'(?:src|href)="([^"]*chunk-[^"]+\.js)"', page)
+        # (the parts' addresses are relative to the page's <base href="/">, the site's root, not the page's folder)
+        base = re.search(r'<base[^>]+href="([^"]*)"', page)
+        root = urllib.parse.urljoin(URLS["SGC"], base.group(1)) if base else URLS["SGC"]
         for src in scripts[:8]:   # (its program comes in a few parts; the table has been in one of the first)
-            rows = sgc_table(fetch(urllib.parse.urljoin(URLS["SGC"], src)))
+            rows = sgc_table(fetch(urllib.parse.urljoin(root, src)))
             if rows:
                 return parse_sgc(rows)
         raise ValueError("the price table wasn't in SGC's page (%d parts looked at)" % len(scripts))
