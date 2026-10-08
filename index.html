@@ -8045,7 +8045,8 @@
     if (t) {
       const paused = t.levels.filter(x => x.paused).map(x => x.name);
       parts.push(esc(t.note) + (paused.length ? " Paused when checked: " + esc(paused.join(", ")) + "." : " Every level was open when checked.") + " " +
-        esc(feeCheckedText(co).replace(/^c/, "C")) + " on their site" + (t.auto ? " (Card Vault checks every night)" : "") + "." +
+        esc(feeCheckedText(co).replace(/^c/, "C")) + (t.archived ? " on the Internet Archive's copy of their page (" + esc(gradingCoName(co)) + " doesn't let Card Vault's nightly check in)" :
+          " on their site" + (t.auto ? " (Card Vault checks every night)" : "")) + "." +
         (t.error ? " Last night's check didn't work (" + esc(t.error) + "), so this is the list from then." : ""));
     }
     return parts.join(" ");
@@ -9042,6 +9043,7 @@
       // (a list of only what's open, like Beckett's form: what isn't on it is paused)
       if (lc.complete) for (const l of t.levels) if (!seen.has(levelKey(l.name))) l.paused = true;
       t.auto = true;
+      t.archived = lc.via === "archive";   // (PSA turns GitHub away: read from the Internet Archive's copy of its page)
       t.checked = lastOk;
       t.error = lc.ok ? "" : String(lc.error || "couldn't read it");
     }

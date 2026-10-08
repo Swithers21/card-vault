@@ -38,7 +38,10 @@ URLS = {
     "SGC": "https://gosgc.com/card-grading/services-pricing",
     "TAG": "https://taggrading.com/pages/pricing",
     "TAG_BOOT": "https://core.service.elfsight.com/p/boot/",
+    "WAYBACK": "https://archive.org/wayback/available",
+    "WAYBACK_WEB": "https://web.archive.org/web/",
 }
+ARCHIVE_DAYS = 30          # an Internet Archive copy this recent stands in for a page that turns GitHub away (PSA's)
 URLS.update(json.loads(os.environ.get("CARDVAULT_FEES_URLS", "{}")))   # (stand-ins, for the tests)
 KEEP_CHANGES_DAYS = 45
 
@@ -213,9 +216,34 @@ def parse_tag(boot):
 
 
 # ------------------------------------------------------------------ reading them
+def archived_copy(url):
+    """The Internet Archive's latest copy of a page (its own HTML), when it's from the last ARCHIVE_DAYS days."""
+    j = json.loads(fetch(URLS["WAYBACK"] + "?" + urllib.parse.urlencode({"url": re.sub(r"^https?://", "", url)})))
+    snap = ((j or {}).get("archived_snapshots") or {}).get("closest") or {}
+    stamp = str(snap.get("timestamp") or "")
+    if not snap.get("available") or str(snap.get("status")) != "200" or not re.match(r"^\d{14}$", stamp):
+        return None
+    day = "%s-%s-%s" % (stamp[:4], stamp[4:6], stamp[6:8])
+    from datetime import date
+    if (date.fromisoformat(today()) - date.fromisoformat(day)).days > ARCHIVE_DAYS:
+        return None
+    return {"html": fetch(URLS["WAYBACK_WEB"] + stamp + "id_/" + url), "day": day}
+
+
 def read_company(co):
     if co == "PSA":
-        return parse_psa(fetch(URLS["PSA"]))
+        try:
+            return parse_psa(fetch(URLS["PSA"]))
+        except urllib.error.HTTPError as err:
+            # PSA turns GitHub's computers away: its page as the Internet Archive last saw it, if that's recent
+            if err.code != 403:
+                raise
+            snap = archived_copy(URLS["PSA"])
+            if not snap:
+                raise
+            got = parse_psa(snap["html"])
+            got["via"] = snap["day"]
+            return got
     if co == "BGS":
         return parse_bgs(fetch(URLS["BGS"]))
     if co == "CGC":
@@ -312,6 +340,11 @@ def run():
                 raise ValueError("no fees found on the page (it may have changed)")
             entry = {"ok": True, "checked": now_iso(), "lastOk": now_iso(), "source": URLS[co], "complete": got.get("complete", False),
                      "levels": got["levels"]}
+            if got.get("via"):   # (the Internet Archive's copy: as of the day it was saved; not older than what's kept)
+                if last.get("lastOk", "")[:10] > got["via"] and last.get("levels"):
+                    raise ValueError("HTTP 403; the Internet Archive's copy (%s) is older than the last read" % got["via"])
+                entry["lastOk"] = got["via"] + "T00:00:00+00:00"
+                entry["via"] = "archive"
             if got.get("note"):
                 entry["note"] = got["note"]
             if last.get("levels"):
