@@ -831,9 +831,13 @@
   .fee-row{padding:12px 0 2px;border-top:1px solid var(--line);margin-top:10px}
   .fee-head{display:flex;align-items:baseline;gap:6px 12px;flex-wrap:wrap;margin-bottom:6px}
   .fee-total{margin-left:auto;font-weight:700;font-variant-numeric:tabular-nums}
-  .fee-fields{display:grid;grid-template-columns:minmax(0,1.3fr) minmax(0,1fr) minmax(0,1fr);gap:10px}
+  .fee-fields{display:grid;grid-template-columns:minmax(0,2.4fr) minmax(0,1fr) minmax(0,1fr);gap:10px}
   .fee-fields .field > .pct{display:flex;margin:0}
   .fee-fields .pct .input{width:100%;min-width:0}
+  .fee-fields select.input{width:100%;min-width:0;text-overflow:ellipsis}
+  .fee-fields [data-gother]{grid-column:1 / -1}
+  .fee-fields [data-gother][hidden]{display:none}
+  .fee-note{margin:6px 0 0}
   @media (max-width:420px){ .fee-fields{grid-template-columns:1fr 1fr} .fee-fields label:first-child{grid-column:1 / -1} }
   .grade-status{padding:12px 14px;border-radius:10px;background:var(--bg-2);border:1px solid rgba(76,187,165,.4);font-size:13.5px}
   .card-hist .box-head{align-items:center;margin-bottom:6px}
@@ -7678,18 +7682,25 @@
       '<p class="small" style="margin:8px 0 0">These are rough starting points: a PSA 10 of a cheap modern card often sells for 5 to 30 times the raw price, and a vintage 1st Edition for far more. Real prices from PriceCharting replace them.</p></div>' +
 
       '<div class="section" id="gradingFeesSection"><h3>Grading fees</h3>' +
-      '<p class="small" style="margin:0 0 4px">What grading a card costs you at each company: the service level you use, its fee per card, and shipping and insurance per card ' +
-      "(your share of an order's, both ways). Card Vault uses them in Insights &gt; Worth grading and when you send a card. Fees change often: each company's price list is linked.</p>" +
+      '<p class="small" style="margin:0 0 4px">What grading a card costs you at each company. Their price lists are built in (as of ' + esc(fmtDate(parseDay(GRADING_FEE_TABLE.PSA.checked))) +
+      '): choose the service level you use and its fee fills in; a fee you type yourself wins. Add shipping and insurance per card (your share of an order\'s, both ways). ' +
+      "Card Vault uses these in Insights &gt; Worth grading and when you send a card. Fees change often, so each company's own price list is linked.</p>" +
       GRADING_COS.map(c => {
-        const f = (settings.gradingFees || {})[c.id] || {};
+        const f = (settings.gradingFees || {})[c.id] || {}, levels = gradingLevels(c.id), picked = f.level ? gradingLevel(c.id, f.level) : null, custom = !!(f.level && !picked);
+        const usual = gradingUsual(c.id);
         const val = v => v == null || v === "" ? "" : esc(String(v));
         return '<div class="fee-row"><div class="fee-head"><b>' + esc(c.name) + '</b><a class="small" target="_blank" rel="noopener" href="' + esc(c.prices) + '">Price list</a>' +
           '<span class="fee-total" data-gfee-total="' + c.id + '">' + feeTotalText(c.id) + "</span></div>" +
-          '<div class="fee-fields"><label class="field"><span>Service level</span><input class="input" data-gfee="' + c.id + '" data-k="level" maxlength="60" placeholder="e.g. Value" value="' + val(f.level) + '"></label>' +
+          '<div class="fee-fields"><label class="field"><span>Service level</span><select class="input" data-gpick="' + c.id + '">' +
+          '<option value="">' + esc(usual ? "Not chosen (uses " + usual.name + ")" : "Not chosen") + "</option>" +
+          levels.map(l => '<option value="' + esc(l.name) + '"' + (picked === l ? " selected" : "") + (l.fee == null ? " disabled" : "") + ">" + esc(levelLabel(l)) + "</option>").join("") +
+          '<option value="*"' + (custom ? " selected" : "") + '>Something else…</option></select></label>' +
+          '<label class="field" data-gother="' + c.id + '"' + (custom ? "" : " hidden") + '><span>Its name</span><input class="input" data-gfee="' + c.id + '" data-k="level" maxlength="60" placeholder="e.g. Show special" value="' + val(f.level) + '"></label>' +
           '<label class="field"><span>Fee per card</span><span class="pct">$<input class="input" type="number" min="0" step="0.01" data-gfee="' + c.id + '" data-k="fee" value="' + val(f.fee) + '"></span></label>' +
-          '<label class="field"><span>Shipping per card</span><span class="pct">$<input class="input" type="number" min="0" step="0.01" data-gfee="' + c.id + '" data-k="ship" value="' + val(f.ship) + '"></span></label></div></div>';
+          '<label class="field"><span>Shipping per card</span><span class="pct">$<input class="input" type="number" min="0" step="0.01" data-gfee="' + c.id + '" data-k="ship" value="' + val(f.ship) + '"></span></label></div>' +
+          '<p class="small fee-note" data-gnote="' + c.id + '">' + feeNoteHTML(c.id) + "</p></div>";
       }).join("") +
-      '<label class="field" style="margin-top:12px"><span>For a company with nothing entered above, or another company: cost per card</span>' +
+      '<label class="field" style="margin-top:12px"><span>For another company: cost per card</span>' +
       '<span class="pct">$<input class="input" type="number" min="0" step="1" id="sGradeCost" value="' + esc(String(gradingCostEach())) + '"></span></label></div>' +
 
       '<div class="section"><h3>Daily price updates</h3>' +
@@ -7706,25 +7717,72 @@
       "<dt>Value history</dt><dd>" + (valueHistory.length ? plural(valueHistory.length, "price day") + " since " + esc(fmtDate(parseDay(valueHistory[0].d))) : "Starts with your first TCGplayer prices") +
       "</dd></dl></div>";
   }
-  // "Total $30.00 per card", or what's used instead when nothing's entered
+  // "$20.00 per card", with "(built in)" when the fee is the price list's; or the general estimate when there's nothing
   function feeTotalText(co) {
     const f = gradingFee(co);
-    return f ? esc(usd(f.total)) + " per card" : '<span class="small">' + esc(usd(gradingCostEach())) + " (your general estimate)</span>";
+    return f ? esc(usd(f.total)) + " per card" + (f.builtin ? ' <span class="small">(built in)</span>' : "") : '<span class="small">' + esc(usd(gradingCostEach())) + " (your general estimate)</span>";
+  }
+  // Under a company's fields: the chosen level's details (or the usual level's), the company's note, and when its
+  // price list was checked. When you typed a fee that differs from the list's, offers the list's.
+  function feeNoteHTML(co) {
+    const f = gradingFee(co), t = GRADING_FEE_TABLE[co], l = f && f.info;
+    const parts = [];
+    if (l) parts.push("<b>" + esc(l.name) + "</b>" + (f.builtin && !(settings.gradingFees || {})[co] ? " (their usual level, assumed until you choose one)" : "") + (l.paused ? ", <b>paused</b> when checked" : "") +
+      (levelDetails(l) ? ": " + esc(levelDetails(l)) : "") + ".");
+    if (l && !f.builtin && l.fee != null && l.fee !== f.fee) parts.push("Their price list says " + esc(usdFee(l.fee)) + '. <button type="button" class="link-btn" data-gfee-use="' + co + '">Use it</button>');
+    if (f && !l && f.level) parts.push("Your own service level.");
+    if (t) parts.push(esc(t.note) + " " + esc(feeCheckedText(co).replace(/^c/, "C")) + " on their site.");
+    return parts.join(" ");
   }
   // opts.section: scroll to that part (gradingFees)
   function openSettings(opts) {
     drawerCtx = {mode: "settings"};
     openDrawer("Settings", settingsHTML());
+    const feeSaved = () => {
+      save({quiet: true});   // (shared: your other devices get them through the backup)
+      document.querySelectorAll("#drawerBody [data-gfee-total]").forEach(el => { el.innerHTML = feeTotalText(el.dataset.gfeeTotal); });
+      document.querySelectorAll("#drawerBody [data-gnote]").forEach(el => { el.innerHTML = feeNoteHTML(el.dataset.gnote); });
+      if (settings.tab === "history") renderPanel();
+    };
+    const feeStore = (co, f) => { settings.gradingFees = cleanGradingFees(Object.assign({}, settings.gradingFees, {[co]: f})); };
     const feeChange = inp => {
       const co = inp.dataset.gfee, k = inp.dataset.k;
       const f = Object.assign({level: "", fee: null, ship: null}, (settings.gradingFees || {})[co]);
       f[k] = k === "level" ? inp.value : (num(inp.value) == null ? null : Math.max(0, num(inp.value)));
-      settings.gradingFees = cleanGradingFees(Object.assign({}, settings.gradingFees, {[co]: f}));
-      save({quiet: true});   // (shared: your other devices get them through the backup)
-      document.querySelectorAll("#drawerBody [data-gfee-total]").forEach(el => { el.innerHTML = feeTotalText(el.dataset.gfeeTotal); });
-      if (settings.tab === "history") renderPanel();
+      feeStore(co, f);
+      feeSaved();
     };
     document.querySelectorAll("#drawerBody [data-gfee]").forEach(inp => inp.addEventListener("change", () => feeChange(inp)));
+    // choosing a level from the built-in price list fills in its fee; "Something else" asks for a name; blank goes back to the usual level
+    const feeInput = (co, k) => document.querySelector('#drawerBody [data-gfee="' + co + '"][data-k="' + k + '"]');
+    document.querySelectorAll("#drawerBody [data-gpick]").forEach(sel => sel.addEventListener("change", () => {
+      const co = sel.dataset.gpick, other = document.querySelector('#drawerBody [data-gother="' + co + '"]');
+      const f = Object.assign({level: "", fee: null, ship: null}, (settings.gradingFees || {})[co]);
+      if (sel.value === "*") {
+        const prev = gradingLevel(co, f.level);
+        if (prev) { f.level = ""; if (prev.fee === f.fee) { f.fee = null; if (feeInput(co, "fee")) feeInput(co, "fee").value = ""; } }   // (a fee you typed stays)
+        if (other) { other.hidden = false; const inp = other.querySelector("input"); inp.value = f.level; inp.focus(); }
+      } else {
+        const l = gradingLevel(co, sel.value);
+        f.level = l ? l.name : "";
+        f.fee = l && l.fee != null ? l.fee : null;
+        if (other) other.hidden = true;
+        if (feeInput(co, "level")) feeInput(co, "level").value = f.level;
+        if (feeInput(co, "fee")) feeInput(co, "fee").value = f.fee == null ? "" : f.fee;
+      }
+      feeStore(co, f);
+      feeSaved();
+    }));
+    $("gradingFeesSection").addEventListener("click", e => {
+      const b = e.target.closest("[data-gfee-use]");
+      if (!b) return;
+      const co = b.dataset.gfeeUse, f = Object.assign({level: "", fee: null, ship: null}, (settings.gradingFees || {})[co]), l = gradingLevel(co, f.level);
+      if (!l || l.fee == null) return;
+      f.fee = l.fee;
+      if (feeInput(co, "fee")) feeInput(co, "fee").value = l.fee;
+      feeStore(co, f);
+      feeSaved();
+    });
     $("sGradeCost").addEventListener("change", () => {
       const v = num($("sGradeCost").value);
       settings.gradingCost = v == null ? 30 : Math.max(0, v);
@@ -7735,7 +7793,7 @@
     });
     if (opts && opts.section === "gradingFees") {
       const sec = $("gradingFeesSection");
-      if (sec) setTimeout(() => { if (sec.scrollIntoView) sec.scrollIntoView({block: "start"}); const first = sec.querySelector("input"); if (first) first.focus({preventScroll: true}); }, 60);
+      if (sec) setTimeout(() => { if (sec.scrollIntoView) sec.scrollIntoView({block: "start"}); const first = sec.querySelector("select, input"); if (first) first.focus({preventScroll: true}); }, 60);
     }
     fillSnapshots();
     fillDriveCopies();
@@ -8351,11 +8409,16 @@
     }
     return out;
   }
+  // What a card costs at this company: the fee you typed, or else the built-in price list's fee for the level you chose
+  // (or the usual level), plus your shipping. builtin: the fee came from the price list. info: that level's details.
   function gradingFee(co) {
-    const f = (settings.gradingFees || {})[co];
-    if (!f || (num(f.fee) == null && num(f.ship) == null)) return null;
-    const fee = num(f.fee) || 0, ship = num(f.ship) || 0;
-    return {level: String(f.level || ""), fee, ship, total: round2(fee + ship)};
+    const f = (settings.gradingFees || {})[co] || {};
+    const own = num(f.fee), ship = num(f.ship) || 0, level = String(f.level || "");
+    const picked = level ? gradingLevel(co, level) : null;
+    if (own != null) return {level, fee: own, ship, total: round2(own + ship), builtin: false, info: picked};
+    const l = picked && picked.fee != null ? picked : gradingUsual(co);
+    if (!l) return ship ? {level, fee: 0, ship, total: round2(ship), builtin: false, info: null} : null;
+    return {level: l.name, fee: l.fee, ship, total: round2(l.fee + ship), builtin: true, info: l};
   }
   const gradingCostFor = co => { const f = gradingFee(co); return f ? f.total : gradingCostEach(); };
   const gradingCoNow = () => GRADING_COS.some(c => c.id === settings.gradingCo) ? settings.gradingCo : "PSA";
@@ -8388,9 +8451,10 @@
         GRADING_COS.map(c => '<option value="' + c.id + '"' + (c.id === co ? " selected" : "") + ">" + esc(c.name) + "</option>").join("") + "</select></label>" +
       '<label class="basis">Cost per card <span class="pct">$<input class="input" id="wgCost" type="number" min="0" step="1" value="' + cost + '"></span></label>' +
       '<label class="basis">Show cards that gain at least <input class="input" id="wgMin" type="number" step="5" value="' + min + '"> at a 10</label></div>' +
-      '<p class="small wg-fee">' + (fee ? esc(gradingCoName(co)) + (fee.level ? ", " + esc(fee.level) : "") + ": " + esc(usd(fee.fee)) + " fee" + (fee.ship ? " + " + esc(usd(fee.ship)) + " shipping" : "") + " per card. "
-        : "No fees entered for " + esc(gradingCoName(co)) + " yet: this is your general estimate. ") +
-        '<button type="button" class="link-btn" data-wg-fees>' + (fee ? "Edit grading fees" : "Enter each company's fees") + "</button></p>" +
+      '<p class="small wg-fee">' + (fee ? esc(gradingCoName(co)) + (fee.level ? ", " + esc(fee.level) : "") + ": " + esc(usd(fee.fee)) + " fee" + (fee.ship ? " + " + esc(usd(fee.ship)) + " shipping" : "") + " per card" +
+          (fee.builtin ? " from their price list (" + esc(feeCheckedText(co)) + (fee.info && fee.info.days ? "; about " + esc(fee.info.days) + " business days" : "") + ")" : "") + ". "
+        : "No fees for " + esc(gradingCoName(co)) + " yet: this is your general estimate. ") +
+        '<button type="button" class="link-btn" data-wg-fees>' + (fee && !fee.builtin ? "Edit grading fees" : "Choose a service level") + "</button></p>" +
       (!list.length ? '<div class="notice">No ungraded Near Mint card gains ' + esc(usd(min)) + " or more at a PSA 10 after " + esc(usd(cost)) + " in grading costs. Try a lower amount.</div>"
       : '<div class="table-wrap"><table class="table stack-table wg-table"><thead><tr><th class="c-thumb"><span class="sr">Image</span></th><th>Card</th><th class="num">Raw</th><th class="num">PSA 10</th>' +
         '<th class="num">If it gets a 10</th><th class="num">If it gets a 9</th><th><span class="sr">Actions</span></th></tr></thead><tbody>' +
@@ -8541,15 +8605,78 @@
   }
 
   /* ======================= Getting a card graded ======================= */
-  // Each company's own pages: the "start a submission" link needs an account there; fees and turnaround change often,
-  // so Card Vault links to their price list instead of repeating it.
+  // Each company's own pages: the "start a submission" link needs an account there. Their fees are built in below
+  // (as of the day they were checked) and linked, since they change often.
   const GRADING_COS = [
-    {id: "PSA", name: "PSA", start: "https://www.psacard.com/startsubmission", prices: "https://www.psacard.com/pricing"},
-    {id: "BGS", name: "Beckett (BGS)", start: "https://www.beckett.com/grading/submit", prices: "https://www.beckett.com/grading"},
-    {id: "CGC", name: "CGC Cards", start: "https://www.cgccards.com/account/my-submissions/", prices: "https://www.cgccards.com/submit/services-fees/"},
-    {id: "SGC", name: "SGC", start: "https://www.gosgc.com/card-grading", prices: "https://www.gosgc.com/card-grading/services-pricing"},
+    {id: "PSA", name: "PSA", start: "https://www.psacard.com/startsubmission", prices: "https://www.psacard.com/services/tradingcardgrading"},
+    {id: "BGS", name: "Beckett (BGS)", start: "https://beckett.jotform.com/form/beckett-card-grading-submission", prices: "https://www.beckett.com/grading"},
+    {id: "CGC", name: "CGC Cards", start: "https://www.cgcgrading.com/submit/services/", prices: "https://www.cgcgrading.com/submit/services/"},
+    {id: "SGC", name: "SGC", start: "https://gosgc.com/card-grading", prices: "https://gosgc.com/card-grading/services-pricing"},
     {id: "TAG", name: "TAG", start: "https://my.taggrading.com/", prices: "https://taggrading.com/pages/pricing"}
   ];
+  // Each company's public price list for standard-size cards, as read on their own site on the "checked" day.
+  // Settings > Grading fees offers these levels; a fee you type yourself always wins. Per level: fee in US$ per card
+  // (null when the company isn't posting it), max = the highest declared value it takes, days = business days
+  // (the company's estimate), paused = not taking cards when checked (its last posted price is kept),
+  // usual = what Card Vault assumes for that company until you choose a level.
+  const GRADING_FEE_TABLE = {
+    PSA: {checked: "2026-10-08", source: "https://www.psacard.com/services/tradingcardgrading",
+      note: "The Value levels are paused; their last posted prices (February 2026) are kept here. The paused Value levels also needed a Collectors Club membership.",
+      levels: [
+        {name: "Value Bulk", fee: 24.99, max: 500, days: "", paused: true, note: "20 cards or more, Collectors Club members only"},
+        {name: "Value", fee: 32.99, max: 500, days: "", paused: true},
+        {name: "Value Plus", fee: 49.99, max: 500, days: "45", paused: true},
+        {name: "Value Max", fee: 64.99, max: 1000, days: "35", paused: true},
+        {name: "Standard", fee: 59.99, max: 1000, days: "90–100", usual: true},
+        {name: "Priority", fee: 79.99, max: 1500, days: "70–80"},
+        {name: "Express", fee: 199, max: 2500, days: "20–30"},
+        {name: "Super Express", fee: 349, max: 5000, days: "10–15"},
+        {name: "Premier", fee: 599, max: 10000, days: "7–10"}]},
+    BGS: {checked: "2026-10-08", source: "https://www.beckett.com/grading",
+      note: "Beckett.com is offline for maintenance and submissions go through a temporary form, where only Express is open. Subgrades are included; a card that grades a 10 costs $3 more, an autograph $5 more. Return insurance is $1.50 per $100 of declared value (count it as shipping).",
+      levels: [
+        {name: "Base", fee: 17.95, max: null, days: "75", paused: true},
+        {name: "Standard", fee: 34.95, max: null, days: "45", paused: true},
+        {name: "Express", fee: 79.95, max: null, days: "15", usual: true},
+        {name: "Priority", fee: 124.95, max: null, days: "5", paused: true, note: "not on the temporary form"}]},
+    CGC: {checked: "2026-10-08", source: "https://www.cgcgrading.com/submit/services/",
+      note: "No membership needed; CGC's paid memberships take 10 to 20% off. Every level was open when checked.",
+      levels: [
+        {name: "Bulk Economy", fee: 17, max: 500, days: "150", note: "25 cards or more"},
+        {name: "Economy", fee: 20, max: 500, days: "90", usual: true},
+        {name: "Standard", fee: 55, max: 3000, days: "10"},
+        {name: "Express", fee: 100, max: 10000, days: "5"},
+        {name: "WalkThrough", fee: 300, max: 100000, days: "2"},
+        {name: "Unlimited Value", fee: 300, max: null, days: "2", note: "plus 1% of the card's value"}]},
+    SGC: {checked: "2026-10-08", source: "https://gosgc.com/card-grading/services-pricing",
+      note: "No membership or minimum. Prices went up on September 2, 2026, and SGC says to expect more changes into early 2027. The fee depends on the card's declared value.",
+      levels: [
+        {name: "Standard (to $1,500)", fee: 50, max: 1500, days: "40+", usual: true},
+        {name: "Standard (to $3,500)", fee: 85, max: 3500, days: "40+"},
+        {name: "Expedited (to $3,500)", fee: 150, max: 3500, days: "2–3"},
+        {name: "Expedited (to $7,500)", fee: 250, max: 7500, days: "2–3"},
+        {name: "Expedited (to $20,000)", fee: 500, max: 20000, days: "2–3"},
+        {name: "Expedited (to $50,000)", fee: 1000, max: 50000, days: "2–3"},
+        {name: "Expedited (to $100,000)", fee: 2000, max: 100000, days: "2–3"},
+        {name: "Expedited (over $100,000)", fee: 3750, max: null, days: "2–3", note: "plus $375 for each $10,000 over $100,000"}]},
+    TAG: {checked: "2026-10-08", source: "https://taggrading.com/pages/pricing",
+      note: "Basic, Standard and Express are at capacity, and TAG isn't showing their prices while they are. Priority and Walkthrough have limited slots.",
+      levels: [
+        {name: "Basic", fee: null, max: 300, days: "75+", paused: true},
+        {name: "Standard", fee: null, max: 500, days: "45", paused: true},
+        {name: "Express", fee: null, max: 1500, days: "25", paused: true},
+        {name: "Priority", fee: 149, max: 2500, days: "5", usual: true},
+        {name: "Walkthrough", fee: 299, max: 5000, days: "2–3"}]}
+  };
+  const gradingLevels = co => (GRADING_FEE_TABLE[co] || {levels: []}).levels;
+  const gradingLevel = (co, name) => gradingLevels(co).find(l => l.name === name) || null;
+  const gradingUsual = co => gradingLevels(co).find(l => l.usual && l.fee != null) || null;
+  const feeCheckedText = co => GRADING_FEE_TABLE[co] ? "checked " + fmtDate(parseDay(GRADING_FEE_TABLE[co].checked)) : "";
+  const usdFee = v => v == null ? "" : Number.isInteger(v) ? "$" + v.toLocaleString("en-US") : usd(v);
+  // For the pick-list: "Standard — $59.99, 90–100 business days" (and "(paused)" or "price not posted")
+  const levelLabel = l => l.name + " — " + (l.fee != null ? usdFee(l.fee) : "price not posted") + (l.days ? ", " + l.days + " business days" : "") + (l.paused ? " (paused)" : "");
+  // Under it: "cards up to $1,000 declared value, 90–100 business days, 20 cards or more"
+  const levelDetails = l => [l.max != null ? "cards up to " + usdFee(l.max) + " declared value" : "", l.days ? l.days + " business days" : "", l.note || ""].filter(Boolean).join(", ");
   function normGrading(g) {
     if (!g || typeof g !== "object" || !String(g.company || "").trim()) return null;
     return {company: String(g.company).trim(), sent: parseDay(g.sent) ? g.sent : localDay(new Date()), order: String(g.order || "").trim(), cost: g.cost === "" || g.cost == null ? null : num(g.cost)};
@@ -8592,19 +8719,19 @@
     }
     const co = gradingCoNow(), e = gradingEstimate(r, co);
     const sign = v => (v >= 0 ? "+" : "−") + usd(Math.abs(v));
-    const anyFees = GRADING_COS.some(c => gradingFee(c.id));
+    const ownFees = GRADING_COS.some(c => { const f = gradingFee(c.id); return f && !f.builtin; });
     return (e ? '<p class="gi-math">Raw <b>' + esc(usd(e.raw)) + "</b>, PSA 10 <b>" + esc(usd(e.ten.unit)) + '</b> <span class="small">(' + tenSource(e.ten) + ")</span>. After " + esc(usd(e.cost)) +
         " to grade at " + esc(gradingCoName(co)) + ": <b>" + esc(sign(e.gain10)) + "</b> if it gets a 10, " + esc(sign(e.gain9)) + " at a 9.</p>" : "") +
       '<ul class="grader-list">' + GRADING_COS.map(c => {
         const f = gradingFee(c.id), ce = f && gradingEstimate(r, c.id);
         return '<li><span class="gl-co"><b>' + esc(c.name) + "</b>" + (f ? '<span class="small">' + esc((f.level ? f.level + ", " : "") + usd(f.total) + " per card") +
-          (ce ? ": " + esc(sign(ce.gain10)) + " at a 10" : "") + "</span>" : "") + "</span>" +
+          (f.info && f.info.days ? ", " + esc(f.info.days) + " days" : "") + (ce ? ": " + esc(sign(ce.gain10)) + " at a 10" : "") + "</span>" : "") + "</span>" +
           '<a class="btn btn-small" target="_blank" rel="noopener" href="' + esc(c.start) + '">Start a submission</a>' +
           '<a class="small" target="_blank" rel="noopener" href="' + esc(c.prices) + '">Prices</a></li>';
       }).join("") + "</ul>" +
       '<div class="btn-row"><button type="button" class="btn btn-small" data-gi="copy">Copy card details for the form</button><button type="button" class="btn btn-small" data-gi="sent">I sent it…</button></div>' +
-      '<p class="small" style="margin:8px 0 0">Each link opens that company\'s site, where you sign in, choose a service and pay them. Their fees and wait times change often, so check their prices. ' +
-      '<button type="button" class="link-btn" data-gi="fees">' + (anyFees ? "Edit your grading fees" : "Enter your fees at each company") + "</button></p>";
+      '<p class="small" style="margin:8px 0 0">Each link opens that company\'s site, where you sign in, choose a service and pay them. The fees are from their price lists (' +
+      esc(feeCheckedText("PSA")) + ') and change often, so check their prices. <button type="button" class="link-btn" data-gi="fees">' + (ownFees ? "Edit your grading fees" : "Choose your service level at each company") + "</button></p>";
   }
   function wireGradeIt(id) {
     const box = $("gradeIt");
@@ -12040,7 +12167,8 @@
     wantKind, wantSource, shopWantLive, ymWant, krBoxWant, gotWant, openWantEdit, tookWant, wantFromProduct, upgradeWant, renderWants,
     csSearch, renderSearch, renderSearchResults, openPriceCard, cs: () => cs, csSetMatches, openSearchSet, csSetCode,
     toggleGoal, goalAddMissing, csSetNeeds, renderGoalsBar, cleanGoals, renderMovers, openScanner, showScanPrice, scanChecks: () => scanChecks,
-    loadOcgCards, buildOcgCards, ocgCd: () => ocgCd, ocgCardAt, ocgFilePrice, ocgRowFor, ocgSetProgress, openOcgCardPage, ocgNameHits, upgradeRecord, addOrMerge};
+    loadOcgCards, buildOcgCards, ocgCd: () => ocgCd, ocgCardAt, ocgFilePrice, ocgRowFor, ocgSetProgress, openOcgCardPage, ocgNameHits, upgradeRecord, addOrMerge,
+    GRADING_FEE_TABLE, GRADING_COS, gradingFee, gradingLevels, gradingUsual, gradingCostFor};
 
   document.addEventListener("DOMContentLoaded", init);
 })();

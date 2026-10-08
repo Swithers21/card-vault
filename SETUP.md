@@ -190,9 +190,13 @@ personal app: click **Continue**.
   cheap cards whose prices jump around.
 - **Get it graded** (in a card's details): links to start a submission at PSA, Beckett, CGC, SGC and TAG, the card's
   details to paste into their form, and tracking while it's away ("I sent it", then "It's back" with the grade).
-- **Grading fees** (Settings): for each company, the service level you use, its fee per card and shipping per card. Worth
-  grading lets you pick the company to estimate with, each card's details show every company's cost and gain at a 10,
-  and "I sent it" fills in that company's cost. They sync to your other devices.
+- **Grading fees** (Settings): each company's price list (PSA, Beckett, CGC, SGC, TAG) is built in, as read on their
+  sites on Oct 8, 2026 (`GRADING_FEE_TABLE` in `index.html`: level, fee, declared-value cap, business days, paused).
+  Pick the service level you use and its fee fills in; until then each company's usual level is assumed (PSA Standard
+  $59.99, Beckett Express $79.95, CGC Economy $20, SGC Standard $50, TAG Priority $149). A fee you type wins. Add
+  shipping per card. Worth grading lets you pick the company to estimate with, each card's details show every
+  company's cost and gain at a 10, and "I sent it" fills in that company's cost. They sync to your other devices.
+  To refresh the table, check each company's price list (linked in Settings) and update the entries and `checked`.
 - **Price over time** (in a card's details): a chart of its TCGplayer market price. The daily update keeps every
   evening's prices (120 days, then monthly) and publishes them with the website, so the charts fill in day by day.
 - **Phone alerts** (Settings): the want-list and big-move alerts on your iPhone through the free ntfy app. Your PC's
