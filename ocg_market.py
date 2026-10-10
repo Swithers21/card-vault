@@ -268,6 +268,7 @@ def is_rush(prefix):
 # the same number, so it's kept as a rarity named "Ultra Rare (Overframe)". Grand Master Rares always are, so they
 # keep their name. BIGWEB says "【オーバーフレーム】ウルトラレア"; Korean sellers "오버프레임", "오버울레" (Overframe Ultra).
 OVERFRAME = " (Overframe)"
+OVERFRAME_SINCE = "2025-01-01"   # (sets from before don't have Overframe printings)
 JA_OVERFRAME = re.compile(r"オーバーフレーム|【\s*OF\s*】")
 KO_OVERFRAME = re.compile(r"오버\s*프레임|오버\s*(울레|울트라|프시크|프싴|프리즘)")
 
@@ -598,7 +599,12 @@ def pick_items(found, old):
 # price with tax, how many are left, and a photo. Its whole list is read once a day.
 FA_ITEM = re.compile(r'<a href="(/shopdetail/\d+/[^"]*)"[^>]*>.*?<img src="(https://[^"]+)"[^>]*>.*?<span class="itemName">(.*?)</span>.*?'
                      r'<span class="itemPrice">(.*?)</div>', re.S)
-FA_NAME = re.compile(r"^\s*(RD/[A-Z0-9]{2,6}-(?:JP|KR)[A-Z]?\d{2,3})\s*(.*?)\s*【([^】]+)】\s*(.*)$")
+FA_NAME = re.compile(r"^\s*(RD/[A-Z0-9]{2,6}-(?:JP|KR)[A-Z]?\d{2,3})\s*(.*?)\s*(?:【([^】]+)】\s*(.*))?$")
+# (a single without 【rarity】: a short one after the name, "幻刃戦士ショベロン R", else none said, "山嵐竜", as in decks)
+FA_SHORT = {"N": "Common", "R": "Rare", "SR": "Super Rare", "UR": "Ultra Rare", "SE": "Secret Rare", "SER": "Secret Rare", "RR": "Rush Rare",
+            "ORR": "Over Rush Rare", "GRR": "Gold Rush Rare"}
+FA_ANY = "?"   # (the rarity isn't said: the card's only one, else its Common)
+FA_VERSION = 2   # (a list read before singles without 【rarity】 were understood is read again)
 
 
 def parse_fullahead_page(page):
@@ -611,10 +617,17 @@ def parse_fullahead_page(page):
         if not m or not price:
             continue
         number, ja, rarity_ja, rest = m.groups()
+        rest = rest or ""
+        if rarity_ja:
+            rarity = rd_rarity(rarity_ja)
+        else:
+            short = re.search(r"\s(%s)$" % "|".join(FA_SHORT), ja)
+            rarity = FA_SHORT[short.group(1)] if short else FA_ANY
+            ja = ja[:short.start()] if short else ja
         left = re.search(r"残りあと\s*(\d+)", price_html)
         sold_out = re.search(r"SOLD\s*OUT|売り?切れ|在庫切れ|品切れ", price_html, re.I)
         stock = 0 if sold_out else int(left.group(1)) if left else 10   # (no count shown: plenty)
-        out.append({"number": number, "rarity": rd_rarity(rarity_ja), "price": int(price.group(1).replace(",", "")), "stock": stock,
+        out.append({"number": number, "rarity": rarity, "price": int(price.group(1).replace(",", "")), "stock": stock,
                     "img": img if img.startswith("https://") else "", "ja": ja.strip(), "cond": rest + (" 傷" if re.search(r"傷|キズ|難", ja + rest) else "")})
     return out
 
@@ -629,14 +642,15 @@ def read_fullahead(web, old):
             break
         url = FULLAHEAD + "/shopbrand/yugi-rd/" + ("page%d/order/" % page if page > 1 else "")
         try:
-            rows = parse_fullahead_page(web.get_text(url, FULLAHEAD_PAUSE, "euc_jp"))
+            text = web.get_text(url, FULLAHEAD_PAUSE, "euc_jp")
+            rows, shown = parse_fullahead_page(text), len(re.findall(r'class="itemName"', text))
         except urllib.error.HTTPError as err:
             complete = err.code == 404 and page > 1   # (past the last page; anything else: stop, keep what was read)
             break
         except Exception:   # (a site that stopped answering, the network: what was read is kept, with the rest from before)
             break
         keys = tuple(r["number"] + r["rarity"] + str(r["price"]) for r in rows)
-        if not rows or keys == first_keys:   # (past the last page: nothing, or the last page again)
+        if not shown or (rows and keys == first_keys):   # (past the last page: no singles, or the last page again)
             complete = True
             break
         first_keys = keys
@@ -653,13 +667,22 @@ def read_fullahead(web, old):
     if not complete:
         for key, was in ((old or {}).get("copies") or {}).items():
             copies.setdefault(key, was)
-    return {"at": now_iso() if complete else (old or {}).get("at", ""), "complete": complete, "pages": seen_pages, "copies": copies}
+    return {"v": FA_VERSION, "at": now_iso() if complete else (old or {}).get("at", ""), "complete": complete, "pages": seen_pages, "copies": copies}
 
 
-def fullahead_prices(catalog, prefix, old):
-    """One Rush Duel set's entries from Fullahead's list, like BIGWEB's for the other Japanese sets."""
+def fullahead_prices(catalog, prefix, old, listed=None):
+    """One Rush Duel set's entries from Fullahead's list, like BIGWEB's for the other Japanese sets. listed: the set's
+    cards from Yugipedia ({number: [name, rarities]}), for the singles whose rarity Fullahead doesn't say."""
     code = prefix + "-JP"
-    found = {k: v for k, v in ((catalog or {}).get("copies") or {}).items() if k.startswith(code)}
+    found = {}
+    for k, v in ((catalog or {}).get("copies") or {}).items():
+        if not k.startswith(code):
+            continue
+        number, rarity = k.split("|", 1)
+        if rarity == FA_ANY:
+            rarities = ((listed or {}).get(number) or ["", []])[1]
+            rarity = rarities[0] if len(rarities) == 1 else next((r for r in rarities if same_rarity(r, "Common")), "Common")
+        found.setdefault(number + "|" + rarity, []).extend(v)
     items = pick_items(found, old)
     # (a card no longer on the list, sold out there: its last price and photo stay, like BIGWEB's sold-out copies)
     for key, prev in (old or {}).items():
@@ -1175,6 +1198,19 @@ def run():
             say("  Couldn't read BIGWEB's set list (%s); using the last one." % err)
     for s in sets_by_region["jp"]:
         s["bigweb"] = (bw.get("sets") or {}).get(s["prefix"]) or []
+    # (since October 2026 Overframe printings have rarities of their own: the lists and BIGWEB prices of sets from the
+    # Overframe years read before that are read again, newest first, as if never read)
+    for region, sets in sets_by_region.items():
+        for s in sets:
+            if s["date"] < OVERFRAME_SINCE or s.get("rush"):
+                continue
+            name = "%s-%s.json" % (region, safe_name(s["prefix"]))
+            lst = read_json(cache_path("lists", name), None)
+            if lst is not None and not lst.get("ov"):
+                meta.pop("%s|%s|list" % (region, s["prefix"]), None)
+            items = (read_json(cache_path("prices", name), None) or {}).get("items") if region == "jp" else None
+            if items and not any((e or {}).get("v") for e in items.values()):
+                meta.pop("%s|%s|price" % (region, s["prefix"]), None)
     if not sets_by_region["jp"] and not sets_by_region["kr"]:
         say("  No sets: nothing to do this time.")
         return 0
@@ -1218,7 +1254,7 @@ def run():
         if kind == "list":
             cards = read_card_list(web, prefix, region)
             with lock:
-                lists[k] = {"cards": cards}
+                lists[k] = {"cards": cards, "ov": 1}   # (read with its Overframe printings)
                 write_json(cache_path("lists", "%s-%s.json" % (region, safe_name(prefix))), lists[k])
         elif kind == "price" and region == "jp":
             items = read_bigweb_prices(web, prefix, s["bigweb"], prices[k].get("items"))
@@ -1265,7 +1301,7 @@ def run():
     by_host = {}
     # Fullahead's Rush Duel list first on its own line (once a day), then the sets
     if any(s.get("rush") for s in sets_by_region.get("jp") or []) and \
-            ((days_since(fa_old.get("at")) or 99) >= FULLAHEAD_DAYS or not fa_old.get("complete")):
+            ((days_since(fa_old.get("at")) or 99) >= FULLAHEAD_DAYS or not fa_old.get("complete") or fa_old.get("v") != FA_VERSION):
         by_host["fullahead"] = [("jp", None, "fullahead")]
     for region, s, kind in plan(sets_by_region, meta):
         by_host.setdefault(host_of(region, kind), []).append((region, s, kind))
@@ -1285,7 +1321,7 @@ def run():
                 continue
             k = "jp|" + s["prefix"]
             load("jp", s["prefix"])
-            items = fullahead_prices(fa, s["prefix"], prices[k].get("items"))
+            items = fullahead_prices(fa, s["prefix"], prices[k].get("items"), (lists[k].get("cards") or {}))
             if not items and not prices[k].get("items"):
                 continue
             prices[k]["items"] = items
