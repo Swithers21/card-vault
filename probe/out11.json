@@ -1,0 +1,1077 @@
+{
+ "status": {
+  "format": 1,
+  "checked": "2026-10-10T07:11:27+00:00",
+  "run": "https://github.com/Swithers21/card-vault/actions/runs/38033177184",
+  "parts": {
+   "tcg": {
+    "outcome": "success",
+    "generated": "2026-10-09T20:05:19+00:00",
+    "builtAt": "2026-10-09T21:50:53.416440+00:00",
+    "ok": true
+   },
+   "ocg": {
+    "outcome": "success",
+    "ran": "2026-10-10T07:11:21+00:00",
+    "fresh": true,
+    "sets": {
+     "jp": 719,
+     "kr": 529
+    },
+    "cards": {
+     "jp": 30552,
+     "kr": 28173
+    },
+    "cardsPriced": {
+     "jp": 23948,
+     "kr": 5136
+    },
+    "krSold": 16,
+    "rush": {
+     "jp": {
+      "sets": 129,
+      "cards": 4659,
+      "priced": 4557
+     },
+     "kr": {
+      "sets": 86,
+      "cards": 4183,
+      "priced": 83
+     }
+    },
+    "lookups": 128,
+    "left": 0,
+    "sites": {
+     "frankfurter": {
+      "requests": 1,
+      "failed": 0,
+      "errors": {},
+      "blocked": false
+     },
+     "fullahead": {
+      "requests": 132,
+      "failed": 0,
+      "errors": {},
+      "blocked": false
+     },
+     "yugipedia": {
+      "requests": 131,
+      "failed": 0,
+      "errors": {},
+      "blocked": false
+     },
+     "bigweb": {
+      "requests": 66,
+      "failed": 0,
+      "errors": {},
+      "blocked": false
+     }
+    },
+    "blocked": "",
+    "ok": true
+   },
+   "fees": {
+    "outcome": "success",
+    "checked": "2026-10-10T07:11:27+00:00",
+    "companies": {
+     "PSA": {
+      "ok": false,
+      "lastOk": null,
+      "error": "no fees found on the page (it may have changed)"
+     },
+     "BGS": {
+      "ok": true,
+      "lastOk": "2026-10-10T07:11:24+00:00",
+      "error": ""
+     },
+     "CGC": {
+      "ok": true,
+      "lastOk": "2026-10-10T07:11:25+00:00",
+      "error": ""
+     },
+     "SGC": {
+      "ok": true,
+      "lastOk": "2026-10-10T07:11:26+00:00",
+      "error": ""
+     },
+     "TAG": {
+      "ok": true,
+      "lastOk": "2026-10-10T07:11:27+00:00",
+      "error": ""
+     }
+    },
+    "ok": false
+   }
+  },
+  "problems": [
+   {
+    "key": "fees-PSA",
+    "part": "fees",
+    "text": "PSA's price list couldn't be read (no fees found on the page (it may have changed)); Card Vault uses the one from its built-in list.",
+    "minor": true
+   }
+  ],
+  "news": [],
+  "recent": [
+   {
+    "at": "2026-10-08T15:51:35+00:00",
+    "ok": true,
+    "problems": []
+   },
+   {
+    "at": "2026-10-08T15:54:58+00:00",
+    "ok": true,
+    "problems": []
+   },
+   {
+    "at": "2026-10-08T15:59:41+00:00",
+    "ok": true,
+    "problems": []
+   },
+   {
+    "at": "2026-10-08T16:02:23+00:00",
+    "ok": true,
+    "problems": []
+   },
+   {
+    "at": "2026-10-08T16:05:05+00:00",
+    "ok": true,
+    "problems": []
+   },
+   {
+    "at": "2026-10-08T16:07:07+00:00",
+    "ok": true,
+    "problems": []
+   },
+   {
+    "at": "2026-10-08T21:54:13+00:00",
+    "ok": true,
+    "problems": []
+   },
+   {
+    "at": "2026-10-09T04:28:53+00:00",
+    "ok": true,
+    "problems": []
+   },
+   {
+    "at": "2026-10-09T21:54:20+00:00",
+    "ok": true,
+    "problems": []
+   },
+   {
+    "at": "2026-10-10T04:26:46+00:00",
+    "ok": true,
+    "problems": []
+   },
+   {
+    "at": "2026-10-10T06:56:58+00:00",
+    "ok": true,
+    "problems": []
+   },
+   {
+    "at": "2026-10-10T07:11:27+00:00",
+    "ok": true,
+    "problems": []
+   }
+  ]
+ },
+ "market_rush": {
+  "jp": [
+   129,
+   125
+  ],
+  "kr": [
+   86,
+   19
+  ]
+ },
+ "market_rush_sample": [
+  [
+   "RD/CA01",
+   "Cross Art Collection",
+   "2026-10-10",
+   "side",
+   87,
+   [
+    [
+     "RD/CA01-JP000",
+     "CROSS ART COLLECTION (card)",
+     "Ultra Rare",
+     999999,
+     1,
+     "https://shop93-makeshop.akamaized.net/images/common/nonimg90.gif"
+    ],
+    [
+     "RD/CA01-JP001",
+     "Dark Magician Girl the Dragon Knight",
+     "Over Rush Rare",
+     198000,
+     1,
+     "https://makeshop-multi-images.akamaized.net/fullyugi/itemimages/0000000880303_WxcOdOo.jpg"
+    ],
+    [
+     "RD/CA01-JP002",
+     "Dark Magician the Dragon Knight",
+     "Over Rush Rare",
+     49800,
+     1,
+     "https://makeshop-multi-images.akamaized.net/fullyugi/itemimages/0000000880313_zwjm6z8.jpg"
+    ]
+   ]
+  ],
+  [
+   "RD/S263",
+   "Special Victory Pack 2026 Vol.3",
+   "2026-10-01",
+   "promo",
+   5,
+   [
+    [
+     "RD/S263-JP001",
+     "Towline Cattle Healer",
+     "Ultra Parallel Rare",
+     999999,
+     1,
+     "https://shop93-makeshop.akamaized.net/images/common/nonimg90.gif"
+    ],
+    [
+     "RD/S263-JP002",
+     "Stratohammer Mjolnir",
+     "Ultra Parallel Rare",
+     999999,
+     1,
+     "https://shop93-makeshop.akamaized.net/images/common/nonimg90.gif"
+    ],
+    [
+     "RD/S263-JP003",
+     "Harpie Lady Feather Duster",
+     "Ultra Parallel Rare",
+     999999,
+     1,
+     "https://shop93-makeshop.akamaized.net/images/common/nonimg90.gif"
+    ]
+   ]
+  ],
+  [
+   "RD/B263",
+   "Battle Bonus Pack 2026 Vol.3",
+   "2026-10-01",
+   "side",
+   16,
+   [
+    [
+     "RD/B263-JP001",
+     "Lauan Macho Dex",
+     "Super Parallel Rare",
+     999999,
+     1,
+     "https://shop93-makeshop.akamaized.net/images/common/nonimg90.gif"
+    ],
+    [
+     "RD/B263-JP002",
+     "Spirit Sprite of the Stars",
+     "Super Parallel Rare",
+     999999,
+     1,
+     "https://shop93-makeshop.akamaized.net/images/common/nonimg90.gif"
+    ],
+    [
+     "RD/B263-JP003",
+     "Yae the Special Investigations Ninja",
+     "Super Parallel Rare",
+     999999,
+     1,
+     "https://shop93-makeshop.akamaized.net/images/common/nonimg90.gif"
+    ]
+   ]
+  ],
+  [
+   "RD/KP26",
+   "Headliner of Reigning",
+   "2026-08-22",
+   "core",
+   70,
+   [
+    [
+     "RD/KP26-JP001",
+     "Elemental HERO Neos",
+     "Over Rush Rare",
+     54800,
+     1,
+     "https://makeshop-multi-images.akamaized.net/fullyugi/itemimages/0000000864163_DxvpoX8.jpg"
+    ],
+    [
+     "RD/KP26-JPS00",
+     "Surtr the Brilliant Magical Sword",
+     "Over Rush Rare",
+     50800,
+     1,
+     "https://makeshop-multi-images.akamaized.net/fullyugi/itemimages/0000000865263_rsrdqa3.jpg"
+    ],
+    [
+     "RD/KP26-JP002",
+     "Priestess of Wise Salvation",
+     "Over Rush Rare",
+     24800,
+     1,
+     "https://makeshop-multi-images.akamaized.net/fullyugi/itemimages/0000000864173_w4oOZRv.jpg"
+    ]
+   ]
+  ],
+  [
+   "RD/WC25",
+   "Special Pack 2026 Vol.1",
+   "2026-07-11",
+   "side",
+   2,
+   [
+    [
+     "RD/WC25-JPR01",
+     "Light Leading the Valiant",
+     "Over Rush Rare",
+     5480,
+     1,
+     "https://makeshop-multi-images.akamaized.net/fullyugi/itemimages/0000000823543_llYWNEI.jpg"
+    ],
+    [
+     "RD/WC25-JPR02",
+     "The Lady's Protectors",
+     "Over Rush Rare",
+     2480,
+     1,
+     "https://makeshop-multi-images.akamaized.net/fullyugi/itemimages/0000000823553_ODvzcII.jpg"
+    ]
+   ]
+  ],
+  [
+   "RD/AP03",
+   "Advance Pack: Union Base",
+   "2026-07-11",
+   "side",
+   62,
+   [
+    [
+     "RD/AP03-JP001",
+     "Chaos Emperor Dragon - Envoy of the End",
+     "Over Rush Rare",
+     42800,
+     1,
+     "https://makeshop-multi-images.akamaized.net/fullyugi/itemimages/0000000822973_I2K9slK.jpg"
+    ],
+    [
+     "RD/AP03-JP002",
+     "Star of Beginning",
+     "Over Rush Rare",
+     19800,
+     1,
+     "https://makeshop-multi-images.akamaized.net/fullyugi/itemimages/0000000822983_p4nT3Zj.jpg"
+    ],
+    [
+     "RD/AP03-JP003",
+     "XYZ-Dragon Cannon",
+     "Over Rush Rare",
+     7980,
+     1,
+     "https://makeshop-multi-images.akamaized.net/fullyugi/itemimages/0000000822993_SMuHPlJ.jpg"
+    ]
+   ]
+  ]
+ ],
+ "market_LOC": [
+  [
+   "YAC1",
+   "Original Artwork Collection",
+   "2026-09-26",
+   "side",
+   [
+    [
+     "YAC1-JP073",
+     "青眼の白龍【カラー版】",
+     "Secret Rare",
+     32800
+    ],
+    [
+     "YAC1-JP004",
+     "Blue-Eyes Ultimate Dragon, the God-Surpassing Servant",
+     "Prismatic Secret Rare (Overframe)",
+     11800
+    ],
+    [
+     "YAC1-JP003",
+     "Harpie Lady - Elegant Egotist",
+     "Prismatic Secret Rare (Overframe)",
+     7980
+    ],
+    [
+     "YAC1-JP072",
+     "真紅眼の黒竜【カラー版】",
+     "Secret Rare",
+     7480
+    ],
+    [
+     "YAC1-JP010",
+     "Silent Magician, the Silent Fighter",
+     "Prismatic Secret Rare (Overframe)",
+     6980
+    ],
+    [
+     "YAC1-JP009",
+     "Dark Paladin - Wave-Motion",
+     "Prismatic Secret Rare (Overframe)",
+     6480
+    ]
+   ]
+  ],
+  [
+   "UT01",
+   "Utility Selection",
+   "2026-08-08",
+   "side",
+   [
+    [
+     "UT01-JP008",
+     "Dominusteer Rosepamela",
+     "Prismatic Secret Rare (Overframe)",
+     19800
+    ],
+    [
+     "UT01-JP007",
+     "Ultimate Sky",
+     "Prismatic Secret Rare (Overframe)",
+     13800
+    ],
+    [
+     "UT01-JP005",
+     "Ekhajar, Descendant Dragon of the Ice Barrier",
+     "Prismatic Secret Rare (Overframe)",
+     4980
+    ],
+    [
+     "UT01-JP001",
+     "Ancient Secrets",
+     "Prismatic Secret Rare (Overframe)",
+     3280
+    ],
+    [
+     "UT01-JP004",
+     "Dark Armed Dragon Punisher",
+     "Prismatic Secret Rare (Overframe)",
+     3280
+    ],
+    [
+     "UT01-JP008",
+     "Dominusteer Rosepamela",
+     "Ultra Rare (Overframe)",
+     2980
+    ]
+   ]
+  ],
+  [
+   "LOCR",
+   "Limit Over Collection: The Rivals",
+   "2026-03-20",
+   "side",
+   [
+    [
+     "LOCR-JP002",
+     "Deep-Eyes White Dragon, the Blue Abyss",
+     "Prismatic Secret Rare (Overframe)",
+     13800
+    ],
+    [
+     "LOCR-JP001",
+     "Blue-Eyes White Dragon, the White Phantom Beast",
+     "Ultra Rare (Overframe)",
+     6480
+    ],
+    [
+     "LOCR-JP008",
+     "Red Nova Dragon - Burning Soul",
+     "Prismatic Secret Rare (Overframe)",
+     6480
+    ],
+    [
+     "LOCR-JP004",
+     "Cyber End Dragon, the Final Strike Dragon",
+     "Prismatic Secret Rare (Overframe)",
+     4980
+    ],
+    [
+     "LOCR-JP005",
+     "Cyber Dragon, the Luminous Mech Dragon",
+     "Prismatic Secret Rare (Overframe)",
+     4980
+    ],
+    [
+     "LOCR-JP013",
+     "Starving Venom Fusion Dragon, Four Heavenly Dragons",
+     "Prismatic Secret Rare (Overframe)",
+     3980
+    ]
+   ]
+  ],
+  [
+   "LOCH",
+   "Limit Over Collection: The Heroes",
+   "2026-02-28",
+   "side",
+   [
+    [
+     "LOCH-JP001",
+     "Dark Magician, the Pharaoh's Servant",
+     "Prismatic Secret Rare (Overframe)",
+     29800
+    ],
+    [
+     "LOCH-JP003",
+     "Dark Magical Curtain",
+     "Ultra Rare (Overframe)",
+     12800
+    ],
+    [
+     "LOCH-JP012",
+     "Gagaga Girl - Cell Phone Subtraction",
+     "Prismatic Secret Rare (Overframe)",
+     12800
+    ],
+    [
+     "LOCH-JP007",
+     "Stardust Dragon - Victim Sanctuary",
+     "Prismatic Secret Rare (Overframe)",
+     8980
+    ],
+    [
+     "LOCH-JP002",
+     "Kuriboh - Multiply!",
+     "Prismatic Secret Rare (Overframe)",
+     8480
+    ],
+    [
+     "LOCH-JP028",
+     "S:P Little Knight",
+     "Prismatic Secret Rare",
+     7480
+    ]
+   ]
+  ]
+ ],
+ "rar_overframe": [
+  "Secret Rare (Overframe)",
+  "Prismatic Secret Rare (Overframe)",
+  "Full Over Rush Rare",
+  "Over Rush Rare",
+  "Ultra Rare (Overframe)",
+  "Grand Master Rare",
+  "Rush Rare",
+  "Gold Rush Rare"
+ ],
+ "card jp LOCH-001": [
+  "Dark Magician, the Pharaoh's Servant",
+  [
+   [
+    "Ultra Rare",
+    0,
+    0,
+    1209
+   ],
+   [
+    "Ultra Rare (Overframe)",
+    5480,
+    3,
+    1209
+   ],
+   [
+    "Secret Rare",
+    380,
+    3,
+    1209
+   ],
+   [
+    "Prismatic Secret Rare (Overframe)",
+    29800,
+    3,
+    1209,
+    "Prismatic Secret Rare"
+   ],
+   [
+    "Grand Master Rare",
+    0,
+    0,
+    0
+   ]
+  ]
+ ],
+ "card jp LOCH-014": [
+  "Horoscope Sorcerer, the Stargazer Magician",
+  [
+   [
+    "Ultra Rare",
+    80,
+    2,
+    1222
+   ],
+   [
+    "Ultra Rare (Overframe)",
+    580,
+    3,
+    1222
+   ],
+   [
+    "Prismatic Secret Rare (Overframe)",
+    1580,
+    2,
+    1222,
+    "Prismatic Secret Rare"
+   ],
+   [
+    "Grand Master Rare",
+    0,
+    0,
+    0
+   ],
+   [
+    "Secret Rare",
+    0,
+    0,
+    1222
+   ]
+  ]
+ ],
+ "card jp LOCH-017": [
+  "Cyberse Code Magician",
+  [
+   [
+    "Ultra Rare",
+    80,
+    3,
+    1225
+   ],
+   [
+    "Ultra Rare (Overframe)",
+    580,
+    3,
+    1225
+   ],
+   [
+    "Prismatic Secret Rare (Overframe)",
+    1080,
+    3,
+    1225,
+    "Prismatic Secret Rare"
+   ],
+   [
+    "Grand Master Rare",
+    0,
+    0,
+    0
+   ],
+   [
+    "Secret Rare",
+    120,
+    3,
+    1225
+   ]
+  ]
+ ],
+ "card jp LOCR-012": [
+  "Galaxy Defense Robot Orbital 7",
+  [
+   [
+    "Ultra Rare",
+    80,
+    3,
+    1122
+   ],
+   [
+    "Ultra Rare (Overframe)",
+    780,
+    3,
+    1122
+   ],
+   [
+    "Secret Rare",
+    120,
+    2,
+    1122
+   ],
+   [
+    "Prismatic Secret Rare (Overframe)",
+    1680,
+    1,
+    1122,
+    "Prismatic Secret Rare"
+   ],
+   [
+    "Grand Master Rare",
+    0,
+    0,
+    0
+   ]
+  ]
+ ],
+ "card jp YAC1-004": [
+  "Blue-Eyes Ultimate Dragon, the God-Surpassing Servant",
+  [
+   [
+    "Ultra Rare",
+    120,
+    3,
+    110
+   ],
+   [
+    "Ultra Rare (Overframe)",
+    980,
+    3,
+    110
+   ],
+   [
+    "Secret Rare",
+    180,
+    3,
+    110
+   ],
+   [
+    "Prismatic Secret Rare (Overframe)",
+    11800,
+    3,
+    110
+   ],
+   [
+    "Grand Master Rare",
+    0,
+    0,
+    0
+   ]
+  ]
+ ],
+ "card jp UT01-001": [
+  "Ancient Secrets",
+  [
+   [
+    "Ultra Rare",
+    0,
+    0,
+    375
+   ],
+   [
+    "Ultra Rare (Overframe)",
+    980,
+    3,
+    375
+   ],
+   [
+    "Prismatic Secret Rare (Overframe)",
+    3280,
+    1,
+    375
+   ],
+   [
+    "Secret Rare",
+    0,
+    0,
+    375
+   ]
+  ]
+ ],
+ "card kr LOCH-001": [
+  "Dark Magician, the Pharaoh's Servant",
+  [
+   [
+    "Ultra Rare",
+    1050,
+    6
+   ],
+   [
+    "Ultra Rare (Overframe)",
+    0,
+    0
+   ],
+   [
+    "Prismatic Secret Rare (Overframe)",
+    0,
+    0
+   ],
+   [
+    "Grand Master Rare",
+    0,
+    0
+   ],
+   [
+    "Secret Rare",
+    2000,
+    3
+   ],
+   [
+    "",
+    15000,
+    1,
+    "?"
+   ]
+  ]
+ ],
+ "card jp BETB-028": [
+  "Elemental Saga Doriado",
+  [
+   [
+    "Prismatic Secret Rare (Overframe)",
+    29800,
+    3,
+    502,
+    "Prismatic Secret Rare"
+   ],
+   [
+    "Secret Rare",
+    1280,
+    3,
+    502
+   ],
+   [
+    "Ultimate Rare",
+    1080,
+    1,
+    502
+   ]
+  ]
+ ],
+ "card jp RD/SD03-009": [
+  "Porcupine Dragon",
+  [
+   [
+    "Common",
+    30,
+    7,
+    6841
+   ]
+  ]
+ ],
+ "card jp LOCR-001": [
+  "Blue-Eyes White Dragon, the White Phantom Beast",
+  [
+   [
+    "Ultra Rare",
+    0,
+    0,
+    1111
+   ],
+   [
+    "Ultra Rare (Overframe)",
+    6480,
+    3,
+    1111
+   ],
+   [
+    "Prismatic Secret Rare (Overframe)",
+    0,
+    0,
+    1111,
+    "Prismatic Secret Rare"
+   ],
+   [
+    "Grand Master Rare",
+    0,
+    0,
+    0
+   ],
+   [
+    "Secret Rare",
+    0,
+    0,
+    1111
+   ]
+  ]
+ ],
+ "rush_jp_priced": 4557,
+ "rush_jp_cards": 4659,
+ "rush_kr_priced": 83,
+ "rush_jp_sample": [
+  [
+   "RD/CA01",
+   "000",
+   "CROSS ART COLLECTION (card)",
+   [
+    [
+     "Ultra Rare",
+     999999,
+     10,
+     "https://shop93-makeshop.akamaized.net/images/common/nonimg90.gif"
+    ]
+   ]
+  ],
+  [
+   "RD/CA01",
+   "001",
+   "Dark Magician Girl the Dragon Knight",
+   [
+    [
+     "Ultra Parallel Rare",
+     0,
+     0,
+     0
+    ],
+    [
+     "Full Over Rush Rare",
+     0,
+     0,
+     0
+    ],
+    [
+     "Over Rush Rare",
+     198000,
+     10,
+     "https://makeshop-multi-images.akamaized.net/fullyugi/itemimages/0000000880303_WxcOdOo.jpg"
+    ]
+   ]
+  ],
+  [
+   "RD/CA01",
+   "002",
+   "Dark Magician the Dragon Knight",
+   [
+    [
+     "Full Over Rush Rare",
+     0,
+     0,
+     0
+    ],
+    [
+     "Super Parallel Rare",
+     0,
+     0,
+     0
+    ],
+    [
+     "Over Rush Rare",
+     49800,
+     10,
+     "https://makeshop-multi-images.akamaized.net/fullyugi/itemimages/0000000880313_zwjm6z8.jpg"
+    ]
+   ]
+  ],
+  [
+   "RD/CA01",
+   "003",
+   "Dark Cavalry",
+   [
+    [
+     "Secret Rare",
+     580,
+     10,
+     "https://makeshop-multi-images.akamaized.net/fullyugi/itemimages/0000000879483_Ir9L9CD.jpg"
+    ],
+    [
+     "Super Parallel Rare",
+     0,
+     0,
+     0
+    ]
+   ]
+  ],
+  [
+   "RD/CA01",
+   "004",
+   "Dark Magician",
+   [
+    [
+     "Secret Rare",
+     780,
+     10,
+     "https://makeshop-multi-images.akamaized.net/fullyugi/itemimages/0000000879493_nRQNtms.jpg"
+    ],
+    [
+     "Super Parallel Rare",
+     0,
+     0,
+     0
+    ]
+   ]
+  ],
+  [
+   "RD/CA01",
+   "005",
+   "Dark Magician Girl",
+   [
+    [
+     "Secret Parallel Rare",
+     3980,
+     10,
+     "https://makeshop-multi-images.akamaized.net/fullyugi/itemimages/0000000878663_9G2xH8k.jpg"
+    ]
+   ]
+  ],
+  [
+   "RD/CA01",
+   "006",
+   "Dark Magician Knight",
+   [
+    [
+     "Ultra Rare",
+     0,
+     0,
+     0
+    ],
+    [
+     "Secret Rare",
+     580,
+     10,
+     "https://makeshop-multi-images.akamaized.net/fullyugi/itemimages/0000000879503_buzygIC.jpg"
+    ]
+   ]
+  ],
+  [
+   "RD/CA01",
+   "007",
+   "Obsidian Magical Soldier",
+   [
+    [
+     "Secret Rare",
+     780,
+     1,
+     "https://makeshop-multi-images.akamaized.net/fullyugi/itemimages/0000000879513_PSDuoUk.jpg"
+    ],
+    [
+     "Super Parallel Rare",
+     0,
+     0,
+     0
+    ]
+   ]
+  ]
+ ],
+ "fa_pages": {
+  "131": {
+   "status": 200,
+   "len": 205252,
+   "rows": 39,
+   "first": [
+    "RD/KP02-JP005 Rare",
+    "RD/KP02-JP008 Rare"
+   ],
+   "last": [
+    "RD/SJMP-JP002"
+   ],
+   "raw_items": 39,
+   "pager": [
+    "127",
+    "128",
+    "129",
+    "130",
+    "131"
+   ]
+  },
+  "132": {
+   "status": 200,
+   "len": 166262,
+   "rows": 0,
+   "first": [],
+   "last": [],
+   "raw_items": 0,
+   "pager": [
+    "128",
+    "129",
+    "130",
+    "131",
+    "132"
+   ]
+  }
+ }
+}
