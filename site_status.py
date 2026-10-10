@@ -27,7 +27,7 @@ CACHE = os.environ.get("CARDVAULT_STATUS_CACHE", os.path.join(HERE, "ocg-cache")
 OUT = os.environ.get("CARDVAULT_STATUS_OUT", os.path.join(HERE, "update-status.json"))
 TCG_VERSION = os.environ.get("CARDVAULT_TCG_VERSION", os.path.join(HERE, "tcgplayer-data-version.js"))
 SITE_NAMES = {"yugipedia": "Yugipedia (Japanese and Korean card lists)", "bigweb": "BIGWEB (Japanese prices)", "bunjang": "Bunjang (Korean prices)",
-              "frankfurter": "the exchange-rate service"}
+              "fullahead": "Fullahead (Japanese Rush Duel prices)", "frankfurter": "the exchange-rate service"}
 COMPANY = {"PSA": "PSA", "BGS": "Beckett", "CGC": "CGC", "SGC": "SGC", "TAG": "TAG"}
 HISTORY_RUNS = 60
 
@@ -109,7 +109,7 @@ def build():
     fresh = bool(rep and ran and ran >= started - timedelta(minutes=5))
     ocg = {"outcome": ocg_outcome, "ran": (rep or {}).get("ran"), "fresh": fresh}
     if rep:
-        ocg.update({k: rep.get(k) for k in ("sets", "cards", "cardsPriced", "krSold", "lookups", "left", "sites", "blocked")})
+        ocg.update({k: rep.get(k) for k in ("sets", "cards", "cardsPriced", "krSold", "rush", "lookups", "left", "sites", "blocked")})
     if ocg_outcome in ("failure", "cancelled") or (ocg_outcome == "success" and not fresh):
         problem("ocg-failed", "ocg", "The Japanese and Korean price update didn't finish tonight%s, so those cards keep their last prices%s." %
                 (" (it ran out of time)" if ocg_outcome == "cancelled" else "", " (from %s)" % day_text(ran) if ran else ""))
@@ -119,12 +119,18 @@ def build():
             if site.get("blocked") or (n >= 5 and failed / n >= 0.5):
                 problem("site-" + key, "ocg", "%s isn't answering: %d of %d requests failed%s. Those cards keep their last prices." %
                         (SITE_NAMES.get(key, key), failed, n, " (%s)" % errors_text(site.get("errors")) if site.get("errors") else ""))
-        before = ((last.get("ocg") or {}) if isinstance(last.get("ocg"), dict) else {}).get("cardsPriced") or {}
-        now_priced = rep.get("cardsPriced") or {}
+        last_ocg = (last.get("ocg") or {}) if isinstance(last.get("ocg"), dict) else {}
+        before, now_priced = last_ocg.get("cardsPriced") or {}, rep.get("cardsPriced") or {}
+        # (Rush Duel's cards on their own too: they're a small part of each list, from their own shop for Japanese)
+        rush_before, rush_now = last_ocg.get("rushPriced") or {}, rush_priced(rep)
         for region, label in (("jp", "Japanese"), ("kr", "Korean")):
             b, a = before.get(region) or 0, now_priced.get(region) or 0
             if b >= 50 and a < 0.7 * b:
                 problem(region + "-drop", "ocg", "Far fewer %s cards have prices tonight: %s, down from %s the night before." % (label, format(a, ","), format(b, ",")))
+                continue
+            b, a = rush_before.get(region) or 0, rush_now.get(region) or 0
+            if b >= 50 and a < 0.7 * b:
+                problem(region + "-rush-drop", "ocg", "Far fewer %s Rush Duel cards have prices tonight: %s, down from %s the night before." % (label, format(a, ","), format(b, ",")))
     elif ocg_outcome == "success" and not rep:
         problem("ocg-missing", "ocg", "The Japanese and Korean price update left no report.")
     ocg["ok"] = not any(p["part"] == "ocg" for p in problems)
@@ -162,13 +168,21 @@ def build():
     parts["fees"] = fees
 
     # (a night without a fresh Japanese and Korean report keeps the last real numbers, to compare the next one with)
-    priced = (rep or {}).get("cardsPriced") if fresh else (last.get("ocg") if isinstance(last.get("ocg"), dict) else {}).get("cardsPriced")
-    entry = {"at": t_now.replace(microsecond=0).isoformat(), "tcg": tcg["ok"], "ocg": {"ok": ocg["ok"], "cardsPriced": priced},
+    last_ocg = (last.get("ocg") or {}) if isinstance(last.get("ocg"), dict) else {}
+    priced = (rep or {}).get("cardsPriced") if fresh else last_ocg.get("cardsPriced")
+    rushp = rush_priced(rep) if fresh else last_ocg.get("rushPriced")
+    entry = {"at": t_now.replace(microsecond=0).isoformat(), "tcg": tcg["ok"], "ocg": {"ok": ocg["ok"], "cardsPriced": priced, "rushPriced": rushp},
              "problems": [p["key"] for p in problems if not p.get("minor")], "notes": [p["key"] for p in problems if p.get("minor")]}
     history = (history + [entry])[-HISTORY_RUNS:]
     status = {"format": 1, "checked": entry["at"], "run": os.environ.get("RUN_URL", ""), "parts": parts, "problems": problems, "news": news,
               "recent": [{"at": h.get("at", ""), "ok": not h.get("problems"), "problems": h.get("problems", [])} for h in history[-14:]]}
     return status, history
+
+
+def rush_priced(rep):
+    """{"jp": n, "kr": n}: how many Rush Duel cards the report says have prices."""
+    rush = (rep or {}).get("rush") if isinstance((rep or {}).get("rush"), dict) else {}
+    return {region: ((rush.get(region) or {}).get("priced") or 0) for region in ("jp", "kr")}
 
 
 def fmt_money(v):

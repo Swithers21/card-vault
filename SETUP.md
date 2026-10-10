@@ -116,6 +116,22 @@ personal app: click **Continue**.
   only counts while the shop has none (cards you priced by hand before switch over by themselves). A card's changes
   compare its set's latest earlier check at least that long ago (new sets are checked daily, older ones weekly), so a
   week's change can be a little older than a week.
+- **Rush Duel cards** (numbers like `RD/KP25-JP001` and `RD/KP25-KR001`) work like the other Japanese and Korean cards:
+  Add card, Card search, the scanner, the want list, the Sets tab, Price movers (boxes of their own), the Market and the
+  insurance record. They wear a **Rush Duel** badge and have a **Rush Duel cards** choice in the Show menu. BIGWEB
+  doesn't sell Rush Duel singles, so Japanese ones are priced from **Fullahead** (a Japanese card shop), whose whole
+  Rush Duel list (about 6,500 singles) the nightly update reads; it can't be asked from the browser, so these cards have
+  no "Ask the shop now". Korean ones come from Bunjang like the others (searched without the `RD/`, which sellers often
+  leave out). Yugipedia's "(Rush Duel)" in some card names is left out. Rush Duel cards don't count toward OCG/TCG decks
+  (Deck check, Decks I can build) or toward the 3 copies of an OCG card with the same name.
+- **Overframe** printings (Yugipedia: "extended art"; the artwork breaks out of the frame: Limit Over Collection,
+  Original Artwork Collection, Utility Selection and others) have their own prices, so Japanese and Korean ones carry it
+  in the rarity: **Ultra Rare (Overframe)**, **Prismatic Secret Rare (Overframe)**; Grand Master Rares always are one.
+  The nightly update reads which lines of a set's Yugipedia list are extended art (only for sets with a card number on
+  two lines), takes BIGWEB's 【オーバーフレーム】 copies for them, and Korean listings that say 오버프레임 or 오버울레. A card you
+  added before as just "Prismatic Secret Rare" is matched with the Overframe one when the card has no other. English
+  Extended Art printings are TCGplayer's own products ("... (Extended Art)") and show with the card in Card search. They
+  all wear an **Overframe** badge, with an **Overframe cards** choice in the Show menu.
 - **PSA 10 value**: the switch under your collection's value shows what one gem-mint copy of each card would be worth,
   and cards you've had graded at their grade. Without more, it's a rough estimate from the raw price (Settings > Graded
   values). For real graded prices from eBay sales, add a PriceCharting key in Settings (it needs PriceCharting's
@@ -156,10 +172,12 @@ personal app: click **Continue**.
   Yugi-Market item follows that shop's price; a Korean box follows the middle of the Bunjang boxes; if the shop stops
   listing it, the price when you added it shows, marked "when added". **I got it** adds it to your collection as a sealed
   product (valued at that price unless you enter your own) and takes it off the list.
-- **Japanese and Korean sets** (Market tab > **Japanese** or **Korean**): every OCG set with its most valuable cards, by
-  English name, rarity and price in US$ (with the yen or won price), and its sealed products. **Want** and **I have it**
-  work as for English cards. Where the numbers come from:
-  - Japanese cards: BIGWEB (a large card shop in Japan), the cheapest copy for play it has in stock.
+- **Japanese and Korean sets** (Market tab > **Japanese** or **Korean**): every OCG and Rush Duel set with its most
+  valuable cards, by English name, rarity and price in US$ (with the yen or won price), and its sealed products; the
+  **OCG and Rush Duel** menu shows one game or both. **Want** and **I have it** work as for English cards. Where the
+  numbers come from:
+  - Japanese cards: BIGWEB (a large card shop in Japan), the cheapest copy for play it has in stock. Rush Duel cards:
+    Fullahead (another Japanese card shop), read once a day.
   - Japanese sealed products: Yugi-Market (based in Japan, ships worldwide), read by the website when you open the
     Japanese market (twice a day at most), because that shop turns away GitHub's computers.
   - Korean cards: Bunjang (a Korean marketplace): what each card sold for once it sold twice in the last four months
@@ -170,8 +188,9 @@ personal app: click **Continue**.
     link to it.
   - Sets and English card names: Yugipedia.
 
-  The daily workflow puts this together (`ocg_market.py`, up to 25 minutes a run, reading the three sites side by side
-  at a gentle pace; everything is kept between runs like the prices, with each day's prices per set). New sets are
+  The daily workflow puts this together (`ocg_market.py`, up to 25 minutes a run, reading the four sites side by side
+  at a gentle pace; everything is kept between runs like the prices, with each day's prices per set; Fullahead's whole
+  Rush Duel list, about 130 pages, once a day). New sets are
   checked every day, recent ones every few days, older ones weekly. The first runs fill it in, newest sets first; the
   day, week and month changes appear as those days go by. It writes `ocg-market.js` (the sets and their most valuable
   cards), `ocg-cards.js` (every card) and `ocg-history/` (each set's prices by day). The run's last line shows in the

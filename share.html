@@ -72,7 +72,7 @@
   // Photos only from TCGplayer, Yugipedia, BIGWEB, or the card pictures kept with this website.
   const HOSTED = (() => { try { return new URL("card-images/", location.href).href; } catch (e) { return ""; } })();
   const hosted = u => !!HOSTED && u.startsWith(HOSTED) && /^[a-z0-9]{1,150}\.jpg$/.test(u.slice(HOSTED.length));
-  const safeImg = u => /^https:\/\/(tcgplayer-cdn\.tcgplayer\.com|ms\.yugipedia\.com|image\.bigweb\.co\.jp)\//i.test(String(u || "")) || hosted(String(u || "")) ? String(u) : "";
+  const safeImg = u => /^https:\/\/(tcgplayer-cdn\.tcgplayer\.com|ms\.yugipedia\.com|image\.bigweb\.co\.jp|[a-z0-9-]*makeshop[a-z0-9-]*\.akamaized\.net)\//i.test(String(u || "")) || hosted(String(u || "")) ? String(u) : "";
   const plural = (n, w, m) => n + " " + (n === 1 ? w : (m || w + "s"));
   let data = null, view = "binder", q = "";
 
