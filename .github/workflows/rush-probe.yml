@@ -19,6 +19,6 @@ jobs:
         run: |
           git config user.name "Card Vault probe"
           git config user.email "github-actions[bot]@users.noreply.github.com"
-          git add probe/out.json
+          git add probe/out.json probe/out2.json 2>/dev/null || true; git add probe
           git commit -m "Rush Duel probe results"
           git push
