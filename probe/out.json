@@ -1,0 +1,2305 @@
+{
+ "bw_games": {
+  "/games": [
+   200,
+   "[{\"id\":1,\"title\":\"マジック・ザ・ギャザリング\",\"name\":null,\"name_encode\":\"\"},{\"id\":9,\"title\":\"遊戯王\",\"name\":null,\"name_encode\":\"\"},{\"id\":170,\"title\":\"ポケモンカードゲーム\",\"name\":null,\"name_encode\":\"\"},{\"id\":4,\"title\":\"デュエルマスターズ\",\"name\":null,\"name_encode\":\"\"},{\"id\":180,\"title\":\"UNION ARENA\",\"name\":null,\"name_encode\":\"\"},{\"id\":177,\"title\":\"ONE PIECEカードゲーム\",\"name\":null,\"name_encode\":\"\"},{\"id\":183,\"title\":\"ドラゴンボールスーパーカードゲーム フュージョンワールド\",\"name\":null,\"name_encode\":\"\"},{\"id\":142,\"title\":\"バトルスピリッツ\",\"name\":null,\"name_encode\":\"\"},{\"id\":161,\"title\":\"デジモンカードゲーム（デジカ）\",\"name\":null,\"name_encode\":\"\"},{\"id\":143,\"title\":\"ファイナルファンタジーTCG\",\"name\":null,\"name_encode\":\"\"},{\"id\":186,\"title\":\"ガンダムカードゲーム\",\"name\":null,\"name_encode\":\"\"},{\"id\":181,\"title\":\"ウルトラマンカードゲーム\",\"name\":null,\"name_encode\":\"\"},{\"id\":144,\"title\":\"ヴァンガード\",\"name\":null,\"name_encode\":\"\"},{\"id\":163,\"title\":\"ファイアーエムブレム\",\"name\":null,\"name_encode\":\"\"},{\"id\":63,\"title\":\"汎用サプライ\",\"name\":null,\"name_encode\":\"\"},{\"id\":185,\"title\":\"hololive OFFICIAL CARD GAME\",\"name\":null,\"name_encode\":\"\"},{\"id\":126,\"title\":\"ヴァイスシュヴァルツ\",\"name\":null,\"name_encode\":\"\"},{\"id\":138,\"title\":\"WIXOSS-ウィクロス-\",\"name\":null,\"name_encode\":\"\"},{\"id\":151,\"title\":\"Z\\/X ゼクス \",\"name\":null,\"name_encode\":\"\"},{\"id\":173,\"title\":\"キャラクターサプライ\",\"name\":null,\"name_encode\":\"\"},{\"id\":182,\"title\":\"Disney Lorcana[ロルカナ]\",\"name\":null,\"name_encode\":\"\"},{\"id\":141,\"title\":\" 英傑大戦\",\"name\":null,\"name_encode\":\"\"},{\"id\":114,\"title\":\"三国志大戦\",\"name\":null,\"name_encode\":\"\"},{\"id\":111,\"title\":\"Lycee\",\"name\":null,\"name_encode\":\"\"},{\"id\":15"
+  ],
+  "/game_titles": [
+   404,
+   "{\"message\":\"Not Found\",\"url\":\"\\/game_titles\",\"code\":404}"
+  ],
+  "/categories": [
+   404,
+   "{\"message\":\"Not Found\",\"url\":\"\\/categories\",\"code\":404}"
+  ],
+  "/cardsets": [
+   500,
+   "{\"message\":\"An Internal Error Has Occurred.\",\"url\":\"\\/cardsets\",\"code\":500}"
+  ]
+ },
+ "bw_sets": {
+  "1": {
+   "status": 200,
+   "n": 490,
+   "sample": [
+    "スター・トレック",
+    "リアリティ・フラクチャー",
+    "　リアリティ・フラクチャー_ブースターファン",
+    "　リアリティ・フラクチャー_統率者"
+   ],
+   "rush": [],
+   "rush_n": 0
+  },
+  "2": {
+   "status": 200,
+   "n": 31,
+   "sample": [
+    "【NEW】NEX-A LEGEND OF 「G」 12",
+    "-------NEX-A-------",
+    "NEX-A 反逆の咆哮 11",
+    "NEX-A 特価商品(傷有り)"
+   ],
+   "rush": [],
+   "rush_n": 0
+  },
+  "3": {
+   "status": 200,
+   "n": 0,
+   "sample": [],
+   "rush": [],
+   "rush_n": 0
+  },
+  "4": {
+   "status": 200,
+   "n": 413,
+   "sample": [
+    "--------【予約受付開始】--------",
+    "--------【新入荷】--------",
+    "[DM26-RP3]逆転おこせ鬼の∞ディスペクター!!",
+    "ＤMART 神アートシリーズ"
+   ],
+   "rush": [
+    "DMR-06 ビクトリー・ラッシュ"
+   ],
+   "rush_n": 1
+  },
+  "5": {
+   "status": 200,
+   "n": 0,
+   "sample": [],
+   "rush": [],
+   "rush_n": 0
+  },
+  "6": {
+   "status": 200,
+   "n": 21,
+   "sample": [
+    "ネクサス",
+    "オーメンズ",
+    "タイタン",
+    "ソーサリー"
+   ],
+   "rush": [],
+   "rush_n": 0
+  },
+  "7": {
+   "status": 200,
+   "n": 12,
+   "sample": [
+    "ラブライブ！シリーズ オフィシャルカードゲーム",
+    "ハイキュー!!バボカ!!BREAK",
+    "ガンダム アーセナルベース",
+    "アニマルカード"
+   ],
+   "rush": [],
+   "rush_n": 0
+  },
+  "8": {
+   "status": 200,
+   "n": 3,
+   "sample": [
+    "インディヒーロークリックス",
+    "マーベルヒーロークリックス",
+    "DCヒーロークリックス"
+   ],
+   "rush": [],
+   "rush_n": 0
+  },
+  "9": {
+   "status": 200,
+   "n": 549,
+   "sample": [
+    "未開封",
+    "鑑定品",
+    "セール品",
+    "--------【新入荷】--------"
+   ],
+   "rush": [
+    "［CORE］クラッシュ・オブ・リベリオン"
+   ],
+   "rush_n": 1
+  },
+  "10": {
+   "status": 200,
+   "n": 57,
+   "sample": [
+    "",
+    "KP26",
+    "エースパック系",
+    "バトルボーナスパック"
+   ],
+   "rush": [
+    "オーバーラッシュパック",
+    "[KP01超速のラッシュロード!!]",
+    "[GRP1]ゴールドラッシュパック",
+    "[GRD2]ゴーラッシュデッキ ジョインテック・アタック",
+    "[GRD1]ゴーラッシュデッキ ギャラクティカ・アライブ",
+    "[GRD0]ゴーラッシュデッキ"
+   ],
+   "rush_n": 6
+  },
+  "11": {
+   "status": 200,
+   "n": 0,
+   "sample": [],
+   "rush": [],
+   "rush_n": 0
+  },
+  "12": {
+   "status": 200,
+   "n": 0,
+   "sample": [],
+   "rush": [],
+   "rush_n": 0
+  },
+  "13": {
+   "status": 200,
+   "n": 0,
+   "sample": [],
+   "rush": [],
+   "rush_n": 0
+  },
+  "14": {
+   "status": 200,
+   "n": 0,
+   "sample": [],
+   "rush": [],
+   "rush_n": 0
+  },
+  "15": {
+   "status": 200,
+   "n": 0,
+   "sample": [],
+   "rush": [],
+   "rush_n": 0
+  },
+  "16": {
+   "status": 200,
+   "n": 0,
+   "sample": [],
+   "rush": [],
+   "rush_n": 0
+  },
+  "17": {
+   "status": 200,
+   "n": 0,
+   "sample": [],
+   "rush": [],
+   "rush_n": 0
+  },
+  "18": {
+   "status": 200,
+   "n": 0,
+   "sample": [],
+   "rush": [],
+   "rush_n": 0
+  },
+  "19": {
+   "status": 200,
+   "n": 0,
+   "sample": [],
+   "rush": [],
+   "rush_n": 0
+  },
+  "20": {
+   "status": 200,
+   "n": 0,
+   "sample": [],
+   "rush": [],
+   "rush_n": 0
+  },
+  "21": {
+   "status": 200,
+   "n": 0,
+   "sample": [],
+   "rush": [],
+   "rush_n": 0
+  },
+  "22": {
+   "status": 200,
+   "n": 0,
+   "sample": [],
+   "rush": [],
+   "rush_n": 0
+  },
+  "23": {
+   "status": 200,
+   "n": 0,
+   "sample": [],
+   "rush": [],
+   "rush_n": 0
+  },
+  "24": {
+   "status": 200,
+   "n": 0,
+   "sample": [],
+   "rush": [],
+   "rush_n": 0
+  },
+  "25": {
+   "status": 200,
+   "n": 0,
+   "sample": [],
+   "rush": [],
+   "rush_n": 0
+  },
+  "26": {
+   "status": 200,
+   "n": 0,
+   "sample": [],
+   "rush": [],
+   "rush_n": 0
+  },
+  "27": {
+   "status": 200,
+   "n": 0,
+   "sample": [],
+   "rush": [],
+   "rush_n": 0
+  },
+  "28": {
+   "status": 200,
+   "n": 0,
+   "sample": [],
+   "rush": [],
+   "rush_n": 0
+  },
+  "29": {
+   "status": 200,
+   "n": 0,
+   "sample": [],
+   "rush": [],
+   "rush_n": 0
+  },
+  "30": {
+   "status": 200,
+   "n": 0,
+   "sample": [],
+   "rush": [],
+   "rush_n": 0
+  },
+  "31": {
+   "status": 200,
+   "n": 0,
+   "sample": [],
+   "rush": [],
+   "rush_n": 0
+  },
+  "32": {
+   "status": 200,
+   "n": 0,
+   "sample": [],
+   "rush": [],
+   "rush_n": 0
+  },
+  "33": {
+   "status": 200,
+   "n": 0,
+   "sample": [],
+   "rush": [],
+   "rush_n": 0
+  },
+  "34": {
+   "status": 200,
+   "n": 0,
+   "sample": [],
+   "rush": [],
+   "rush_n": 0
+  },
+  "35": {
+   "status": 200,
+   "n": 0,
+   "sample": [],
+   "rush": [],
+   "rush_n": 0
+  },
+  "36": {
+   "status": 200,
+   "n": 0,
+   "sample": [],
+   "rush": [],
+   "rush_n": 0
+  },
+  "37": {
+   "status": 200,
+   "n": 0,
+   "sample": [],
+   "rush": [],
+   "rush_n": 0
+  },
+  "38": {
+   "status": 200,
+   "n": 0,
+   "sample": [],
+   "rush": [],
+   "rush_n": 0
+  },
+  "39": {
+   "status": 200,
+   "n": 0,
+   "sample": [],
+   "rush": [],
+   "rush_n": 0
+  },
+  "40": {
+   "status": 200,
+   "n": 0,
+   "sample": [],
+   "rush": [],
+   "rush_n": 0
+  }
+ },
+ "bw_rush": {
+  "game_id": 10,
+  "sets": [
+   {
+    "id": 7515,
+    "name": "オーバーラッシュパック",
+    "keys": [
+     "code",
+     "id",
+     "is_box",
+     "is_reservation",
+     "name",
+     "ordering_id"
+    ]
+   },
+   {
+    "id": 7192,
+    "name": "[KP01超速のラッシュロード!!]",
+    "keys": [
+     "code",
+     "id",
+     "is_box",
+     "is_reservation",
+     "name",
+     "ordering_id"
+    ]
+   },
+   {
+    "id": 7191,
+    "name": "[GRP1]ゴールドラッシュパック",
+    "keys": [
+     "code",
+     "id",
+     "is_box",
+     "is_reservation",
+     "name",
+     "ordering_id"
+    ]
+   },
+   {
+    "id": 7296,
+    "name": "[GRD2]ゴーラッシュデッキ ジョインテック・アタック",
+    "keys": [
+     "code",
+     "id",
+     "is_box",
+     "is_reservation",
+     "name",
+     "ordering_id"
+    ]
+   },
+   {
+    "id": 7295,
+    "name": "[GRD1]ゴーラッシュデッキ ギャラクティカ・アライブ",
+    "keys": [
+     "code",
+     "id",
+     "is_box",
+     "is_reservation",
+     "name",
+     "ordering_id"
+    ]
+   },
+   {
+    "id": 7294,
+    "name": "[GRD0]ゴーラッシュデッキ",
+    "keys": [
+     "code",
+     "id",
+     "is_box",
+     "is_reservation",
+     "name",
+     "ordering_id"
+    ]
+   }
+  ],
+  "products_7515": {
+   "status": 200,
+   "n": 0,
+   "pagenate": {
+    "count": 0,
+    "current": 0,
+    "perPage": 100,
+    "page": 1,
+    "requestedPage": 1,
+    "pageCount": 1,
+    "start": 0,
+    "end": 0,
+    "prevPage": false,
+    "nextPage": false,
+    "sort": null,
+    "direction": null,
+    "sortDefault": false,
+    "directionDefault": false,
+    "completeSort": [],
+    "limit": 100,
+    "scope": null,
+    "finder": "all"
+   },
+   "items": [],
+   "rarities": []
+  },
+  "products_7192": {
+   "status": 200,
+   "n": 0,
+   "pagenate": {
+    "count": 0,
+    "current": 0,
+    "perPage": 100,
+    "page": 1,
+    "requestedPage": 1,
+    "pageCount": 1,
+    "start": 0,
+    "end": 0,
+    "prevPage": false,
+    "nextPage": false,
+    "sort": null,
+    "direction": null,
+    "sortDefault": false,
+    "directionDefault": false,
+    "completeSort": [],
+    "limit": 100,
+    "scope": null,
+    "finder": "all"
+   },
+   "items": [],
+   "rarities": []
+  },
+  "products_7191": {
+   "status": 200,
+   "n": 0,
+   "pagenate": {
+    "count": 0,
+    "current": 0,
+    "perPage": 100,
+    "page": 1,
+    "requestedPage": 1,
+    "pageCount": 1,
+    "start": 0,
+    "end": 0,
+    "prevPage": false,
+    "nextPage": false,
+    "sort": null,
+    "direction": null,
+    "sortDefault": false,
+    "directionDefault": false,
+    "completeSort": [],
+    "limit": 100,
+    "scope": null,
+    "finder": "all"
+   },
+   "items": [],
+   "rarities": []
+  }
+ },
+ "yp": {
+  "jp_sets": {
+   "status": 200,
+   "n": 323,
+   "more": null,
+   "rows": [
+    {
+     "t": "Shaman Bandit of the Ensemble",
+     "p": {
+      "Japanese set prefix": [
+       "RD/KP28"
+      ],
+      "Japanese release date": [
+       null
+      ],
+      "Set type": [
+       "Booster pack"
+      ],
+      "Series": [
+       "Deck Mod Pack"
+      ],
+      "Japanese name": [
+       "<ruby lang=\"ja\"><rb>合</rb><rp>（</rp><rt>がっ</rt><rp>）</rp></ruby><ruby lang=\"ja\"><rb>奏</rb><rp>（</rp><rt>そう</rt><rp>）</rp></ruby>のシャーマンバンデット"
+      ]
+     }
+    },
+    {
+     "t": "Galaxy Cup 2026 Team Tournament Finals prize card",
+     "p": {
+      "Japanese set prefix": [
+       "RD/GC26"
+      ],
+      "Japanese release date": [
+       null
+      ],
+      "Set type": [
+       "Promotional card"
+      ],
+      "Series": [],
+      "Japanese name": [
+       "ギャラクシーカップ２０２６ チーム戦決勝大会 参加賞"
+      ]
+     }
+    },
+    {
+     "t": "Ritche of Hope Duel Set",
+     "p": {
+      "Japanese set prefix": [
+       "RD/DS01"
+      ],
+      "Japanese release date": [
+       null
+      ],
+      "Set type": [
+       "Promotional card"
+      ],
+      "Series": [],
+      "Japanese name": [
+       "<ruby lang=\"ja\"><rb>希</rb><rp>（</rp><rt>き</rt><rp>）</rp></ruby><ruby lang=\"ja\"><rb>望</rb><rp>（</rp><rt>ぼう</rt><rp>）</rp></ruby>のリーチェ デュエルセット"
+      ]
+     }
+    },
+    {
+     "t": "Jointech of Passion",
+     "p": {
+      "Japanese set prefix": [
+       "RD/KP27"
+      ],
+      "Japanese release date": [
+       null
+      ],
+      "Set type": [
+       "Booster pack"
+      ],
+      "Series": [
+       "Deck Mod Pack"
+      ],
+      "Japanese name": [
+       "<ruby lang=\"ja\"><rb>情</rb><rp>（</rp><rt>じょう</rt><rp>）</rp></ruby><ruby lang=\"ja\"><rb>熱</rb><rp>（</rp><rt>ねつ</rt><rp>）</rp></ruby>のジョインテック"
+      ]
+     }
+    },
+    {
+     "t": "Saikyō Jump December 2026 promotional card",
+     "p": {
+      "Japanese set prefix": [
+       "RD/SJMP"
+      ],
+      "Japanese release date": [
+       null
+      ],
+      "Set type": [
+       "Magazine promotional card"
+      ],
+      "Series": [
+       "Saikyō Jump promotional cards"
+      ],
+      "Japanese name": [
+       "<ruby lang=\"ja\"><rb>最強</rb><rp>（</rp><rt>サイキョー</rt><rp>）</rp></ruby>ジャンプ ２０２６<ruby lang=\"ja\"><rb>年</rb><rp>（</rp><rt>ねん</rt><rp>）</rp></ruby> １２<ruby lang=\"ja\"><rb>月</rb><rp>（</rp><rt>がつ</rt><rp>）</rp></ruby><ruby lang=\"ja\"><rb>号</rb><rp>（</rp><rt>ごう</rt><rp>）</rp></ruby> <ruby lang=\"ja\"><rb>付</rb><rp>（</rp><rt>ふ</rt><rp>）</rp></ruby><ruby lang=\"ja\"><rb>録</rb><rp>（</rp><rt>ろく</rt><rp>）</rp></ruby>カード"
+      ]
+     }
+    },
+    {
+     "t": "Cross Art Collection",
+     "p": {
+      "Japanese set prefix": [
+       "RD/CA01"
+      ],
+      "Japanese release date": [
+       null
+      ],
+      "Set type": [
+       "Booster pack"
+      ],
+      "Series": [],
+      "Japanese name": [
+       "<ruby lang=\"ja\"><rb>ＣＲＯＳＳ</rb><rp>（</rp><rt>クロス</rt><rp>）</rp></ruby> <ruby lang=\"ja\"><rb>ＡＲＴ</rb><rp>（</rp><rt>アート</rt><rp>）</rp></ruby> <ruby lang=\"ja\"><rb>ＣＯＬＬＥＣＴＩＯＮ</rb><rp>（</rp><rt>コレクション</rt><rp>）</rp></ruby>"
+      ]
+     }
+    },
+    {
+     "t": "Saikyō Jump November 2026 promotional card",
+     "p": {
+      "Japanese set prefix": [
+       "RD/SJMP"
+      ],
+      "Japanese release date": [
+       null
+      ],
+      "Set type": [
+       "Magazine promotional card"
+      ],
+      "Series": [
+       "Saikyō Jump promotional cards"
+      ],
+      "Japanese name": [
+       "<ruby lang=\"ja\"><rb>最強</rb><rp>（</rp><rt>サイキョー</rt><rp>）</rp></ruby>ジャンプ ２０２６<ruby lang=\"ja\"><rb>年</rb><rp>（</rp><rt>ねん</rt><rp>）</rp></ruby> １１<ruby lang=\"ja\"><rb>月</rb><rp>（</rp><rt>がつ</rt><rp>）</rp></ruby><ruby lang=\"ja\"><rb>号</rb><rp>（</rp><rt>ごう</rt><rp>）</rp></ruby> <ruby lang=\"ja\"><rb>付</rb><rp>（</rp><rt>ふ</rt><rp>）</rp></ruby><ruby lang=\"ja\"><rb>録</rb><rp>（</rp><rt>ろく</rt><rp>）</rp></ruby>カード"
+      ]
+     }
+    },
+    {
+     "t": "Limited Pack Remastered Edition",
+     "p": {
+      "Japanese set prefix": [
+       "RD/LP01"
+      ],
+      "Japanese release date": [
+       null
+      ],
+      "Set type": [
+       "Booster pack"
+      ],
+      "Series": [],
+      "Japanese name": [
+       "リミテッドパック リマスターエディション"
+      ]
+     }
+    },
+    {
+     "t": "Battle Bonus Pack 2026 Vol.3",
+     "p": {
+      "Japanese set prefix": [
+       "RD/B263"
+      ],
+      "Japanese release date": [
+       null
+      ],
+      "Set type": [
+       "Booster pack"
+      ],
+      "Series": [
+       "Battle Pack (Rush Duel)"
+      ],
+      "Japanese name": [
+       "バトルボーナスパック２０２６<ruby lang=\"ja\"><rb>Ｖｏｌ．</rb><rp>（</rp><rt>ボリューム</rt><rp>）</rp></ruby>３"
+      ]
+     }
+    },
+    {
+     "t": "Special Victory Pack 2026 Vol.3",
+     "p": {
+      "Japanese set prefix": [
+       "RD/S263"
+      ],
+      "Japanese release date": [
+       null
+      ],
+      "Set type": [
+       "Booster pack"
+      ],
+      "Series": [
+       "Special Victory Pack"
+      ],
+      "Japanese name": [
+       "スペシャルビクトリーパック２０２６<ruby lang=\"ja\"><rb>Ｖｏｌ．</rb><rp>（</rp><rt>ボリューム</rt><rp>）</rp></ruby>３"
+      ]
+     }
+    },
+    {
+     "t": "Limited Event Limit 1 prize cards",
+     "p": {
+      "Japanese set prefix": [
+       "RD/P010"
+      ],
+      "Japanese release date": [
+       null
+      ],
+      "Set type": [
+       "Promotional card"
+      ],
+      "Series": [],
+      "Japanese name": [
+       "<ruby lang=\"ja\"><rb>限</rb><rp>（</rp><rt>げん</rt><rp>）</rp></ruby><ruby lang=\"ja\"><rb>定</rb><rp>（</rp><rt>てい</rt><rp>）</rp></ruby>イベント <ruby lang=\"ja\"><rb>ＬＩＭＩＴ</rb><rp>（</rp><rt>リミット</rt><rp>）</rp></ruby>１ <ruby lang=\"ja\"><rb>上</rb><rp>（</rp><rt>じょう</rt><rp>）</rp></ruby><ruby lang=\"ja\"><rb>位</rb><rp>（</rp><rt>い</rt><rp>）</rp></ruby><ruby lang=\"ja\"><rb>賞</rb><rp>（</rp><rt>しょう</rt><rp>）</rp></ruby>"
+      ]
+     }
+    },
+    {
+     "t": "Galaxy Cup 2026 Finals prize card",
+     "p": {
+      "Japanese set prefix": [
+       "RD/GC26"
+      ],
+      "Japanese release date": [
+       null
+      ],
+      "Set type": [
+       "Promotional card"
+      ],
+      "Series": [],
+      "Japanese name": [
+       "ギャラクシーカップ２０２６ <ruby lang=\"ja\"><rb>上</rb><rp>（</rp><rt>じょう</rt><rp>）</rp></ruby><ruby lang=\"ja\"><rb>位</rb><rp>（</rp><rt>い</rt><rp>）</rp></ruby><ruby lang=\"ja\"><rb>賞</rb><rp>（</rp><rt>しょう</rt><rp>）</rp></ruby>"
+      ]
+     }
+    },
+    {
+     "t": "Saikyō Jump October 2026 promotional card",
+     "p": {
+      "Japanese set prefix": [
+       "RD/SJMP"
+      ],
+      "Japanese release date": [
+       null
+      ],
+      "Set type": [
+       "Magazine promotional card"
+      ],
+      "Series": [
+       "Saikyō Jump promotional cards"
+      ],
+      "Japanese name": [
+       "<ruby lang=\"ja\"><rb>最強</rb><rp>（</rp><rt>サイキョー</rt><rp>）</rp></ruby>ジャンプ ２０２６<ruby lang=\"ja\"><rb>年</rb><rp>（</rp><rt>ねん</rt><rp>）</rp></ruby> １０<ruby lang=\"ja\"><rb>月</rb><rp>（</rp><rt>がつ</rt><rp>）</rp></ruby><ruby lang=\"ja\"><rb>号</rb><rp>（</rp><rt>ごう</rt><rp>）</rp></ruby> <ruby lang=\"ja\"><rb>付</rb><rp>（</rp><rt>ふ</rt><rp>）</rp></ruby><ruby lang=\"ja\"><rb>録</rb><rp>（</rp><rt>ろく</rt><rp>）</rp></ruby>カード"
+      ]
+     }
+    },
+    {
+     "t": "Headliner of Reigning",
+     "p": {
+      "Japanese set prefix": [
+       "RD/KP26"
+      ],
+      "Japanese release date": [
+       null
+      ],
+      "Set type": [
+       "Booster pack"
+      ],
+      "Series": [
+       "Deck Mod Pack"
+      ],
+      "Japanese name": [
+       "<ruby lang=\"ja\"><rb>君</rb><rp>（</rp><rt>くん</rt><rp>）</rp></ruby><ruby lang=\"ja\"><rb>臨</rb><rp>（</rp><rt>りん</rt><rp>）</rp></ruby>のヘッドライナー"
+      ]
+     }
+    },
+    {
+     "t": "Saikyō Jump September 2026 promotional card",
+     "p": {
+      "Japanese set prefix": [
+       "RD/SJMP"
+      ],
+      "Japanese release date": [
+       null
+      ],
+      "Set type": [
+       "Magazine promotional card"
+      ],
+      "Series": [
+       "Saikyō Jump promotional cards"
+      ],
+      "Japanese name": [
+       "<ruby lang=\"ja\"><rb>最強</rb><rp>（</rp><rt>サイキョー</rt><rp>）</rp></ruby>ジャンプ ２０２６<ruby lang=\"ja\"><rb>年</rb><rp>（</rp><rt>ねん</rt><rp>）</rp></ruby> ９<ruby lang=\"ja\"><rb>月</rb><rp>（</rp><rt>がつ</rt><rp>）</rp></ruby><ruby lang=\"ja\"><rb>号</rb><rp>（</rp><rt>ごう</rt><rp>）</rp></ruby> <ruby lang=\"ja\"><rb>付</rb><rp>（</rp><rt>ふ</rt><rp>）</rp></ruby><ruby lang=\"ja\"><rb>録</rb><rp>（</rp><rt>ろく</rt><rp>）</rp></ruby>カード"
+      ]
+     }
+    },
+    {
+     "t": "Over Rush Challenge Cup Team Tournament prize card",
+     "p": {
+      "Japanese set prefix": [
+       "RD/P014"
+      ],
+      "Japanese release date": [
+       null
+      ],
+      "Set type": [
+       "Promotional card"
+      ],
+      "Series": [],
+      "Japanese name": [
+       "オーバーラッシュチャレンジカップ チーム<ruby lang=\"ja\"><rb>戦</rb><rp>（</rp><rt>せん</rt><rp>）</rp></ruby> <ruby lang=\"ja\"><rb>賞</rb><rp>（</rp><rt>しょう</rt><rp>）</rp></ruby><ruby lang=\"ja\"><rb>品</rb><rp>（</rp><rt>ひん</rt><rp>）</rp></ruby>カード"
+      ]
+     }
+    },
+    {
+     "t": "Jump Victory Carnival 2026 promotional cards",
+     "p": {
+      "Japanese set prefix": [
+       "RD/VC26"
+      ],
+      "Japanese release date": [
+       null
+      ],
+      "Set type": [
+       "Promotional card"
+      ],
+      "Series": [],
+      "Japanese name": [
+       "ジャンプビクトリーカーニバル２０２６ <ruby lang=\"ja\"><rb>特</rb><rp>（</rp><rt>とく</rt><rp>）</rp></ruby><ruby lang=\"ja\"><rb>典</rb><rp>（</rp><rt>てん</rt><rp>）</rp></ruby>カード"
+      ]
+     }
+    },
+    {
+     "t": "Special Pack 2026 Vol.1",
+     "p": {
+      "Japanese set prefix": [
+       "RD/WC25",
+       "RD/26S1"
+      ],
+      "Japanese release date": [
+       null
+      ],
+      "Set type": [
+       "Booster pack"
+      ],
+      "Series": [],
+      "Japanese name": [
+       "スペシャルパック ２０２６ <ruby lang=\"ja\"><rb>Ｖｏｌ．</rb><rp>（</rp><rt>ボリューム</rt><rp>）</rp></ruby>１"
+      ]
+     }
+    },
+    {
+     "t": "Advance Pack: Union Base",
+     "p": {
+      "Japanese set prefix": [
+       "RD/AP03"
+      ],
+      "Japanese release date": [
+       null
+      ],
+      "Set type": [
+       "Booster pack"
+      ],
+      "Series": [
+       "Advance Pack"
+      ],
+      "Japanese name": [
+       "アドバンスパック ユニオン・ベース"
+      ]
+     }
+    },
+    {
+     "t": "Saikyō Jump August 2026 promotional card",
+     "p": {
+      "Japanese set prefix": [
+       "RD/SJMP"
+      ],
+      "Japanese release date": [
+       null
+      ],
+      "Set type": [
+       "Magazine promotional card"
+      ],
+      "Series": [
+       "Saikyō Jump promotional cards"
+      ],
+      "Japanese name": [
+       "<ruby lang=\"ja\"><rb>最強</rb><rp>（</rp><rt>サイキョー</rt><rp>）</rp></ruby>ジャンプ ２０２６<ruby lang=\"ja\"><rb>年</rb><rp>（</rp><rt>ねん</rt><rp>）</rp></ruby> ８<ruby lang=\"ja\"><rb>月</rb><rp>（</rp><rt>がつ</rt><rp>）</rp></ruby><ruby lang=\"ja\"><rb>号</rb><rp>（</rp><rt>ごう</rt><rp>）</rp></ruby> <ruby lang=\"ja\"><rb>付</rb><rp>（</rp><rt>ふ</rt><rp>）</rp></ruby><ruby lang=\"ja\"><rb>録</rb><rp>（</rp><rt>ろく</rt><rp>）</rp></ruby>カード"
+      ]
+     }
+    },
+    {
+     "t": "Battle Bonus Pack 2026 Vol.2",
+     "p": {
+      "Japanese set prefix": [
+       "RD/B262"
+      ],
+      "Japanese release date": [
+       null
+      ],
+      "Set type": [
+       "Booster pack"
+      ],
+      "Series": [
+       "Battle Pack (Rush Duel)"
+      ],
+      "Japanese name": [
+       "バトルボーナスパック２０２６<ruby lang=\"ja\"><rb>Ｖｏｌ．</rb><rp>（</rp><rt>ボリューム</rt><rp>）</rp></ruby>２"
+      ]
+     }
+    },
+    {
+     "t": "Special Victory Pack 2026 Vol.2",
+     "p": {
+      "Japanese set prefix": [
+       "RD/S262"
+      ],
+      "Japanese release date": [
+       null
+      ],
+      "Set type": [
+       "Booster pack"
+      ],
+      "Series": [
+       "Special Victory Pack"
+      ],
+      "Japanese name": [
+       "スペシャルビクトリーパック２０２６<ruby lang=\"ja\"><rb>Ｖｏｌ．</rb><rp>（</rp><rt>ボリューム</rt><rp>）</rp></ruby>２"
+      ]
+     }
+    },
+    {
+     "t": "Galaxy Cup 2026 Team Tournament Qualifiers participation card",
+     "p": {
+      "Japanese set prefix": [
+       "RD/GC26"
+      ],
+      "Japanese release date": [
+       null
+      ],
+      "Set type": [
+       "Promotional card"
+      ],
+      "Series": [],
+      "Japanese name": [
+       "ギャラクシーカップ２０２６ チーム<ruby lang=\"ja\"><rb>戦</rb><rp>（</rp><rt>せん</rt><rp>）</rp></ruby><ruby lang=\"ja\"><rb>予</rb><rp>（</rp><rt>よ</rt><rp>）</rp></ruby><ruby lang=\"ja\"><rb>選</rb><rp>（</rp><rt>せん</rt><rp>）</rp></ruby> <ruby lang=\"ja\"><rb>参</rb><rp>（</rp><rt>さん</rt><rp>）</rp></ruby><ruby lang=\"ja\"><rb>加</rb><rp>（</rp><rt>か</rt><rp>）</rp></ruby><ruby lang=\"ja\"><rb>賞</rb><rp>（</rp><rt>しょう</rt><rp>）</rp></ruby>"
+      ]
+     }
+    },
+    {
+     "t": "Galaxy Cup 2026 Team Tournament Qualifiers prize card",
+     "p": {
+      "Japanese set prefix": [
+       "RD/P011"
+      ],
+      "Japanese release date": [
+       null
+      ],
+      "Set type": [
+       "Promotional card"
+      ],
+      "Series": [],
+      "Japanese name": [
+       "ギャラクシーカップ２０２６ チーム<ruby lang=\"ja\"><rb>戦</rb><rp>（</rp><rt>せん</rt><rp>）</rp></ruby><ruby lang=\"ja\"><rb>予</rb><rp>（</rp><rt>よ</rt><rp>）</rp></ruby><ruby lang=\"ja\"><rb>選</rb><rp>（</rp><rt>せん</rt><rp>）</rp></ruby> <ruby lang=\"ja\"><rb>上</rb><rp>（</rp><rt>じょう</rt><rp>）</rp></ruby><ruby lang=\"ja\"><rb>位</rb><rp>（</rp><rt>い</rt><rp>）</rp></ruby><ruby lang=\"ja\"><rb>賞</rb><rp>（</rp><rt>しょう</rt><rp>）</rp></ruby>"
+      ]
+     }
+    },
+    {
+     "t": "Saikyō Jump July 2026 promotional card",
+     "p": {
+      "Japanese set prefix": [
+       "RD/SJMP"
+      ],
+      "Japanese release date": [
+       null
+      ],
+      "Set type": [
+       "Magazine promotional card"
+      ],
+      "Series": [
+       "Saikyō Jump promotional cards"
+      ],
+      "Japanese name": [
+       "<ruby lang=\"ja\"><rb>最強</rb><rp>（</rp><rt>サイキョー</rt><rp>）</rp></ruby>ジャンプ ２０２６<ruby lang=\"ja\"><rb>年</rb><rp>（</rp><rt>ねん</rt><rp>）</rp></ruby> ７<ruby lang=\"ja\"><rb>月</rb><rp>（</rp><rt>がつ</rt><rp>）</rp></ruby><ruby lang=\"ja\"><rb>号</rb><rp>（</rp><rt>ごう</rt><rp>）</rp></ruby> <ruby lang=\"ja\"><rb>付</rb><rp>（</rp><rt>ふ</rt><rp>）</rp></ruby><ruby lang=\"ja\"><rb>録</rb><rp>（</rp><rt>ろく</rt><rp>）</rp></ruby>カード"
+      ]
+     }
+    }
+   ],
+   "err": ""
+  },
+  "kr_sets": {
+   "status": 200,
+   "n": 129,
+   "more": null,
+   "rows": [
+    {
+     "t": "Rising of the Aurora",
+     "p": {
+      "Korean set prefix": [
+       "RD/KP25"
+      ],
+      "Korean release date": [
+       null
+      ],
+      "Set type": [
+       "Booster pack"
+      ],
+      "Korean name": [
+       "극광의 라이징"
+      ]
+     }
+    },
+    {
+     "t": "Over Rush Pack 4",
+     "p": {
+      "Korean set prefix": [
+       "RD/ORP4"
+      ],
+      "Korean release date": [
+       null
+      ],
+      "Set type": [
+       "Booster pack"
+      ],
+      "Korean name": [
+       "오버러시 팩 4"
+      ]
+     }
+    },
+    {
+     "t": "Advanced Victory Pack Vol.3",
+     "p": {
+      "Korean set prefix": [
+       "RD/AD03"
+      ],
+      "Korean release date": [
+       null
+      ],
+      "Set type": [
+       "Booster pack"
+      ],
+      "Korean name": [
+       "어드밴스드 빅토리 팩 Vol.3"
+      ]
+     }
+    },
+    {
+     "t": "Stella Cup 2026 Finals participation card",
+     "p": {
+      "Korean set prefix": [
+       "RD/SC26"
+      ],
+      "Korean release date": [
+       null
+      ],
+      "Set type": [
+       "Promotional card"
+      ],
+      "Korean name": [
+       "STELLA CUP 2026 최종전 참가상"
+      ]
+     }
+    },
+    {
+     "t": "Stella Cup 2026 Finals prize card",
+     "p": {
+      "Korean set prefix": [
+       "RD/SC26"
+      ],
+      "Korean release date": [
+       null
+      ],
+      "Set type": [
+       "Promotional card"
+      ],
+      "Korean name": [
+       "STELLA CUP 2026 최종전 상위상"
+      ]
+     }
+    },
+    {
+     "t": "Overforce of the Abyss",
+     "p": {
+      "Korean set prefix": [
+       "RD/KP24"
+      ],
+      "Korean release date": [
+       null
+      ],
+      "Set type": [
+       "Booster pack"
+      ],
+      "Korean name": [
+       "심연의 오버포스"
+      ]
+     }
+    },
+    {
+     "t": "Stella Cup 2026 Qualifiers participation card",
+     "p": {
+      "Korean set prefix": [
+       "RD/SC26"
+      ],
+      "Korean release date": [
+       null
+      ],
+      "Set type": [
+       "Promotional card"
+      ],
+      "Korean name": [
+       "STELLA CUP 2026 공인매장 대표선발전 참가상"
+      ]
+     }
+    },
+    {
+     "t": "Rush Duel Event Pack 2026 Vol.1",
+     "p": {
+      "Korean set prefix": [
+       "RD/EV09"
+      ],
+      "Korean release date": [
+       null
+      ],
+      "Set type": [
+       "Booster pack"
+      ],
+      "Korean name": [
+       "이벤트 팩 2026 Vol.1"
+      ]
+     }
+    },
+    {
+     "t": "Advance Pack: Revenge Hearts",
+     "p": {
+      "Korean set prefix": [
+       "RD/AP02"
+      ],
+      "Korean release date": [
+       null
+      ],
+      "Set type": [
+       "Booster pack"
+      ],
+      "Korean name": [
+       "어드밴스 팩 리벤지 하츠"
+      ]
+     }
+    },
+    {
+     "t": "5th Anniversary Duel Set",
+     "p": {
+      "Korean set prefix": [
+       "RD/5TH2"
+      ],
+      "Korean release date": [
+       null
+      ],
+      "Set type": [
+       "Promotional card"
+      ],
+      "Korean name": [
+       "5th ANNIVERSARY 듀얼 세트"
+      ]
+     }
+    },
+    {
+     "t": "Advanced Victory Pack Vol.2",
+     "p": {
+      "Korean set prefix": [
+       "RD/AD02"
+      ],
+      "Korean release date": [
+       null
+      ],
+      "Set type": [
+       "Booster pack"
+      ],
+      "Korean name": [
+       "어드밴스드 빅토리 팩 Vol.2"
+      ]
+     }
+    },
+    {
+     "t": "Gias Charge of the Nova",
+     "p": {
+      "Korean set prefix": [
+       "RD/KP23"
+      ],
+      "Korean release date": [
+       null
+      ],
+      "Set type": [
+       "Booster pack"
+      ],
+      "Korean name": [
+       "신성의 기아스차지"
+      ]
+     }
+    },
+    {
+     "t": "Over Rush Pack 3",
+     "p": {
+      "Korean set prefix": [
+       "RD/ORP3"
+      ],
+      "Korean release date": [
+       null
+      ],
+      "Set type": [
+       "Booster pack"
+      ],
+      "Korean name": [
+       "오버러시 팩 3"
+      ]
+     }
+    },
+    {
+     "t": "Structure Deck: Triumphant Return of the Monarchs",
+     "p": {
+      "Korean set prefix": [
+       "RD/SD0F"
+      ],
+      "Korean release date": [
+       null
+      ],
+      "Set type": [
+       "Structure Deck"
+      ],
+      "Korean name": [
+       "스트럭처 덱 제왕의 개선"
+      ]
+     }
+    },
+    {
+     "t": "Event Pack 2025 Vol.2",
+     "p": {
+      "Korean set prefix": [
+       "RD/EV08"
+      ],
+      "Korean release date": [
+       null
+      ],
+      "Set type": [
+       "Booster pack"
+      ],
+      "Korean name": [
+       "이벤트 팩 2025 Vol.2"
+      ]
+     }
+    },
+    {
+     "t": "OuTerverSe of Terror",
+     "p": {
+      "Korean set prefix": [
+       "RD/KP22"
+      ],
+      "Korean release date": [
+       null
+      ],
+      "Set type": [
+       "Booster pack"
+      ],
+      "Korean name": [
+       "전율의 아우터버스"
+      ]
+     }
+    },
+    {
+     "t": "5th Promotion Pack",
+     "p": {
+      "Korean set prefix": [
+       "RD/5THP"
+      ],
+      "Korean release date": [
+       null
+      ],
+      "Set type": [
+       "Booster pack"
+      ],
+      "Korean name": [
+       "5th PROMOTION PACK"
+      ]
+     }
+    },
+    {
+     "t": "Advance Pack: Devil's Ceremony",
+     "p": {
+      "Korean set prefix": [
+       "RD/AP01"
+      ],
+      "Korean release date": [
+       null
+      ],
+      "Set type": [
+       "Booster pack"
+      ],
+      "Korean name": [
+       "어드밴스 팩 데블즈 세레모니"
+      ]
+     }
+    },
+    {
+     "t": "Accel Road of the Attack",
+     "p": {
+      "Korean set prefix": [
+       "RD/KP21"
+      ],
+      "Korean release date": [
+       null
+      ],
+      "Set type": [
+       "Booster pack"
+      ],
+      "Korean name": [
+       "진격의 액셀로드"
+      ]
+     }
+    },
+    {
+     "t": "Advanced Victory Pack Vol.1",
+     "p": {
+      "Korean set prefix": [
+       "RD/AD01"
+      ],
+      "Korean release date": [
+       null
+      ],
+      "Set type": [
+       "Booster pack"
+      ],
+      "Korean name": [
+       "어드밴스드 빅토리 팩 Vol.1"
+      ]
+     }
+    },
+    {
+     "t": "Structure Deck: Black Magic Ritual",
+     "p": {
+      "Korean set prefix": [
+       "RD/SD0E"
+      ],
+      "Korean release date": [
+       null
+      ],
+      "Set type": [
+       "Structure Deck"
+      ],
+      "Korean name": [
+       "스트럭처 덱 흑마술의 의식"
+      ]
+     }
+    },
+    {
+     "t": "Stella Cup 2025 Finals prize card",
+     "p": {
+      "Korean set prefix": [
+       "RD/SC25"
+      ],
+      "Korean release date": [
+       null
+      ],
+      "Set type": [
+       "Promotional card"
+      ],
+      "Korean name": [
+       "STELLA CUP 2025 최종전 상위상"
+      ]
+     }
+    },
+    {
+     "t": "Stella Cup 2025 Finals participation card",
+     "p": {
+      "Korean set prefix": [
+       "RD/SC25"
+      ],
+      "Korean release date": [
+       null
+      ],
+      "Set type": [
+       "Promotional card"
+      ],
+      "Korean name": [
+       "STELLA CUP 2025 최종전 참가상"
+      ]
+     }
+    },
+    {
+     "t": "5th Anniversary Pack",
+     "p": {
+      "Korean set prefix": [
+       "RD/5TH1"
+      ],
+      "Korean release date": [
+       null
+      ],
+      "Set type": [
+       "Booster pack"
+      ],
+      "Korean name": [
+       "5th ANNIVERSARY PACK"
+      ]
+     }
+    },
+    {
+     "t": "An Epic Tale of Recollected Memories Duel Set",
+     "p": {
+      "Korean set prefix": [
+       "RD/25HY"
+      ],
+      "Korean release date": [
+       null
+      ],
+      "Set type": [
+       "Promotional card"
+      ],
+      "Korean name": [
+       "전해 내려오는 영웅담 듀얼 세트"
+      ]
+     }
+    }
+   ],
+   "err": ""
+  },
+  "en_sets": {
+   "status": 200,
+   "n": 0,
+   "more": null,
+   "rows": [],
+   "err": "{\"query\":{\"printrequests\":[{\"label\":\"\",\"key\":\"\",\"redi\":\"\",\"typeid\":\"_wpg\",\"mode\":2,\"format\":false},{\"label\":\"English set prefix\",\"key\":\"English_set_prefix\",\"redi\":\"\",\"typeid\":\"_txt\",\"mode\":1,\"format\":\"\"},{\"label\":\"English release date\",\"key\":\"English_release_date\",\"redi\":\"\",\"typeid\":\"_dat\",\"mode\":1,"
+  },
+  "prefixes": [
+   "RD/KP28",
+   "RD/GC26",
+   "RD/DS01",
+   "RD/KP27",
+   "RD/SJMP",
+   "RD/CA01",
+   "RD/SJMP",
+   "RD/LP01",
+   "RD/B263",
+   "RD/S263",
+   "RD/P010",
+   "RD/GC26",
+   "RD/SJMP",
+   "RD/KP26",
+   "RD/SJMP",
+   "RD/P014",
+   "RD/VC26",
+   "RD/WC25",
+   "RD/AP03",
+   "RD/SJMP",
+   "RD/B262",
+   "RD/S262",
+   "RD/GC26",
+   "RD/P011",
+   "RD/SJMP"
+  ],
+  "cards_RD/KP28": {
+   "status": 200,
+   "n": 0,
+   "more": null,
+   "rows": [],
+   "err": "{\"query\":{\"printrequests\":[{\"label\":\"\",\"key\":\"\",\"redi\":\"\",\"typeid\":\"_wpg\",\"mode\":2,\"format\":false},{\"label\":\"Card number\",\"key\":\"Card_number\",\"redi\":\"\",\"typeid\":\"_txt\",\"mode\":1,\"format\":\"\"},{\"label\":\"Rarity\",\"key\":\"Rarity\",\"redi\":\"\",\"typeid\":\"_wpg\",\"mode\":1,\"format\":\"\"},{\"label\":\"Set contains\",\"key\""
+  },
+  "cards_RD/KP01": {
+   "status": 200,
+   "n": 40,
+   "more": 40,
+   "rows": [
+    {
+     "t": "Set Card Lists:Deck Mod Pack: Hyperspeed Rush Road!! (OCG-JP)# 042e813055b9c3062725c900878dbf68",
+     "p": {
+      "Card number": [
+       "RD/KP01-JP039"
+      ],
+      "Rarity": [
+       "Rare"
+      ],
+      "Set contains": [
+       "Road Magic - Tempest"
+      ]
+     }
+    },
+    {
+     "t": "Set Card Lists:Deck Mod Pack: Hyperspeed Rush Road!! (OCG-JP)# 062864cc78c82012154c467a1a5de8a5",
+     "p": {
+      "Card number": [
+       "RD/KP01-JP047"
+      ],
+      "Rarity": [
+       "Rare"
+      ],
+      "Set contains": [
+       "Call of the Earthbound (Rush Duel)"
+      ]
+     }
+    },
+    {
+     "t": "Set Card Lists:Deck Mod Pack: Hyperspeed Rush Road!! (OCG-JP)# 1bc181c5339a0197403eb1ff5669f6ac",
+     "p": {
+      "Card number": [
+       "RD/KP01-JP033"
+      ],
+      "Rarity": [
+       "Rare"
+      ],
+      "Set contains": [
+       "Sonic Attacker"
+      ]
+     }
+    },
+    {
+     "t": "Set Card Lists:Deck Mod Pack: Hyperspeed Rush Road!! (OCG-JP)# 20e32664a9707a369fcf67ca44f3699a",
+     "p": {
+      "Card number": [
+       "RD/KP01-JP012"
+      ],
+      "Rarity": [
+       "Rare"
+      ],
+      "Set contains": [
+       "Faith Bird (Rush Duel)"
+      ]
+     }
+    },
+    {
+     "t": "Set Card Lists:Deck Mod Pack: Hyperspeed Rush Road!! (OCG-JP)# 336f9ee114ff1a73c4cd8f7cc95a539b",
+     "p": {
+      "Card number": [
+       "RD/KP01-JP008"
+      ],
+      "Rarity": [
+       "Common"
+      ],
+      "Set contains": [
+       "Petit Moth (Rush Duel)"
+      ]
+     }
+    },
+    {
+     "t": "Set Card Lists:Deck Mod Pack: Hyperspeed Rush Road!! (OCG-JP)# 3968a34796d4939518055675cbb4f579",
+     "p": {
+      "Card number": [
+       "RD/KP01-JP016"
+      ],
+      "Rarity": [
+       "Rare"
+      ],
+      "Set contains": [
+       "Max Raider"
+      ]
+     }
+    },
+    {
+     "t": "Set Card Lists:Deck Mod Pack: Hyperspeed Rush Road!! (OCG-JP)# 3e2077ec041aa2ff074e29604acf34c2",
+     "p": {
+      "Card number": [
+       "RD/KP01-JP009"
+      ],
+      "Rarity": [
+       "Common"
+      ],
+      "Set contains": [
+       "Skull Servant (Rush Duel)"
+      ]
+     }
+    },
+    {
+     "t": "Set Card Lists:Deck Mod Pack: Hyperspeed Rush Road!! (OCG-JP)# 3f11ea484ae1decd7e7892e2d38e46ea",
+     "p": {
+      "Card number": [
+       "RD/KP01-JP034"
+      ],
+      "Rarity": [
+       "Rare"
+      ],
+      "Set contains": [
+       "Mask of Volos"
+      ]
+     }
+    },
+    {
+     "t": "Set Card Lists:Deck Mod Pack: Hyperspeed Rush Road!! (OCG-JP)# 41f267f8a1be36283040235ae8b54add",
+     "p": {
+      "Card number": [
+       "RD/KP01-JP006"
+      ],
+      "Rarity": [
+       "Common"
+      ],
+      "Set contains": [
+       "Little D (Rush Duel)"
+      ]
+     }
+    },
+    {
+     "t": "Set Card Lists:Deck Mod Pack: Hyperspeed Rush Road!! (OCG-JP)# 43cba023e1f37a9a5441c300d72b1ce9",
+     "p": {
+      "Card number": [
+       "RD/KP01-JP041"
+      ],
+      "Rarity": [
+       "Super Rare"
+      ],
+      "Set contains": [
+       "Hammer Crush"
+      ]
+     }
+    },
+    {
+     "t": "Set Card Lists:Deck Mod Pack: Hyperspeed Rush Road!! (OCG-JP)# 4871c359dd7805fbff4a3439def08736",
+     "p": {
+      "Card number": [
+       "RD/KP01-JP049"
+      ],
+      "Rarity": [
+       "Super Rare"
+      ],
+      "Set contains": [
+       "Brutal Retribution"
+      ]
+     }
+    },
+    {
+     "t": "Set Card Lists:Deck Mod Pack: Hyperspeed Rush Road!! (OCG-JP)# 54dc26888813a5cddf461830ac5eaca6",
+     "p": {
+      "Card number": [
+       "RD/KP01-JP024"
+      ],
+      "Rarity": [
+       "Rare"
+      ],
+      "Set contains": [
+       "Sportsdragon Pitcher"
+      ]
+     }
+    },
+    {
+     "t": "Set Card Lists:Deck Mod Pack: Hyperspeed Rush Road!! (OCG-JP)# 56401ed105a53d199800d17697e79173",
+     "p": {
+      "Card number": [
+       "RD/KP01-JP032"
+      ],
+      "Rarity": [
+       "Common"
+      ],
+      "Set contains": [
+       "Thunder the Thunder"
+      ]
+     }
+    },
+    {
+     "t": "Set Card Lists:Deck Mod Pack: Hyperspeed Rush Road!! (OCG-JP)# 57509caba86259edc1cfe50948b9545c",
+     "p": {
+      "Card number": [
+       "RD/KP01-JP010"
+      ],
+      "Rarity": [
+       "Common"
+      ],
+      "Set contains": [
+       "Silver Fang (Rush Duel)"
+      ]
+     }
+    },
+    {
+     "t": "Set Card Lists:Deck Mod Pack: Hyperspeed Rush Road!! (OCG-JP)# 5e87a9a81f77ace25e4d7fc59d16e202",
+     "p": {
+      "Card number": [
+       "RD/KP01-JP015"
+      ],
+      "Rarity": [
+       "Rare"
+      ],
+      "Set contains": [
+       "Crawling Dragon (Rush Duel)"
+      ]
+     }
+    },
+    {
+     "t": "Set Card Lists:Deck Mod Pack: Hyperspeed Rush Road!! (OCG-JP)# 65a77ecc196fd95137357084f42bd70e",
+     "p": {
+      "Card number": [
+       "RD/KP01-JP000"
+      ],
+      "Rarity": [
+       "Rush Rare"
+      ],
+      "Set contains": [
+       "Blue-Eyes White Dragon (Rush Duel)"
+      ]
+     }
+    },
+    {
+     "t": "Set Card Lists:Deck Mod Pack: Hyperspeed Rush Road!! (OCG-JP)# 6a1d9b49dfeca874a25b6401bd7718c8",
+     "p": {
+      "Card number": [
+       "RD/KP01-JP043"
+      ],
+      "Rarity": [
+       "Common"
+      ],
+      "Set contains": [
+       "Darkness Approaches (Rush Duel)"
+      ]
+     }
+    },
+    {
+     "t": "Set Card Lists:Deck Mod Pack: Hyperspeed Rush Road!! (OCG-JP)# 6d3af0a9271510415a8aadf866bb871d",
+     "p": {
+      "Card number": [
+       "RD/KP01-JP035"
+      ],
+      "Rarity": [
+       "Common"
+      ],
+      "Set contains": [
+       "Diabolic King Beetle"
+      ]
+     }
+    },
+    {
+     "t": "Set Card Lists:Deck Mod Pack: Hyperspeed Rush Road!! (OCG-JP)# 6d9242c53dc07321c33aeddc89f5be58",
+     "p": {
+      "Card number": [
+       "RD/KP01-JP003"
+      ],
+      "Rarity": [
+       "Common"
+      ],
+      "Set contains": [
+       "Ancient Turtle Protector"
+      ]
+     }
+    },
+    {
+     "t": "Set Card Lists:Deck Mod Pack: Hyperspeed Rush Road!! (OCG-JP)# 6f1ec8b8cbd52ea7d85ed32bf60dd744",
+     "p": {
+      "Card number": [
+       "RD/KP01-JP046"
+      ],
+      "Rarity": [
+       "Rare"
+      ],
+      "Set contains": [
+       "Counter Cannonball"
+      ]
+     }
+    },
+    {
+     "t": "Set Card Lists:Deck Mod Pack: Hyperspeed Rush Road!! (OCG-JP)# 701ce61a1021cfa594ff9c92dce6bdee",
+     "p": {
+      "Card number": [
+       "RD/KP01-JP022"
+      ],
+      "Rarity": [
+       "Super Rare"
+      ],
+      "Set contains": [
+       "Raidacross, Hero of the Dawn"
+      ]
+     }
+    },
+    {
+     "t": "Set Card Lists:Deck Mod Pack: Hyperspeed Rush Road!! (OCG-JP)# 731e9c4a14b3e765a8d4cc38cb8b486a",
+     "p": {
+      "Card number": [
+       "RD/KP01-JP029"
+      ],
+      "Rarity": [
+       "Ultra Rare"
+      ],
+      "Set contains": [
+       "Yamiruler the Dark Delayer"
+      ]
+     }
+    },
+    {
+     "t": "Set Card Lists:Deck Mod Pack: Hyperspeed Rush Road!! (OCG-JP)# 86ab117815138676a1cbaff118422d23",
+     "p": {
+      "Card number": [
+       "RD/KP01-JP014"
+      ],
+      "Rarity": [
+       "Rare"
+      ],
+      "Set contains": [
+       "Machine Attacker (Rush Duel)"
+      ]
+     }
+    },
+    {
+     "t": "Set Card Lists:Deck Mod Pack: Hyperspeed Rush Road!! (OCG-JP)# 889a2f6085d25d57164f7e739626ac8f",
+     "p": {
+      "Card number": [
+       "RD/KP01-JP001"
+      ],
+      "Rarity": [
+       "Common"
+      ],
+      "Set contains": [
+       "Lizard Soldier (Rush Duel)"
+      ]
+     }
+    },
+    {
+     "t": "Set Card Lists:Deck Mod Pack: Hyperspeed Rush Road!! (OCG-JP)# 8b6879d2fca0c5f1045bdb5df7d5c928",
+     "p": {
+      "Card number": [
+       "RD/KP01-JP018"
+      ],
+      "Rarity": [
+       "Super Rare"
+      ],
+      "Set contains": [
+       "Whispering Fairy"
+      ]
+     }
+    }
+   ],
+   "err": ""
+  },
+  "cards_KR_sample": {
+   "status": 200,
+   "n": 20,
+   "more": 20,
+   "rows": [
+    {
+     "t": "Set Card Lists:\"Blue-Eyes White Dragon Rush Rare Special Red Version\" GET Campaign (OCG-KR)# ce95abbed50ff39468f06734d9fe3367",
+     "p": {
+      "Card number": [
+       "RD/P000-KR001"
+      ],
+      "Rarity": [
+       "Rush Rare"
+      ],
+      "Set contains": [
+       "Blue-Eyes White Dragon (Rush Duel)"
+      ]
+     }
+    },
+    {
+     "t": "Set Card Lists:\"Dark Magician Rush Rare Special Red Version\" GET Campaign (OCG-KR)# 5669d48aca446a517601b5fac8a4c1fd",
+     "p": {
+      "Card number": [
+       "RD/P000-KR002"
+      ],
+      "Rarity": [
+       "Rush Rare"
+      ],
+      "Set contains": [
+       "Dark Magician (Rush Duel)"
+      ]
+     }
+    },
+    {
+     "t": "Set Card Lists:5th Anniversary Duel Set (OCG-KR)# 0b9d54e2b54005da691537e7d1fdc179",
+     "p": {
+      "Card number": [
+       "RD/5TH2-KR001"
+      ],
+      "Rarity": [
+       "Over Rush Rare"
+      ],
+      "Set contains": [
+       "Eternity Ether Dragon"
+      ]
+     }
+    },
+    {
+     "t": "Set Card Lists:5th Anniversary Pack (OCG-KR)# 07f135e72b36b2a05411d05e41b15a37",
+     "p": {
+      "Card number": [
+       "RD/5TH1-KR051"
+      ],
+      "Rarity": [
+       "Ultra Rare"
+      ],
+      "Set contains": [
+       "The Versus Fusion"
+      ]
+     }
+    },
+    {
+     "t": "Set Card Lists:5th Anniversary Pack (OCG-KR)# 083c682c1279c834da03777d84c9bab4",
+     "p": {
+      "Card number": [
+       "RD/5TH1-KR058"
+      ],
+      "Rarity": [
+       "Secret Rare",
+       "Super Parallel Rare"
+      ],
+      "Set contains": [
+       "Malevolent Catastrophe (Rush Duel)"
+      ]
+     }
+    },
+    {
+     "t": "Set Card Lists:5th Anniversary Pack (OCG-KR)# 0c5599a3d3b131bf6c65447415961aea",
+     "p": {
+      "Card number": [
+       "RD/5TH1-KR129"
+      ],
+      "Rarity": [
+       "Super Rare"
+      ],
+      "Set contains": [
+       "Stream"
+      ]
+     }
+    },
+    {
+     "t": "Set Card Lists:5th Anniversary Pack (OCG-KR)# 0daa600aea83548763c78e25c3602c1e",
+     "p": {
+      "Card number": [
+       "RD/5TH1-KR074"
+      ],
+      "Rarity": [
+       "Super Parallel Rare"
+      ],
+      "Set contains": [
+       "Excutie Lumière"
+      ]
+     }
+    },
+    {
+     "t": "Set Card Lists:5th Anniversary Pack (OCG-KR)# 0e8b0d4ae032853ce7a8e83eefd346e2",
+     "p": {
+      "Card number": [
+       "RD/5TH1-KR040"
+      ],
+      "Rarity": [
+       "Ultra Rare"
+      ],
+      "Set contains": [
+       "Phoenix Dealer"
+      ]
+     }
+    },
+    {
+     "t": "Set Card Lists:5th Anniversary Pack (OCG-KR)# 1022070ef57a11ee1418b5dc083ce8c7",
+     "p": {
+      "Card number": [
+       "RD/5TH1-KR025"
+      ],
+      "Rarity": [
+       "Ultra Rare",
+       "Over Rush Rare"
+      ],
+      "Set contains": [
+       "Sevens Knight the Multistrike Dragon Knight"
+      ]
+     }
+    },
+    {
+     "t": "Set Card Lists:5th Anniversary Pack (OCG-KR)# 11232f77c3b980910cfae121b6fcf9e5",
+     "p": {
+      "Card number": [
+       "RD/5TH1-KR042"
+      ],
+      "Rarity": [
+       "Ultra Rare"
+      ],
+      "Set contains": [
+       "Evil Dragon of Darkness"
+      ]
+     }
+    },
+    {
+     "t": "Set Card Lists:5th Anniversary Pack (OCG-KR)# 122d6ef80694f19359fbfe69fb315aa6",
+     "p": {
+      "Card number": [
+       "RD/5TH1-KR117"
+      ],
+      "Rarity": [
+       "Super Rare"
+      ],
+      "Set contains": [
+       "Splame"
+      ]
+     }
+    },
+    {
+     "t": "Set Card Lists:5th Anniversary Pack (OCG-KR)# 15ae932d529f1fd849c4d1a700c783be",
+     "p": {
+      "Card number": [
+       "RD/5TH1-KR084"
+      ],
+      "Rarity": [
+       "Super Rare",
+       "Secret Rare"
+      ],
+      "Set contains": [
+       "The Trinity Dragiastar"
+      ]
+     }
+    },
+    {
+     "t": "Set Card Lists:5th Anniversary Pack (OCG-KR)# 16aea9f54f52484cd9af78e92c6868e8",
+     "p": {
+      "Card number": [
+       "RD/5TH1-KR020"
+      ],
+      "Rarity": [
+       "Ultra Parallel Rare"
+      ],
+      "Set contains": [
+       "Pot of Avarice (Rush Duel)"
+      ]
+     }
+    },
+    {
+     "t": "Set Card Lists:5th Anniversary Pack (OCG-KR)# 16b81ecd5d9653b9e2ba981ef5d6f7f8",
+     "p": {
+      "Card number": [
+       "RD/5TH1-KR126"
+      ],
+      "Rarity": [
+       "Super Rare"
+      ],
+      "Set contains": [
+       "Prison Island - Cell Block 5 & 6"
+      ]
+     }
+    },
+    {
+     "t": "Set Card Lists:5th Anniversary Pack (OCG-KR)# 18319df71b3bb97f28c683fbfb135d78",
+     "p": {
+      "Card number": [
+       "RD/5TH1-KR039"
+      ],
+      "Rarity": [
+       "Ultra Rare"
+      ],
+      "Set contains": [
+       "Harpie Cielo Light Skirt"
+      ]
+     }
+    },
+    {
+     "t": "Set Card Lists:5th Anniversary Pack (OCG-KR)# 1858e5d40e609f5701a9a3fcd39e638d",
+     "p": {
+      "Card number": [
+       "RD/5TH1-KR019"
+      ],
+      "Rarity": [
+       "Ultra Parallel Rare"
+      ],
+      "Set contains": [
+       "Gunde of the Monumenthes"
+      ]
+     }
+    },
+    {
+     "t": "Set Card Lists:5th Anniversary Pack (OCG-KR)# 19cc228e21ec47175141066f4a363e3f",
+     "p": {
+      "Card number": [
+       "RD/5TH1-KR123"
+      ],
+      "Rarity": [
+       "Super Rare"
+      ],
+      "Set contains": [
+       "Road Magic - Tempest"
+      ]
+     }
+    },
+    {
+     "t": "Set Card Lists:5th Anniversary Pack (OCG-KR)# 1f63d92fba9cca012f34296c550add6f",
+     "p": {
+      "Card number": [
+       "RD/5TH1-KR009"
+      ],
+      "Rarity": [
+       "Ultra Parallel Rare",
+       "Over Rush Rare"
+      ],
+      "Set contains": [
+       "Princess Cosmos' Jest"
+      ]
+     }
+    },
+    {
+     "t": "Set Card Lists:5th Anniversary Pack (OCG-KR)# 1fbd30a02956cc3827f64cbe8ec65b03",
+     "p": {
+      "Card number": [
+       "RD/5TH1-KR079"
+      ],
+      "Rarity": [
+       "Super Parallel Rare"
+      ],
+      "Set contains": [
+       "Heavy Arms - Double Nexcalibur"
+      ]
+     }
+    },
+    {
+     "t": "Set Card Lists:5th Anniversary Pack (OCG-KR)# 2175d37daf4867af52da3da4847b3738",
+     "p": {
+      "Card number": [
+       "RD/5TH1-KR061"
+      ],
+      "Rarity": [
+       "Super Parallel Rare"
+      ],
+      "Set contains": [
+       "Thestalos the Firestorm Monarch (Rush Duel)"
+      ]
+     }
+    }
+   ],
+   "err": ""
+  },
+  "rush_card_page": {
+   "status": 200,
+   "n": 1,
+   "more": null,
+   "rows": [
+    {
+     "t": "Set Card Lists:Deck Mod Pack: Hyperspeed Rush Road!! (OCG-JP)# 889a2f6085d25d57164f7e739626ac8f",
+     "p": {
+      "Card number": [
+       "RD/KP01-JP001"
+      ],
+      "Rarity": [
+       "Common"
+      ],
+      "Set contains": [
+       "Lizard Soldier (Rush Duel)"
+      ],
+      "Card type": []
+     }
+    }
+   ],
+   "err": ""
+  }
+ },
+ "bunjang": {
+  "RD/KP01-KR": {
+   "status": 200,
+   "total": 2,
+   "names": [
+    [
+     "슈퍼 레어 교전어 사메가론 RD/KP01-KR036",
+     500,
+     "SELLING"
+    ],
+    [
+     "노멀 티탄의 후예 RD/KP04-KR012",
+     500,
+     "SELLING"
+    ]
+   ]
+  },
+  "러시듀얼": {
+   "status": 200,
+   "total": 486,
+   "names": [
+    [
+     "아카기유업 콜라보 세븐스로드 위치 유희왕 러시듀얼",
+     37000,
+     "SELLING"
+    ],
+    [
+     "미개봉 러시 듀얼 듀얼리스트 플레이매트 스파크하츠",
+     20000,
+     "SELLING"
+    ],
+    [
+     "유희왕 러시 듀얼 카드 6종 세트",
+     2500,
+     "SELLING"
+    ],
+    [
+     "유희왕 러시듀얼 그레이트 모스 PSA10점 판매합니다!",
+     110000,
+     "SELLING"
+    ],
+    [
+     "유희왕 러시 듀얼 카드 세트 정통번스트 브레스",
+     6000,
+     "SELLING"
+    ],
+    [
+     "유희왕 러시 듀얼 카드게임(멕시멈 초절강화 팩)",
+     6000,
+     "SELLING"
+    ],
+    [
+     "유희왕 러시듀얼 일판 블랙 매지션 걸 brg 9등급",
+     100000,
+     "SELLING"
+    ],
+    [
+     "러시듀얼 흑정의 머키소스 시크",
+     7000,
+     "SELLING"
+    ],
+    [
+     "유희왕 러시듀얼 다크매터 갤럭시 드래곤 ORR",
+     3000,
+     "SELLING"
+    ],
+    [
+     "유희왕 러시 듀얼 셀레브 레버레이션 일판 오버러시레어",
+     7500,
+     "SELLING"
+    ],
+    [
+     "러시듀얼 덱 개조팩 / 서광인 오블리비언 / 강습의 더블스타!! 일괄 판매",
+     10000,
+     "SOLD_OUT"
+    ],
+    [
+     "유희왕/유희왕 러시듀얼 카드 판매합니다",
+     5000000,
+     "SELLING"
+    ],
+    [
+     "유희왕 러시듀얼 일판 해피레이디 3, 1 SR",
+     7000,
+     "SELLING"
+    ],
+    [
+     "유희왕 러시듀얼 핸디 파트너즈 플레이매트",
+     64500,
+     "SELLING"
+    ],
+    [
+     "유희왕 러시듀얼 오버러시팩3 박스 미개봉품",
+     28000,
+     "SELLING"
+    ],
+    [
+     "유희왕 어비스 솔저 + 덱 개조 팩 러시듀얼 한 박스 파멸의 레퀴엠 카드",
+     9000,
+     "SELLING"
+    ],
+    [
+     "유희왕 러시듀얼 3통 팝니다",
+     20000,
+     "SELLING"
+    ],
+    [
+     "유희왕 러시듀얼 멕시멈 초절강화팩 일반75장",
+     4000,
+     "SELLING"
+    ],
+    [
+     "유희왕 러시듀얼 영웅담 미개봉 100매",
+     11000,
+     "SOLD_OUT"
+    ],
+    [
+     "유희왕카드 러시 듀얼  카드박스",
+     60000,
+     "SELLING"
+    ],
+    [
+     "유희왕 러시 듀얼 덱 개조 팩 3종 세트",
+     8000,
+     "SOLD_OUT"
+    ],
+    [
+     "유희왕 러시듀얼 극광의 라이징 잡카 판매/스텔라 어나더 일러 구매",
+     1234555,
+     "SELLING"
+    ],
+    [
+     "유희왕 러쉬듀얼 오버러시 일괄",
+     31580,
+     "SELLING"
+    ],
+    [
+     "유희왕 러시듀얼 카드 10장 세트",
+     1000,
+     "SELLING"
+    ],
+    [
+     "유희왕 러시 듀얼 캐릭터팩 한글판",
+     16000,
+     "SELLING"
+    ]
+   ]
+  }
+ },
+ "tcgcsv": {
+  "rush_groups": [],
+  "categories": [
+   [
+    2,
+    "YuGiOh"
+   ],
+   [
+    94,
+    "Rush of Ikorr"
+   ]
+  ]
+ }
+}
