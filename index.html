@@ -140,7 +140,7 @@
   /* Away from the Collection tab the showcase folds to one line, so each view starts near the top. */
   body:not([data-tab="collection"]) .summary{display:flex;align-items:baseline;gap:12px;padding:16px 26px;outline-offset:-6px}
   body:not([data-tab="collection"]) .hero-main{display:flex;align-items:baseline;gap:12px;flex-wrap:wrap}
-  body:not([data-tab="collection"]) :is(.top-cards,.facts,.hero-foot,.value-sub,.value-basis){display:none}
+  body:not([data-tab="collection"]) .summary :is(.top-cards,.facts,.hero-foot,.value-sub,.value-basis){display:none}
   body:not([data-tab="collection"]) .value-number{font-size:28px;margin:0}
   /* Tabs are binder dividers; the open one joins the page below it. */
   .tabs{display:flex;gap:4px;margin:26px 0 0;padding:0 14px;border-bottom:1px solid var(--line-2);overflow-x:auto;scrollbar-width:none}
@@ -244,9 +244,6 @@
   .tile-meta{font-size:12px;color:var(--text-dim);line-height:1.35;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
   .tile-foot{display:flex;align-items:flex-end;justify-content:space-between;gap:6px;margin-top:8px}
   .badges{display:flex;flex-wrap:wrap;gap:4px;min-width:0}
-  .ed-grade{border-color:rgba(243,234,223,.45);color:var(--text)}
-  .ed-extra{border-color:rgba(76,187,165,.65);color:var(--spell)}
-  .ed-sealed{border-color:rgba(160,140,220,.6);color:#c9bdf0}
   .tile-price{font-weight:700;font-stretch:var(--num-stretch);font-variant-numeric:tabular-nums;font-size:14.5px;text-align:right}
   .tile-price small{display:block;font-weight:400;font-size:11.5px;color:var(--text-dim)}
   .tile-price.none{color:var(--text-faint);font-weight:400;font-size:12.5px}
@@ -260,7 +257,12 @@
   .ed{display:inline-block;font-size:11px;font-weight:600;padding:2px 7px;border-radius:5px;border:1px solid var(--line-2);color:var(--text-dim);white-space:nowrap}
   .ed-1st{border-color:rgba(216,173,87,.7);color:var(--gold-hi)}
   .ed-lim{border-color:#8a6a45;color:#d9b58a}
+  /* (after .ed, so their colors show) */
+  .ed-grade{border-color:rgba(243,234,223,.45);color:var(--text)}
+  .ed-extra{border-color:rgba(76,187,165,.65);color:var(--spell)}
+  .ed-sealed{border-color:rgba(160,140,220,.6);color:#c9bdf0}
   .ed-rush{border-color:rgba(232,128,86,.65);color:#f2a582}
+  .ed-sell{border-color:rgba(226,124,168,.6);color:#f0a9c8}
   .ed-of{border-color:rgba(120,190,240,.6);color:#9fd0f5}
   .tag-new{border-color:rgba(76,187,165,.65);color:var(--spell)}
   .preview-table .ed{margin-left:6px;vertical-align:1px}
@@ -632,7 +634,7 @@
     .stack-table td[data-label]::before{content:attr(data-label) ": ";color:var(--text-dim)}
     .stack-table td[data-empty]{display:none}
     .stack-table.wg-table td.c-pick{order:20;grid-column:2}
-    .stack-table.gp-cards tr,.stack-table.gp-compare tr{grid-template-columns:minmax(0,1fr)}
+    .stack-table.gp-cards tr,.stack-table.gp-compare tr,.stack-table.ban-table tr,.stack-table.rp-table tr{grid-template-columns:minmax(0,1fr)}
   }
 
   /* ---------- card search ---------- */
@@ -778,6 +780,40 @@
   .sub-head{margin-top:2px}
   .sub-h{margin:0;font:400 19px/1.2 "Cinzel",Georgia,serif;letter-spacing:.03em}
   .seg .tab-count{margin-left:6px}
+  .photo-row{display:grid;grid-template-columns:1fr 1fr;gap:12px;max-width:420px}
+  .photo-slot{display:flex;flex-direction:column;gap:6px;min-width:0}
+  .photo-img,.photo-add{display:flex;flex-direction:column;align-items:center;justify-content:center;gap:4px;aspect-ratio:59/86;border:1px dashed var(--line-2);border-radius:10px;background:var(--surface);overflow:hidden;cursor:pointer;padding:0;color:var(--text-dim);font-size:13px;position:relative}
+  .photo-img{border-style:solid}
+  .photo-img img{width:100%;height:100%;object-fit:cover;display:block}
+  .photo-add span[aria-hidden]{font-size:28px;line-height:1;color:var(--gold-hi)}
+  .photo-add:hover{border-color:var(--gold)}
+  .photo-add:focus-within{outline:2px solid var(--gold);outline-offset:2px}
+  .photo-why{padding:10px;text-align:center}
+  .photo-cap{display:flex;gap:12px;align-items:baseline;font-size:13px}
+  .photo-cap b{margin-right:auto;font-weight:600}
+  .photo-full{position:fixed;inset:0;z-index:1000;background:rgba(0,0,0,.9);display:flex;flex-direction:column;align-items:center;justify-content:center;gap:12px;padding:16px}
+  .photo-full img{max-width:100%;max-height:calc(100% - 64px);object-fit:contain;border-radius:8px}
+  .ban-st{font-weight:600}
+  .ban-st.ban-0{color:#f08a8a}
+  .ban-st.ban-1{color:var(--gold-hi)}
+  .ban-st.ban-2{color:var(--text)}
+  .table.ban-table,.table.rp-table{min-width:0}
+  .op-list{display:flex;flex-direction:column;gap:10px;margin:0 0 14px}
+  .op-item{border:1px solid var(--line);border-radius:12px;background:var(--surface)}
+  .op-item.open{border-color:var(--line-2)}
+  .op-head{display:flex;flex-wrap:wrap;justify-content:space-between;align-items:center;gap:6px 16px;width:100%;padding:12px 14px;background:none;border:0;color:inherit;font:inherit;text-align:left;cursor:pointer}
+  .op-title{display:flex;flex-direction:column;gap:2px;min-width:0}
+  .op-nums{display:flex;flex-wrap:wrap;gap:4px 14px;font-variant-numeric:tabular-nums;font-size:14px}
+  .op-body{padding:0 14px 14px}
+  .table.op-table{min-width:0}
+  .batch-for{margin:0 0 12px}
+  .sell-sugg{display:flex;flex-wrap:wrap;gap:6px;margin:6px 0 0}
+  .sell-sugg .chip[aria-pressed="true"]{border-color:var(--gold);color:#fff}
+  .sell-drift{color:var(--gold-hi)}
+  .table .sell-in{width:92px;text-align:right;padding:6px 8px}
+  .sell-table .want-actions{flex-wrap:wrap}
+  .pa-sub{margin:16px 0 6px;font-size:13.5px}
+  .ca-key{word-break:break-all;font-size:12px}
   .ed-away{border-color:rgba(76,187,165,.65);color:var(--spell)}
   .ed-away.ed-late{border-color:rgba(216,173,87,.8);color:var(--gold)}
   b.late{color:var(--gold)}
@@ -1037,8 +1073,9 @@
     .value-label{font-size:12.5px}
     .value-number{font-size:clamp(25px,8.2vw,36px);font-stretch:110%;margin-top:4px;white-space:nowrap}
     .value-sub{font-size:12px}
-    .facts{flex-wrap:nowrap;overflow-x:auto;scrollbar-width:none;gap:16px;margin:12px -16px 0 0;padding-right:16px;grid-column:1 / -1}
-    .facts::-webkit-scrollbar{display:none}
+    .summary .facts{flex-wrap:nowrap;overflow-x:auto;scrollbar-width:none;gap:16px;margin:12px -16px 0 0;padding-right:16px;grid-column:1 / -1}
+    .summary .facts::-webkit-scrollbar{display:none}
+    .sales-facts{gap:12px 22px}
     .fact{flex:none}
     .fact b{font-size:15px}
     .fact > span{font-size:11.5px;white-space:nowrap}
@@ -1049,7 +1086,7 @@
     .value-mode{grid-column:1;grid-row:3;justify-self:start;margin-top:10px}
     .value-mode button{padding:5px 11px;font-size:12.5px;white-space:nowrap}
     .opt-word{display:none}
-    .facts{grid-row:4}
+    .summary .facts{grid-row:4}
     .value-sub{grid-column:1 / -1;grid-row:5;margin-top:10px}
     .data-pill{grid-column:1 / -1;grid-row:6;justify-self:start;margin-top:10px;padding:0;border:0;background:none;font-size:11.5px}
     .top-cards{grid-column:2;grid-row:1 / span 3;align-self:center}
@@ -1322,6 +1359,7 @@
           <option value="manual">Added manually</option>
           <option value="rush">Rush Duel cards</option>
           <option value="overframe">Overframe cards</option>
+          <option value="selling">On my sell list</option>
           <option value="cards">Single cards only</option>
           <option value="sealed">Sealed products</option>
         </select>
@@ -1388,6 +1426,7 @@
   <button class="btn btn-small" id="bulkAll" type="button">Select all shown</button>
   <button class="btn btn-small" id="bulkClear" type="button">Clear</button>
   <button class="btn btn-small" id="bulkLocation" type="button">Move…</button>
+  <button class="btn btn-small" id="bulkSell" type="button">Sell list</button>
   <button class="btn btn-small site-only" id="bulkShare" type="button">Share…</button>
   <button class="btn btn-small btn-danger" id="bulkDelete" type="button">Delete selected</button>
 </div>
@@ -1425,6 +1464,7 @@
   const WANTS_KEY = "cardvault.v2.wants";
   const DECKS_KEY = "cardvault.v2.decks";
   const SALES_KEY = "cardvault.v2.sales";
+  const OPENINGS_KEY = "cardvault.v2.openings";
   const DELETED_KEY = "cardvault.v2.deleted";   // what was deleted, and when (for syncing through the backup file)
   // The Card Vault website (config.js) syncs through Google Drive instead of a file on this computer.
   const SITE = window.CARDVAULT_SITE && typeof window.CARDVAULT_SITE === "object" ? window.CARDVAULT_SITE : null;
@@ -1534,16 +1574,17 @@
   let wants = [];
   let decks = [];   // saved deck lists: [{id, name, text, updated}]
   let sales = [];   // cards you sold (see recordSale)
+  let openings = [];   // boxes and packs you opened, with what you paid and what you pulled (see Openings)
   let valueHistory = [];   // [{d: "2026-09-25", v: 186.22, c: 37}] one point per TCGplayer price day
   // Syncing through the backup file: every card, want, deck and sale carries "mod" (when it last changed), and
   // deleted ones are remembered here by id, so a device can tell "deleted over there" from "not seen yet".
-  const SYNC_KINDS = ["collection", "wants", "decks", "sales"];
+  const SYNC_KINDS = ["collection", "wants", "decks", "sales", "openings"];
   const SHARED_SETTINGS = ["condAdjust", "condPct", "alertsOn", "alertMinDollar", "alertMinPct", "psa10Mult", "psa10Floor", "gradePct", "pcToken",
-    "gradingCost", "gradingMin", "gradingFees", "gradingCo", "ntfyTopic", "siteUrl"];
+    "gradingCost", "gradingMin", "gradingFees", "gradingCo", "ntfyTopic", "siteUrl", "sellFeePct", "sellFeeFlat", "cloudAlerts"];
   // Rough starting points for graded values when there's no real graded price: PSA 10 ≈ raw market × 4 + $25
   // (grading costs money and a gem-mint slab sells for more than raw), and other grades as a share of PSA 10.
   const DEFAULT_GRADE_PCT = {"10": 100, "9.5": 50, "9": 30, "8": 18, "7": 12, "6": 8};
-  let deleted = {collection: {}, wants: {}, decks: {}, sales: {}};
+  let deleted = {collection: {}, wants: {}, decks: {}, sales: {}, openings: {}};
   let prints = null;   // what each entry looked like at the last save, to notice what changed
   let settings = {view: "binder", sortField: "price", sortDir: "desc", basis: "market", tab: "collection",
     condAdjust: true, condPct: Object.assign({}, DEFAULT_COND_PCT), histPeriod: "m7", chartTable: false,
@@ -1551,7 +1592,8 @@
     backupRemindDays: 7, wantAlertSeen: "", alertsOn: false, alertMinDollar: 5, alertMinPct: 10, salesYear: "", deckId: null,
     deckView: "check", mkView: "sets", mkLine: "", mkKind: "", mkSortSets: "newest", mkSortSealed: "deal", mkRegion: "en", mkLineOcg: "", mkKindOcg: "", mkGame: "", wantsView: "", wantsSort: "target", csSort: "best", csMode: "cards", csSetSort: "number", setGoals: [], goalsOpen: [], moverBy: "usd", moverMin: 1,
     gradedView: false, psa10Mult: 4, psa10Floor: 25, gradePct: Object.assign({}, DEFAULT_GRADE_PCT), pcToken: "",
-    insightView: "history", salesView: "trade", gradingCost: 30, gradingMin: 50, gradingFees: {}, gradingCo: "PSA", ntfyTopic: "", siteUrl: "", autoSignIn: true, deviceName: ""};
+    insightView: "history", salesView: "trade", gradingCost: 30, gradingMin: 50, gradingFees: {}, gradingCo: "PSA", ntfyTopic: "", siteUrl: "", autoSignIn: true, deviceName: "",
+    sellFeePct: 13, sellFeeFlat: 0.3, cloudAlerts: null, openingsOpen: [], watchView: ""};
   const filters = {q: "", set: "", rarity: "", edition: "", language: "", location: "", show: ""};
   const selected = new Set();
   let selectMode = false;   // "Select" on: tapping a card ticks it instead of opening it (phones show no checkboxes otherwise)
@@ -1761,9 +1803,41 @@
       g10: n(r.g10),   // your own PSA 10 value for this card, if you entered one
       grading: normGrading(r.grading),   // at a grading company: {company, sent, order, cost}
       notes: String(r.notes || ""),
+      sell: normSell(r.sell),       // on your sell list: {price: your asking price each (or null), qty: how many (null: all), since}
+      photos: normPhotos(r.photos), // your own photos of this copy, kept in your Google Drive: [{id, side, at}]
       added: r.added || new Date().toISOString(),
       mod: modTime(r.mod)
     };
+  }
+  function normSell(x) {
+    if (!x || typeof x !== "object") return null;
+    const price = num(x.price);
+    return {price: price != null && price >= 0 ? round2(price) : null, qty: posInt(x.qty) || null, since: String(x.since || "") || new Date().toISOString()};
+  }
+  const PHOTO_SIDES = ["front", "back"];
+  function normPhotos(list) {
+    if (!Array.isArray(list)) return null;
+    const out = [];
+    for (const p of list) {
+      if (!p || typeof p !== "object" || !/^[A-Za-z0-9_-]{10,200}$/.test(String(p.id || ""))) continue;
+      const side = PHOTO_SIDES.includes(p.side) ? p.side : "front";
+      if (out.some(x => x.side === side)) continue;   // (one of each side)
+      out.push({id: String(p.id), side, at: String(p.at || "")});
+    }
+    return out.length ? out : null;
+  }
+  // A box or pack you opened: what it was, what you paid, and the cards that came out (as they were when added; the
+  // cards also went into your collection). Their value now is worked out from today's prices.
+  function upgradeOpening(o) {
+    if (!o || typeof o !== "object" || !String(o.name || "").trim()) return null;
+    const n = v => (v === "" || v == null) ? null : num(v);
+    const pulls = (Array.isArray(o.pulls) ? o.pulls : []).filter(x => x && typeof x === "object" && x.name).map(x => ({
+      name: String(x.name), productId: idOrNull(x.productId), number: String(x.number || ""), rarity: String(x.rarity || ""), setName: String(x.setName || ""),
+      edition: String(x.edition || ""), condition: String(x.condition || "Near Mint"), language: String(x.language || "English"), qty: posInt(x.qty) || 1,
+      value: n(x.value), image: safeImg(x.image) || ""}));
+    return {id: o.id || newId(), date: parseDay(o.date) ? String(o.date) : localDay(new Date()), name: String(o.name).trim(), productId: idOrNull(o.productId),
+      setName: String(o.setName || ""), kind: String(o.kind || ""), packs: posInt(o.packs) || null, cost: n(o.cost), notes: String(o.notes || ""),
+      pulls, added: o.added || new Date().toISOString(), mod: modTime(o.mod)};
   }
   const modTime = v => { const n = Number(v); return isFinite(n) && n > 0 ? n : 0; };
   function normalizeGrade(g) {
@@ -1830,6 +1904,8 @@
       decks = Array.isArray(dk) ? dk.map(upgradeDeck).filter(Boolean) : [];
       const sl = readJSON(SALES_KEY, []);
       sales = Array.isArray(sl) ? sl.map(upgradeSale).filter(Boolean) : [];
+      const op = readJSON(OPENINGS_KEY, []);
+      openings = Array.isArray(op) ? op.map(upgradeOpening).filter(Boolean) : [];
       const h = readJSON(HISTORY_KEY, []);
       valueHistory = Array.isArray(h) ? h.filter(p => p && parseDay(p.d) && isFinite(p.v)) : [];
       deleted = cleanDeleted(readJSON(DELETED_KEY, {}));
@@ -1854,9 +1930,9 @@
   }
 
   /* ----- change tracking, for syncing devices through the backup file ----- */
-  const listOf = k => k === "collection" ? collection : k === "wants" ? wants : k === "decks" ? decks : sales;
-  function setListOf(k, list) { if (k === "collection") collection = list; else if (k === "wants") wants = list; else if (k === "decks") decks = list; else sales = list; }
-  const upgradeOf = k => k === "collection" ? upgradeRecord : k === "wants" ? upgradeWant : k === "decks" ? upgradeDeck : upgradeSale;
+  const listOf = k => k === "collection" ? collection : k === "wants" ? wants : k === "decks" ? decks : k === "openings" ? openings : sales;
+  function setListOf(k, list) { if (k === "collection") collection = list; else if (k === "wants") wants = list; else if (k === "decks") decks = list; else if (k === "openings") openings = list; else sales = list; }
+  const upgradeOf = k => k === "collection" ? upgradeRecord : k === "wants" ? upgradeWant : k === "decks" ? upgradeDeck : k === "openings" ? upgradeOpening : upgradeSale;
   const printOf = x => JSON.stringify(x, (key, v) => key === "mod" ? undefined : v);
   function hashText(t) {   // FNV-1a, as a short id
     let h = 0x811c9dc5;
@@ -1866,7 +1942,7 @@
   const sharedPrint = () => JSON.stringify(SHARED_SETTINGS.map(k => settings[k]));
   // Deletions are remembered for a little over a year.
   function cleanDeleted(d) {
-    const out = {collection: {}, wants: {}, decks: {}, sales: {}};
+    const out = {collection: {}, wants: {}, decks: {}, sales: {}, openings: {}};
     const oldest = Date.now() - 400 * 86400000;
     if (d && typeof d === "object") {
       for (const k of SYNC_KINDS) {
@@ -1994,9 +2070,12 @@
     if (typeof ds.gradingCo === "string" && ds.gradingCo) settings.gradingCo = ds.gradingCo;
     if (typeof ds.ntfyTopic === "string") settings.ntfyTopic = ds.ntfyTopic;
     if (typeof ds.siteUrl === "string") settings.siteUrl = ds.siteUrl;
+    if (num(ds.sellFeePct) != null) settings.sellFeePct = Math.min(Math.max(num(ds.sellFeePct), 0), 60);
+    if (num(ds.sellFeeFlat) != null) settings.sellFeeFlat = Math.min(Math.max(num(ds.sellFeeFlat), 0), 50);
+    if ("cloudAlerts" in ds) settings.cloudAlerts = cleanCloudAlerts(ds.cloudAlerts);
   }
   function mergeSummary(res) {
-    const names = {collection: "collection", wants: "want list", decks: "decks", sales: "sales"};
+    const names = {collection: "collection", wants: "want list", decks: "decks", sales: "sales", openings: "openings"};
     const parts = [];
     for (const k of SYNC_KINDS) {
       const c = res.counts[k];
@@ -2015,14 +2094,14 @@
   const cardTotal = list => list.reduce((s, r) => s + (num(r.qty) || 0), 0);
   // What combining with this file would do here, worked out on a copy (nothing here changes).
   function dryMerge(data) {
-    const keep = {collection, wants, decks, sales, deleted, settings, valueHistory};
+    const keep = {collection, wants, decks, sales, openings, deleted, settings, valueHistory};
     const copy = v => JSON.parse(JSON.stringify(v));
     try {
-      collection = copy(collection); wants = copy(wants); decks = copy(decks); sales = copy(sales); deleted = copy(deleted); settings = copy(settings);
+      collection = copy(collection); wants = copy(wants); decks = copy(decks); sales = copy(sales); openings = copy(openings); deleted = copy(deleted); settings = copy(settings);
       const res = mergeBackup(data, {});
       return {res, cards: cardTotal(collection), wants: wants.length, qty: new Map(collection.map(r => [r.id, num(r.qty) || 0]))};
     } finally {
-      ({collection, wants, decks, sales, deleted, settings, valueHistory} = keep);
+      ({collection, wants, decks, sales, openings, deleted, settings, valueHistory} = keep);
     }
   }
   // null when the file's changes can go ahead; else what they'd take away here, for the question: cards removed,
@@ -2123,6 +2202,7 @@
         localStorage.setItem(WANTS_KEY, JSON.stringify(wants));
         localStorage.setItem(DECKS_KEY, JSON.stringify(decks));
         localStorage.setItem(SALES_KEY, JSON.stringify(sales));
+        localStorage.setItem(OPENINGS_KEY, JSON.stringify(openings));
         localStorage.setItem(HISTORY_KEY, JSON.stringify(valueHistory));
         localStorage.setItem(SETTINGS_KEY, JSON.stringify(settings));
         return true;
@@ -2594,6 +2674,7 @@
       (filters.show === "manual" && !r.productId) ||
       (filters.show === "rush" && !r.sealed && isRushNo(r.number)) ||
       (filters.show === "overframe" && isOverframeRec(r)) ||
+      (filters.show === "selling" && !!r.sell) ||
       (filters.show === "sealed" && r.sealed) ||
       (filters.show === "cards" && !r.sealed);
     const list = collection.filter(r =>
@@ -2603,7 +2684,7 @@
       (!filters.language || r.language === filters.language) &&
       (!filters.location || (filters.location === NO_LOCATION ? !r.location : r.location === filters.location)) &&
       show(r) &&
-      (!q || (r.name + " " + r.productName + " " + r.number + " " + r.setName + " " + r.location + " " + r.notes + " " + r.rarity + (isRushNo(r.number) ? " rush duel" : "") + (isOverframeRec(r) ? " overframe over frame extended art" : "")).toLowerCase().includes(q)));
+      (!q || (r.name + " " + r.productName + " " + r.number + " " + r.setName + " " + r.location + " " + r.notes + " " + r.rarity + (isRushNo(r.number) ? " rush duel" : "") + (isOverframeRec(r) ? " overframe over frame extended art" : "") + (r.sell ? " selling sell list" : "")).toLowerCase().includes(q)));
     return sortRecords(list);
   }
   function sortRecords(list) {
@@ -3066,7 +3147,7 @@
         '<span class="tile-meta" title="' + esc(r.rarity) + '">' + esc(r.rarity || " ") + "</span></button>") +
       '<div class="tile-foot"><span class="badges">' + (r.sealed ? '<span class="ed ed-sealed">Sealed</span>' : editionBadge(r.edition) + rushBadge(r.number) + overframeBadge(r)) + gradeBadge(r.grade) +
       (r.grading ? '<span class="ed ed-away' + (expectedBack(r.grading) && expectedBack(r.grading).late ? " ed-late" : "") + '">At ' + esc(r.grading.company) + (expectedBack(r.grading) && expectedBack(r.grading).late ? ", late" : "") + "</span>" : "") +
-      (extra ? '<span class="ed ed-extra">' + extra + " extra</span>" : "") + "</span>" + priceHTML(r, extra) + "</div></article>";
+      (extra ? '<span class="ed ed-extra">' + extra + " extra</span>" : "") + (r.sell ? '<span class="ed ed-sell">Selling</span>' : "") + "</span>" + priceHTML(r, extra) + "</div></article>";
   }
   const settingsGradedNote = r => { if (!settings.gradedView) return ""; const gv = gradedValue(r); return gv ? '<span class="cell-gv">' + esc(gv.grade || "PSA 10") + (gradedShort(gv) ? ", " + gradedShort(gv) : "") + "</span>" : ""; };
   function listHTML(list, extras) {
@@ -3090,7 +3171,7 @@
           '<td class="c-check"><input type="checkbox" class="check" data-select="' + esc(r.id) + '"' + (sel ? " checked" : "") +
           ' aria-label="Select ' + esc(r.name) + '"></td>' +
           '<td class="c-thumb"><span class="sleeve' + (r.sealed ? " boxed" : "") + '">' + imgTag(recordPics(r, "200w"), r.name) + "</span></td>" +
-          '<td><button type="button" class="cell-name" data-open="' + esc(r.id) + '">' + esc(r.name) + '</button><span class="cell-sub">' + esc(r.number) + (isRushNo(r.number) && !r.sealed ? " · Rush Duel" : "") + "</span></td>" +
+          '<td><button type="button" class="cell-name" data-open="' + esc(r.id) + '">' + esc(r.name) + '</button><span class="cell-sub">' + esc(r.number) + (isRushNo(r.number) && !r.sealed ? " · Rush Duel" : "") + (r.sell ? " · Selling" : "") + "</span></td>" +
           "<td>" + esc(r.setName) + "</td><td>" + esc(r.rarity) + "</td><td>" + esc(r.edition) + "</td><td>" +
           (r.grade ? esc(gradeLabel(r.grade)) + '<span class="cell-sub">graded</span>' : esc(r.condition)) +
           "</td><td>" + esc(r.language) + "</td>" + (showLoc ? "<td>" + esc(r.location) + "</td>" : "") +
@@ -3202,7 +3283,7 @@
     $("goName").addEventListener("click", () => openNameSearch(opts.replaceId, opts.want));
     if ($("goManual")) $("goManual").addEventListener("click", () => openManual({}));
     if ($("goScan")) $("goScan").addEventListener("click", () => openScanner());
-    if ($("goBatch")) $("goBatch").addEventListener("click", () => openBatch());
+    if ($("goBatch")) $("goBatch").addEventListener("click", () => openBatch({opening: null}));
     if ($("goSealed")) $("goSealed").addEventListener("click", () => openSealedSearch());
     if ($("goSealedWant")) $("goSealedWant").addEventListener("click", () => openSealedSearch("", {want: true}));
     if (opts.number) runNumberLookup(opts.number);
@@ -3838,7 +3919,8 @@
       '<h3 class="detail-title">' + esc(r.name) + "</h3>" +
       '<p class="detail-sub">' + esc(r.setName || "Set unknown") + "<br>" + (r.sealed ? "Sealed product" : esc(r.number || "No card number") + (r.rarity ? ", " + esc(r.rarity) : "")) +
       "<br>" + (r.location ? "Kept in " + esc(r.location) : "No location") + ' · <button type="button" class="link-btn" id="moveTop">Move</button></p>' + otherCopiesHTML(r) +
-      '<div class="links">' + links + "</div>" + priceSection +
+      '<div class="links">' + links + "</div>" + priceSection + photoSectionHTML(r) +
+      '<div class="section" id="sellSec"><h3>Selling</h3><div id="sellBox">' + sellBoxHTML(r) + "</div></div>" +
       '<div class="section"><h3>' + (r.sealed ? "Yours" : "Your copy") + '</h3><form id="editForm" class="stack">' +
       cardOnly('<div class="grid-2"><label class="field"><span>Printing</span><select class="input" id="eEd">' +
       options((product ? printingsFor(product).filter(k => k !== "Normal") : []).concat(PRINTINGS), r.edition) + "</select></label>" +
@@ -3869,6 +3951,9 @@
 
     if ($("otherBtn")) $("otherBtn").addEventListener("click", () => loadOtherMarkets(r));
     wireGradeIt(r.id);
+    wireSellBox(r.id);
+    wirePhotos(r.id);
+    if (opts.sell && $("sellSec") && $("sellSec").scrollIntoView) $("sellSec").scrollIntoView({block: "start"});
     if (opts.grading && $("gradeItSec") && $("gradeItSec").scrollIntoView) $("gradeItSec").scrollIntoView({block: "start"});
     if (product && SITE) loadCardHistory(r, product);
     else if (isOcg(r) && ocgHistoryBase()) loadOcgHistory(r);
@@ -5209,7 +5294,7 @@
   /* ----- How last night's update went (update-status.js) and the grading fees it read (grading-fees.js) ----- */
   // Both are made by the nightly update on GitHub, next to the website's other files. Card Vault.html on a computer
   // reads them from the website (Settings > the website address), like the Japanese and Korean cards.
-  const live = {status: null, fees: null, at: 0, loading: null};
+  const live = {status: null, fees: null, ban: null, at: 0, loading: null};
   function siteFileURL(name) {
     if (/^https?:$/.test(location.protocol)) return name;
     const site = String(settings.siteUrl || "");
@@ -5235,13 +5320,14 @@
   function loadLive(force) {
     if (live.loading) return live.loading;
     if (!force && live.at && Date.now() - live.at < 30 * 60000) return Promise.resolve(false);
-    live.loading = Promise.all([loadSiteJS("update-status.js", "CARDVAULT_STATUS"), loadSiteJS("grading-fees.js", "GRADING_FEES")]).then(([s, f]) => {
+    live.loading = Promise.all([loadSiteJS("update-status.js", "CARDVAULT_STATUS"), loadSiteJS("grading-fees.js", "GRADING_FEES"), loadSiteJS("banlist.js", "CARDVAULT_BANLIST")]).then(([s, f, bl]) => {
+      if (bl && bl.format === 1 && bl.lists) live.ban = bl;
       if (s && s.format === 1 && s.parts) {
         live.status = s;
         // (a problem you dismissed that has since been fixed is forgotten, so if it breaks again you're told again)
         const now = new Set((s.problems || []).concat(s.news || []).map(x => x && x.key).filter(Boolean));
         const seen = Array.isArray(settings.statusSeen) ? settings.statusSeen : [];
-        const kept = seen.filter(k => now.has(k) || /^stale-/.test(k));
+        const kept = seen.filter(k => now.has(k) || /^(stale|ban)-/.test(k));
         if (kept.length !== seen.length) { settings.statusSeen = kept; saveSettings(); }
       }
       if (f && f.format === 1 && f.companies) { live.fees = f; feeTables = null; }
@@ -5269,7 +5355,8 @@
     const seen = statusSeen(), stale = statusStale();
     const probs = seriousProblems().filter(p => !seen.has(p.key));
     const news = live.status ? (live.status.news || []).filter(n => n && n.key && !seen.has(n.key) && n.day && Date.now() - (parseDay(n.day) || new Date(0)).getTime() < 14 * 86400000) : [];
-    let html = "", keys = [];
+    let html = "", keys = [], kind = "";
+    const banNews = banChangesForYou(30).filter(c => !seen.has(c.key));
     if (stale && !seen.has("stale-" + localDay(stale))) {
       keys = ["stale-" + localDay(stale)];
       html = "<strong>The nightly price update hasn't run since " + esc(fmtDate(stale)) + ".</strong> Prices stay as they were until it runs again. " +
@@ -5278,12 +5365,17 @@
       keys = probs.map(p => p.key);
       html = "<strong>" + (probs.length === 1 ? "Part of last night's price update didn't work." : probs.length + " parts of last night's price update didn't work.") + "</strong> " +
         probs.map(p => esc(p.text)).join(" ") + " Card Vault tries again tonight.";
+    } else if (banNews.length) {
+      keys = banNews.map(c => c.key);
+      kind = "ban";
+      html = "<strong>The ban list changed for " + (banNews.length === 1 ? "one of your cards" : banNews.length + " of your cards") + ".</strong> " +
+        banNews.slice(0, 4).map(c => esc(banChangeText(c))).join(" ") + (banNews.length > 4 ? " And " + (banNews.length - 4) + " more." : "");
     } else if (news.length) {
       keys = news.map(n => n.key);
       html = "<strong>Grading fees changed.</strong> " + news.slice(0, 4).map(n => esc(n.text)).join(" ") + (news.length > 4 ? " And " + (news.length - 4) + " more (Settings &gt; Grading fees)." : "") +
         " Card Vault's grading estimates use the new fees.";
     }
-    if (html) html += '<div class="banner-actions"><button class="btn btn-small" type="button" data-banner="status-details">Details</button>' +
+    if (html) html += '<div class="banner-actions"><button class="btn btn-small" type="button" data-banner="' + (kind === "ban" ? "ban-show" : "status-details") + '">' + (kind === "ban" ? "Show" : "Details") + "</button>" +
       '<button class="btn btn-small" type="button" data-banner="status-dismiss">Dismiss</button></div>';
     b.dataset.keys = keys.join(" ");
     b.hidden = !html;
@@ -6945,11 +7037,12 @@
   }
   function backupPayload(stamp) {
     return {app: "Card Vault", kind: "backup", format: 1, savedAt: stamp || new Date().toISOString(), savedOn: deviceLabel(),
-      collection, wants, valueHistory, decks, sales, deleted, syncId: settings.syncId || null,
+      collection, wants, valueHistory, decks, sales, openings, deleted, syncId: settings.syncId || null,
       settings: {condAdjust: settings.condAdjust, condPct: settings.condPct,
         alertsOn: settings.alertsOn, alertMinDollar: settings.alertMinDollar, alertMinPct: settings.alertMinPct,
         psa10Mult: settings.psa10Mult, psa10Floor: settings.psa10Floor, gradePct: settings.gradePct, pcToken: settings.pcToken || "",
-        gradingCost: settings.gradingCost, gradingMin: settings.gradingMin, gradingFees: cleanGradingFees(settings.gradingFees), gradingCo: settings.gradingCo || "PSA", ntfyTopic: settings.ntfyTopic || "", siteUrl: settings.siteUrl || "", setGoals: cleanGoals(settings.setGoals), sharedMod: settings.sharedMod || 0}};
+        gradingCost: settings.gradingCost, gradingMin: settings.gradingMin, gradingFees: cleanGradingFees(settings.gradingFees), gradingCo: settings.gradingCo || "PSA", ntfyTopic: settings.ntfyTopic || "", siteUrl: settings.siteUrl || "", setGoals: cleanGoals(settings.setGoals),
+        sellFeePct: settings.sellFeePct, sellFeeFlat: settings.sellFeeFlat, cloudAlerts: cleanCloudAlerts(settings.cloudAlerts), sharedMod: settings.sharedMod || 0}};
   }
   const hasUnbackedChanges = () => !!settings.lastChangeAt && (!settings.lastBackupAt || settings.lastChangeAt > settings.lastBackupAt);
   const pause = ms => new Promise(r => setTimeout(r, ms));
@@ -7314,6 +7407,151 @@
       if (restoreBackup(text, "the copy from " + fmtDate(parseDay(f.name.match(DATED_RE)[1])))) { closeDrawer(); if (backup.state === "active") scheduleBackup(true); }
     }));
   }
+  /* ----- your own photos of a copy, kept in Google Drive ----- */
+  // Front and back photos of one copy (to sell it, for insurance, or to remember its condition), taken or chosen on
+  // this device, made smaller (longest side 1600 pixels) and kept in your Google Drive under Card Vault > Photos.
+  // The card keeps only their Drive ids, so they sync with it, and any device signed in to the same Google account
+  // shows them. Card Vault.html on a computer can't reach Google Drive, so it only says they're there.
+  const PHOTO_MAX = 1600;
+  const photoURLs = new Map();   // Drive id -> promise of a picture address (this visit only)
+  let photoFolder = null;
+  const driveLinked = () => !!(backup.handle && backup.handle.kind === "gdrive");
+  const sideWord = side => side === "back" ? "Back" : "Front";
+  function photoSectionHTML(r) {
+    if (!DRIVE && !(r.photos && r.photos.length)) return "";
+    return '<div class="section" id="photoSec"><h3>Your photos</h3><div id="photoBox">' + photoBoxHTML(r) + "</div></div>";
+  }
+  function photoBoxHTML(r) {
+    const list = r.photos || [];
+    if (!DRIVE) return '<p class="small" style="margin:0">' + plural(list.length, "photo") + " of this copy in your Google Drive (Card Vault &gt; Photos). Card Vault's website shows them.</p>";
+    if (!driveLinked()) return '<p class="small" style="margin:0">Keep your own photos of this copy, front and back, in your Google Drive. ' +
+      (list.length ? "This card has " + plural(list.length, "photo") + "; sync" : "Sync") + " with Google Drive (Settings &gt; Backup) to " + (list.length ? "see them" : "add them") + ".</p>";
+    return '<div class="photo-row">' + PHOTO_SIDES.map(side => {
+      const p = list.find(x => x.side === side);
+      return '<div class="photo-slot">' + (p
+        ? '<button type="button" class="photo-img" data-photo-view="' + esc(p.id) + '" aria-label="Show the ' + side + ' photo bigger"><img data-photo-id="' + esc(p.id) + '" alt="Your photo of the ' + side + '"></button>'
+        : '<label class="photo-add"><input type="file" class="sr" accept="image/*" data-photo-add="' + side + '"><span aria-hidden="true">+</span><span>Add the ' + side + "</span></label>") +
+        '<div class="photo-cap"><b>' + sideWord(side) + "</b>" + (p ? '<button type="button" class="link-btn" data-photo-save="' + side + '">Save</button><button type="button" class="link-btn" data-photo-del="' + side + '">Remove</button>' : "") + "</div></div>";
+    }).join("") + "</div>" +
+      '<p class="small" id="photoNote" role="status" style="margin:8px 0 0">' + (list.length ? "Kept in your Google Drive (Card Vault &gt; Photos). Save downloads one, for a listing." : "Take a photo or choose one. It's made smaller, kept in your Google Drive (Card Vault &gt; Photos) and syncs with the card.") + "</p>";
+  }
+  // (a picture address for a photo in Drive, fetched once a visit)
+  function photoURL(id) {
+    if (!photoURLs.has(id)) {
+      const p = driveFetch("files/" + encodeURIComponent(id) + "?alt=media").then(res => res.blob()).then(b => URL.createObjectURL(b));
+      photoURLs.set(id, p);
+      p.catch(() => photoURLs.delete(id));
+    }
+    return photoURLs.get(id);
+  }
+  function fillPhotos() {
+    document.querySelectorAll("#photoBox img[data-photo-id]").forEach(img => {
+      const why = t => img.replaceWith(Object.assign(document.createElement("span"), {className: "small photo-why", textContent: t}));
+      if (!driveToken()) { why("Sign in to Google Drive again (Resume) to see it"); return; }
+      photoURL(img.dataset.photoId).then(u => { if (img.isConnected) img.src = u; })
+        .catch(e => { if (img.isConnected) why(e && e.name === "NotFoundError" ? "Not in your Google Drive anymore" : "Couldn't load it right now"); });
+    });
+  }
+  function redrawPhotos(id) {
+    const r = collection.find(x => x.id === id);
+    if (r && $("photoBox") && drawerCtx && drawerCtx.mode === "details" && drawerCtx.id === id) { $("photoBox").innerHTML = photoBoxHTML(r); fillPhotos(); }
+  }
+  async function shrinkPhoto(file) {
+    const url = URL.createObjectURL(file);
+    try {
+      const img = await new Promise((resolve, reject) => { const i = new Image(); i.onload = () => resolve(i); i.onerror = () => reject(new Error("this browser can't read that picture")); i.src = url; });
+      const scale = Math.min(1, PHOTO_MAX / Math.max(img.naturalWidth || 1, img.naturalHeight || 1));
+      const c = document.createElement("canvas");
+      c.width = Math.max(1, Math.round(img.naturalWidth * scale)); c.height = Math.max(1, Math.round(img.naturalHeight * scale));
+      c.getContext("2d").drawImage(img, 0, 0, c.width, c.height);
+      return await new Promise((resolve, reject) => c.toBlob(b => b ? resolve(b) : reject(new Error("couldn't make it smaller")), "image/jpeg", 0.85));
+    } finally { URL.revokeObjectURL(url); }
+  }
+  async function photosFolderId() {
+    if (photoFolder) return photoFolder;
+    const own = await driveFolder("Card Vault", null, true);
+    photoFolder = await driveFolder("Photos", own, true);
+    return photoFolder;
+  }
+  async function uploadPhoto(blob, name) {
+    const folderId = await photosFolderId();
+    const boundary = "cardvault" + Date.now();
+    const body = new Blob(["--" + boundary + "\r\nContent-Type: application/json; charset=UTF-8\r\n\r\n" + JSON.stringify({name, mimeType: "image/jpeg", parents: [folderId]}) +
+      "\r\n--" + boundary + "\r\nContent-Type: image/jpeg\r\n\r\n", blob, "\r\n--" + boundary + "--"]);
+    const j = await (await driveFetch(GDRIVE_UPLOAD + "files?uploadType=multipart&fields=id", {method: "POST", headers: {"Content-Type": "multipart/related; boundary=" + boundary}, body})).json();
+    if (!j || !j.id) throw new Error("Google Drive didn't keep it");
+    return j.id;
+  }
+  const photoName = (r, side) => ((r.name || "Card") + (r.number && !r.sealed ? " " + r.number : "") + " " + side).replace(/[\\/:*?"<>|]+/g, " ").replace(/\s+/g, " ").trim().slice(0, 120) + ".jpg";
+  async function addPhoto(id, side, file) {
+    const say = t => { const n = $("photoNote"); if (n && drawerCtx && drawerCtx.id === id) n.textContent = t; };
+    if (!driveToken()) { say("Sign in to Google Drive again first (Resume, at the top of the page)."); return; }
+    say("Saving the " + side + " photo to your Google Drive…");
+    try {
+      const blob = await shrinkPhoto(file);
+      const r0 = collection.find(x => x.id === id);
+      const fileId = await uploadPhoto(blob, photoName(r0 || {}, side));
+      photoURLs.set(fileId, Promise.resolve(URL.createObjectURL(blob)));
+      const r = collection.find(x => x.id === id);
+      if (!r) { say("The card was removed meanwhile; the photo is in your Google Drive anyway."); return; }
+      r.photos = normPhotos((r.photos || []).filter(p => p.side !== side).concat([{id: fileId, side, at: new Date().toISOString()}]));
+      save(); renderSoon();
+      redrawPhotos(id);
+      toast("Saved the " + side + " photo of " + r.name + " in your Google Drive.");
+    } catch (e) {
+      say("Couldn't save the photo: " + ((e && e.message) || e) + ". Try again in a moment.");
+    }
+  }
+  const trashPhoto = (fileId, trashed) => driveFetch("files/" + encodeURIComponent(fileId), {method: "PATCH", headers: {"Content-Type": "application/json"}, body: JSON.stringify({trashed})}).catch(() => null);
+  function showPhoto(url, label) {
+    const box = document.createElement("div");
+    box.className = "photo-full";
+    box.setAttribute("role", "dialog");
+    box.setAttribute("aria-label", label);
+    box.innerHTML = '<img alt="' + esc(label) + '"><button type="button" class="btn btn-small">Close</button>';
+    box.querySelector("img").src = url;
+    const close = () => { box.remove(); document.removeEventListener("keydown", onKey, true); };
+    const onKey = e => { if (e.key === "Escape") { e.stopPropagation(); close(); } };
+    box.addEventListener("click", close);
+    document.addEventListener("keydown", onKey, true);
+    document.body.appendChild(box);
+    box.querySelector("button").focus();
+  }
+  function wirePhotos(id) {
+    const box = $("photoBox");
+    if (!box) return;
+    fillPhotos();
+    box.addEventListener("change", e => {
+      const inp = e.target.closest("[data-photo-add]");
+      if (inp && inp.files && inp.files[0]) addPhoto(id, inp.dataset.photoAdd, inp.files[0]);
+    });
+    box.addEventListener("click", e => {
+      const r = collection.find(x => x.id === id);
+      if (!r) return;
+      const v = e.target.closest("[data-photo-view]");
+      if (v) { photoURL(v.dataset.photoView).then(u => showPhoto(u, "Your photo of " + r.name)).catch(() => toast("Couldn't load the photo right now.", {kind: "error"})); return; }
+      const sv = e.target.closest("[data-photo-save]");
+      if (sv) {
+        const p = (r.photos || []).find(x => x.side === sv.dataset.photoSave);
+        if (p) photoURL(p.id).then(u => fetch(u)).then(res => res.blob()).then(b => download(b, photoName(r, p.side))).catch(() => toast("Couldn't load the photo right now.", {kind: "error"}));
+        return;
+      }
+      const d = e.target.closest("[data-photo-del]");
+      if (d) {
+        const p = (r.photos || []).find(x => x.side === d.dataset.photoDel);
+        if (!p) return;
+        const was = r.photos;
+        r.photos = normPhotos(r.photos.filter(x => x !== p));
+        save(); renderSoon(); redrawPhotos(id);
+        trashPhoto(p.id, true);   // (into your Google Drive's trash, which empties itself after 30 days)
+        toast("Removed the " + p.side + " photo.", {action: "Undo", onAction: () => {
+          const cur = collection.find(x => x.id === id);
+          trashPhoto(p.id, false);
+          if (cur) { cur.photos = was; save(); renderSoon(); redrawPhotos(id); }
+        }});
+      }
+    });
+  }
   // Finds "Card Vault backup.json" that Card Vault made in this Google account (from any device), or makes one.
   // The one in the "Card Vault" folder comes first: a file with the same name elsewhere in Google Drive (a PC's own
   // backup file in a folder that Google Drive for desktop syncs, say) may hold an older collection.
@@ -7429,6 +7667,7 @@
               res = mergeBackup(data, {fileWins: rel === "load"});
               if (res.changed) sync.lastFrom = typeof data.savedOn === "string" ? data.savedOn.slice(0, 80) : "";
               if (res.changed || res.touched) afterMerge(res);
+              if (h.kind === "gdrive") { noteCloudBasis(data.savedAt); cloudAlertsWrite(false); }
             }
           }
         }
@@ -7661,7 +7900,7 @@
         backup.error = "";
       }
       ok = true;
-      if (h.kind === "gdrive") { dated.body = JSON.stringify(backupPayload(stamp)); driveDatedCopy(h, stamp).then(() => { dated.body = null; }); }
+      if (h.kind === "gdrive") { dated.body = JSON.stringify(backupPayload(stamp)); driveDatedCopy(h, stamp).then(() => { dated.body = null; }); noteCloudBasis(stamp); cloudAlertsWrite(false); }
     } catch (e) {
       if (w) { try { await w.abort(); } catch (e2) { /* nothing more to undo */ } }
       if (backup.handle === h) {  // (ignore a write that finished after backups were turned off or moved)
@@ -7859,7 +8098,7 @@
   function applyBackup(data) {
     const recs = data.collection.map(upgradeRecord).filter(Boolean);
     const ws = Array.isArray(data.wants) ? data.wants.map(upgradeWant).filter(Boolean) : [];
-    const before = {collection, wants, decks, sales, valueHistory: valueHistory.slice(), condAdjust: settings.condAdjust, condPct: Object.assign({}, settings.condPct),
+    const before = {collection, wants, decks, sales, openings, valueHistory: valueHistory.slice(), condAdjust: settings.condAdjust, condPct: Object.assign({}, settings.condPct),
       alertsOn: settings.alertsOn, alertMinDollar: settings.alertMinDollar, alertMinPct: settings.alertMinPct,
       psa10Mult: settings.psa10Mult, psa10Floor: settings.psa10Floor, gradePct: Object.assign({}, settings.gradePct), pcToken: settings.pcToken};
     collection = recs;
@@ -7867,6 +8106,7 @@
     // (Backups from before decks and sales existed leave the current ones alone.)
     if (Array.isArray(data.decks)) decks = data.decks.map(upgradeDeck).filter(Boolean);
     if (Array.isArray(data.sales)) sales = data.sales.map(upgradeSale).filter(Boolean);
+    if (Array.isArray(data.openings)) openings = data.openings.map(upgradeOpening).filter(Boolean);
     if (Array.isArray(data.valueHistory)) valueHistory = mergeHistory(valueHistory, data.valueHistory);
     const ds = data.settings;
     if (ds && typeof ds === "object") applySharedSettings(ds);
@@ -7880,6 +8120,7 @@
       wants = before.wants;
       decks = before.decks;
       sales = before.sales;
+      openings = before.openings;
       valueHistory = before.valueHistory;
       settings.condAdjust = before.condAdjust;
       settings.condPct = before.condPct;
@@ -8093,7 +8334,14 @@
       '<p class="small" style="margin:8px 0 0">Counted for all your copies of a card together, since the last update.</p>' +
       '<div id="alertNote">' + alertNoteHTML() + "</div></div>" +
 
-      '<div class="section"><h3>Phone alerts</h3><div id="phoneAlerts">' + phoneAlertsHTML() + "</div></div>" +
+      '<div class="section"><h3>Phone alerts</h3><div id="phoneAlerts">' + phoneAlertsHTML() + "</div>" +
+      '<div id="cloudAlertsWrap"' + (settings.ntfyTopic ? "" : " hidden") + '><h4 class="pa-sub">Without your PC</h4><div id="cloudAlerts">' + cloudAlertsHTML() + "</div></div></div>" +
+
+      '<div class="section" id="sellingSection"><h3>Selling fees</h3>' +
+      '<p class="small" style="margin:0 0 10px">What the site you sell on keeps from each card: a share of the price plus a fixed amount. Your sell list uses these to show what you\'d keep. ' +
+      "For cards on eBay and TCGplayer it has been around 13% plus 30 to 40 cents; fees change, so check the site you sell on.</p>" +
+      '<div class="alert-grid"><label class="field"><span>Share of the price</span><span class="pct"><input class="input" type="number" min="0" max="60" step="0.1" id="sSellPct" value="' + esc(sellPct()) + '">%</span></label>' +
+      '<label class="field"><span>Plus, per card</span><span class="pct">$<input class="input" type="number" min="0" max="50" step="0.01" id="sSellFlat" value="' + esc(sellFlat()) + '"></span></label></div></div>' +
 
       '<div class="section"><h3>Played cards</h3>' +
       '<label class="check-row"><input type="checkbox" class="check" id="sCondAdjust"' + (settings.condAdjust ? " checked" : "") +
@@ -8240,6 +8488,18 @@
       const sec = $("updatesSection");
       if (sec) setTimeout(() => { if (sec.scrollIntoView) sec.scrollIntoView({block: "start"}); }, 60);
     }
+    if (opts && opts.section === "selling") {
+      const sec = $("sellingSection");
+      if (sec) setTimeout(() => { if (sec.scrollIntoView) sec.scrollIntoView({block: "start"}); $("sSellPct").focus({preventScroll: true}); }, 60);
+    }
+    ["sSellPct", "sSellFlat"].forEach(k => $(k).addEventListener("change", () => {
+      const pct = num($("sSellPct").value), flat = num($("sSellFlat").value);
+      settings.sellFeePct = pct == null ? 13 : Math.min(Math.max(pct, 0), 60);
+      settings.sellFeeFlat = flat == null ? 0.3 : Math.min(Math.max(round2(flat), 0), 50);
+      $("sSellPct").value = settings.sellFeePct; $("sSellFlat").value = settings.sellFeeFlat;
+      save({quiet: true});   // (shared with your other devices)
+      if (settings.tab === "sales") renderPanel();
+    }));
     if (opts && opts.section === "gradingFees") {
       const sec = $("gradingFeesSection");
       if (sec) setTimeout(() => { if (sec.scrollIntoView) sec.scrollIntoView({block: "start"}); const first = sec.querySelector("select, input"); if (first) first.focus({preventScroll: true}); }, 60);
@@ -8278,6 +8538,7 @@
     };
     ["sAlerts", "sAlertDollar", "sAlertPct"].forEach(k => $(k).addEventListener("change", alertChange));
     wirePhoneAlerts();
+    wireCloudAlerts();
     if ($("sAutoSignIn")) $("sAutoSignIn").addEventListener("change", () => {
       settings.autoSignIn = $("sAutoSignIn").checked;
       // (turned back on: give it a fresh go, even if Google said no earlier today)
@@ -8336,14 +8597,14 @@
   function phoneAlertsHTML() {
     const t = settings.ntfyTopic;
     if (!t) return '<p class="small" style="margin:0 0 10px">Get the same alerts on your iPhone: a want-list card at your target price, or a big price move. ' +
-      "They come through ntfy, a free notification app, and are sent by the daily update on your Windows PC.</p>" +
+      "They come through ntfy, a free notification app, and are sent by the daily update on your Windows PC, or by the website's nightly update (set up below, once this is on).</p>" +
       '<button type="button" class="btn btn-small" data-pa="on">Set up phone alerts</button>';
     return '<ol class="pa-steps"><li>Install <a href="' + NTFY_APP + '" target="_blank" rel="noopener">ntfy</a> from the App Store (it\'s free).</li>' +
       "<li>In ntfy, tap <b>+</b>, type this topic name and tap <b>Subscribe</b>:" +
       '<div class="pa-topic"><code id="paTopic">' + esc(t) + '</code><button type="button" class="btn btn-small" data-pa="copy">Copy</button></div></li>' +
       '<li><button type="button" class="btn btn-small" data-pa="test">Send a test alert</button> <span class="small" id="paResult" role="status"></span></li></ol>' +
       (settings.alertsOn ? "" : '<div class="status-line warn" style="margin-top:8px"><span class="dot" aria-hidden="true"></span><span>Turn on the notifications above too: phone alerts follow the same settings.</span></div>') +
-      '<p class="small" style="margin:10px 0 0">The daily update on your PC sends them, so it needs the latest Card Vault folder (October 2026 or later). ' +
+      '<p class="small" style="margin:10px 0 0">The daily update on your PC sends them (it needs the latest Card Vault folder), unless the website\'s nightly update does (below). ' +
       "Keep the topic name to yourself: anyone who knows it could read your alerts. " +
       '<button type="button" class="link-btn" data-pa="new">New topic name</button> · <button type="button" class="link-btn" data-pa="off">Turn off phone alerts</button></p>';
   }
@@ -8370,6 +8631,164 @@
       }
       save({quiet: true});  // the daily update reads the topic from the backup file
       box.innerHTML = phoneAlertsHTML();
+      if ($("cloudAlertsWrap")) $("cloudAlertsWrap").hidden = !settings.ntfyTopic;
+    });
+  }
+  /* ----- phone alerts without the PC: the nightly update on GitHub sends them ----- */
+  // The website keeps a locked copy of what the alerts need (your cards and want list, your alert settings and ntfy
+  // topic) in your Google Drive, locked with a key (AES-GCM) that you give GitHub as the repository secret
+  // CARDVAULT_ALERTS. The file is shared as "anyone with the link" so the nightly update can read it without your
+  // Google sign-in; without the key it's unreadable. It's written again whenever what it holds changes, after a sync.
+  const CLOUD_KEY = "cardvault.v2.cloudAlerts";   // (this device) {hash, at}: what was last written
+  // basis: the backup file's savedAt that what's here includes (the file this device wrote or last merged). It goes
+  // on the outside of the locked file, so the PC's updater can tell whether the nightly alerts know its latest changes.
+  const cloud = {busy: null, error: "", basis: "", again: false};
+  function cleanCloudAlerts(x) {
+    if (!x || typeof x !== "object") return null;
+    const fileId = String(x.fileId || ""), key = String(x.key || "");
+    if (!/^[A-Za-z0-9_-]{10,200}$/.test(fileId) || !/^[A-Za-z0-9_-]{43}$/.test(key)) return null;
+    return {fileId, key, since: String(x.since || "")};
+  }
+  const bytesB64 = bytes => { let s = ""; for (let i = 0; i < bytes.length; i += 0x8000) s += String.fromCharCode.apply(null, bytes.subarray(i, i + 0x8000)); return btoa(s); };
+  const b64url = bytes => bytesB64(bytes).replace(/\+/g, "-").replace(/\//g, "_").replace(/=+$/, "");
+  const unb64url = s => Uint8Array.from(atob(s.replace(/-/g, "+").replace(/_/g, "/") + "===".slice((s.length + 3) % 4)), c => c.charCodeAt(0));
+  const cloudSecret = c => c.fileId + "." + c.key;
+  // What the nightly update needs, and nothing more (no notes, places, photos or prices paid)
+  function cloudPayload(off) {
+    if (off) return JSON.stringify({app: "Card Vault", kind: "alerts", v: 1, off: true});
+    return JSON.stringify({app: "Card Vault", kind: "alerts", v: 1,
+      settings: {alertsOn: !!settings.alertsOn, alertMinDollar: settings.alertMinDollar, alertMinPct: settings.alertMinPct, condAdjust: settings.condAdjust, condPct: settings.condPct,
+        ntfyTopic: settings.ntfyTopic || "", siteUrl: settings.siteUrl || siteAddress() || ""},
+      collection: collection.map(r => ({id: r.id, name: r.name, productId: r.productId, number: r.number, rarity: r.rarity, edition: r.edition, condition: r.condition,
+        language: r.language, qty: r.qty, sealed: !!r.sealed, grade: r.grade ? {company: r.grade.company, grade: r.grade.grade, value: r.grade.value} : null,
+        grading: r.grading ? {company: r.grading.company, sent: r.grading.sent, days: r.grading.days || "", level: r.grading.level || ""} : null})),
+      wants: wants.map(w => ({name: w.name, productId: w.productId, number: w.number, edition: w.edition, target: w.target, kind: w.kind}))});
+  }
+  async function cloudSeal(keyText, text, basis) {
+    const key = await crypto.subtle.importKey("raw", unb64url(keyText), "AES-GCM", false, ["encrypt"]);
+    const iv = crypto.getRandomValues(new Uint8Array(12));
+    const data = new Uint8Array(await crypto.subtle.encrypt({name: "AES-GCM", iv}, key, new TextEncoder().encode(text)));
+    return JSON.stringify({app: "Card Vault", kind: "alerts", v: 1, basis: basis || "", iv: bytesB64(iv), data: bytesB64(data)});
+  }
+  async function cloudUpload(c, text, basis) {
+    const body = await cloudSeal(c.key, text, basis);
+    await driveFetch(GDRIVE_UPLOAD + "files/" + encodeURIComponent(c.fileId) + "?uploadType=media&fields=id", {method: "PATCH", headers: {"Content-Type": "application/json"}, body});
+  }
+  // After a sync to Google Drive (and when set up): writes the locked file if what it holds changed.
+  const noteCloudBasis = savedAt => { if (typeof savedAt === "string" && savedAt > cloud.basis) cloud.basis = savedAt; };
+  // After a sync to Google Drive (writing the backup file, or taking in another device's changes), and every half hour:
+  // writes the locked file when what it holds changed. One at a time; a write asked for meanwhile follows it.
+  // Resolves "written", "same" (nothing new), or why not.
+  async function cloudAlertsWrite(force) {
+    const c = cleanCloudAlerts(settings.cloudAlerts);
+    if (!DRIVE || !c) return "off";
+    if (cloud.busy) { cloud.again = true; return cloud.busy; }
+    if (!driveToken()) { if (force) cloud.error = "sign in to Google Drive again first (Resume, at the top)"; return "signed out"; }
+    const basis = cloud.basis || (force ? settings.lastFileSaveAt || "" : "");
+    if (!basis) return "not synced yet";
+    const text = cloudPayload(false), hash = hashText(c.fileId + "|" + basis + "|" + text);
+    const last = readJSON(CLOUD_KEY, {}) || {};
+    if (!force && last.hash === hash) return "same";
+    const run = (async () => {
+      try {
+        await cloudUpload(c, text, basis);
+        try { localStorage.setItem(CLOUD_KEY, JSON.stringify({hash, at: Date.now()})); } catch (e) { /* written again next time */ }
+        cloud.error = "";
+        return "written";
+      } catch (e) {
+        cloud.error = e && e.name === "NotFoundError" ? "the alerts file isn't in your Google Drive anymore: turn this off and set it up again" : (e && e.message) || String(e);
+        return "failed";
+      }
+    })();
+    cloud.busy = run;
+    const out = await run;
+    cloud.busy = null;
+    if ($("cloudAlerts")) $("cloudAlerts").innerHTML = cloudAlertsHTML();
+    if (cloud.again) { cloud.again = false; return cloudAlertsWrite(false).then(next => next === "same" ? out : next); }
+    return out;
+  }
+  async function cloudAlertsSetup() {
+    if (!driveToken()) throw new Error("sign in to Google Drive again first (Resume, at the top)");
+    const keyBytes = crypto.getRandomValues(new Uint8Array(32));
+    const key = b64url(keyBytes);
+    const own = await driveFolder("Card Vault", null, true);
+    const boundary = "cardvault" + Date.now();
+    const meta = {name: "Card Vault phone alerts (locked).json", mimeType: "application/json", parents: [own],
+      description: "Locked copy of what Card Vault's nightly phone alerts need. Unreadable without the key you gave GitHub."};
+    const basis = cloud.basis || settings.lastFileSaveAt || "";
+    const body = await cloudSeal(key, cloudPayload(false), basis);
+    const multipart = "--" + boundary + "\r\nContent-Type: application/json; charset=UTF-8\r\n\r\n" + JSON.stringify(meta) + "\r\n--" + boundary +
+      "\r\nContent-Type: application/json\r\n\r\n" + body + "\r\n--" + boundary + "--";
+    const made = await (await driveFetch(GDRIVE_UPLOAD + "files?uploadType=multipart&fields=id", {method: "POST", headers: {"Content-Type": "multipart/related; boundary=" + boundary}, body: multipart})).json();
+    if (!made || !made.id) throw new Error("Google Drive didn't keep the file");
+    // anyone with the link can read it (it's locked), so the nightly update can fetch it without your sign-in
+    await driveFetch("files/" + encodeURIComponent(made.id) + "/permissions?fields=id", {method: "POST", headers: {"Content-Type": "application/json"}, body: JSON.stringify({role: "reader", type: "anyone"})});
+    settings.cloudAlerts = {fileId: made.id, key, since: new Date().toISOString()};
+    save({quiet: true});   // (your other devices get it through the sync, and keep the file up to date too)
+    try { localStorage.setItem(CLOUD_KEY, JSON.stringify({hash: hashText(made.id + "|" + basis + "|" + cloudPayload(false)), at: Date.now()})); } catch (e) { /* ignore */ }
+  }
+  // The file is overwritten with "off" first (so the nightly update stops quietly, even while the secret is still on
+  // GitHub), and only then does the setting go (so your PC sends phone alerts again): never both at once.
+  async function cloudAlertsOff() {
+    const c = cleanCloudAlerts(settings.cloudAlerts);
+    if (c) {
+      if (!driveToken()) throw new Error("sign in to Google Drive again first (Resume, at the top), so the alerts file can be turned off too");
+      while (cloud.busy) await cloud.busy;
+      await cloudUpload(c, cloudPayload(true), cloud.basis);
+    }
+    settings.cloudAlerts = null;
+    save({quiet: true});
+    try { localStorage.removeItem(CLOUD_KEY); } catch (e) { /* ignore */ }
+  }
+  // Where the repository's secrets are, worked out from the website's address (owner.github.io/repository/)
+  function secretsPage() {
+    const m = String(settings.siteUrl || siteAddress() || "").match(/^https:\/\/([A-Za-z0-9-]+)\.github\.io\/([A-Za-z0-9._-]+)/);
+    return m ? "https://github.com/" + m[1] + "/" + m[2] + "/settings/secrets/actions/new" : "https://github.com/";
+  }
+  function cloudStatusHTML() {
+    const a = live.status && live.status.parts ? live.status.parts.alerts : null;
+    const line = (cls, text) => '<div class="status-line ' + cls + '" style="margin-top:8px"><span class="dot" aria-hidden="true"></span><span>' + text + "</span></div>";
+    if (cloud.error) return line("off", "Couldn't update the alerts file in your Google Drive: " + esc(cloud.error) + ".");
+    if (!a) return line("warn", "Waiting for the nightly update's first report.");
+    const when = parseDate(a.checked);
+    if (!a.configured) return line("warn", "GitHub doesn't have the key yet" + (when ? " (checked " + esc(fmtDate(when)) + ")" : "") + ": do step 2.");
+    if (a.off) return line("warn", "The nightly update found the alerts turned off.");
+    if (a.noTopic) return line("warn", "The nightly update found no ntfy topic: set up phone alerts above.");
+    if (!a.ok) return line("off", "Last night it didn't work: " + esc(a.error || "unknown") + ".");
+    return line("on", "Working: the nightly update checked " + (when ? esc(fmtDate(when)) : "last night") + ". Your PC no longer needs to send phone alerts (it still shows Windows notifications).");
+  }
+  function cloudAlertsHTML() {
+    if (!SITE) return '<p class="small" style="margin:0">Card Vault\'s website can have the nightly update send these, so this PC needn\'t be on: set it up there (Settings &gt; Phone alerts).</p>';
+    const c = cleanCloudAlerts(settings.cloudAlerts);
+    if (!c) return '<p class="small" style="margin:0 0 8px">The nightly update on GitHub can send these alerts itself, so your PC needn\'t be on. Card Vault keeps a locked copy of what they need ' +
+      "(your cards, want list and alert settings) in your Google Drive; only the key you give GitHub opens it.</p>" +
+      (backup.handle && backup.handle.kind === "gdrive" ? '<button type="button" class="btn btn-small" data-ca="on">Send alerts without the PC</button>'
+        : '<p class="small" style="margin:0">Sync with Google Drive first (Settings &gt; Backup), then this can be turned on.</p>');
+    return '<ol class="pa-steps"><li>Copy this key:<div class="pa-topic"><code class="ca-key">' + esc(cloudSecret(c)) + '</code><button type="button" class="btn btn-small" data-ca="copy">Copy</button></div></li>' +
+      '<li>On GitHub, add it to your card-vault repository as a secret named <b>CARDVAULT_ALERTS</b>: <a href="' + esc(secretsPage()) + '" target="_blank" rel="noopener">open the New secret page</a>, ' +
+      "type CARDVAULT_ALERTS as the name, paste the key as the secret, and choose Add secret.</li>" +
+      "<li>That's it: from tonight, the nightly update sends your alerts. <button type=\"button\" class=\"link-btn\" data-ca=\"sync\">Update the file now</button></li></ol>" +
+      cloudStatusHTML() +
+      '<p class="small" style="margin:10px 0 0">Keep the key to yourself, like the topic name. <button type="button" class="link-btn" data-ca="off">Stop sending alerts without the PC</button></p>';
+  }
+  function wireCloudAlerts() {
+    const box = $("cloudAlerts");
+    if (!box) return;
+    box.addEventListener("click", async e => {
+      const b = e.target.closest("[data-ca]");
+      if (!b) return;
+      const a = b.dataset.ca;
+      if (a === "copy") { const c = cleanCloudAlerts(settings.cloudAlerts); if (c) copyText(cloudSecret(c), () => toast("Copied the key. Paste it into GitHub as the CARDVAULT_ALERTS secret.")); return; }
+      b.disabled = true;
+      try {
+        if (a === "on") { await cloudAlertsSetup(); toast("The alerts file is in your Google Drive. Now give GitHub the key (step 2)."); }
+        else if (a === "sync") { const res = await cloudAlertsWrite(true); toast(res === "written" ? "Updated the alerts file." : "Couldn't update it: " + (cloud.error || res) + ".", res === "written" ? {} : {kind: "error"}); }
+        else if (a === "off") { await cloudAlertsOff(); toast("Stopped. Your PC sends phone alerts again; you can delete the CARDVAULT_ALERTS secret on GitHub."); }
+      } catch (err) {
+        toast("Couldn't set it up: " + ((err && err.message) || err) + ".", {kind: "error"});
+      }
+      b.disabled = false;
+      box.innerHTML = cloudAlertsHTML();
     });
   }
   function alertNoteHTML() {
@@ -8773,7 +9192,8 @@
   }
 
   /* ======================= Insights: price history, where your value is, worth grading, tidy up ======================= */
-  const INSIGHT_VIEWS = [["history", "Price history"], ["movers", "Price movers"], ["value", "Where your value is"], ["grading", "Worth grading"], ["tidy", "Tidy up"]];
+  const INSIGHT_VIEWS = [["history", "Price history"], ["movers", "Price movers"], ["value", "Where your value is"], ["grading", "Worth grading"], ["openings", "Box openings"],
+    ["watch", "Ban list & reprints"], ["tidy", "Tidy up"]];
   function renderInsights() {
     const panel = $("panel-history");
     const view = INSIGHT_VIEWS.some(v => v[0] === settings.insightView) ? settings.insightView : "history";
@@ -8784,6 +9204,8 @@
     else if (view === "value") renderValueBreakdown();
     else if (view === "grading") renderWorthGrading();
     else if (view === "tidy") renderTidy();
+    else if (view === "openings") renderOpenings();
+    else if (view === "watch") renderWatch();
     else renderHistory();
   }
   const insightBody = () => $("insightBody") || $("panel-history");
@@ -9525,11 +9947,286 @@
     });
   }
 
+  /* ======================= Ban list & reprints ======================= */
+  // The Forbidden & Limited lists come from the nightly update (banlist.js, read from YGOPRODeck), with the changes it
+  // noticed night by night. English cards follow the TCG list; Japanese and Korean ones the OCG list (Rush Duel has
+  // its own list, which isn't covered). Reprints: a newer printing of a card you own, in a set out in the last 90 days
+  // or coming soon (from TCGplayer's sets, and the Japanese and Korean sets in the Market), since a reprint often
+  // brings the older printings' price down.
+  const BAN_RANK = {"Forbidden": 0, "Limited": 1, "Semi-Limited": 2};
+  const BAN_LISTS = {tcg: "TCG", ocg: "OCG"};
+  const banWord = st => st || "Unlimited";
+  const banListOf = r => (r && (isOcg(r) || /^(Japanese|Korean)$/.test(r.language || "")) && !r.productId ? "ocg" : "tcg");
+  function banData() {
+    const b = live.ban;
+    if (!b || b.format !== 1 || !b.lists) return null;
+    if (!b.maps) {
+      b.maps = {};
+      for (const k of Object.keys(BAN_LISTS)) {
+        const m = new Map();
+        for (const [name, st] of Object.entries(b.lists[k] || {})) if (BAN_RANK[st] != null) m.set(normCardName(name), {name, st});
+        b.maps[k] = m;
+      }
+    }
+    return b;
+  }
+  // Every card name you have something to do with: in your collection, on your want list, in a saved deck
+  function banYours() {
+    const out = new Map();   // "tcg|key" -> {name, list, owned, want, deck}
+    const add = (list, name, what, n) => {
+      const key = normCardName(name);
+      if (!key) return;
+      const k = list + "|" + key, e = out.get(k) || {name: plainName(name), key, list, owned: 0, want: false, deck: ""};
+      if (what === "owned") e.owned += n; else if (what === "want") e.want = true; else if (!e.deck) e.deck = n;
+      out.set(k, e);
+    };
+    for (const r of collection) if (!r.sealed && !isRushNo(r.number)) add(banListOf(r), r.name, "owned", r.qty);
+    for (const w of wants) if (!w.kind || w.kind === "card") { if (!isRushNo(w.number)) add(isRegionNumber(w.number || "") ? "ocg" : "tcg", w.name, "want"); }
+    for (const d of decks) for (const sec of parseDeckText(d.text).sections) for (const c of sec.cards) add("tcg", c.name, "deck", d.name || "a saved deck");
+    return out;
+  }
+  // The changes the nightly update noticed lately that touch your cards
+  function banChangesForYou(days) {
+    const b = banData();
+    if (!b) return [];
+    const mine = banYours(), cutoff = localDay(new Date(Date.now() - days * 86400000));
+    return (b.changes || []).filter(c => c && c.day >= cutoff && BAN_LISTS[c.list] && mine.has(c.list + "|" + normCardName(c.name)))
+      .map(c => Object.assign({}, c, {you: mine.get(c.list + "|" + normCardName(c.name)), key: "ban-" + c.list + "-" + normCardName(c.name) + "-" + c.day}));
+  }
+  const banChangeText = c => c.name + " is " + (c.now ? "now " + c.now : "no longer on the list") + " in the " + BAN_LISTS[c.list] + " (was " + banWord(c.was) + ").";
+  const youText = e => [e.owned ? "you have " + e.owned : "", e.want ? "on your want list" : "", e.deck ? "in " + e.deck : ""].filter(Boolean).join(", ");
+  // Reprints: newer printings of cards you own
+  function reprintsForYou() {
+    const today = localDay(new Date()), since = localDay(new Date(Date.now() - 90 * 86400000));
+    const out = [];
+    const seen = new Set();
+    if (catalog) {
+      const byName = productsByName();
+      const ownedTcg = new Map();
+      for (const r of collection) if (!r.sealed && r.productId) { const k = normCardName(r.name); const e = ownedTcg.get(k) || {recs: [], ids: new Set(), newest: ""}; e.recs.push(r); e.ids.add(r.productId); const p = catalog.byId.get(r.productId); if (p && p.group.published > e.newest) e.newest = p.group.published; ownedTcg.set(k, e); }
+      for (const [k, e] of ownedTcg) {
+        const fresh = (byName.get(k) || []).filter(p => !e.ids.has(p.id) && p.group.published && p.group.published.slice(0, 10) >= since && p.group.published > e.newest);
+        if (!fresh.length) continue;
+        fresh.sort((a, b) => b.group.published.localeCompare(a.group.published));
+        const p = fresh[0];
+        seen.add("tcg|" + k);
+        out.push({region: "en", name: plainName(e.recs[0].name), recs: e.recs, set: p.group.name, day: p.group.published.slice(0, 10), soon: p.group.published.slice(0, 10) > today,
+          rarity: p.rarity, price: firstPrice(catalogPrice(p, "")) , more: fresh.length - 1});
+      }
+    }
+    if (ocgCd.data && ocgMk.data) {
+      const ownedOcg = new Map();
+      for (const r of collection) if (isOcg(r)) { const g = ocgRegion(r.number); const region = g.region === "JP" ? "jp" : "kr"; const k = region + "|" + csNorm(r.name); const e = ownedOcg.get(k) || {recs: [], sets: new Set(), region}; e.recs.push(r); e.sets.add(g.set); ownedOcg.set(k, e); }
+      for (const [k, e] of ownedOcg) {
+        const cards = (ocgCd.data.byName.get(k.slice(3)) || []).filter(c => c.region === e.region && !e.sets.has(c.set.prefix));
+        let best = null;
+        for (const c of cards) { const s = ocgFindSet(c.set.id); if (s && s.date && s.date >= since && (!best || s.date > best.s.date)) best = {c, s}; }
+        if (!best) continue;
+        const mineNewest = e.recs.map(r => { const s = ocgSetsOf(e.region).find(x => x.prefix === ocgRegion(r.number).set); return s ? s.date : ""; }).sort().pop() || "";
+        if (best.s.date <= mineNewest) continue;
+        out.push({region: e.region, name: plainName(e.recs[0].name), recs: e.recs, set: best.s.name, day: best.s.date, soon: best.s.date > today, rarity: best.c.rows.map(x => x.rarity).filter(Boolean).join(", "), price: null, more: 0});
+      }
+    }
+    const worth = x => x.recs.reduce((s, r) => s + (marketValue(r).unit || 0) * r.qty, 0);
+    return out.map(x => Object.assign(x, {worth: worth(x)})).sort((a, b) => (b.soon - a.soon) || (b.worth - a.worth)).slice(0, 80);
+  }
+  function renderWatch() {
+    const body = insightBody();
+    const b = banData();
+    if (!live.at && !live.loading) loadLive();
+    if (!ocgCd.data && collection.some(isOcg)) ocgCardsReady();
+    if (!ocgMk.data && !ocgMk.loading && ocgMarketURL() && collection.some(isOcg)) loadOcgMarket();
+    let html = '<div class="panel-head sub-head"><div><h3 class="sub-h">Ban list</h3><p>' + (b
+      ? "Your cards on the Forbidden &amp; Limited lists (English cards: TCG; Japanese and Korean: OCG), from YGOPRODeck, checked " + esc(fmtDate(parseDate(b.checked))) + "."
+      : siteFileURL("banlist.js") ? (live.at ? "The ban list arrives with the nightly update's next run." : "Loading the ban list…") : "Add the website's address in Settings to see the ban list.") + "</p></div></div>";
+    if (b) {
+      const mine = banYours(), changes = banChangesForYou(120);
+      const hits = [];
+      for (const e of mine.values()) { const h = b.maps[e.list] && b.maps[e.list].get(e.key); if (h) hits.push(Object.assign({}, e, {st: h.st})); }
+      hits.sort((x, y) => (BAN_RANK[x.st] - BAN_RANK[y.st]) || x.name.localeCompare(y.name));
+      if (changes.length) html += '<div class="notice" style="margin:0 0 12px"><b>Lately:</b> ' + changes.slice(0, 12).map(c => esc(banChangeText(c)) + ' <span class="small">(' + esc(youText(c.you)) + "; noticed " + esc(fmtShortDate(parseDay(c.day))) + ")</span>").join(" ") + "</div>";
+      html += hits.length ? '<div class="table-wrap"><table class="table stack-table ban-table"><thead><tr><th>Card</th><th>List</th><th>Status</th><th>Yours</th></tr></thead><tbody>' +
+        hits.map(e => "<tr><td><b>" + esc(e.name) + '</b></td><td data-label="List">' + BAN_LISTS[e.list] + '</td><td data-label="Status"><span class="ban-st ban-' + BAN_RANK[e.st] + '">' + esc(e.st) + "</span>" +
+          (changes.some(c => c.list === e.list && normCardName(c.name) === e.key) ? ' <span class="small">(changed lately)</span>' : "") + '</td><td data-label="Yours">' + esc(youText(e)) + "</td></tr>").join("") + "</tbody></table></div>"
+        : '<p class="small">None of your cards, wanted cards or saved decks\' cards are Forbidden, Limited or Semi-Limited right now.</p>';
+    }
+    const rp = reprintsForYou();
+    html += '<div class="panel-head sub-head" style="margin-top:22px"><div><h3 class="sub-h">Reprints</h3><p>Cards you own with a newer printing out in the last 90 days or coming soon. A reprint often brings the older printings\' price down.</p></div></div>';
+    html += !catalog ? '<p class="small">Waiting for TCGplayer\'s card list…</p>' : rp.length ? '<div class="table-wrap"><table class="table stack-table rp-table"><thead><tr><th>Card</th><th>New printing</th><th class="num">Yours now</th><th class="num">30 days</th></tr></thead><tbody>' +
+      rp.map(x => {
+        const r = x.recs.slice().sort((a, b2) => (marketValue(b2).unit || 0) - (marketValue(a).unit || 0))[0];
+        const ch = r.productId && catalog ? catalogPrice(catalog.byId.get(r.productId), r.edition) : null;
+        const m30 = ch && ch.market != null && ch.m30 ? (ch.market - ch.m30) / ch.m30 : null;
+        return '<tr><td><button type="button" class="cell-name" data-watch="open" data-id="' + esc(r.id) + '">' + esc(x.name) + '</button><span class="cell-sub">' + esc(plural(x.recs.reduce((s, y) => s + y.qty, 0), "copy", "copies")) +
+          (x.region === "en" ? "" : x.region === "jp" ? " · Japanese" : " · Korean") + "</span></td>" +
+          '<td data-label="New printing">' + esc(x.set) + '<span class="cell-sub">' + (x.soon ? "Coming " : "Out ") + esc(fmtDate(parseDay(x.day))) + (x.rarity ? " · " + esc(x.rarity) : "") +
+          (x.price != null ? " · " + esc(usd(x.price)) : "") + (x.more ? " · and " + plural(x.more, "more printing") : "") + "</span></td>" +
+          '<td class="num" data-label="Yours now">' + esc(usd(x.worth)) + '</td><td class="num" data-label="30 days"' + (m30 == null ? " data-empty" : "") + ">" + (m30 == null ? "" : esc(pctText(m30))) + "</td></tr>";
+      }).join("") + "</tbody></table></div>" : '<p class="small">No new printings of your cards in the last 90 days.</p>';
+    body.innerHTML = html;
+  }
+  function watchAction(el) {
+    if (el.dataset.watch === "open") openDetails(el.dataset.id);
+  }
+
+  /* ======================= Box openings ======================= */
+  // Boxes and packs you opened: what you paid, the cards you pulled (added with "Cards you pulled", which also puts
+  // them in your collection) and what they're worth now, so you can see which boxes paid off.
+  const OPENING_KINDS = ["Booster box", "Booster packs", "Other"];
+  const openingOpen = new Set();
+  const pullFrom = (rec, qty) => ({name: rec.name, productId: rec.productId, number: rec.number, rarity: rec.rarity, setName: rec.setName, edition: rec.edition,
+    condition: rec.condition, language: rec.language, qty, value: marketValue(rec).unit, image: rec.productId ? "" : rec.customImage || ""});
+  const pullRecord = x => ({productId: x.productId, name: x.name, number: x.number, rarity: x.rarity, setName: x.setName, edition: x.edition, condition: x.condition,
+    language: x.language, qty: x.qty, grade: null, customImage: x.image || null, sealed: false});
+  function pullValueNow(x) { const v = marketValue(pullRecord(x)).unit; return v != null ? v : x.value; }
+  function openingNumbers(o) {
+    let value = 0, cards = 0, priced = 0, best = null;
+    for (const x of o.pulls) {
+      const u = pullValueNow(x);
+      cards += x.qty;
+      if (u != null) { value += u * x.qty; priced += x.qty; if (!best || u > best.u) best = {x, u}; }
+    }
+    return {cards, value, priced, best, net: o.cost != null ? value - o.cost : null};
+  }
+  const openingsSorted = () => openings.slice().sort((a, b) => b.date.localeCompare(a.date) || String(b.added).localeCompare(String(a.added)));
+  function renderOpenings() {
+    const body = insightBody();
+    const list = openingsSorted();
+    const head = '<div class="panel-head sub-head"><div><h3 class="sub-h">Box openings</h3><p>Boxes and packs you opened: what you paid, what you pulled and what it\'s worth today.</p></div>' +
+      '<div class="panel-tools"><button class="btn btn-small btn-primary" type="button" data-op-act="new">Log an opening</button></div></div>';
+    if (!list.length) {
+      body.innerHTML = head + emptyPanel("No openings yet", "Opened a booster box or some packs? Choose <b>Log an opening</b>: say what it was and what you paid, then type or scan the cards you pulled. " +
+        "They go into your collection, and this page keeps a running score of whether the box paid off.");
+      return;
+    }
+    let spent = 0, costed = 0, value = 0, cards = 0, costedValue = 0;
+    for (const o of list) { const n = openingNumbers(o); value += n.value; cards += n.cards; if (o.cost != null) { spent += o.cost; costed++; costedValue += n.value; } }
+    const fact = (v, label) => '<div class="fact"><b>' + v + "</b><span>" + label + "</span></div>";
+    body.innerHTML = head + '<div class="facts sales-facts">' + fact(list.length.toLocaleString(), list.length === 1 ? "opening" : "openings") +
+      fact(esc(usd(spent)), "spent" + (costed < list.length ? " (" + (list.length - costed) + " without a price)" : "")) +
+      fact(esc(usd(value)), plural(cards, "card") + " pulled, worth today") + (costed ? fact(changeHTML(costedValue - spent, null, true), costed < list.length ? "on the ones with a price paid" : "overall") : "") + "</div>" +
+      '<div class="op-list">' + list.map(openingHTML).join("") + "</div>" +
+      '<p class="small">Today\'s value is each card\'s market price now (TCGplayer, or the Japanese and Korean shops), with your condition percentages; a card without one counts at what it was worth when you added it.</p>';
+  }
+  function openingHTML(o) {
+    const n = openingNumbers(o), open = openingOpen.has(o.id);
+    const perPack = o.packs && o.packs > 1 ? " · " + esc(usd(n.value / o.packs)) + " a pack" + (o.cost != null ? " (paid " + esc(usd(o.cost / o.packs)) + ")" : "") : "";
+    const pulls = o.pulls.map((x, i) => ({x, i, u: pullValueNow(x)})).sort((a, b) => ((b.u || 0) - (a.u || 0)));
+    return '<section class="op-item' + (open ? " open" : "") + '" data-opening="' + esc(o.id) + '">' +
+      '<button type="button" class="op-head" data-op-act="toggle" aria-expanded="' + open + '"><span class="op-title"><b>' + esc(o.name) + "</b><span class=\"small\">" +
+      esc([fmtDate(parseDay(o.date)), o.kind, o.packs ? plural(o.packs, "pack") : "", plural(n.cards, "card")].filter(Boolean).join(" · ")) + "</span></span>" +
+      '<span class="op-nums"><span>' + (o.cost != null ? "Paid " + esc(usd(o.cost)) : '<span class="small">No price paid</span>') + "</span><span>Worth " + esc(usd(n.value)) + "</span>" +
+      (n.net != null ? "<span>" + changeHTML(n.net, o.cost > 0 ? n.net / o.cost : null, true) + "</span>" : "") + "</span></button>" +
+      (open ? '<div class="op-body">' +
+        (n.best ? '<p class="small" style="margin:0 0 8px">Best pull: <b>' + esc(n.best.x.name) + "</b>" + (n.best.x.rarity ? " (" + esc(n.best.x.rarity) + ")" : "") + ", " + esc(usd(n.best.u)) + perPack + ".</p>" : "") +
+        (o.notes ? '<p class="small" style="margin:0 0 8px">' + esc(o.notes) + "</p>" : "") +
+        (pulls.length ? '<div class="table-wrap"><table class="table stack-table op-table"><thead><tr><th class="c-thumb"><span class="sr">Image</span></th><th>Card</th><th class="num">Qty</th><th class="num">Worth today, each</th><th class="num">When added</th><th><span class="sr">Remove</span></th></tr></thead><tbody>' +
+          pulls.map(({x, i, u}) => '<tr><td class="c-thumb"><span class="sleeve"' + foilAttr(x.rarity) + ">" + imgTag(recordPics(pullRecord(x), "200w"), x.name) + "</span></td>" +
+            "<td><b>" + esc(x.name) + '</b><span class="cell-sub">' + esc([x.number, x.rarity, x.edition === "No edition mark" ? "" : x.edition, x.condition === "Near Mint" ? "" : x.condition].filter(Boolean).join(", ")) + "</span></td>" +
+            '<td class="num" data-label="Qty">' + x.qty + '</td><td class="num" data-label="Worth today, each"' + (u == null ? " data-empty" : "") + ">" + esc(u == null ? "" : usd(u)) + "</td>" +
+            '<td class="num" data-label="When added"' + (x.value == null ? " data-empty" : "") + ">" + esc(x.value == null ? "" : usd(x.value)) + "</td>" +
+            '<td><button type="button" class="icon-btn" data-op-act="unpull" data-i="' + i + '" aria-label="Take ' + esc(x.name) + ' off this opening (it stays in your collection)">&times;</button></td></tr>').join("") +
+          "</tbody></table></div>" : '<p class="small" style="margin:0 0 8px">No cards yet.</p>') +
+        '<div class="btn-row"><button type="button" class="btn btn-small btn-primary" data-op-act="pulls">Add cards you pulled</button><button type="button" class="btn btn-small" data-op-act="edit">Edit</button>' +
+        '<button type="button" class="btn btn-small" data-op-act="delete">Delete</button></div>' +
+        '<p class="small" style="margin:8px 0 0">The × takes a card off this opening only; deleting the opening leaves its cards in your collection.</p></div>' : "") + "</section>";
+  }
+  // Insights > Box openings, with this one open
+  function showOpening(id) {
+    openingOpen.add(id);
+    settings.insightView = "openings";
+    saveSettings();
+    if (settings.tab !== "history") setTab("history"); else renderPanel();
+    const el = document.querySelector('[data-opening="' + id + '"]');
+    if (el && el.scrollIntoView) el.scrollIntoView({block: "start"});
+  }
+  function openOpeningForm(id) {
+    const o = id ? openings.find(x => x.id === id) : null;
+    drawerCtx = {mode: "opening", id: o ? o.id : null};
+    const sealedMine = collection.filter(r => r.sealed).sort((a, b) => a.name.localeCompare(b.name));
+    openDrawer(o ? "Edit opening" : "Log an opening",
+      '<form id="opForm" class="stack" novalidate>' +
+      (!o && sealedMine.length ? '<label class="field"><span>From your sealed products (takes one out of your collection)</span><select class="input" id="opFrom"><option value="">No, something else</option>' +
+        sealedMine.map(r => '<option value="' + esc(r.id) + '">' + esc(r.name) + (r.qty > 1 ? " (you have " + r.qty + ")" : "") + "</option>").join("") + "</select></label>" : "") +
+      '<label class="field"><span>What you opened</span><input class="input" id="opName" maxlength="120" required placeholder="e.g. Quarter Century Bonanza booster box" value="' + esc(o ? o.name : "") + '"></label>' +
+      '<div class="grid-2"><label class="field"><span>Kind</span><select class="input" id="opKind">' + options(OPENING_KINDS, o ? o.kind || "Booster box" : "Booster box") + "</select></label>" +
+      '<label class="field"><span>Packs (optional)</span><input class="input" id="opPacks" type="number" min="1" max="999" step="1" value="' + (o && o.packs ? o.packs : "") + '"></label></div>' +
+      '<div class="grid-2"><label class="field"><span>Date opened</span><input class="input" id="opDate" type="date" value="' + esc(o ? o.date : localDay(new Date())) + '"></label>' +
+      '<label class="field"><span>What you paid, in all (US$)</span><input class="input" id="opCost" type="number" min="0" step="0.01" value="' + (o && o.cost != null ? o.cost : "") + '"></label></div>' +
+      '<label class="field"><span>Notes (optional)</span><input class="input" id="opNotes" maxlength="300" value="' + esc(o ? o.notes : "") + '"></label>' +
+      '<div class="form-actions"><button class="btn btn-primary" type="submit">' + (o ? "Save" : "Next: the cards you pulled") + "</button></div></form>");
+    const guessKind = name => /\bbox\b|ボックス/i.test(name) ? "Booster box" : /\bpacks?\b/i.test(name) ? "Booster packs" : null;
+    if ($("opFrom")) $("opFrom").addEventListener("change", () => {
+      const r = collection.find(x => x.id === $("opFrom").value);
+      if (!r) return;
+      $("opName").value = r.name;
+      if (r.paid != null) $("opCost").value = r.paid;
+      const k = guessKind(r.name);
+      if (k) $("opKind").value = k;
+    });
+    $("opName").addEventListener("change", () => { const k = guessKind($("opName").value); if (k && !o) $("opKind").value = k; });
+    $("opForm").addEventListener("submit", e => {
+      e.preventDefault();
+      const name = $("opName").value.trim();
+      if (!name) { toast("Say what you opened (a box name, say).", {kind: "error"}); $("opName").focus(); return; }
+      const fields = {name, kind: $("opKind").value, packs: $("opPacks").value, date: $("opDate").value, cost: $("opCost").value, notes: $("opNotes").value.trim()};
+      if (o) {
+        const cur = openings.find(x => x.id === o.id);
+        if (!cur) { closeDrawer(); toast("That opening was deleted meanwhile.", {kind: "error"}); return; }
+        Object.assign(cur, upgradeOpening(Object.assign({}, cur, fields)), {id: cur.id, pulls: cur.pulls, added: cur.added, mod: cur.mod});
+        save(); closeDrawer(); render();
+        toast("Saved " + cur.name + ".");
+        return;
+      }
+      const rec = $("opFrom") && $("opFrom").value ? collection.find(x => x.id === $("opFrom").value) : null;
+      const op = upgradeOpening(Object.assign({id: newId(), pulls: [], added: new Date().toISOString()}, fields, rec ? {productId: rec.productId, setName: rec.setName} : {}));
+      const beforeCollection = collection.slice(), beforeQty = rec ? rec.qty : 0;
+      openings.push(op);
+      if (rec) { rec.qty -= 1; if (rec.qty <= 0) collection = collection.filter(x => x !== rec); }
+      save(); render();
+      openingOpen.add(op.id);
+      openBatch({opening: op.id});
+      toast("Logged " + op.name + (rec ? " (one taken out of your sealed products)" : "") + ". Now add the cards you pulled.", {action: "Undo", onAction: () => {
+        openings = openings.filter(x => x.id !== op.id);
+        if (rec) { rec.qty = beforeQty; collection = beforeCollection; }
+        save(); render();   // (the card list for it is set aside the next time "Add several cards" opens)
+        if (drawerCtx && drawerCtx.mode === "batch") closeDrawer();
+      }});
+    });
+  }
+  function openingAction(act, el) {
+    const box = el.closest("[data-opening]");
+    const o = box ? openings.find(x => x.id === box.dataset.opening) : null;
+    if (act === "new") { openOpeningForm(null); return; }
+    if (!o) return;
+    if (act === "toggle") {
+      if (openingOpen.has(o.id)) openingOpen.delete(o.id); else openingOpen.add(o.id);
+      renderOpenings();
+      const again = document.querySelector('[data-opening="' + o.id + '"] .op-head');
+      if (again) again.focus();
+    } else if (act === "pulls") openBatch({opening: o.id});
+    else if (act === "edit") openOpeningForm(o.id);
+    else if (act === "unpull") {
+      const i = +el.dataset.i, x = o.pulls[i];
+      if (!x) return;
+      const before = o.pulls.slice();
+      o.pulls = o.pulls.filter((_, k) => k !== i);
+      save(); renderOpenings();
+      toast("Took " + x.name + " off " + o.name + ". It's still in your collection.", {action: "Undo", onAction: () => { const cur = openings.find(y => y.id === o.id); if (cur) { cur.pulls = before; save(); renderOpenings(); } }});
+    } else if (act === "delete") {
+      const before = openings.slice();
+      openings = openings.filter(x => x !== o);
+      save(); renderOpenings();
+      toast("Deleted " + o.name + ". Its cards stay in your collection.", {action: "Undo", onAction: () => { openings = before; save(); render(); }});
+    }
+  }
+
   /* ======================= Trades & sales: the trade checker ======================= */
   // Put a trade together: the cards you'd give (from your collection) and the cards you'd get (any TCGplayer printing),
   // each at TCGplayer's market price, plus any cash. "Complete trade" takes your cards out (into the sales log, marked
   // as traded) and adds the ones you get. The trade in progress is kept on this device until you finish or clear it.
-  const SALES_VIEWS = [["trade", "Trade checker"], ["log", "Sales log"]];
+  const SALES_VIEWS = [["trade", "Trade checker"], ["selling", "Selling"], ["log", "Sales log"]];
+  const salesViewNow = () => SALES_VIEWS.some(v => v[0] === settings.salesView) ? settings.salesView : "trade";
   const TRADE_KEY = "cardvault.v2.trade";
   let trade = null;
   function tradeState() {
@@ -9566,11 +10263,11 @@
   }
   function renderSalesTab() {
     const panel = $("panel-sales");
-    const view = settings.salesView === "log" ? "log" : "trade";
+    const view = salesViewNow(), selling = collection.filter(r => r.sell).length;
     panel.innerHTML = '<div class="panel-head"><div><h2>Trades &amp; sales</h2></div><div class="panel-tools"><div class="seg" role="group" aria-label="Trades and sales" id="salesSeg">' +
-      SALES_VIEWS.map(([k, l]) => '<button type="button" data-salesview="' + k + '" aria-pressed="' + (k === view) + '">' + l + (k === "log" && sales.length ? ' <span class="tab-count">' + sales.length + "</span>" : "") + "</button>").join("") +
+      SALES_VIEWS.map(([k, l]) => '<button type="button" data-salesview="' + k + '" aria-pressed="' + (k === view) + '">' + l + (k === "log" && sales.length ? ' <span class="tab-count">' + sales.length + "</span>" : k === "selling" && selling ? ' <span class="tab-count">' + selling + "</span>" : "") + "</button>").join("") +
       '</div></div></div><div id="salesBody"></div>';
-    if (view === "log") renderSales(); else renderTrade();
+    if (view === "log") renderSales(); else if (view === "selling") renderSelling(); else renderTrade();
   }
   const tradeThumb = (pics, name) => '<span class="sleeve">' + imgTag(pics, name) + "</span>";
   function tradeRowsHTML(side) {
@@ -9713,7 +10410,7 @@
       if (settings.tab !== "sales") return;
       const v = e.target.closest("[data-salesview]");
       if (v) { settings.salesView = v.dataset.salesview; saveSettings(); renderSalesTab(); const b = document.querySelector('[data-salesview="' + v.dataset.salesview + '"]'); if (b) b.focus(); return; }
-      if (settings.salesView === "log") return;
+      if (salesViewNow() !== "trade") return;
       const t = tradeState();
       const add = e.target.closest("[data-tadd]");
       if (add) {
@@ -9749,7 +10446,7 @@
       if (e.target.closest("#tradeClear")) { trade = {give: [], get: [], cash: 0, cashDir: "get", loc: t.loc, q1: "", q2: ""}; saveTrade(); renderTrade(); }
     });
     panel.addEventListener("input", e => {
-      if (settings.tab !== "sales" || settings.salesView === "log") return;
+      if (settings.tab !== "sales" || salesViewNow() !== "trade") return;
       const t = tradeState();
       if (e.target.id === "tradeGiveQ") { t.q1 = e.target.value; showTradeResults("give"); }
       else if (e.target.id === "tradeGetQ") { t.q2 = e.target.value; showTradeResults("get"); }
@@ -9757,7 +10454,7 @@
       else if (e.target.id === "tradeLoc") { t.loc = e.target.value.trim(); saveTrade(); }
     });
     panel.addEventListener("change", e => {
-      if (settings.tab !== "sales" || settings.salesView === "log") return;
+      if (settings.tab !== "sales" || salesViewNow() !== "trade") return;
       const t = tradeState();
       if (e.target.id === "tradeCashDir") { t.cashDir = e.target.value === "give" ? "give" : "get"; refreshTrade(); return; }
       const g = e.target.closest("[data-tg]");
@@ -10222,7 +10919,7 @@
       '<form id="soldForm" class="stack" novalidate>' +
       '<div class="grid-2"><label class="field"><span>How many you sold</span><input class="input" id="sQty" type="number" min="1" max="' + r.qty + '" step="1" value="1"></label>' +
       '<label class="field"><span>Sold for, each (US$)</span><input class="input" id="sPrice" type="number" min="0" step="0.01" autofocus' +
-      (mv != null ? ' placeholder="' + esc(mv.toFixed(2)) + '"' : "") + "></label></div>" +
+      (mv != null ? ' placeholder="' + esc(mv.toFixed(2)) + '"' : "") + (sellAsk(r) != null ? ' value="' + sellAsk(r) + '"' : "") + "></label></div>" +
       '<div class="grid-2"><label class="field"><span>Date</span><input class="input" id="sDate" type="date" value="' + localDay(new Date()) + '"></label>' +
       '<label class="field"><span>Fees and shipping, total (optional)</span><input class="input" id="sFees" type="number" min="0" step="0.01" placeholder="$"></label></div>' +
       '<label class="field"><span>Where, or who bought it (optional)</span><input class="input" id="sNotes" placeholder="e.g. eBay, a local store, a trade"></label>' +
@@ -10234,6 +10931,7 @@
       const price = num($("sPrice").value), fees = num($("sFees").value) || 0;
       const parts = [];
       if (mv != null) parts.push("Market value now: <b>" + esc(usd(mv)) + "</b> each");
+      if (sellAsk(r) != null) parts.push("your asking price " + esc(usd(sellAsk(r))));
       if (r.paid != null) parts.push("you paid " + esc(usd(r.paid)) + " each");
       let html = parts.length ? parts.join(", ") + "." : '<span class="small">No market value or price paid to compare with.</span>';
       if (price != null && r.paid != null) html += "<br>Profit: " + changeHTML(price * qty - fees - r.paid * qty, null, true);
@@ -10257,14 +10955,15 @@
     const sale = upgradeSale({id: newId(), date: parseDay(f.date) ? f.date : localDay(new Date()), qty, price: f.price, fees: f.fees, notes: f.notes,
       name: r.name, productId: r.productId, number: r.number, setName: r.setName, rarity: r.rarity, edition: r.edition, condition: r.condition,
       language: r.language, grade: r.grade, paid: r.paid, market: marketValue(r).unit, image: imageFor(r, "200w"),
-      record: JSON.parse(JSON.stringify(Object.assign({}, r, {qty})))});
-    const beforeCollection = collection.slice(), beforeQty = r.qty, beforeSales = sales.slice();
+      record: JSON.parse(JSON.stringify(Object.assign({}, r, {qty, sell: null})))});
+    const beforeCollection = collection.slice(), beforeQty = r.qty, beforeSales = sales.slice(), beforeSell = r.sell ? Object.assign({}, r.sell) : null;
     r.qty -= qty;
     if (r.qty <= 0) { collection = collection.filter(x => x !== r); selected.delete(r.id); }
+    else if (r.sell && r.sell.qty) { r.sell.qty -= qty; if (r.sell.qty <= 0) r.sell = null; else if (r.sell.qty >= r.qty) r.sell.qty = null; }
     sales.push(sale);
     save(); closeDrawer(); render();
     toast("Recorded the sale of " + (qty > 1 ? qty + " × " : "") + r.name + " for " + usd(f.price * qty) + ".", {action: "Undo", onAction: () => {
-      r.qty = beforeQty; collection = beforeCollection; sales = beforeSales; save(); render();
+      r.qty = beforeQty; r.sell = beforeSell; collection = beforeCollection; sales = beforeSales; save(); render();
     }});
   }
   function saleNumbers(x) {
@@ -10357,6 +11056,248 @@
     const lines = [cols.map(c => csvCell(c[0])).join(",")].concat(list.map(x => cols.map(c => csvCell(c[1](x))).join(",")));
     download(new Blob(["\ufeff" + lines.join("\r\n")], {type: "text/csv;charset=utf-8"}), "card-vault-sales" + (settings.salesYear ? "-" + settings.salesYear : "") + ".csv");
     toast("Exported " + plural(list.length, "sale") + ".");
+  }
+
+  /* ======================= Selling: the sell list and listings ======================= */
+  // Cards you mean to sell go on your sell list (Trades & sales > Selling), each with an asking price and how many.
+  // Card Vault suggests prices from today's market, works out what you'd keep after the selling site's fees
+  // (Settings > Selling fees), notices when the market moves away from your price, and writes a listing's title
+  // and description to paste into eBay, TCGplayer or a post.
+  const COND_SHORT = {"Near Mint": "NM", "Lightly Played": "LP", "Moderately Played": "MP", "Heavily Played": "HP", "Damaged": "DMG"};
+  const sellPct = () => { const v = num(settings.sellFeePct); return v == null ? 13 : Math.min(Math.max(v, 0), 60); };
+  const sellFlat = () => { const v = num(settings.sellFeeFlat); return v == null ? 0.3 : Math.min(Math.max(v, 0), 50); };
+  const afterFees = price => price == null ? null : round2(Math.max(0, price * (1 - sellPct() / 100) - sellFlat()));
+  const feeWords = () => [sellPct() ? +sellPct().toFixed(2) + "%" : "", sellFlat() ? usd(sellFlat()) + " a card" : ""].filter(Boolean).join(" + ") || "no fees";
+  const sellQty = r => r.sell && r.sell.qty ? Math.min(r.sell.qty, r.qty) : r.qty;
+  const sellAsk = r => r.sell && r.sell.price != null ? r.sell.price : null;
+  const sellingList = () => collection.filter(r => r.sell).map(r => ({r, v: marketValue(r).unit})).sort((a, b) => ((b.v || 0) - (a.v || 0)) || a.r.name.localeCompare(b.r.name)).map(x => x.r);
+  // Prices to start from, for one copy
+  function sellSuggestions(r) {
+    const out = [];
+    const mv = marketValue(r).unit;
+    const slabNoValue = r.grade && r.grade.value == null;
+    if (mv != null) out.push({k: "market", label: r.grade && r.grade.value != null ? "Your graded value" : slabNoValue ? "Ungraded market value" : "Market value", price: round2(mv)});
+    const p = catalog && r.productId ? catalog.byId.get(r.productId) : null;
+    const sub = p ? catalogPrice(p, r.edition) : null;
+    if (sub && sub.low != null && !r.grade) out.push({k: "low", label: "Lowest TCGplayer listing", price: round2(sub.low)});
+    if (mv != null && mv >= 1 && !slabNoValue) out.push({k: "quick", label: "Quick sale (10% under)", price: round2(mv * 0.9)});
+    if (r.paid != null && r.paid > 0) out.push({k: "even", label: "Break even", price: Math.ceil((r.paid + sellFlat()) / Math.max(0.01, 1 - sellPct() / 100) * 100) / 100});
+    return out;
+  }
+  // What you'd keep at this price, and against what you paid
+  function sellKeepHTML(r, price) {
+    if (price == null) return "Choose an asking price to see what you'd keep after fees.";
+    const keep = afterFees(price);
+    let html = "At " + esc(usd(price)) + " you'd keep about <b>" + esc(usd(keep)) + "</b> a card after fees (" + esc(feeWords()) + '; <button type="button" class="link-btn" data-sell="fees">change</button>)';
+    if (r.paid != null) html += ", " + changeHTML(keep - r.paid, null, true) + " against the " + esc(usd(r.paid)) + " you paid";
+    if (r.grade && r.grade.value == null) html += ". Enter its graded value below for a better price to start from";
+    return html + ".";
+  }
+  // The title: eBay allows 80 characters, so the parts buyers need least go first when it's too long.
+  function listingTitle(r) {
+    const ed = r.edition === "1st Edition" ? "1st Edition" : r.edition === "Limited" ? "Limited Edition" : "";
+    const parts = [r.grade ? gradeLabel(r.grade) : "", "Yu-Gi-Oh!", r.language && r.language !== "English" ? r.language : "",
+      !r.sealed && isRushNo(r.number) && !/rush/i.test(r.name) ? "Rush Duel" : "", r.name, r.sealed ? "" : r.number, r.sealed ? "" : r.rarity, r.sealed ? "" : ed,
+      r.sealed ? "Sealed" : r.grade ? "" : COND_SHORT[r.condition] || ""];
+    const text = () => parts.filter(Boolean).join(" ").replace(/\s+/g, " ").trim();
+    for (const i of [1, 8, 3, 6]) { if (text().length <= 80) break; parts[i] = ""; }
+    // still too long: the name is shortened (at a word), so the number stays
+    if (text().length > 80) { const room = 80 - (text().length - parts[4].length); parts[4] = parts[4].slice(0, Math.max(10, room)).replace(/\s+\S*$/, ""); }
+    return text().slice(0, 80);
+  }
+  function listingText(r) {
+    const lines = [listingTitle(r), ""];
+    const row = (k, v) => { if (v) lines.push(k + ": " + v); };
+    row(r.sealed ? "Product" : "Card", r.name);
+    row("Set", r.setName);
+    if (!r.sealed) {
+      row("Card number", r.number);
+      row("Rarity", r.rarity);
+      row("Printing", r.edition && r.edition !== "No edition mark" ? r.edition : "");
+      if (isRushNo(r.number)) row("Game", "Rush Duel");
+      if (isOverframeRec(r)) row("Frame", "Overframe (extended art)");
+    }
+    if (r.grade) row("Graded", gradeLabel(r.grade) + (r.grade.cert ? " (cert " + r.grade.cert + ")" : ""));
+    else row("Condition", r.sealed ? "Factory sealed" : r.condition);
+    row("Language", r.language);
+    const q = sellQty(r), a = sellAsk(r);
+    if (q > 1) row("Quantity", q + " available");
+    if (a != null) row("Price", usd(a) + (q > 1 ? " each" : ""));
+    if (r.photos && r.photos.length) lines.push("", "The photos are of the actual " + (r.sealed ? "item" : "card") + ".");
+    return lines.join("\n");
+  }
+  const ebaySoldURL = r => "https://www.ebay.com/sch/i.html?_nkw=" + encodeURIComponent(r.sealed ? r.name : ((r.number || "") + " " + lookupName(r.name) + (r.grade ? " " + gradeLabel(r.grade) : "")).trim()) + "&LH_Sold=1&LH_Complete=1";
+  // The market moved away from your price
+  function sellDrift(r) {
+    const a = sellAsk(r), mv = marketValue(r).unit;
+    if (a == null || a <= 0 || mv == null || mv <= 0 || (r.grade && r.grade.value == null)) return "";
+    if (mv >= a * 1.1) return "The market is up to " + usd(mv) + ": you may be asking too little.";
+    if (mv <= a / 1.25) return "You're asking " + Math.round((a - mv) / mv * 100) + "% over the market (" + usd(mv) + ").";
+    return "";
+  }
+  // Card details > Selling
+  function sellBoxHTML(r) {
+    const on = !!r.sell, sugg = sellSuggestions(r), price = sellAsk(r);
+    let html = on ? '<div class="grid-2"><label class="field"><span>Asking price, each (US$)</span><input class="input" id="sellPrice" type="number" min="0" step="0.01" value="' + (price == null ? "" : price) + '"></label>' +
+        '<label class="field"><span>How many to sell (you have ' + r.qty + ')</span><input class="input" id="sellQty" type="number" min="1" max="' + r.qty + '" step="1" value="' + sellQty(r) + '"></label></div>'
+      : '<p class="small" style="margin:0 0 8px">Put it on your sell list (Trades &amp; sales &gt; Selling) with an asking price, and Card Vault tells you when the market moves away from it. Pick a price to start from:</p>';
+    if (sugg.length) html += '<div class="sell-sugg">' + sugg.map(s => '<button type="button" class="chip" data-sell-pick="' + s.price + '"' + (on && s.price === price ? ' aria-pressed="true"' : "") + ">" + esc(s.label) + " <b>" + esc(usd(s.price)) + "</b></button>").join("") + "</div>";
+    else if (!on) html += '<div class="btn-row" style="margin-top:0"><button type="button" class="btn btn-small" data-sell="on">Put it on my sell list</button></div>';
+    const drift = on ? sellDrift(r) : "";
+    html += (drift ? '<p class="small sell-drift">' + esc(drift) + "</p>" : "") +
+      '<p class="small" id="sellKeep" style="margin:8px 0 0">' + sellKeepHTML(r, on ? price : sugg[0] ? sugg[0].price : null) + "</p>" +
+      '<label class="field" style="margin-top:10px"><span>Listing title</span><input class="input" id="sellTitle" readonly value="' + esc(listingTitle(r)) + '"></label>' +
+      '<div class="btn-row"><button type="button" class="btn btn-small" data-sell="copy-title">Copy title</button><button type="button" class="btn btn-small" data-sell="copy-text">Copy listing</button>' +
+      '<a class="btn btn-small" target="_blank" rel="noopener" href="' + esc(ebaySoldURL(r)) + '">What it sold for on eBay</a></div>' +
+      (on ? '<p class="small" style="margin:8px 0 0">On your sell list since ' + esc(fmtDate(parseDate(r.sell.since))) + '. <button type="button" class="link-btn" data-sell="off">Take it off the list</button></p>' : "");
+    return html;
+  }
+  function setSell(r, sell, words) {
+    const was = r.sell;
+    r.sell = sell;
+    save(); renderSoon();
+    if (words) toast(words, {action: "Undo", onAction: () => { const cur = collection.find(x => x.id === r.id); if (!cur) return; cur.sell = was; save(); renderSoon(); redrawSellBox(cur.id); }});
+  }
+  function redrawSellBox(id) {
+    const r = collection.find(x => x.id === id);
+    if (r && $("sellBox") && drawerCtx && drawerCtx.mode === "details" && drawerCtx.id === id) $("sellBox").innerHTML = sellBoxHTML(r);
+  }
+  function wireSellBox(id) {
+    const box = $("sellBox");
+    if (!box) return;
+    const cur = () => collection.find(x => x.id === id);
+    box.addEventListener("click", e => {
+      const r = cur();
+      if (!r) return;
+      const pick = e.target.closest("[data-sell-pick]");
+      if (pick) {
+        const v = round2(num(pick.dataset.sellPick));
+        if (!r.sell) setSell(r, normSell({price: v}), "Put " + r.name + " on your sell list at " + usd(v) + ".");
+        else { r.sell.price = v; save(); renderSoon(); }
+        redrawSellBox(id);
+        return;
+      }
+      const b = e.target.closest("[data-sell]");
+      if (!b) return;
+      const a = b.dataset.sell;
+      if (a === "on") { setSell(r, normSell({price: null}), "Put " + r.name + " on your sell list."); redrawSellBox(id); }
+      else if (a === "off") { setSell(r, null, "Took " + r.name + " off your sell list."); redrawSellBox(id); }
+      else if (a === "copy-title") copyText(listingTitle(r), () => toast("Copied the listing title."));
+      else if (a === "copy-text") copyText(listingText(r), () => toast("Copied the listing: paste it into the description."));
+      else if (a === "fees") openSettings({section: "selling"});
+    });
+    box.addEventListener("change", e => {
+      const r = cur();
+      if (!r || !r.sell) return;
+      if (e.target.id === "sellPrice") { const v = num(e.target.value); r.sell.price = v != null && v >= 0 ? round2(v) : null; }
+      else if (e.target.id === "sellQty") { const q = posInt(e.target.value); r.sell.qty = q && q < r.qty ? q : null; e.target.value = sellQty(r); }
+      else return;
+      save(); renderSoon();
+      if ($("sellKeep")) $("sellKeep").innerHTML = sellKeepHTML(r, sellAsk(r));
+      if ($("sellTitle")) $("sellTitle").value = listingTitle(r);
+    });
+    box.addEventListener("input", e => {
+      if (e.target.id !== "sellPrice") return;
+      const r = cur();
+      if (r && $("sellKeep")) $("sellKeep").innerHTML = sellKeepHTML(r, num(e.target.value));
+    });
+  }
+  // Trades & sales > Selling
+  function renderSelling() {
+    const panel = $("salesBody") || $("panel-sales");
+    const list = sellingList();
+    const head = '<div class="panel-head sub-head"><div><h3 class="sub-h">Selling</h3><p>' + (list.length
+      ? "Your sell list: your asking prices next to today's market, and what you'd keep after fees (" + esc(feeWords()) + ', <button type="button" class="link-btn" data-sell-act="fees">change</button>).'
+      : "Cards you mean to sell, with your asking prices.") + "</p></div>" +
+      (list.length ? '<div class="panel-tools"><button class="btn btn-small" type="button" data-sell-act="copy-all">Copy all listings</button>' +
+        '<button class="btn btn-small" type="button" data-sell-act="export">Export CSV</button></div>' : "") + "</div>";
+    if (!list.length) {
+      panel.innerHTML = head + emptyPanel("Nothing on your sell list", "Open a card in your collection and pick a price under <b>Selling</b>, or select several cards and choose <b>Sell list</b>. " +
+        "Card Vault suggests a price from today's market, works out what you'd keep after fees and writes the listing for you.");
+      return;
+    }
+    panel.innerHTML = head + '<div class="facts sales-facts" id="sellFacts">' + sellFactsHTML(list) + "</div>" +
+      '<div class="table-wrap"><table class="table stack-table sales-table sell-table"><thead><tr><th class="c-thumb"><span class="sr">Image</span></th><th>Card</th>' +
+      '<th class="num">To sell</th><th class="num">Asking, each</th><th class="num">Market, each</th><th class="num">You\'d keep, each</th><th class="num">Paid, each</th><th><span class="sr">Actions</span></th></tr></thead><tbody>' +
+      list.map(r => {
+        const a = sellAsk(r), mv = marketValue(r).unit, drift = sellDrift(r);
+        return '<tr><td class="c-thumb"><span class="sleeve' + (r.sealed ? " boxed" : "") + '">' + imgTag(recordPics(r, "200w"), r.name) + "</span></td>" +
+          '<td><button type="button" class="cell-name" data-open="' + esc(r.id) + '">' + esc(r.name) + '</button><span class="cell-sub">' +
+          esc([r.sealed ? "Sealed" : r.number, r.sealed ? "" : r.rarity, r.edition === "No edition mark" ? "" : r.edition, r.grade ? gradeLabel(r.grade) : r.sealed ? "" : r.condition].filter(Boolean).join(", ")) +
+          ". Listed " + esc(fmtShortDate(parseDate(r.sell.since))) + '</span><span class="cell-sub sell-drift" data-drift="' + esc(r.id) + '"' + (drift ? "" : " hidden") + ">" + esc(drift) + "</span></td>" +
+          '<td class="num" data-label="To sell"><input class="input sell-in" type="number" min="1" max="' + r.qty + '" step="1" data-sell-qty="' + esc(r.id) + '" value="' + sellQty(r) + '" aria-label="How many ' + esc(r.name) + ' to sell"></td>' +
+          '<td class="num" data-label="Asking, each"><input class="input sell-in" type="number" min="0" step="0.01" data-sell-price="' + esc(r.id) + '" value="' + (a == null ? "" : a) + '" placeholder="' + esc(mv == null ? "$" : mv.toFixed(2)) + '" aria-label="Asking price for ' + esc(r.name) + '"></td>' +
+          '<td class="num" data-label="Market, each"' + (mv == null ? " data-empty" : "") + ">" + esc(mv == null ? "" : usd(mv)) + "</td>" +
+          '<td class="num" data-label="You\'d keep, each" data-keep="' + esc(r.id) + '"' + (a == null ? " data-empty" : "") + ">" + esc(a == null ? "" : usd(afterFees(a))) + "</td>" +
+          '<td class="num" data-label="Paid, each"' + (r.paid == null ? " data-empty" : "") + ">" + esc(r.paid == null ? "" : usd(r.paid)) + "</td>" +
+          '<td><div class="want-actions"><button class="btn btn-small" type="button" data-sell-act="sold" data-id="' + esc(r.id) + '">Sold…</button>' +
+          '<button class="btn btn-small" type="button" data-sell-act="copy" data-id="' + esc(r.id) + '">Copy listing</button>' +
+          '<button class="btn btn-small" type="button" data-sell-act="off" data-id="' + esc(r.id) + '" aria-label="Take ' + esc(r.name) + ' off the sell list">Remove</button></div></td></tr>';
+      }).join("") + "</tbody></table></div>" +
+      '<p class="small">Market is today\'s value of your copy (TCGplayer, or the Japanese and Korean shops, with your condition percentages). "Sold…" records the sale in the Sales log and takes the card out of your collection.</p>';
+  }
+  function sellFactsHTML(list) {
+    let cards = 0, asking = 0, keep = 0, market = 0, noPrice = 0, profit = 0, paidCards = 0;
+    for (const r of list) {
+      const q = sellQty(r), a = sellAsk(r), mv = marketValue(r).unit;
+      cards += q;
+      if (a != null) { asking += a * q; keep += afterFees(a) * q; if (r.paid != null) { profit += (afterFees(a) - r.paid) * q; paidCards += q; } } else noPrice += q;
+      if (mv != null) market += mv * q;
+    }
+    const fact = (value, label) => '<div class="fact"><b>' + value + "</b><span>" + label + "</span></div>";
+    return fact(cards.toLocaleString(), (cards === 1 ? "card" : "cards") + " to sell") +
+      fact(esc(usd(asking)), "asking" + (noPrice ? " (" + noPrice + " without a price)" : "")) + fact(esc(usd(keep)), "you'd keep after fees") +
+      fact(esc(usd(market)), "market value") + (paidCards ? fact(changeHTML(profit, null, true), "profit on the " + plural(paidCards, "card") + " with a price paid") : "");
+  }
+  function sellAction(act, id) {
+    if (act === "copy-all") {
+      const list = sellingList();
+      copyText(list.map(listingText).join("\n\n----------\n\n"), () => toast("Copied " + plural(list.length, "listing") + "."));
+    } else if (act === "export") exportSellCSV();
+    else if (act === "fees") openSettings({section: "selling"});
+    else {
+      const r = collection.find(x => x.id === id);
+      if (!r) return;
+      if (act === "sold") openSoldForm(r.id);
+      else if (act === "copy") copyText(listingText(r), () => toast("Copied the listing for " + r.name + "."));
+      else if (act === "off") { setSell(r, null, "Took " + r.name + " off your sell list."); render(); }
+    }
+  }
+  function sellInput(el) {
+    const id = el.dataset.sellPrice || el.dataset.sellQty, r = collection.find(x => x.id === id);
+    if (!r || !r.sell) return;
+    if (el.dataset.sellPrice) { const v = num(el.value); r.sell.price = v != null && v >= 0 ? round2(v) : null; }
+    else { const q = posInt(el.value); r.sell.qty = q && q < r.qty ? q : null; el.value = sellQty(r); }
+    save();
+    // (updated where they are, so the next tap or Tab lands where you meant)
+    const a = sellAsk(r), keepCell = document.querySelector('[data-keep="' + id + '"]'), drift = document.querySelector('[data-drift="' + id + '"]');
+    if (keepCell) { keepCell.textContent = a == null ? "" : usd(afterFees(a)); if (a == null) keepCell.setAttribute("data-empty", ""); else keepCell.removeAttribute("data-empty"); }
+    if (drift) { drift.textContent = sellDrift(r); drift.hidden = !drift.textContent; }
+    if ($("sellFacts")) $("sellFacts").innerHTML = sellFactsHTML(sellingList());
+  }
+  function exportSellCSV() {
+    const list = sellingList();
+    if (!list.length) { toast("Your sell list is empty."); return; }
+    const money2 = v => v == null ? "" : (Math.round(v * 100) / 100).toFixed(2);
+    const cols = [["Card Name", r => r.name], ["Set Name", r => r.setName], ["Number", r => r.sealed ? "" : r.number], ["Rarity", r => r.sealed ? "" : r.rarity],
+      ["Printing", r => r.sealed ? "" : r.edition], ["Condition", r => r.sealed ? "Sealed" : r.condition], ["Graded", r => r.grade ? gradeLabel(r.grade) : ""], ["Language", r => r.language],
+      ["Quantity To Sell", r => sellQty(r)], ["Asking Each (USD)", r => money2(sellAsk(r))], ["Keep After Fees Each (USD)", r => money2(afterFees(sellAsk(r)))],
+      ["Market Value Each (USD)", r => money2(marketValue(r).unit)], ["Paid Each (USD)", r => money2(r.paid)], ["Listing Title", r => listingTitle(r)], ["On The List Since", r => String(r.sell.since).slice(0, 10)]];
+    const lines = [cols.map(c => csvCell(c[0])).join(",")].concat(list.map(r => cols.map(c => csvCell(c[1](r))).join(",")));
+    download(new Blob(["﻿" + lines.join("\r\n")], {type: "text/csv;charset=utf-8"}), "card-vault-sell-list.csv");
+    toast("Exported " + plural(list.length, "card") + " on your sell list.");
+  }
+  // Several selected cards at once: each at its market value (or no price yet)
+  function bulkSell(ids) {
+    const list = ids.map(id => collection.find(r => r.id === id)).filter(r => r && !r.sell);
+    if (!list.length) { toast("Those are on your sell list already."); return; }
+    const was = list.map(r => [r.id, r.sell]);
+    for (const r of list) { const s = sellSuggestions(r).find(x => x.k === "market"); r.sell = normSell({price: s && !(r.grade && r.grade.value == null) ? s.price : null}); }
+    save(); render();
+    toast("Put " + plural(list.length, "card") + " on your sell list at market value. Trades & sales > Selling has them.", {action: "Undo", onAction: () => {
+      for (const [id, s] of was) { const r = collection.find(x => x.id === id); if (r) r.sell = s; }
+      save(); render();
+    }});
   }
 
   /* ======================= Printed report ======================= */
@@ -10597,7 +11538,7 @@
         dl("Your target", w.target == null ? "" : usd(w.target)) + dl("Notes", w.notes) + "</dl></details>";
     };
     const phonePayload = backupPayload(now.toISOString());
-    phonePayload.settings = Object.assign({}, phonePayload.settings, {pcToken: ""});   // (the phone copy is just for looking)
+    phonePayload.settings = Object.assign({}, phonePayload.settings, {pcToken: "", cloudAlerts: null});   // (the phone copy is just for looking: no keys)
     const data = JSON.stringify(phonePayload).replace(/</g, "\\u003c").replace(/\u2028/g, "\\u2028").replace(/\u2029/g, "\\u2029");
     return '<!doctype html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">' +
       "<title>Card Vault phone copy</title><style>" + PHONE_CSS + "</style></head><body><header><h1>Card Vault</h1>" +
@@ -11283,7 +12224,7 @@
   /* ======================= Add several cards ======================= */
   // A list of cards to add in one go: type or paste card numbers (or names), or scan cards one after another.
   // The list stays while Card Vault is open, so you can go to the camera and back.
-  const batch = {rows: [], text: "", condition: "Near Mint", language: "English", location: ""};
+  const batch = {rows: [], text: "", condition: "Near Mint", language: "English", location: "", opening: null};
   const NUMBER_LIKE = /^(RD\/)?[A-Z0-9]{2,6}-[A-Z]{0,3}\d{1,4}[A-Z]?$/;
   const batchCards = () => batch.rows.reduce((s, r) => s + r.qty, 0);
   function batchDefaultEdition(p) {
@@ -11308,11 +12249,33 @@
     row.edition = batchDefaultEdition(p);
     row.number = p.number;
   }
-  // Finds the TCGplayer printing(s) for one line.
+  // A Japanese or Korean card number, from Card Vault's daily list (every rarity it was printed in, with photos)
+  function setBatchOcg(row, c) {
+    row.ocg = c.number;
+    row.number = c.number;
+    row.name = c.name;
+    row.lang = c.region === "jp" ? "Japanese" : "Korean";
+    const s = ocgFindSet(c.set.id);
+    row.setName = s ? s.name : "";
+    row.rarities = Array.from(new Set(c.rows.map(x => x.rarity).filter(Boolean)));
+    row.rarity = row.rarities.length === 1 ? row.rarities[0] : "";
+    row.edition = "No edition mark";
+    row.status = "";
+  }
+  const batchReady = r => !!(r.pid ? catalog && catalog.byId.get(r.pid) : r.ocg && (r.rarity || !r.rarities.length));
+  const batchOcgImg = r => { const c = ocgCardAt(r.ocg); const row = c ? ocgRowFor(c, r.rarity) || c.rows.find(x => x.img) : null; return row && row.img ? row.img : ""; };
+  // Finds the TCGplayer printing(s) for one line, or the Japanese or Korean card.
   function batchRowFor(text, qty, whole) {
-    const row = {key: newId(), input: String(text), qty: qty || 1, pid: null, cands: [], edition: "", condition: batch.condition, number: "", status: ""};
-    if (!catalog) { row.status = "nocatalog"; return row; }
+    const row = {key: newId(), input: String(text), qty: qty || 1, pid: null, cands: [], edition: "", condition: batch.condition, number: "", status: "", ocg: "", rarities: [], rarity: ""};
     const number = normNumber(text);
+    if (NUMBER_LIKE.test(number) && isRegionNumber(number)) {
+      row.number = number;
+      const c = ocgCardAt(number);
+      if (c) setBatchOcg(row, c);
+      else row.status = !ocgCd.data && ocgCardsURL() && !(ocgCd.failed && Date.now() - ocgCd.failed < 10 * 60000) ? "ocgwait" : "region";
+      return row;
+    }
+    if (!catalog) { row.status = "nocatalog"; return row; }
     let list = [];
     if (NUMBER_LIKE.test(number)) {
       list = findByNumber(number);
@@ -11329,22 +12292,41 @@
     if (list.length === 1) setBatchProduct(row, list[0]);
     return row;
   }
+  // Rows waiting for the Japanese and Korean list: looked up once it's here.
+  function batchResolveWaiting() {
+    if (!ocgCd.data) return;
+    for (const r of batch.rows) if (r.status === "ocgwait") { const c = ocgCardAt(r.number); if (c) setBatchOcg(r, c); else r.status = "region"; }
+  }
+  function batchLoadOcg() {
+    if (ocgCd.data || !batch.rows.some(r => r.status === "ocgwait")) return;
+    loadOcgCardsSoft().then(() => {
+      for (const r of batch.rows) if (r.status === "ocgwait" && !ocgCd.data) r.status = "region";
+      renderBatchList();
+    });
+  }
   // The same printing twice just adds to how many.
   function addBatchRows(rows) {
     for (const r of rows) {
       const same = batch.rows.find(x => r.pid ? x.pid === r.pid && x.edition === r.edition && x.condition === r.condition
-        : !x.pid && x.input.toUpperCase() === r.input.toUpperCase());
+        : r.ocg ? x.ocg === r.ocg && x.rarity === r.rarity && x.condition === r.condition && !!r.rarity
+        : !x.pid && !x.ocg && x.input.toUpperCase() === r.input.toUpperCase());
       if (same) same.qty = Math.min(999, same.qty + r.qty);
       else batch.rows.push(r);
     }
+    batchLoadOcg();
   }
   function batchValue(r) {
+    if (r.ocg) {
+      const v = marketValue({productId: null, name: r.name, number: r.ocg, rarity: r.rarity, edition: r.edition, condition: r.condition, language: r.lang, qty: r.qty, grade: null}).unit;
+      return v == null ? null : v * r.qty;
+    }
     const p = r.pid && catalog ? catalog.byId.get(r.pid) : null;
     if (!p) return null;
     const v = marketValue({productId: p.id, edition: r.edition, condition: r.condition, language: batch.language, qty: r.qty, grade: null}).unit;
     return v == null ? null : v * r.qty;
   }
   function batchRowHTML(r) {
+    if (r.ocg) return batchOcgRowHTML(r);
     const p = r.pid && catalog ? catalog.byId.get(r.pid) : null;
     const label = p ? cleanName(p.name, p.rarity) : r.input;
     let info, cls = "batch-row";
@@ -11360,9 +12342,14 @@
     } else if (r.cands.length) {
       cls += " need";
       info = "<b>" + esc(r.input) + "</b><span>" + (oneNumber ? "This number has " + cands.length + " printings" : cands.length + " printings have this name") + ". Which one is yours?</span>";
+    } else if (r.status === "ocgwait") {
+      cls += " need";
+      info = "<b>" + esc(r.input) + "</b><span>Loading Card Vault's Japanese and Korean card list…</span>";
     } else {
       cls += " bad";
-      const why = r.status === "region" ? "TCGplayer only sells English cards, so this one isn't on it. Add it with Add manually."
+      const why = r.status === "region" ? (ocgCd.data ? "This number isn't in Card Vault's Japanese and Korean card list yet (new sets fill in night by night). Add it with Add manually."
+          : ocgCardsURL() ? "Card Vault's Japanese and Korean card list couldn't be loaded just now (it needs an internet connection), so add it with Add manually."
+          : "TCGplayer only sells English cards, so this one isn't on it. Add it with Add manually.")
         : r.status === "nocatalog" ? "Card lookup needs TCGplayer's card list (" + (SITE ? "reload the page" : "run Update TCGplayer Data") + ")."
         : "No TCGplayer card has this number or name. Check it for typos, then type it again.";
       info = "<b>" + esc(r.input) + "</b><span>" + esc(why) + "</span>" +
@@ -11378,46 +12365,79 @@
       '<span class="batch-price" data-price>' + (value == null ? (p ? "–" : "") : esc(usd(value))) + "</span>" +
       '<button type="button" class="icon-btn b-x" data-b="remove" aria-label="Remove ' + esc(label) + ' from the list">&times;</button></div>';
   }
+  function batchOcgRowHTML(r) {
+    const need = !batchReady(r);
+    const pick = r.rarities.length > 1 ? '<select class="input b-pick" data-f="rarity" aria-label="Rarity of ' + esc(r.name) + '">' +
+      (r.rarity ? "" : '<option value="">Pick the rarity (' + r.rarities.length + ")</option>") + options(r.rarities, r.rarity) + "</select>" : "";
+    const value = batchValue(r);
+    return '<div class="batch-row' + (pick ? " has-pick" : "") + (need ? " need" : "") + '" data-row="' + esc(r.key) + '">' +
+      '<span class="sleeve"' + foilAttr(r.rarity) + ">" + imgTag({list: [batchOcgImg(r)].concat(namePics(r.name, "in_400x400", r.rarity).list)}, r.name) + "</span>" +
+      '<div class="batch-info"><b>' + esc(r.name) + "</b><span>" + esc([r.setName, r.ocg, r.rarity || (r.rarities.length > 1 ? "which rarity?" : ""), r.lang].filter(Boolean).join(" · ")) + "</span></div>" + pick +
+      '<div class="b-ctl"><select class="input b-ed" data-f="edition" aria-label="Printing of ' + esc(r.name) + '">' + options(PRINTINGS, r.edition) + "</select>" +
+      '<select class="input b-cond" data-f="condition" aria-label="Condition of ' + esc(r.name) + '">' + options(CONDITIONS, r.condition) + "</select>" +
+      '<input class="input b-qty" data-f="qty" type="number" min="1" max="999" step="1" value="' + r.qty + '" aria-label="How many of ' + esc(r.name) + '"></div>' +
+      '<span class="batch-price" data-price>' + (value == null ? "–" : esc(usd(value))) + "</span>" +
+      '<button type="button" class="icon-btn b-x" data-b="remove" aria-label="Remove ' + esc(r.name) + ' from the list">&times;</button></div>';
+  }
   function batchTotalsHTML() {
-    const ready = batch.rows.filter(r => r.pid);
+    const ready = batch.rows.filter(batchReady);
     const cards = ready.reduce((s, r) => s + r.qty, 0);
     const value = ready.reduce((s, r) => s + (batchValue(r) || 0), 0);
     const waiting = batch.rows.length - ready.length;
-    return (cards ? "<b>" + plural(cards, "card") + "</b> ready to add" + (value ? ", worth about <b>" + esc(usd(value)) + "</b> at TCGplayer market prices" : "") + "."
+    return (cards ? "<b>" + plural(cards, "card") + "</b> ready to add" + (value ? ", worth about <b>" + esc(usd(value)) + "</b> at today's market prices" : "") + "."
       : batch.rows.length ? "" : "The list is empty.") +
       (waiting ? " " + (waiting === 1 ? "1 line needs" : waiting + " lines need") + " a look first (they stay in the list)." : "");
   }
   function renderBatchList() {
     const box = $("batchList");
     if (!box) return;
+    batchResolveWaiting();
     box.innerHTML = batch.rows.length ? batch.rows.map(batchRowHTML).join("") : "";
     refreshBatchTotals();
   }
   function refreshBatchTotals() {
     if ($("batchTotals")) $("batchTotals").innerHTML = batchTotalsHTML();
-    const ready = batch.rows.filter(r => r.pid).reduce((s, r) => s + r.qty, 0);
-    if ($("batchGo")) { $("batchGo").textContent = ready ? "Add " + plural(ready, "card") + " to your collection" : "Add to your collection"; $("batchGo").disabled = !ready; }
+    const ready = batch.rows.filter(batchReady).reduce((s, r) => s + r.qty, 0);
+    const where = batch.opening ? " to your collection and this opening" : " to your collection";
+    if ($("batchGo")) { $("batchGo").textContent = ready ? "Add " + plural(ready, "card") + where : "Add" + where; $("batchGo").disabled = !ready; }
     if ($("batchClear")) $("batchClear").hidden = !batch.rows.length;
   }
-  function openBatch() {
+  // opts.opening: the cards you pulled from a box or packs you opened (Insights > Box openings): they go into your
+  // collection and onto that opening. Opening the list from Add card ({opening: null}) leaves that behind.
+  function openBatch(opts) {
+    // (each opening has a list of its own, and so does plain "Add several cards": cards typed for one never land in another)
+    const want = opts && "opening" in opts ? opts.opening || null : batch.opening;
+    if (want !== batch.opening) {
+      batch.lists = batch.lists || {};
+      batch.lists[batch.opening || ""] = batch.rows;
+      batch.rows = batch.lists[want || ""] || [];
+      delete batch.lists[want || ""];
+      batch.opening = want;
+    }
+    const op = batch.opening ? openings.find(o => o.id === batch.opening) : null;
+    if (!op && batch.opening) { batch.opening = null; batch.rows = (batch.lists && batch.lists[""]) || []; if (batch.lists) delete batch.lists[""]; }
     drawerCtx = {mode: "batch"};
-    openDrawer("Add several cards",
+    openDrawer(op ? "Cards you pulled" : "Add several cards",
+      (op ? '<div class="notice batch-for"><b>' + esc(op.name) + "</b>, opened " + esc(fmtDate(parseDay(op.date))) + ". The cards you add here go into your collection and onto this opening" +
+        (op.pulls.length ? " (" + plural(op.pulls.reduce((s, x) => s + x.qty, 0), "card") + " so far)" : "") + '. <button type="button" class="link-btn" id="batchNoOpening">Add them without the opening</button></div>' : "") +
       '<label class="field"><span>Card numbers or names</span><textarea class="input batch-text" id="batchText" rows="3" autofocus spellcheck="false" ' +
-      'placeholder="MAMO-EN040&#10;3 RA05-EN019&#10;LOB-001 x2">' + esc(batch.text) + "</textarea></label>" +
-      '<p class="hint" style="margin:0">Type a card number and press Enter, or paste a whole list (one card per line). For more than one copy, put how many before or after it: "3 MAMO-EN040" or "MAMO-EN040 x3".</p>' +
+      'placeholder="MAMO-EN040&#10;3 RA05-EN019&#10;RD/KP15-JP001 x2">' + esc(batch.text) + "</textarea></label>" +
+      '<p class="hint" style="margin:0">Type a card number and press Enter, or paste a whole list (one card per line). For more than one copy, put how many before or after it: "3 MAMO-EN040" or "MAMO-EN040 x3". ' +
+      "Japanese and Korean numbers work too (QCCU-JP001, RD/KP15-KR001).</p>" +
       '<div class="btn-row"><button class="btn" type="button" id="batchParse">Add to the list</button>' +
       '<button class="btn" type="button" id="batchScan">Scan cards with the camera</button></div>' +
       '<div class="batch-list" id="batchList"></div>' +
       '<p class="batch-totals" id="batchTotals" role="status"></p>' +
       '<div class="batch-common"><h3>For every card in the list</h3><div class="grid-3">' +
       '<label class="field"><span>Condition</span><select class="input" id="batchCond">' + options(CONDITIONS, batch.condition) + "</select></label>" +
-      '<label class="field"><span>Language</span><select class="input" id="batchLang">' + options(LANGUAGES, batch.language) + "</select></label>" +
+      '<label class="field"><span>Language (English cards)</span><select class="input" id="batchLang">' + options(LANGUAGES, batch.language) + "</select></label>" +
       '<label class="field"><span>Location (optional)</span><input class="input" id="batchLoc" list="locationList" autocomplete="off" placeholder="e.g. Binder 1" value="' + esc(batch.location) + '"></label></div>' +
-      '<p class="hint" style="margin:0">Changing the condition here sets it for every card in the list; you can still change single cards above.</p></div>' +
+      '<p class="hint" style="margin:0">Changing the condition here sets it for every card in the list; you can still change single cards above. Japanese and Korean cards keep their own language.</p></div>' +
       '<div class="form-actions"><button class="btn btn-primary" type="button" id="batchGo">Add to your collection</button>' +
       '<button class="btn" type="button" id="batchClear">Clear the list</button></div>');
     $("drawer").classList.add("wide");
     renderBatchList();
+    batchLoadOcg();
     const body = $("drawerBody");
     const text = $("batchText");
     const takeText = () => {
@@ -11430,6 +12450,7 @@
       renderBatchList();
       text.focus();
     };
+    if ($("batchNoOpening")) $("batchNoOpening").addEventListener("click", () => { const rows = batch.rows; batch.rows = []; openBatch({opening: null}); addBatchRows(rows); renderBatchList(); });
     text.addEventListener("keydown", e => { if (e.key === "Enter" && !e.shiftKey && !e.isComposing) { e.preventDefault(); takeText(); } });
     text.addEventListener("input", () => { batch.text = text.value; });
     $("batchParse").addEventListener("click", takeText);
@@ -11457,12 +12478,19 @@
         if (again) again.focus();
         return;
       }
+      if (f === "rarity") {
+        r.rarity = e.target.value;
+        renderBatchList();
+        const again = body.querySelector('[data-row="' + r.key + '"] [data-f="edition"]');
+        if (again) again.focus();
+        return;
+      }
       if (f === "edition") r.edition = e.target.value;
       else if (f === "condition") r.condition = e.target.value;
       else if (f === "qty") { r.qty = Math.min(999, posInt(e.target.value) || 1); e.target.value = r.qty; }
       const value = batchValue(r);
       const cell = e.target.closest("[data-row]").querySelector("[data-price]");
-      if (cell) cell.textContent = value == null ? (r.pid ? "–" : "") : usd(value);
+      if (cell) cell.textContent = value == null ? (r.pid || r.ocg ? "–" : "") : usd(value);
       refreshBatchTotals();
     });
     body.addEventListener("input", e => {
@@ -11487,29 +12515,40 @@
     });
   }
   function addBatch() {
-    const ready = batch.rows.filter(r => r.pid && catalog && catalog.byId.get(r.pid));
-    if (!ready.length) { toast(batch.rows.length ? "Pick the printing for the cards in the list first." : "Add some cards to the list first.", {kind: "error"}); return; }
+    const ready = batch.rows.filter(batchReady);
+    if (!ready.length) { toast(batch.rows.length ? "Pick the printing (or rarity) for the cards in the list first." : "Add some cards to the list first.", {kind: "error"}); return; }
     const before = JSON.stringify(collection);
+    const op = batch.opening ? openings.find(o => o.id === batch.opening) : null;
+    const pullsBefore = op ? op.pulls.slice() : null;
     const now = new Date().toISOString();
     let cards = 0;
     for (const r of ready) {
-      const p = catalog.byId.get(r.pid);
-      addOrMerge(upgradeRecord({id: newId(), productId: p.id, name: cleanName(p.name, p.rarity), productName: p.name, setName: p.group.name,
-        number: p.number, rarity: p.rarity, edition: r.edition, condition: r.condition, language: batch.language, qty: r.qty,
-        location: batch.location, snap: snapFromCatalog(p, r.edition), added: now}));
+      let rec;
+      if (r.ocg) {
+        rec = upgradeRecord({id: newId(), productId: null, name: r.name, productName: r.name, setName: r.setName, number: r.ocg, rarity: r.rarity, edition: r.edition || "No edition mark",
+          condition: r.condition, language: r.lang, qty: r.qty, customImage: batchOcgImg(r) || null, location: batch.location, added: now});
+      } else {
+        const p = catalog.byId.get(r.pid);
+        rec = upgradeRecord({id: newId(), productId: p.id, name: cleanName(p.name, p.rarity), productName: p.name, setName: p.group.name,
+          number: p.number, rarity: p.rarity, edition: r.edition, condition: r.condition, language: batch.language, qty: r.qty,
+          location: batch.location, snap: snapFromCatalog(p, r.edition), added: now});
+      }
+      if (op) op.pulls.push(pullFrom(rec, r.qty));
+      addOrMerge(rec);
       cards += r.qty;
     }
     batch.rows = batch.rows.filter(r => !ready.includes(r));
     save();
     render();
     const left = batch.rows.length;
-    if (left) renderBatchList(); else closeDrawer();
-    toast("Added " + plural(cards, "card") + " (" + plural(ready.length, "printing") + ") to your collection." +
+    if (left) renderBatchList(); else { closeDrawer(); if (op) { batch.opening = null; showOpening(op.id); } }
+    toast("Added " + plural(cards, "card") + " (" + plural(ready.length, "printing") + ") to your collection" + (op ? " and to " + op.name : "") + "." +
       (left ? " " + plural(left, "line") + " still in the list." : ""), {action: "Undo", onAction: () => {
       collection = JSON.parse(before).map(upgradeRecord).filter(Boolean);
+      if (op && pullsBefore) { const cur = openings.find(o => o.id === op.id); if (cur) cur.pulls = pullsBefore; batch.opening = op.id; }
       batch.rows = ready.concat(batch.rows);
       save(); render();
-      toast("Undone. The cards are back in the Add several cards list.");
+      toast("Undone. The cards are back in the " + (op ? "Cards you pulled" : "Add several cards") + " list.");
     }});
   }
 
@@ -11914,7 +12953,7 @@
       addBatchRows([row]);
       const p = row.pid && catalog ? catalog.byId.get(row.pid) : null;
       $("scanStatus").textContent = "Added " + found.number + (p ? ", " + cleanName(p.name, p.rarity) : "") +
-        (row.pid ? "" : row.cands.length ? " (pick its printing in the list)" : " (it isn't on TCGplayer)") + ". Next card…";
+        (row.ocg ? ", " + row.name + (row.rarity ? "" : " (pick its rarity in the list)") : row.pid ? "" : row.cands.length ? " (pick its printing in the list)" : row.status === "ocgwait" ? "" : " (it isn't on TCGplayer)") + ". Next card…";
       $("scanList").textContent = batchListLabel();
       $("scanForm").hidden = true;
     }
@@ -12423,6 +13462,7 @@
       else if (a === "hold-keep") holdKeep();
       else if (a === "hold-apply") holdApply();
       else if (a === "status-details") openSettings({section: "updates"});
+      else if (a === "ban-show") { settings.insightView = "watch"; saveSettings(); dismissStatusBanner(); setTab("history"); }
       else if (a === "status-dismiss") dismissStatusBanner();
       else if (a === "grading-show") { settings.insightView = "grading"; saveSettings(); setTab("history"); }
       else if (a === "grading-dismiss") dismissGradingBanner();
@@ -12529,6 +13569,7 @@
       openMove(shown.concat(collection.filter(r => selected.has(r.id) && !shown.includes(r))).map(r => r.id), {bulk: true});
     });
     $("bulkDelete").addEventListener("click", () => deleteRecords(Array.from(selected)));
+    $("bulkSell").addEventListener("click", () => bulkSell(Array.from(selected)));
 
     // ----- a Japanese or Korean card from the daily list, wherever it's shown
     document.addEventListener("click", e => {
@@ -12546,6 +13587,10 @@
       if (e.target.id === "moverMin") { settings.moverMin = num(e.target.value) || 0; saveSettings(); renderMovers(); }
     });
     $("panel-history").addEventListener("click", e => {
+      const opa = e.target.closest("[data-op-act]");
+      if (opa) { openingAction(opa.dataset.opAct, opa); return; }
+      const wa = e.target.closest("[data-watch]");
+      if (wa) { watchAction(wa); return; }
       const per = e.target.closest("[data-period]");
       if (per && !per.disabled) { settings.histPeriod = per.dataset.period; saveSettings(); if (settings.insightView === "movers") renderMovers(); else renderHistory(); return; }
       const mb = e.target.closest("[data-mover-by]");
@@ -12819,9 +13864,14 @@
       const b = e.target.closest("[data-sale-action]");
       if (b) { if (b.dataset.saleAction === "back") putBackSale(b.dataset.id); else deleteSale(b.dataset.id); return; }
       if (e.target.closest("#salesExport")) exportSalesCSV();
+      const sa = e.target.closest("[data-sell-act]");
+      if (sa) { sellAction(sa.dataset.sellAct, sa.dataset.id); return; }
+      const op = e.target.closest("[data-open]");
+      if (op && settings.tab === "sales" && salesViewNow() === "selling") openDetails(op.dataset.open);
     });
     $("panel-sales").addEventListener("change", e => {
       if (e.target.id === "salesYear") { settings.salesYear = e.target.value; saveSettings(); renderSales(); }
+      if (e.target.dataset && (e.target.dataset.sellPrice || e.target.dataset.sellQty)) sellInput(e.target);
     });
 
     // ----- want list
@@ -12932,7 +13982,7 @@
         refreshBackupSection();
         return;
       }
-      if (![STORE_KEY, WANTS_KEY, HISTORY_KEY, DECKS_KEY, SALES_KEY].includes(e.key)) return;
+      if (![STORE_KEY, WANTS_KEY, HISTORY_KEY, DECKS_KEY, SALES_KEY, OPENINGS_KEY].includes(e.key)) return;
       // What this tab is showing stays as it is; only the cards, lists and values come from the other tab.
       const view = {};
       ["tab", "view", "sortField", "sortDir", "basis", "histPeriod", "chartTable", "setsMode", "setsSort", "salesYear", "deckId", "gradedView"]
@@ -12944,7 +13994,7 @@
       yugi.cache = null; ocg.cache = null; pc.cache = null;
       render();
     });
-    setInterval(() => { if (document.visibilityState === "visible") { checkForNewData(); loadLive(); renderGradingBanner(); } }, 30 * 60000);
+    setInterval(() => { if (document.visibilityState === "visible") { checkForNewData(); loadLive(); renderGradingBanner(); cloudAlertsWrite(false); } }, 30 * 60000);
 
     // A photo that doesn't load: try the next one on its list, and when none is left, draw a stand-in.
     document.addEventListener("error", e => {
@@ -13023,7 +14073,10 @@
     loadOcgCards, buildOcgCards, ocgCd: () => ocgCd, ocgCardAt, ocgFilePrice, ocgRowFor, ocgSetProgress, openOcgCardPage, ocgNameHits, upgradeRecord, addOrMerge,
     GRADING_FEE_TABLE, GRADING_COS, gradingFee, gradingLevels, gradingUsual, gradingCostFor, holdFor, holdKeep, holdApply, deviceLabel,
     loadLive, live: () => live, feeTable, levelFee, updateStatusHTML, renderStatusBanner, expectedBack, addBusinessDays, renderGradingBanner, lateAtGrader,
-    openGradePlan, planCompany, planMix, planIds, setPlanIds, planValue, gradingEstimate, renderWorthGrading};
+    openGradePlan, planCompany, planMix, planIds, setPlanIds, planValue, gradingEstimate, renderWorthGrading,
+    openings: () => openings, sellSuggestions, listingTitle, listingText, afterFees, sellDrift, renderSelling, bulkSell, exportSellCSV, normSell, normPhotos,
+    upgradeOpening, openingNumbers, openOpeningForm, showOpening, renderOpenings, pullFrom, banData, banYours, banChangesForYou, reprintsForYou, renderWatch,
+    cloudPayload, cloudSeal, cloudAlertsWrite, cloudAlertsSetup, cloudAlertsOff, cleanCloudAlerts, cloudAlertsHTML, secretsPage, photoBoxHTML, addPhoto, shrinkPhoto, batchReady};
 
   document.addEventListener("DOMContentLoaded", init);
 })();

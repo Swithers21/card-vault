@@ -10,11 +10,14 @@ In this guide, `YOUR-USERNAME` is your GitHub username. The website's address wi
 
 - **This repository** (public): the website's code and this guide. Your collection is never in it.
 - **Your devices**: your collection, saved in each browser (and in the home-screen app on your iPhone).
-- **Your Google Drive**: `Card Vault/Card Vault backup.json`, which every device syncs with. Card Vault can
-  only see files it created itself in your Drive.
-- **GitHub Actions**: every evening it downloads the day's TCGplayer prices (through TCGCSV) and publishes
-  the website with them. It checks again overnight in case TCGCSV was late. An open Card Vault picks up new
-  prices by itself (within half an hour, or as soon as you switch back to it): nothing to reload or tap.
+- **Your Google Drive**: `Card Vault/Card Vault backup.json`, which every device syncs with, and (if you use them)
+  your photos of cards in `Card Vault/Photos` and the locked phone-alerts file. Card Vault can only see files it
+  created itself in your Drive.
+- **GitHub Actions**: every evening it downloads the day's TCGplayer prices (through TCGCSV), the Japanese and Korean
+  prices, the grading companies' fees and the Forbidden & Limited lists, sends your phone alerts (once you've set that
+  up: see "Phone alerts without the PC" below), and publishes the website with them. It checks again overnight in
+  case TCGCSV was late. An open Card Vault picks up new prices by itself (within half an hour, or as soon as you
+  switch back to it): nothing to reload or tap.
 
 ## 1. GitHub: the website
 
@@ -239,6 +242,44 @@ personal app: click **Continue**.
 - **Phone alerts** (Settings): the want-list and big-move alerts on your iPhone through the free ntfy app. Your PC's
   daily update sends them, so that PC needs the latest Card Vault folder. It also sends, once each: a part of the
   website's nightly update that stopped working, grading fee changes, and cards late back from the grader.
+- **Phone alerts without the PC** (Settings > Phone alerts > Without your PC, on the website): the nightly update on
+  GitHub sends the price, want-list, late-at-the-grader and ban list alerts itself, so the PC needn't be on. Set it up
+  once:
+  1. In Card Vault's Settings (website, syncing with Google Drive), tap **Send alerts without the PC**. Card Vault puts
+     a locked file, `Card Vault phone alerts (locked).json`, in the Card Vault folder of your Google Drive, shared as
+     "anyone with the link" so GitHub can read it without your Google sign-in. It holds only what the alerts need
+     (your cards and want list, your alert settings and ntfy topic; no notes, places or prices paid), locked with a key
+     (AES-GCM) that only you and GitHub have.
+  2. Tap **Copy** next to the key, then on GitHub: your `card-vault` repository > **Settings** > **Secrets and variables**
+     > **Actions** > **New repository secret**. Name: `CARDVAULT_ALERTS`. Secret: paste the key. **Add secret**.
+  3. That's it. Each night the **Phone alerts** step (`cloud_alerts.py`) reads the file, sends what's new, and Settings
+     shows whether it worked. The website writes the file again whenever it syncs. Your PC stops sending phone alerts
+     (it still shows Windows notifications) while the nightly ones work and know your latest changes; a change made in
+     Card Vault.html on the PC reaches them the next time a website syncs, and until then the PC sends them as before.
+  The key is a secret: GitHub never shows it in the run's log (which is public), and the log never names your cards.
+  **Stop sending alerts without the PC** writes "off" into the file first; you can then delete the secret on GitHub.
+- **Selling** (in a card's details, and Trades & sales > Selling): pick a price to start from (market value, TCGplayer's
+  lowest listing, a quick sale at 10% under, or break even after fees) to put the card on your sell list, with how many
+  to sell. The list shows each asking price next to today's market, what you'd keep after the selling site's fees
+  (Settings > Selling fees, 13% + 30 cents to start), and flags a price the market has moved away from. **Copy listing**
+  writes a title (80 characters at most, for eBay) and a description; **Copy all listings** and **Export CSV** do the
+  whole list. **Sold…** fills in your asking price. Several selected cards go on the list at once with **Sell list** in
+  the bar at the bottom; Show: On my sell list filters to them, and their tiles say "Selling".
+- **Box openings** (Insights > Box openings > **Log an opening**): what you opened (or pick one of your sealed products,
+  which takes one out of your collection and fills in what you paid), packs, date and price. Then type or scan the cards
+  you pulled: they go into your collection and onto the opening. Each opening shows what its cards are worth today
+  against what you paid, per pack too, and its best pull. **Add several cards** now takes Japanese and Korean card
+  numbers as well (from Card Vault's daily list, with every rarity to pick from), for openings and anything else.
+- **Ban list & reprints** (Insights): your cards, wanted cards and saved decks' cards that are Forbidden, Limited or
+  Semi-Limited (English cards on the TCG list, Japanese and Korean ones on the OCG list; Rush Duel's own list isn't
+  covered), and changes noticed lately. The nightly update reads both lists from YGOPRODeck (`banlist.py` →
+  `banlist.json`/`.js`) and keeps the changes it notices for 400 days; a change to one of your cards shows as a notice
+  at the top and a phone alert. **Reprints** lists cards you own with a newer printing out in the last 90 days or coming
+  soon (TCGplayer's sets, and the Japanese and Korean sets in the Market), with your copies' value and 30-day change.
+- **Your photos** (in a card's details, website only): a front and a back photo of your own copy, taken or chosen on the
+  phone, made smaller and kept in your Google Drive (Card Vault > Photos). They sync with the card, show on every device
+  signed in to the same Google account, and **Save** downloads one for a listing. Remove puts the file in Drive's trash.
+  Deleting a card leaves its photos in Drive.
 - **The nightly update's report** (Settings > Daily price updates): `site_status.py` runs last in the workflow and writes
   `update-status.json`/`.js`: TCGplayer prices' date, how many Japanese and Korean cards are priced, which sites answered,
   the grading fee reads, and anything that went wrong in plain words (a site that stopped answering, far fewer cards

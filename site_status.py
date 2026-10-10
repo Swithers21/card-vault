@@ -11,8 +11,10 @@ Inputs (all optional; a missing one is a problem in itself only when that part s
   tcgplayer-data-version.js       when TCGCSV's prices are from
   ocg-cache/last-run.json         what ocg_market.py did (written at the end of its run)
   ocg-cache/grading-fees.json     what grading_fees.py read
+  ocg-cache/banlist.json          what banlist.py read (the Forbidden & Limited lists)
+  ocg-cache/alerts-status.json    how cloud_alerts.py's phone alerts went (only when they're set up)
   ocg-cache/status-history.json   the last runs' numbers, to compare with (this script keeps it)
-  TCG_OUTCOME, OCG_OUTCOME, FEES_OUTCOME   each step's outcome in the workflow (success, failure, ...)
+  TCG_OUTCOME, OCG_OUTCOME, FEES_OUTCOME, BAN_OUTCOME, ALERTS_OUTCOME   each step's outcome (success, failure, ...)
   RUN_URL, RUN_STARTED                     the workflow run's page, and when it started
 """
 
@@ -166,6 +168,44 @@ def build():
         problem("fees-missing", "fees", "The grading fees weren't checked tonight.", minor=True)
     fees["ok"] = not any(p["part"] == "fees" for p in problems)
     parts["fees"] = fees
+
+    # ---- the Forbidden & Limited lists (a minor note: Card Vault keeps showing the last good one)
+    ban_outcome = os.environ.get("BAN_OUTCOME", "")
+    bl = read_json(os.path.join(CACHE, "banlist.json"), None)
+    bl = bl if isinstance(bl, dict) else None
+    ban = {"outcome": ban_outcome, "checked": (bl or {}).get("checked"), "counts": {k: len(v or {}) for k, v in ((bl or {}).get("lists") or {}).items()}}
+    ban_checked = parse_time((bl or {}).get("checked"))
+    if ban_outcome and bl and (not ban_checked or ban_checked < started - timedelta(minutes=5)):
+        problem("ban-stale", "ban", "The ban list wasn't checked tonight; Card Vault shows the one from %s." % day_text(ban_checked), minor=True)
+    elif ban_outcome and bl:
+        for which, label in (("tcg", "TCG"), ("ocg", "OCG")):
+            err = (bl.get("errors") or {}).get(which)
+            fresh_read = parse_time(bl.get("checked")) and parse_time(bl.get("checked")) >= started - timedelta(minutes=5)
+            if err and fresh_read:
+                problem("ban-" + which, "ban", "The %s ban list couldn't be read from YGOPRODeck (%s); Card Vault shows the one from %s." %
+                        (label, err, day_text(parse_time((bl.get("lastOk") or {}).get(which)))), minor=True)
+    elif ban_outcome and not bl:
+        problem("ban-missing", "ban", "The ban list couldn't be read from YGOPRODeck tonight.", minor=True)
+    ban["ok"] = not any(p["part"] == "ban" for p in problems)
+    parts["ban"] = ban
+
+    # ---- phone alerts sent by the nightly update itself (no card names here: this file is public)
+    alerts_outcome = os.environ.get("ALERTS_OUTCOME", "")
+    al = read_json(os.path.join(CACHE, "alerts-status.json"), None)
+    al = al if isinstance(al, dict) else {}
+    al_checked = parse_time(al.get("checked"))
+    al_fresh = bool(al_checked and al_checked >= started - timedelta(minutes=5))
+    alerts = {"outcome": alerts_outcome, "configured": bool(al.get("configured")), "checked": al.get("checked"), "ok": True}
+    for k in ("off", "noTopic"):
+        if al.get(k):
+            alerts[k] = True
+    if al.get("configured") and al_fresh and not al.get("ok"):
+        alerts["error"] = str(al.get("error") or "unknown")
+        problem("alerts-failed", "alerts", "Phone alerts couldn't be sent tonight: %s." % alerts["error"])
+    elif al.get("configured") and alerts_outcome in ("failure", "cancelled") and not al_fresh:
+        problem("alerts-failed", "alerts", "Phone alerts couldn't be sent tonight.")
+    alerts["ok"] = not any(p["part"] == "alerts" for p in problems)
+    parts["alerts"] = alerts
 
     # (a night without a fresh Japanese and Korean report keeps the last real numbers, to compare the next one with)
     last_ocg = (last.get("ocg") or {}) if isinstance(last.get("ocg"), dict) else {}

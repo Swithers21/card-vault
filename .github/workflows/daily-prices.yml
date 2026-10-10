@@ -113,6 +113,25 @@ jobs:
         timeout-minutes: 8
         run: python grading_fees.py
 
+      # The Forbidden & Limited lists (TCG and OCG), from YGOPRODeck, with the changes noticed night by night.
+      - name: Ban lists
+        id: ban
+        continue-on-error: true   # the website then shows the last ones read
+        timeout-minutes: 4
+        run: python banlist.py
+
+      # Phone alerts without the PC: only once you've added the CARDVAULT_ALERTS secret (Card Vault's Settings >
+      # Phone alerts shows it). It reads the locked alerts file the website keeps in your Google Drive.
+      - name: Phone alerts
+        id: alerts
+        continue-on-error: true   # (never in the way of publishing the prices)
+        timeout-minutes: 5
+        env:
+          CARDVAULT_ALERTS: ${{ secrets.CARDVAULT_ALERTS }}
+        run: |
+          if [ -n "$CARDVAULT_ALERTS" ]; then python -m pip install --quiet --disable-pip-version-check cryptography; fi
+          python cloud_alerts.py
+
       # How it all went: the website shows it in Settings, with a notice when something broke.
       - name: Note how tonight's update went
         if: always()
@@ -121,6 +140,8 @@ jobs:
           TCG_OUTCOME: ${{ steps.tcg.outcome }}
           OCG_OUTCOME: ${{ steps.ocg.outcome }}
           FEES_OUTCOME: ${{ steps.fees.outcome }}
+          BAN_OUTCOME: ${{ steps.ban.outcome }}
+          ALERTS_OUTCOME: ${{ steps.alerts.outcome }}
           RUN_URL: ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}
         run: python site_status.py
 
@@ -143,7 +164,8 @@ jobs:
           if [ -f ocg-market.js ]; then cp ocg-market.js _site/; fi
           if [ -f ocg-cards.js ]; then cp ocg-cards.js _site/; fi
           if [ ! -f grading-fees.js ]; then python grading_fees.py --from-cache || true; fi
-          for f in grading-fees.json grading-fees.js update-status.json update-status.js; do if [ -f "$f" ]; then cp "$f" _site/; fi; done
+          if [ ! -f banlist.js ]; then python banlist.py --from-cache || true; fi
+          for f in grading-fees.json grading-fees.js banlist.json banlist.js update-status.json update-status.js; do if [ -f "$f" ]; then cp "$f" _site/; fi; done
           if ls ocg-history/*.json >/dev/null 2>&1; then mkdir -p _site/ocg-history && cp ocg-history/*.json _site/ocg-history/; fi
           if ls card-images/*.jpg >/dev/null 2>&1; then cp card-images/*.jpg _site/card-images/; fi
           echo "$(ls _site/card-images | wc -l) card pictures"

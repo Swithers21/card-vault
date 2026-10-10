@@ -616,7 +616,8 @@ def notify_about_changes(today_prices, previous):
     message = alert_message(alerts)
     if message:
         send_notification(*message)
-        send_phone_alert(backup.get("settings"), message[0], alert_lines(alerts))
+        if not cloud_alerts_working(backup, path):  # (else the website's nightly update sends it to the phone)
+            send_phone_alert(backup.get("settings"), message[0], alert_lines(alerts))
 
 
 
@@ -661,10 +662,20 @@ def late_at_grader(backup, today=None):
     return out
 
 
+_site_status = {}
+
+
 def fetch_site_status(site):
-    """How the website's nightly update went (update-status.json, next to the website)."""
+    """How the website's nightly update went (update-status.json, next to the website). Read once a run."""
     if not re.match(r"^https://[^\s\"<>]+$", site or ""):
         return None
+    if site in _site_status:
+        return _site_status[site]
+    _site_status[site] = data = fetch_site_status_now(site)
+    return data
+
+
+def fetch_site_status_now(site):
     url = site.rstrip("/") + "/update-status.json?h=%d" % int(time.time() // 600)
     request = urllib.request.Request(url, headers={"User-Agent": USER_AGENT})
     try:
@@ -675,9 +686,46 @@ def fetch_site_status(site):
     return data if isinstance(data, dict) and data.get("format") == 1 else None
 
 
+CLOUD_FILE = "Card Vault phone alerts (locked).json"
+
+
+def cloud_alerts_working(backup, path):
+    """True when the website's nightly update sends the phone alerts itself (Settings > Phone alerts > without the PC),
+    it worked in the last two days, and its alerts file knows everything in the backup file (the locked file sits next
+    to it in Google Drive, and says on the outside which save of the backup it includes). Otherwise, say right after
+    you changed your want list in Card Vault.html here and no website has synced since, this PC keeps sending them."""
+    backup = backup or {}
+    settings = backup.get("settings") or {}
+    cloud = settings.get("cloudAlerts")
+    if not isinstance(cloud, dict) or not cloud.get("fileId"):
+        return False
+    status = fetch_site_status(str((settings or {}).get("siteUrl") or ""))
+    alerts = ((status or {}).get("parts") or {}).get("alerts") or {}
+    try:
+        checked = datetime.fromisoformat(str(alerts.get("checked") or "").replace("Z", "+00:00"))
+        if checked.tzinfo is None:
+            checked = checked.replace(tzinfo=timezone.utc)
+    except ValueError:
+        return False
+    if not (alerts.get("configured") and alerts.get("ok") and not alerts.get("off") and not alerts.get("noTopic")
+            and datetime.now(timezone.utc) - checked < timedelta(days=2)):
+        return False
+    if not path:
+        return False
+    try:
+        with open(os.path.join(os.path.dirname(path), CLOUD_FILE), "r", encoding="utf-8") as handle:
+            box = json.load(handle)
+    except (OSError, ValueError):
+        return False
+    box = box if isinstance(box, dict) else {}
+    basis, saved = str(box.get("basis") or ""), str(backup.get("savedAt") or "")
+    return bool(basis and saved and basis >= saved)
+
+
 def notify_extras(state, backup=None, today=None):
     """Phone (and Windows) alerts besides prices, each sent once: a part of the website's nightly update that stopped
     working (again when it breaks after working), grading fee changes, and cards late back from the grader."""
+    path = None
     if backup is None:
         path = find_backup_file()
         try:
@@ -715,7 +763,8 @@ def notify_extras(state, backup=None, today=None):
         title = "Card Vault: %s late back from the grader" % ("%s is" % late[0]["name"] if len(late) == 1 else "%d cards are" % len(late))
         lines = ["%s at %s: due back by %s %d" % (x["name"], x["company"], x["due"].strftime("%b"), x["due"].day) for x in late]
         send_notification(title, lines[:2])
-        send_phone_alert(settings, title, lines, ["hourglass"])
+        if not cloud_alerts_working(backup, path):
+            send_phone_alert(settings, title, lines, ["hourglass"])
         alerted += [x["key"] for x in late]
         sent.append(title)
     state["alerted"] = alerted[-300:]
