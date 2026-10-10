@@ -118,7 +118,9 @@ jobs:
         id: ban
         continue-on-error: true   # the website then shows the last ones read
         timeout-minutes: 4
-        run: python banlist.py
+        run: |
+          python banlist.py | tee ban.log
+          echo "::notice title=Ban lists::$(tail -n 1 ban.log)"
 
       # Phone alerts without the PC: only once you've added the CARDVAULT_ALERTS secret (Card Vault's Settings >
       # Phone alerts shows it). It reads the locked alerts file the website keeps in your Google Drive.
@@ -130,7 +132,8 @@ jobs:
           CARDVAULT_ALERTS: ${{ secrets.CARDVAULT_ALERTS }}
         run: |
           if [ -n "$CARDVAULT_ALERTS" ]; then python -m pip install --quiet --disable-pip-version-check cryptography; fi
-          python cloud_alerts.py
+          python cloud_alerts.py | tee alerts.log
+          echo "::notice title=Phone alerts::$(tail -n 1 alerts.log)"
 
       # How it all went: the website shows it in Settings, with a notice when something broke.
       - name: Note how tonight's update went

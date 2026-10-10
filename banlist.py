@@ -146,10 +146,13 @@ def run():
     changes = sorted([c for c in changes if str(c.get("day") or "") >= cutoff], key=lambda c: (c.get("day") or "", c.get("list") or "", c.get("name") or ""), reverse=True)
     state = {"checked": stamp, "lists": lists, "changes": changes, "lastOk": last_ok, "errors": errors}
     if not lists:
-        print("No ban list yet, so nothing was written.")
+        print("Ban lists: none read yet (%s), so nothing was written." % "; ".join("%s: %s" % (k.upper(), v) for k, v in errors.items()))
         return 1
     write_json(STATE, state)
     write_site(state)
+    print("Ban lists: %s; %d change%s noticed tonight%s." % (", ".join("%s %d cards" % (k.upper(), len(lists.get(k) or {})) for k in LISTS),
+          sum(1 for c in changes if c.get("day") == day), "" if sum(1 for c in changes if c.get("day") == day) == 1 else "s",
+          "; couldn't read " + ", ".join("%s (%s)" % (k.upper(), v) for k, v in errors.items()) if errors else ""))
     return 1 if len(errors) == len(LISTS) else 0
 
 
