@@ -1,4 +1,4 @@
-"""One-time look at how Overframe cards (Limit Over Collection, LOCH/LOCR) show up in each source (round 6). Writes probe/out6.json."""
+"""One-time look at Overframe / extended art (round 7): Yugipedia's row properties, TCGplayer's names, BIGWEB's other sets. Writes probe/out7.json."""
 import json, re, time, urllib.error, urllib.parse, urllib.request
 UA = "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/140.0 Safari/537.36 CardVault/1.0"
 def get(url, headers=None):
@@ -18,68 +18,51 @@ def js(url, headers=None):
     except ValueError:
         return s, t[:1500]
 out = {}
-# 1) Card Vault's own daily list, as built now
-s, t = get("https://swithers21.github.io/card-vault/ocg-cards.js")
-out["ocg_cards_status"] = s
-try:
-    raw = json.loads(t[t.index("=") + 1:].strip().rstrip(";"))
-    rar = raw.get("rar") or []
-    out["rar_all"] = rar
-    names = raw.get("names") or []
-    for region in ("jp", "kr"):
-        for row in raw.get(region) or []:
-            if row and str(row[0]) in ("LOCH", "LOCR", "QCAC", "RC04"):
-                out["cards_%s_%s" % (region, row[0])] = [[c[0], names[c[1]] if isinstance(c[1], int) and c[1] < len(names) else c[1],
-                                                          [[rar[x[0]] if isinstance(x[0], int) and x[0] < len(rar) else x[0]] + x[1:4] for x in c[2]]] for c in row[2][:25]]
-except Exception as e:
-    out["ocg_cards_error"] = repr(e)
-s, t = get("https://swithers21.github.io/card-vault/ocg-market.js")
-try:
-    raw = json.loads(t[t.index("=") + 1:].strip().rstrip(";"))
-    out["market_LOC"] = [r for region in ("jp", "kr") for r in raw.get(region) or [] if r and str(r[0]).startswith("LOC")]
-except Exception as e:
-    out["market_error"] = repr(e)
-# 2) Yugipedia
 YP = "https://yugipedia.com/api.php?"
 def yp(params):
     params = dict(params, format="json", formatversion="2")
     time.sleep(1.5)
     return js(YP + urllib.parse.urlencode(params), {"Accept": "application/json"})[1]
-out["yp_ask_LOCH"] = yp({"action": "ask", "query": "[[Card number::~LOCH-JP0*]]|?Card number|?Rarity|?Set contains|?Print|limit=60"})
-out["yp_ask_LOCH_KR"] = yp({"action": "ask", "query": "[[Card number::~LOCH-KR*]]|?Card number|?Rarity|limit=5"})
-out["yp_search_overframe"] = yp({"action": "query", "list": "search", "srsearch": "Overframe", "srlimit": "30"})
-for title in ("Set Card Lists:Limit Over Collection: The Heroes (OCG-JP)", "Limit Over Collection: The Heroes", "Overframe"):
-    out["yp_wikitext " + title] = yp({"action": "query", "prop": "revisions", "rvprop": "content", "rvslots": "main", "titles": title, "redirects": "1"})
-# 3) BIGWEB
-for q in ("LOCH-JP001", "LOCH-JP002", "LOCH-JP010", "LOCR-JP001", "オーバーフレーム", "LOCH"):
-    time.sleep(1.5)
-    s, j = js("https://api.bigweb.co.jp/products?game_id=9&name=" + urllib.parse.quote(q), {"Accept": "application/json", "Origin": "https://bigweb.co.jp", "Referer": "https://bigweb.co.jp/"})
-    if isinstance(j, dict):
-        items = j.get("items") or []
-        out["bigweb " + q] = {"status": s, "n": len(items), "keys": sorted(items[0].keys()) if items else [],
-                              "items": [{"fname": it.get("fname"), "name": it.get("name"), "rarity": it.get("rarity"), "condition": (it.get("condition") or {}).get("web"),
-                                         "price": it.get("price"), "stock": it.get("stock_count"), "image": it.get("image"),
-                                         "other": {k: v for k, v in it.items() if isinstance(v, str) and re.search("フレーム|frame|OF", v, re.I)}} for it in items[:40]]}
-    else:
-        out["bigweb " + q] = {"status": s, "raw": j}
-# 4) Bunjang (Korean)
-for q in ("LOCH-KR", "오버프레임", "LOCH"):
-    time.sleep(3)
-    s, j = js("https://api.bunjang.co.kr/api/search/v8/web/search?" + urllib.parse.urlencode({"policyKey": "mw.product.keyword", "q": q, "size": 30}), {"Accept": "application/json"})
-    try:
-        data = j["data"]["responses"]["mainGrid"]["searchResponse"]["data"]
-        out["bunjang " + q] = {"status": s, "names": [(x.get("name"), x.get("price")) for x in data if x.get("type") == "PRODUCT"][:30]}
-    except Exception:
-        out["bunjang " + q] = {"status": s, "raw": str(j)[:800]}
-# 5) TCGplayer (TCGCSV): an English Limit Over, or Overframe products?
+# 1) Yugipedia: what a set-list row (subobject) carries, for a normal and an extended-art line
+rows = yp({"action": "ask", "query": "[[Card number::LOCH-JP001]]|?Card number|?Rarity|limit=10"})
+out["rows_JP001"] = rows
+keys = list(((rows.get("query") or {}).get("results") or {}).keys()) if isinstance(rows, dict) else []
+for k in keys[:3]:
+    out["browse " + k] = yp({"action": "browsebysubject", "subject": k})
+cands = ["Description", "Card description", "Print notes", "Notes", "Set list description", "Artwork", "Extended art", "Art", "Print", "Print type", "Alternate artwork", "Variant"]
+out["ask_props"] = yp({"action": "ask", "query": "[[Card number::LOCH-JP001]]|" + "|".join("?" + c for c in cands) + "|limit=10"})
+out["ask_ext"] = yp({"action": "ask", "query": "[[Card number::~LOCH-JP00*]][[Description::~*xtended*]]|?Card number|?Rarity|limit=20"})
+# sets with extended art (TCG and OCG), from the Extended art page's set links, and their prefixes
+for title in ("Rarity Collection 5", "Magnificent Monsters", "Magnificent Maestros", "Limit Over Special Pack Vol.1", "Limit Over Collection: The Rivals"):
+    out["yp_set " + title] = yp({"action": "ask", "query": "[[%s]]|?Prefix|?English prefix|?Japanese prefix|?Korean prefix" % title})
+s, j = js(YP + urllib.parse.urlencode({"action": "query", "prop": "revisions", "rvprop": "content", "titles": "Set Card Lists:Rarity Collection 5 (TCG-EN)", "format": "json", "formatversion": "2"}))
+try:
+    out["rc5_list"] = j["query"]["pages"][0]["revisions"][0]["content"][:5000]
+except Exception:
+    out["rc5_list"] = str(j)[:500]
+# 2) TCGplayer (TCGCSV): extended-art products
 s, j = js("https://tcgcsv.com/tcgplayer/2/groups")
 groups = [g for g in (j.get("results") or [])] if isinstance(j, dict) else []
-hits = [g for g in groups if re.search(r"limit over|overframe|quarter century art", g.get("name", ""), re.I)]
+hits = [g for g in groups if re.search(r"rarity collection 5|magnificent m|limit over", g.get("name", ""), re.I)]
 out["tcg_groups"] = [(g.get("groupId"), g.get("name"), g.get("abbreviation"), g.get("publishedOn")) for g in hits]
-for g in hits[:3]:
+for g in hits[:4]:
     time.sleep(1)
     s, p = js("https://tcgcsv.com/tcgplayer/2/%s/products" % g["groupId"])
     res = p.get("results") or [] if isinstance(p, dict) else []
-    out["tcg_products %s" % g["name"]] = [(x.get("name"), {e.get("name"): e.get("value") for e in x.get("extendedData") or [] if e.get("name") in ("Number", "Rarity")}) for x in res[:40]]
-json.dump(out, open("probe/out6.json", "w"), ensure_ascii=False, indent=1)
+    ext = {x.get("productId"): x for x in res}
+    out["tcg_products %s" % g["name"]] = {"n": len(res), "sample": [(x.get("productId"), x.get("name"), x.get("cleanName"), {e.get("name"): e.get("value") for e in x.get("extendedData") or [] if e.get("name") in ("Number", "Rarity")}) for x in res if re.search(r"extend|over.?frame|alternate|\(.*art", x.get("name", ""), re.I)][:40],
+                                          "first": [(x.get("productId"), x.get("name"), {e.get("name"): e.get("value") for e in x.get("extendedData") or [] if e.get("name") in ("Number", "Rarity")}) for x in res[:30]]}
+# 3) BIGWEB: other Overframe cards, and a rarity filter
+for q in ("YAC1-JP004", "LOCR-JP002", "LOCH-JP019"):
+    time.sleep(1.5)
+    s, j = js("https://api.bigweb.co.jp/products?game_id=9&name=" + urllib.parse.quote(q), {"Accept": "application/json", "Origin": "https://bigweb.co.jp", "Referer": "https://bigweb.co.jp/"})
+    items = j.get("items") or [] if isinstance(j, dict) else []
+    out["bigweb " + q] = [(it.get("fname"), it.get("name"), (it.get("rarity") or {}).get("web"), (it.get("rarity") or {}).get("slip"), (it.get("condition") or {}).get("web"), it.get("price"), it.get("stock_count")) for it in items[:30]]
+for params in ({"rarity_id": 3578}, {"rarity": 3578}, {"rarity_ids[]": 3578}):
+    time.sleep(1.5)
+    s, j = js("https://api.bigweb.co.jp/products?game_id=9&" + urllib.parse.urlencode(params), {"Accept": "application/json", "Origin": "https://bigweb.co.jp", "Referer": "https://bigweb.co.jp/"})
+    items = j.get("items") or [] if isinstance(j, dict) else []
+    out["bigweb rarity %s" % params] = {"status": s, "n": len(items), "pagenate": j.get("pagenate") if isinstance(j, dict) else None,
+                                        "items": [(it.get("fname"), (it.get("rarity") or {}).get("web"), it.get("price")) for it in items[:30]]}
+json.dump(out, open("probe/out7.json", "w"), ensure_ascii=False, indent=1)
 print("done")
