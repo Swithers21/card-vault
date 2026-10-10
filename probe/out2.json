@@ -1,0 +1,613 @@
+{
+ "games": [
+  {
+   "id": 9,
+   "title": "遊戯王",
+   "name": null,
+   "name_encode": ""
+  }
+ ],
+ "sets10_keys": [
+  "code",
+  "id",
+  "is_box",
+  "is_reservation",
+  "name",
+  "ordering_id"
+ ],
+ "sets10": [
+  {
+   "name": "",
+   "code": "",
+   "id": 8985,
+   "ordering_id": 2,
+   "is_reservation": false,
+   "is_box": false
+  },
+  {
+   "name": "KP26",
+   "code": "",
+   "id": 8948,
+   "ordering_id": 18,
+   "is_reservation": false,
+   "is_box": false
+  },
+  {
+   "name": "エースパック系",
+   "code": "",
+   "id": 8938,
+   "ordering_id": 20,
+   "is_reservation": false,
+   "is_box": false
+  },
+  {
+   "name": "バトルボーナスパック",
+   "code": "",
+   "id": 8937,
+   "ordering_id": 22,
+   "is_reservation": false,
+   "is_box": false
+  },
+  {
+   "name": "バトルパック",
+   "code": "",
+   "id": 8936,
+   "ordering_id": 26,
+   "is_reservation": false,
+   "is_box": false
+  },
+  {
+   "name": "--------【新入荷】--------",
+   "code": "",
+   "id": 7200,
+   "ordering_id": 832,
+   "is_reservation": false,
+   "is_box": false
+  },
+  {
+   "name": "【CA01】CROSS ART COLLECTION",
+   "code": "CA01",
+   "id": 8984,
+   "ordering_id": 834,
+   "is_reservation": false,
+   "is_box": false
+  },
+  {
+   "name": "メガロードパック2",
+   "code": "メガロードパック2",
+   "id": 7840,
+   "ordering_id": 1034,
+   "is_reservation": false,
+   "is_box": false
+  },
+  {
+   "name": "SD0A",
+   "code": "SD0A",
+   "id": 7821,
+   "ordering_id": 1040,
+   "is_reservation": false,
+   "is_box": false
+  },
+  {
+   "name": "KP14",
+   "code": "KP14",
+   "id": 7787,
+   "ordering_id": 1044,
+   "is_reservation": false,
+   "is_box": false
+  },
+  {
+   "name": "トリプルビルドパック ゴッドブレス・ウィング",
+   "code": "TB01",
+   "id": 7737,
+   "ordering_id": 1046,
+   "is_reservation": false,
+   "is_box": false
+  },
+  {
+   "name": "[KP13]閃光のオブリビオン ",
+   "code": "KP13",
+   "id": 7694,
+   "ordering_id": 1050,
+   "is_reservation": false,
+   "is_box": false
+  },
+  {
+   "name": "[VSP1]VSパック マキシマム・フォース ",
+   "code": "VSP1",
+   "id": 7670,
+   "ordering_id": 1056,
+   "is_reservation": false,
+   "is_box": false
+  },
+  {
+   "name": "[LGP1]レジェンド覚醒パック",
+   "code": "LGP1",
+   "id": 7609,
+   "ordering_id": 1064,
+   "is_reservation": false,
+   "is_box": false
+  },
+  {
+   "name": "[KP12]強襲のダブルスター!!",
+   "code": "KP12",
+   "id": 7579,
+   "ordering_id": 1072,
+   "is_reservation": false,
+   "is_box": false
+  },
+  {
+   "name": "オーバーラッシュパック",
+   "code": "ORP1",
+   "id": 7515,
+   "ordering_id": 1080,
+   "is_reservation": false,
+   "is_box": false
+  },
+  {
+   "name": "[SD]最強バトルデッキ",
+   "code": "SD1-5",
+   "id": 7397,
+   "ordering_id": 1082,
+   "is_reservation": false,
+   "is_box": false
+  },
+  {
+   "name": "[MRP1]メガロードパック",
+   "code": "MRP1",
+   "id": 7345,
+   "ordering_id": 1096,
+   "is_reservation": false,
+   "is_box": false
+  },
+  {
+   "name": "-----------【第1期】----------",
+   "code": "",
+   "id": 7199,
+   "ordering_id": 2708,
+   "is_reservation": false,
+   "is_box": false
+  },
+  {
+   "name": "[KP11]旋風のフォルテシモ!!",
+   "code": "KP11",
+   "id": 7462,
+   "ordering_id": 2738,
+   "is_reservation": false,
+   "is_box": false
+  },
+  {
+   "name": "[KP10]破滅のレクイエム!!",
+   "code": "KP10",
+   "id": 7374,
+   "ordering_id": 2740,
+   "is_reservation": false,
+   "is_box": false
+  },
+  {
+   "name": "[KP09]運命のギャラクシー!!",
+   "code": "KP09",
+   "id": 7262,
+   "ordering_id": 2746,
+   "is_reservation": false,
+   "is_box": false
+  },
+  {
+   "name": "[KP08]創造のマスターロード!!",
+   "code": "KP08",
+   "id": 7201,
+   "ordering_id": 2748,
+   "is_reservation": false,
+   "is_box": false
+  },
+  {
+   "name": "[KP07]混沌のオメガライジング!!",
+   "code": "KP07",
+   "id": 7198,
+   "ordering_id": 2752,
+   "is_reservation": false,
+   "is_box": false
+  },
+  {
+   "name": "[KP06]激闘のサンダーストーム!!",
+   "code": "KP06",
+   "id": 7197,
+   "ordering_id": 2760,
+   "is_reservation": false,
+   "is_box": false
+  },
+  {
+   "name": "[KP05]躍動のエターナルライブ!!",
+   "code": "KP05",
+   "id": 7196,
+   "ordering_id": 2778,
+   "is_reservation": false,
+   "is_box": false
+  },
+  {
+   "name": "[KP04]宿命のパワーデストラクション!!",
+   "code": "KP04",
+   "id": 7195,
+   "ordering_id": 2794,
+   "is_reservation": false,
+   "is_box": false
+  },
+  {
+   "name": "[KP03]幻撃のミラージュインパクト!!",
+   "code": "KP03",
+   "id": 7194,
+   "ordering_id": 2802,
+   "is_reservation": false,
+   "is_box": false
+  },
+  {
+   "name": "[KP02]驚愕のライトニングアタック!!",
+   "code": "KP02",
+   "id": 7193,
+   "ordering_id": 2808,
+   "is_reservation": false,
+   "is_box": false
+  },
+  {
+   "name": "[KP01超速のラッシュロード!!]",
+   "code": "KP01",
+   "id": 7192,
+   "ordering_id": 2814,
+   "is_reservation": false,
+   "is_box": false
+  },
+  {
+   "name": "-----------【スペシャルパック】----------",
+   "code": "",
+   "id": 7187,
+   "ordering_id": 2926,
+   "is_reservation": false,
+   "is_box": false
+  },
+  {
+   "name": "[GRP1]ゴールドラッシュパック",
+   "code": "GRP1",
+   "id": 7191,
+   "ordering_id": 3018,
+   "is_reservation": false,
+   "is_box": false
+  },
+  {
+   "name": "[EXT1]エクストラ超越強化パック",
+   "code": "EXT1",
+   "id": 7202,
+   "ordering_id": 3188,
+   "is_reservation": false,
+   "is_box": false
+  },
+  {
+   "name": "[MAX2]マキシマム超絶進化パック",
+   "code": "MAX2",
+   "id": 7190,
+   "ordering_id": 3230,
+   "is_reservation": false,
+   "is_box": false
+  },
+  {
+   "name": "[MAX1]マキシマム超絶強化パック",
+   "code": "MAX1",
+   "id": 7189,
+   "ordering_id": 3254,
+   "is_reservation": false,
+   "is_box": false
+  },
+  {
+   "name": "[CP01]ガクト・ロア・ロミン",
+   "code": "CP01",
+   "id": 7188,
+   "ordering_id": 3382,
+   "is_reservation": false,
+   "is_box": false
+  },
+  {
+   "name": "-----------【構築済みデッキ】----------",
+   "code": "",
+   "id": 7182,
+   "ordering_id": 3548,
+   "is_reservation": false,
+   "is_box": false
+  },
+  {
+   "name": "[SST1]最強スターターデッキ",
+   "code": "SST1",
+   "id": 7267,
+   "ordering_id": 3752,
+   "is_reservation": false,
+   "is_box": false
+  },
+  {
+   "name": "[GRD2]ゴーラッシュデッキ ジョインテック・アタック",
+   "code": "GRD2",
+   "id": 7296,
+   "ordering_id": 3754,
+   "is_reservation": false,
+   "is_box": false
+  },
+  {
+   "name": "[GRD1]ゴーラッシュデッキ ギャラクティカ・アライブ",
+   "code": "GRD1",
+   "id": 7295,
+   "ordering_id": 3758,
+   "is_reservation": false,
+   "is_box": false
+  },
+  {
+   "name": "[GRD0]ゴーラッシュデッキ",
+   "code": "GRD0",
+   "id": 7294,
+   "ordering_id": 3764,
+   "is_reservation": false,
+   "is_box": false
+  },
+  {
+   "name": "[SBD]最強バトルデッキ",
+   "code": "SBD",
+   "id": 7186,
+   "ordering_id": 3784,
+   "is_reservation": false,
+   "is_box": false
+  },
+  {
+   "name": "[ST02]スターターデッキ ルーク -爆裂覇道！ ドラギアス！！-",
+   "code": "ST02",
+   "id": 7185,
+   "ordering_id": 3790,
+   "is_reservation": false,
+   "is_box": false
+  },
+  {
+   "name": "[ST01]スターターデッキ 遊我 -切り開け！ セブンスロード！！-",
+   "code": "ST01",
+   "id": 7184,
+   "ordering_id": 3802,
+   "is_reservation": false,
+   "is_box": false
+  },
+  {
+   "name": "[VS01]遊我VSルーク",
+   "code": "VS01",
+   "id": 7183,
+   "ordering_id": 3814,
+   "is_reservation": false,
+   "is_box": false
+  },
+  {
+   "name": "-----------【限定パック】----------",
+   "code": "",
+   "id": 7180,
+   "ordering_id": 3910,
+   "is_reservation": false,
+   "is_box": false
+  },
+  {
+   "name": "ビクトリーパック",
+   "code": "ビクトリーパック",
+   "id": 7181,
+   "ordering_id": 4014,
+   "is_reservation": false,
+   "is_box": false
+  },
+  {
+   "name": "-----------【大会配布パック】----------",
+   "code": "",
+   "id": 7179,
+   "ordering_id": 4130,
+   "is_reservation": false,
+   "is_box": false
+  },
+  {
+   "name": "バトルパック",
+   "code": "バトルパック",
+   "id": 7178,
+   "ordering_id": 4240,
+   "is_reservation": false,
+   "is_box": false
+  },
+  {
+   "name": "シークレットエースパック",
+   "code": "シークレットエースパック",
+   "id": 7177,
+   "ordering_id": 4372,
+   "is_reservation": false,
+   "is_box": false
+  },
+  {
+   "name": "-----------【カード配布】-------------",
+   "code": "",
+   "id": 7175,
+   "ordering_id": 5234,
+   "is_reservation": false,
+   "is_box": false
+  },
+  {
+   "name": "書籍付録",
+   "code": "書籍付録",
+   "id": 7176,
+   "ordering_id": 5270,
+   "is_reservation": false,
+   "is_box": false
+  },
+  {
+   "name": "イベント",
+   "code": "イベント",
+   "id": 7174,
+   "ordering_id": 5328,
+   "is_reservation": false,
+   "is_box": false
+  },
+  {
+   "name": "キャンペーン",
+   "code": "キャンペーン",
+   "id": 7173,
+   "ordering_id": 5438,
+   "is_reservation": false,
+   "is_box": false
+  },
+  {
+   "name": "商品同梱",
+   "code": "商品同梱",
+   "id": 7172,
+   "ordering_id": 5548,
+   "is_reservation": false,
+   "is_box": false
+  },
+  {
+   "name": "その他 プロモ",
+   "code": "その他 プロモ",
+   "id": 7203,
+   "ordering_id": 6282,
+   "is_reservation": false,
+   "is_box": false
+  },
+  {
+   "name": "サプライ",
+   "code": "サプライ",
+   "id": 7204,
+   "ordering_id": 7948,
+   "is_reservation": false,
+   "is_box": false
+  }
+ ],
+ "/products?game_id=10&page=1": {
+  "status": 200,
+  "pagenate": {
+   "count": 0,
+   "current": 0,
+   "perPage": 100,
+   "page": 1,
+   "requestedPage": 1,
+   "pageCount": 1,
+   "start": 0,
+   "end": 0,
+   "prevPage": false,
+   "nextPage": false,
+   "sort": null,
+   "direction": null,
+   "sortDefault": false,
+   "directionDefault": false,
+   "completeSort": [],
+   "limit": 100,
+   "scope": null,
+   "finder": "all"
+  },
+  "items": [],
+  "raw": ""
+ },
+ "/products?game_id=10&page=2": {
+  "status": 404,
+  "pagenate": null,
+  "items": [],
+  "raw": ""
+ },
+ "/products?game_id=10&page=1&keyword=KP26": {
+  "status": 200,
+  "pagenate": {
+   "count": 0,
+   "current": 0,
+   "perPage": 100,
+   "page": 1,
+   "requestedPage": 1,
+   "pageCount": 1,
+   "start": 0,
+   "end": 0,
+   "prevPage": false,
+   "nextPage": false,
+   "sort": null,
+   "direction": null,
+   "sortDefault": false,
+   "directionDefault": false,
+   "completeSort": [],
+   "limit": 100,
+   "scope": null,
+   "finder": "all"
+  },
+  "items": [],
+  "raw": ""
+ },
+ "/products?game_id=10&keyword=RD/KP26&page=1": {
+  "status": 200,
+  "pagenate": {
+   "count": 0,
+   "current": 0,
+   "perPage": 100,
+   "page": 1,
+   "requestedPage": 1,
+   "pageCount": 1,
+   "start": 0,
+   "end": 0,
+   "prevPage": false,
+   "nextPage": false,
+   "sort": null,
+   "direction": null,
+   "sortDefault": false,
+   "directionDefault": false,
+   "completeSort": [],
+   "limit": 100,
+   "scope": null,
+   "finder": "all"
+  },
+  "items": [],
+  "raw": ""
+ },
+ "set_8948": {
+  "name": "KP26",
+  "status": 200,
+  "count": 0,
+  "items": [],
+  "rarities": []
+ },
+ "set_8938": {
+  "name": "エースパック系",
+  "status": 200,
+  "count": 0,
+  "items": [],
+  "rarities": []
+ },
+ "set_8937": {
+  "name": "バトルボーナスパック",
+  "status": 200,
+  "count": 0,
+  "items": [],
+  "rarities": []
+ },
+ "set_8936": {
+  "name": "バトルパック",
+  "status": 200,
+  "count": 0,
+  "items": [],
+  "rarities": []
+ },
+ "set_8984": {
+  "name": "【CA01】CROSS ART COLLECTION",
+  "status": 200,
+  "count": 0,
+  "items": [],
+  "rarities": []
+ },
+ "set_7840": {
+  "name": "メガロードパック2",
+  "status": 200,
+  "count": 0,
+  "items": [],
+  "rarities": []
+ },
+ "set_7821": {
+  "name": "SD0A",
+  "status": 200,
+  "count": 0,
+  "items": [],
+  "rarities": []
+ },
+ "set_7787": {
+  "name": "KP14",
+  "status": 200,
+  "count": 0,
+  "items": [],
+  "rarities": []
+ }
+}
