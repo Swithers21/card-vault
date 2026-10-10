@@ -1,4 +1,4 @@
-name: Rush Duel probe (one time)
+name: Card Vault probe (one time)
 on:
   push:
     branches: [rush-probe]
