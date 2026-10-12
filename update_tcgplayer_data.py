@@ -496,6 +496,45 @@ def compute_alerts(backup, today_prices, previous):
     return {"wants": wants, "movers": movers}
 
 
+def sell_alerts(backup, today_prices):
+    """Cards on your sell list whose market price (for your copy: printing and condition) is now at least 10% and $1
+    above your asking price, so you can raise it before someone buys it cheap. Each once per asking price: the key
+    changes when you change the price. Only cards with a TCGplayer price (not Japanese or Korean ones, or slabs
+    with a graded value of their own)."""
+    settings = backup.get("settings") or {}
+    cond_adjust = settings.get("condAdjust", True) is not False
+    cond_pct = dict(DEFAULT_COND_PCT)
+    cond_pct.update({k: v for k, v in (settings.get("condPct") or {}).items() if to_number(v) is not None})
+    out = []
+    for record in backup.get("collection") or []:
+        if not isinstance(record, dict):
+            continue
+        sell = record.get("sell") if isinstance(record.get("sell"), dict) else None
+        ask = to_number((sell or {}).get("price"))
+        pid = to_number(record.get("productId"))
+        grade = record.get("grade") if isinstance(record.get("grade"), dict) else None
+        if not sell or ask is None or ask <= 0 or not pid or (grade and grade.get("company")):
+            continue
+        subs = {subtype: (market, low) for subtype, market, low in today_prices.get(int(pid), [])}
+        subtype = pick_subtype(subs, record.get("edition") or "", bool(record.get("sealed")))
+        if not subtype or subs[subtype][0] is None:
+            continue
+        factor = 1.0
+        if cond_adjust and not record.get("sealed"):
+            factor = max(0.0, to_number(cond_pct.get(record.get("condition"), 100)) or 0.0) / 100.0
+        now = round(subs[subtype][0] * factor, 2)
+        if now >= ask * 1.1 and now - ask >= 1:
+            out.append({"key": "sell-%s-%.2f" % (record.get("id"), ask), "name": str(record.get("name") or "A card"), "ask": ask, "now": now})
+    out.sort(key=lambda x: x["ask"] - x["now"])
+    return out
+
+
+def sell_alert_message(found):
+    title = "Card Vault: %s" % ("the market passed your asking price for %s" % found[0]["name"] if len(found) == 1
+                                else "the market passed your asking price for %d cards" % len(found))
+    return title, ["%s: market %s, you're asking %s" % (x["name"], dollars(x["now"]), dollars(x["ask"])) for x in found]
+
+
 def dollars(value):
     return "${:,.2f}".format(abs(value))
 
@@ -601,7 +640,7 @@ def send_phone_alert(settings, title, lines, tags=None):
     return ok
 
 
-def notify_about_changes(today_prices, previous):
+def notify_about_changes(today_prices, previous, state=None):
     path = find_backup_file()
     if not path:
         return
@@ -614,10 +653,25 @@ def notify_about_changes(today_prices, previous):
         return
     alerts = compute_alerts(backup, today_prices, previous)
     message = alert_message(alerts)
+    cloud = cloud_alerts_working(backup, path)  # (when True, the website's nightly update sends them to the phone)
     if message:
         send_notification(*message)
-        if not cloud_alerts_working(backup, path):  # (else the website's nightly update sends it to the phone)
+        if not cloud:
             send_phone_alert(backup.get("settings"), message[0], alert_lines(alerts))
+    # the sell list: once per card and asking price
+    if state is not None and (backup.get("settings") or {}).get("alertsOn"):
+        alerted = list(state.get("alerted") or [])
+        found = [x for x in sell_alerts(backup, today_prices) if x["key"] not in alerted]
+        if found:
+            title, lines = sell_alert_message(found)
+            shown = lines[:2]
+            if len(lines) > 2:
+                shown[-1] += "; %d more in Card Vault" % (len(lines) - 2)
+            send_notification(title, shown)
+            if not cloud:
+                send_phone_alert(backup.get("settings"), title, lines, ["label"])
+            state["alerted"] = (alerted + [x["key"] for x in found])[-300:]
+            save_json(STATE_FILE, state)
 
 
 
@@ -1003,7 +1057,7 @@ def main():
     say("  %d requests in %.0f seconds." % (request_count, time.time() - started))
     try:
         if not os.environ.get("GITHUB_ACTIONS"):  # (on GitHub it only builds the website's price file)
-            notify_about_changes(today_prices, references["d1"])
+            notify_about_changes(today_prices, references["d1"], state)
             notify_extras(state)
     except Exception as error:  # a notification problem never spoils the update itself
         say("  (Couldn't check for notifications: %s)" % error)

@@ -243,12 +243,13 @@ personal app: click **Continue**.
   daily update sends them, so that PC needs the latest Card Vault folder. It also sends, once each: a part of the
   website's nightly update that stopped working, grading fee changes, and cards late back from the grader.
 - **Phone alerts without the PC** (Settings > Phone alerts > Without your PC, on the website): the nightly update on
-  GitHub sends the price, want-list, late-at-the-grader and ban list alerts itself, so the PC needn't be on. Set it up
+  GitHub sends the price, want-list, sell list, late-at-the-grader and ban list alerts itself, so the PC needn't be on. Set it up
   once:
   1. In Card Vault's Settings (website, syncing with Google Drive), tap **Send alerts without the PC**. Card Vault puts
      a locked file, `Card Vault phone alerts (locked).json`, in the Card Vault folder of your Google Drive, shared as
      "anyone with the link" so GitHub can read it without your Google sign-in. It holds only what the alerts need
-     (your cards and want list, your alert settings and ntfy topic; no notes, places or prices paid), locked with a key
+     (your cards and want list, your sell list's asking prices, your alert settings and ntfy topic; no notes, places or
+     prices paid), locked with a key
      (AES-GCM) that only you and GitHub have.
   2. Tap **Copy** next to the key, then on GitHub: your `card-vault` repository > **Settings** > **Secrets and variables**
      > **Actions** > **New repository secret**. Name: `CARDVAULT_ALERTS`. Secret: paste the key. **Add secret**.
@@ -263,7 +264,8 @@ personal app: click **Continue**.
   to sell. The list shows each asking price next to today's market, what you'd keep after the selling site's fees
   (Settings > Selling fees, 13% + 30 cents to start), and flags a price the market has moved away from. **Copy listing**
   writes a title (80 characters at most, for eBay) and a description; **Copy all listings** and **Export CSV** do the
-  whole list. **Sold…** fills in your asking price. Several selected cards go on the list at once with **Sell list** in
+  whole list. **Sold…** fills in your asking price. When the market climbs at least 10% (and $1) past one of your asking
+  prices, the nightly alerts (and the PC's notifications) tell you once, so you can raise it before someone buys it cheap. Several selected cards go on the list at once with **Sell list** in
   the bar at the bottom; Show: On my sell list filters to them, and their tiles say "Selling".
 - **Box openings** (Insights > Box openings > **Log an opening**): what you opened (or pick one of your sealed products,
   which takes one out of your collection and fills in what you paid), packs, date and price. Then type or scan the cards
@@ -276,6 +278,14 @@ personal app: click **Continue**.
   `banlist.json`/`.js`) and keeps the changes it notices for 400 days; a change to one of your cards shows as a notice
   at the top and a phone alert. **Reprints** lists cards you own with a newer printing out in the last 90 days or coming
   soon (TCGplayer's sets, and the Japanese and Korean sets in the Market), with your copies' value and 30-day change.
+- **Ban list in Deck check**: each deck is checked against the TCG or OCG Forbidden & Limited list (Main, Extra and
+  Side together): cards over their limit are named, and each card in the table shows its status.
+- **Your grading results** (Insights > Worth grading): every graded card you have, by company: grades, what grading
+  cost, the value it added (graded value now minus the raw card's market price now) and the gain after costs, and
+  turnaround. Costs and dates are kept for cards marked "I sent it" and then "It's back"; older slabs count without them.
+- **Cheaper in another market** (Want list): for each wanted card, the cheapest copy of the same card on TCGplayer
+  (English), BIGWEB or Fullahead (Japanese) and Bunjang (Korean), in US$ before shipping, shown when it's at least 10%
+  cheaper than the want's own price, with a link to it.
 - **Your photos** (in a card's details, website only): a front and a back photo of your own copy, taken or chosen on the
   phone, made smaller and kept in your Google Drive (Card Vault > Photos). They sync with the card, show on every device
   signed in to the same Google account, and **Save** downloads one for a listing. Remove puts the file in Drive's trash.

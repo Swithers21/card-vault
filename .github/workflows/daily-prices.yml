@@ -21,7 +21,7 @@ concurrency:
 
 jobs:
   build:
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-24.04   # (pinned: GitHub moves "ubuntu-latest" to a new release now and then; move this on purpose)
     permissions:
       contents: read
     steps:
@@ -181,7 +181,7 @@ jobs:
 
   deploy:
     needs: build
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-24.04   # (pinned: GitHub moves "ubuntu-latest" to a new release now and then; move this on purpose)
     permissions:
       pages: write
       id-token: write
@@ -198,7 +198,7 @@ jobs:
   keep-schedule-running:
     needs: deploy
     if: github.event_name == 'schedule' && github.event.schedule == '40 21 * * *'
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-24.04   # (pinned: GitHub moves "ubuntu-latest" to a new release now and then; move this on purpose)
     permissions:
       contents: write
     steps:

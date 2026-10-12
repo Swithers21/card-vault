@@ -9,6 +9,7 @@ which is how this step reads it without signing in to your Google account; witho
 
 Each night, after the new prices are in, this sends (through ntfy, like the PC's updater):
   - want-list cards that reached your target price, and big price moves on your cards (once per TCGplayer price day)
+  - cards on your sell list whose market went well past your asking price (once per card and asking price)
   - cards at a grading company past their expected return date (once per card and due date)
   - Forbidden & Limited list changes for cards you own or want (once per change)
 It never prints card names, the topic or the file id: a public repository's logs are public.
@@ -207,6 +208,12 @@ def run():
         message = up.alert_message(alerts)
         if not message or send(message[0], up.alert_lines(alerts), ["moneybag"]):
             state["pricesFrom"] = generated
+    # 1b) the sell list: the market went well past an asking price (once per card and price)
+    sells = [x for x in up.sell_alerts(data, today_prices) if x["key"] not in alerted] if settings.get("alertsOn") else []
+    if sells:
+        title, lines = up.sell_alert_message(sells)
+        if send(title, lines, ["label"]):
+            alerted += [x["key"] for x in sells]
     # 2) cards late back from the grader
     late = [x for x in up.late_at_grader(data, t.date()) if x["key"] not in alerted]
     if late:

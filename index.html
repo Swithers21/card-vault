@@ -634,7 +634,7 @@
     .stack-table td[data-label]::before{content:attr(data-label) ": ";color:var(--text-dim)}
     .stack-table td[data-empty]{display:none}
     .stack-table.wg-table td.c-pick{order:20;grid-column:2}
-    .stack-table.gp-cards tr,.stack-table.gp-compare tr,.stack-table.ban-table tr,.stack-table.rp-table tr{grid-template-columns:minmax(0,1fr)}
+    .stack-table.gp-cards tr,.stack-table.gp-compare tr,.stack-table.ban-table tr,.stack-table.rp-table tr,.stack-table.gr-cos tr{grid-template-columns:minmax(0,1fr)}
   }
 
   /* ---------- card search ---------- */
@@ -793,7 +793,15 @@
   .photo-cap b{margin-right:auto;font-weight:600}
   .photo-full{position:fixed;inset:0;z-index:1000;background:rgba(0,0,0,.9);display:flex;flex-direction:column;align-items:center;justify-content:center;gap:12px;padding:16px}
   .photo-full img{max-width:100%;max-height:calc(100% - 64px);object-fit:contain;border-radius:8px}
+  .table.gr-cos,.table.gr-cards{min-width:0}
+  .abroad{color:var(--spell)}
   .ban-st{font-weight:600}
+  .ban-tag{font-size:12px;margin-left:4px}
+  .deck-ban-box{margin-top:12px}
+  .deck-ban-head{display:flex;align-items:center;justify-content:space-between;gap:10px;margin:0 0 8px}
+  .seg-small button{padding:4px 10px;font-size:12.5px}
+  .deck-ban{margin:6px 0 0;padding-left:20px}
+  .deck-ban li{margin:2px 0}
   .ban-st.ban-0{color:#f08a8a}
   .ban-st.ban-1{color:var(--gold-hi)}
   .ban-st.ban-2{color:var(--text)}
@@ -1801,7 +1809,8 @@
       grade: normalizeGrade(r.grade),
       sealed: !!r.sealed,
       g10: n(r.g10),   // your own PSA 10 value for this card, if you entered one
-      grading: normGrading(r.grading),   // at a grading company: {company, sent, order, cost}
+      grading: normGrading(r.grading),   // at a grading company: {company, sent, order, cost, level, days, raw}
+      gradeResult: normGradeResult(r.gradeResult),   // how its grading went, once it was back
       notes: String(r.notes || ""),
       sell: normSell(r.sell),       // on your sell list: {price: your asking price each (or null), qty: how many (null: all), since}
       photos: normPhotos(r.photos), // your own photos of this copy, kept in your Google Drive: [{id, side, at}]
@@ -8327,7 +8336,7 @@
 
       '<div class="section"><h3>Windows notifications</h3>' +
       '<label class="check-row"><input type="checkbox" class="check" id="sAlerts"' + (settings.alertsOn ? " checked" : "") +
-      "><span>After each daily price update, let me know when a want-list card reaches my target price, or one of my cards goes up or down a lot</span></label>" +
+      "><span>After each daily price update, let me know when a want-list card reaches my target price, one of my cards goes up or down a lot, or the market passes an asking price on my sell list</span></label>" +
       '<div class="alert-grid"><label class="field"><span>A lot means at least</span><span class="pct">$<input class="input" type="number" min="0" step="1" id="sAlertDollar" value="' +
       esc(settings.alertMinDollar) + '"></span></label><label class="field"><span>and at least</span><span class="pct"><input class="input" type="number" min="0" max="1000" step="1" id="sAlertPct" value="' +
       esc(settings.alertMinPct) + '">%</span></label></div>' +
@@ -8596,7 +8605,7 @@
   const siteAddress = () => SITE && /^https:/.test(location.protocol) ? location.origin + location.pathname.replace(/[^/]*$/, "") : "";
   function phoneAlertsHTML() {
     const t = settings.ntfyTopic;
-    if (!t) return '<p class="small" style="margin:0 0 10px">Get the same alerts on your iPhone: a want-list card at your target price, or a big price move. ' +
+    if (!t) return '<p class="small" style="margin:0 0 10px">Get the same alerts on your iPhone: a want-list card at your target price, a big price move, or the market passing your asking price. ' +
       "They come through ntfy, a free notification app, and are sent by the daily update on your Windows PC, or by the website's nightly update (set up below, once this is on).</p>" +
       '<button type="button" class="btn btn-small" data-pa="on">Set up phone alerts</button>';
     return '<ol class="pa-steps"><li>Install <a href="' + NTFY_APP + '" target="_blank" rel="noopener">ntfy</a> from the App Store (it\'s free).</li>' +
@@ -8653,7 +8662,7 @@
   const b64url = bytes => bytesB64(bytes).replace(/\+/g, "-").replace(/\//g, "_").replace(/=+$/, "");
   const unb64url = s => Uint8Array.from(atob(s.replace(/-/g, "+").replace(/_/g, "/") + "===".slice((s.length + 3) % 4)), c => c.charCodeAt(0));
   const cloudSecret = c => c.fileId + "." + c.key;
-  // What the nightly update needs, and nothing more (no notes, places, photos or prices paid)
+  // What the nightly update needs, and nothing more (no notes, places, photos or prices paid; just asking prices)
   function cloudPayload(off) {
     if (off) return JSON.stringify({app: "Card Vault", kind: "alerts", v: 1, off: true});
     return JSON.stringify({app: "Card Vault", kind: "alerts", v: 1,
@@ -8661,7 +8670,8 @@
         ntfyTopic: settings.ntfyTopic || "", siteUrl: settings.siteUrl || siteAddress() || ""},
       collection: collection.map(r => ({id: r.id, name: r.name, productId: r.productId, number: r.number, rarity: r.rarity, edition: r.edition, condition: r.condition,
         language: r.language, qty: r.qty, sealed: !!r.sealed, grade: r.grade ? {company: r.grade.company, grade: r.grade.grade, value: r.grade.value} : null,
-        grading: r.grading ? {company: r.grading.company, sent: r.grading.sent, days: r.grading.days || "", level: r.grading.level || ""} : null})),
+        grading: r.grading ? {company: r.grading.company, sent: r.grading.sent, days: r.grading.days || "", level: r.grading.level || ""} : null,
+        sell: r.sell && r.sell.price != null ? {price: r.sell.price} : null})),
       wants: wants.map(w => ({name: w.name, productId: w.productId, number: w.number, edition: w.edition, target: w.target, kind: w.kind}))});
   }
   async function cloudSeal(keyText, text, basis) {
@@ -9312,6 +9322,58 @@
     return {raw, ten, nine, cost, gain10: round2(ten.unit - raw - cost), gain9: round2(nine - raw - cost)};
   }
   const tenSource = ten => ten.from === "pricecharting" ? "PriceCharting" : ten.from === "yours" ? "your value" : "estimate";
+  // ----- Your grading results: every graded card you have, what grading cost and what it's worth now against the
+  // raw card, by company. A card graded before Card Vault kept these counts without its cost.
+  function gradingResults() {
+    const rows = [];
+    for (const r of collection) {
+      if (r.sealed || !r.grade || !r.grade.company) continue;
+      const gv = gradedValue(r), raw = priceInfo(r).unit, res = r.gradeResult;
+      const cost = res && res.cost != null ? res.cost : null;
+      const added = gv && raw != null ? gv.unit - raw : null;
+      rows.push({r, co: gradingCoName(r.grade.company) || r.grade.company, grade: num(String(r.grade.grade || "").replace(/[^0-9.]/g, "")), gv, raw, cost,
+        added, net: added != null && cost != null ? added - cost : null, est: !!(gv && /estimate|share/.test(gv.from)),
+        days: res && res.sent && res.back ? Math.round(((parseDay(res.back) || 0) - (parseDay(res.sent) || 0)) / 86400000) : null});
+    }
+    const byCo = new Map();
+    for (const x of rows) {
+      const q = x.r.qty, c = byCo.get(x.co) || {co: x.co, cards: 0, tens: 0, nines: 0, lower: 0, spent: 0, costed: 0, added: 0, valued: 0, net: 0, netCards: 0, days: [], est: 0};
+      c.cards += q;
+      if (x.grade >= 10) c.tens += q; else if (x.grade >= 9) c.nines += q; else c.lower += q;
+      if (x.cost != null) { c.spent += x.cost * q; c.costed += q; }
+      if (x.added != null) { c.added += x.added * q; c.valued += q; if (x.est) c.est += q; }
+      if (x.net != null) { c.net += x.net * q; c.netCards += q; }
+      if (x.days != null) c.days.push(x.days);
+      byCo.set(x.co, c);
+    }
+    return {rows: rows.sort((a, b) => ((b.added || 0) - (a.added || 0))), byCo: Array.from(byCo.values()).sort((a, b) => b.cards - a.cards)};
+  }
+  function gradingResultsHTML() {
+    const g = gradingResults();
+    if (!g.rows.length) return "";
+    const sign = v => (v >= 0 ? "+" : "−") + usd(Math.abs(v));
+    const mid = list => { const s = list.slice().sort((a, b) => a - b); return s.length ? s[Math.floor(s.length / 2)] : null; };
+    return '<div class="box" style="margin-bottom:16px"><div class="box-head"><h3>Your grading results</h3><span class="small">' + plural(g.rows.reduce((n, x) => n + x.r.qty, 0), "graded card") + "</span></div>" +
+      '<div class="table-wrap"><table class="table stack-table gr-cos"><thead><tr><th>Company</th><th class="num">Cards</th><th>Grades</th><th class="num">Spent grading</th><th class="num">Value added</th><th class="num">After costs</th><th class="num">Turnaround</th></tr></thead><tbody>' +
+      g.byCo.map(c => "<tr><td><b>" + esc(c.co) + '</b></td><td class="num" data-label="Cards">' + c.cards + '</td><td data-label="Grades">' +
+        esc([c.tens ? c.tens + " × 10" : "", c.nines ? c.nines + " × 9–9.5" : "", c.lower ? c.lower + " lower" : ""].filter(Boolean).join(", ")) + "</td>" +
+        '<td class="num" data-label="Spent grading"' + (c.costed ? "" : " data-empty") + ">" + (c.costed ? esc(usd(c.spent)) + (c.costed < c.cards ? '<span class="cell-sub">' + c.costed + " of " + c.cards + " cards</span>" : "") : "") + "</td>" +
+        '<td class="num" data-label="Value added"' + (c.valued ? "" : " data-empty") + ">" + (c.valued ? changeHTML(c.added, null, true) + (c.est ? '<span class="cell-sub">' + c.est + " estimated</span>" : "") : "") + "</td>" +
+        '<td class="num" data-label="After costs"' + (c.netCards ? "" : " data-empty") + ">" + (c.netCards ? changeHTML(c.net, null, true) : "") + "</td>" +
+        '<td class="num" data-label="Turnaround"' + (c.days.length ? "" : " data-empty") + ">" + (c.days.length ? mid(c.days) + " days" : "") + "</td></tr>").join("") + "</tbody></table></div>" +
+      '<details class="more" style="margin-top:8px"><summary>Card by card</summary><div class="table-wrap"><table class="table stack-table gr-cards"><thead><tr><th class="c-thumb"><span class="sr">Image</span></th><th>Card</th>' +
+        '<th class="num">Raw now</th><th class="num">Graded now</th><th class="num">Grading cost</th><th class="num">Gain</th></tr></thead><tbody>' +
+        g.rows.map(x => "<tr><td class=\"c-thumb\">" + miniThumb(x.r) + '</td><td><button type="button" class="cell-name" data-open="' + esc(x.r.id) + '">' + esc(x.r.name) + '</button><span class="cell-sub">' +
+          esc(gradeLabel(x.r.grade) + (x.r.qty > 1 ? ", " + x.r.qty + " copies" : "") + (x.r.gradeResult && x.r.gradeResult.back ? ", back " + fmtDate(parseDay(x.r.gradeResult.back)) : "") +
+            (x.r.gradeResult && x.r.gradeResult.raw != null ? "; raw " + usd(x.r.gradeResult.raw) + " when sent" : "")) + "</span></td>" +
+          '<td class="num" data-label="Raw now"' + (x.raw == null ? " data-empty" : "") + ">" + esc(x.raw == null ? "" : usd(x.raw)) + "</td>" +
+          '<td class="num" data-label="Graded now"' + (x.gv ? "" : " data-empty") + ">" + (x.gv ? esc(usd(x.gv.unit)) + '<span class="cell-sub">' + esc(x.gv.from === "yours" ? "your value" : x.gv.from === "pricecharting" ? "PriceCharting" : "estimate") + "</span>" : "") + "</td>" +
+          '<td class="num" data-label="Grading cost"' + (x.cost == null ? " data-empty" : "") + ">" + esc(x.cost == null ? "" : usd(x.cost)) + "</td>" +
+          '<td class="num" data-label="Gain"' + (x.added == null ? " data-empty" : "") + ">" + (x.added == null ? "" : x.net != null ? esc(sign(x.net)) + '<span class="cell-sub">after the cost</span>' : esc(sign(x.added)) + '<span class="cell-sub">before costs</span>') + "</td></tr>").join("") +
+        "</tbody></table></div></details>" +
+      '<p class="small" style="margin:8px 0 0">Value added is what each graded card is worth now (the graded value you entered, PriceCharting\'s sales at its grade, or the estimate from Settings) minus the raw card\'s market price now. ' +
+      "Costs and turnaround are kept for cards you mark \"I sent it\" and then \"It's back\" in Card Vault.</p></div>";
+  }
   function renderWorthGrading() {
     const el = insightBody();
     const away = collection.filter(r => r.grading);
@@ -9328,7 +9390,7 @@
           esc(r.grading.company) + (r.grading.level ? " " + esc(r.grading.level) : "") + ", sent " + esc(fmtDate(parseDay(r.grading.sent))) + " (" + plural(days, "day") + " ago)" + (r.grading.order ? ", order " + esc(r.grading.order) : "") +
           (backText(r.grading) ? ". " + (expectedBack(r.grading).late ? '<b class="late">' + esc(backText(r.grading).replace(/^d/, "D")) + "</b>" : esc(backText(r.grading).replace(/^b/, "B"))) : "") +
           '</span></span><button type="button" class="btn btn-small" data-grade-back="' + esc(r.id) + '">It\'s back</button></li>';
-      }).join("") + "</ul></div>" : "") +
+      }).join("") + "</ul></div>" : "") + gradingResultsHTML() +
       '<div class="wg-controls"><label class="basis">Grading with <select class="select" id="wgCo">' +
         GRADING_COS.map(c => '<option value="' + c.id + '"' + (c.id === co ? " selected" : "") + ">" + esc(c.name) + "</option>").join("") + "</select></label>" +
       '<label class="basis">Cost per card <span class="pct">$<input class="input" id="wgCost" type="number" min="0" step="1" value="' + cost + '"></span></label>' +
@@ -9632,7 +9694,16 @@
     // (the service level, and its wait in business days as the company gave it when the card went: "90–100", "40+")
     if (g.level) out.level = String(g.level).trim().slice(0, 60);
     if (g.days) out.days = String(g.days).trim().slice(0, 20);
+    if (num(g.raw) != null && num(g.raw) >= 0) out.raw = round2(num(g.raw));   // (its raw market value when it went)
     return out;
+  }
+  // How a grading went, kept on the card when it's back: who graded it, the level, when it went and came back,
+  // what it cost and what the raw card was worth when it went (Insights > Worth grading > Your grading results).
+  function normGradeResult(x) {
+    if (!x || typeof x !== "object" || !String(x.company || "").trim()) return null;
+    const n = v => (v === "" || v == null || num(v) == null) ? null : round2(num(v));
+    return {company: String(x.company).trim().slice(0, 40), level: String(x.level || "").slice(0, 60), sent: parseDay(x.sent) ? String(x.sent) : "",
+      back: parseDay(x.back) ? String(x.back) : "", cost: n(x.cost), raw: n(x.raw)};
   }
   // The service levels to pick from when you send a card: its open levels (yours or the usual one first chosen)
   function levelOptionsHTML(co) {
@@ -9788,7 +9859,7 @@
       if (e.target.id === "giSentForm") {
         const lvl = $("giLevel") && $("giLevel").value ? gradingLevel($("giCo").value, $("giLevel").value) : null;
         const g = normGrading({company: $("giCo").value, sent: $("giSent").value, order: $("giOrder").value, cost: $("giCost").value,
-          level: lvl ? lvl.name : "", days: lvl ? lvl.days : ""});
+          level: lvl ? lvl.name : "", days: lvl ? lvl.days : "", raw: priceInfo(r).unit});
         let target = r;
         if (r.qty > 1) {   // one copy goes; the rest stay on their own line
           r.qty -= 1;
@@ -9803,6 +9874,9 @@
         const grade = normalizeGrade({company: $("giCo").value, grade: $("giGrade").value, cert: $("giCert").value, value: $("giValue").value});
         if (!grade || !grade.grade) { toast("Enter the grade it got.", {kind: "error"}); return; }
         const cost = r.grading && r.grading.cost;
+        const was = r.grading || {};
+        r.gradeResult = normGradeResult({company: grade.company, level: was.level, sent: was.sent, back: localDay(new Date()), cost: was.cost,
+          raw: was.raw != null ? was.raw : priceInfo(r).unit});
         r.grade = grade;
         if (cost != null && r.paid != null) r.paid = round2(r.paid + cost);
         r.grading = null;
@@ -10833,17 +10907,57 @@
     };
     return sorters[by] || sorters.target;
   }
+  // ----- Cheapest place to buy: a wanted card's price in the other markets Card Vault knows (TCGplayer for English
+  // copies, BIGWEB/Fullahead for Japanese, Bunjang for Korean), in US$ before shipping and import costs. Shown when one
+  // is at least 10% (and $1) cheaper than the want's own price. Rush Duel cards only compare with Rush Duel cards.
+  const REGION_WORD = {en: "English", jp: "Japanese", kr: "Korean"};
+  function wantElsewhere(w, price) {
+    if (wantKind(w) !== "card" || price == null || price <= 0) return null;
+    const rush = isRushNo(w.number);
+    const mine = w.productId ? "en" : (ocgRegion(w.number) || {}).region === "KR" ? "kr" : "jp";
+    const offers = [];
+    if (ocgCd.data) {
+      for (const c of ocgCd.data.byName.get(csNorm(plainName(w.name))) || []) {
+        if (c.region === mine || isRushNo(c.number) !== rush) continue;
+        for (const row of c.rows) {
+          // (a Japanese copy the shop has in stock; a Korean one listed or sold lately)
+          const live = c.region === "jp" ? row.stock !== 0 : (row.n > 0 || row.sales > 0);
+          const usdv = row.local > 0 && live ? ocgUSD(row.local, c.region) : null;
+          if (usdv != null) offers.push({region: c.region, usd: usdv, rarity: row.rarity, number: c.number, src: ocgSrc(c.region, c.number)});
+        }
+      }
+    }
+    if (mine !== "en" && catalog && !rush) {
+      const best = cheapestByName(normCardName(w.name));
+      if (best) offers.push({region: "en", usd: best.price, rarity: best.product.rarity, number: best.product.number, src: "TCGplayer", productId: best.product.id});
+    }
+    if (!offers.length) return null;
+    offers.sort((a, b) => a.usd - b.usd);
+    const o = offers[0];
+    return o.usd <= price * 0.9 && price - o.usd >= 1 ? Object.assign({}, o, {saves: round2(price - o.usd)}) : null;
+  }
+  function wantElsewhereHTML(w, o) {
+    if (!o) return "";
+    const what = o.src + (o.rarity ? ", " + o.rarity : "");
+    return '<span class="cell-sub abroad">Cheaper as ' + (o.region === "en" ? "an " : "a ") + REGION_WORD[o.region] + " copy: " + esc(usd(o.usd)) + " (" + esc(what) + ") " +
+      (o.region === "en" ? '<a target="_blank" rel="noopener" href="' + esc(tcgPage(o.productId)) + '">See it</a>'
+        : '<button type="button" class="link-btn" data-want-abroad="' + esc(o.number + "|" + (o.rarity || "")) + '">See it</button>') + "</span>";
+  }
   function renderWants() {
     const panel = $("panel-wants");
     // (Yugi-Market's prices now: read twice a day at most, as in the Market)
     if (wants.some(w => String(w.ref || "").startsWith("ym:"))) loadYugiMarket();
     const sortBy = WANT_SORTS.some(x => x[0] === settings.wantsSort) ? settings.wantsSort : "target";
-    const rows = wants.map(w => ({w, st: wantStatus(w), kind: wantKind(w)})).sort(wantSorter(sortBy));
+    // (the Japanese and Korean list, for cheaper copies elsewhere: loaded once, then this redraws)
+    if (wants.some(w => wantKind(w) === "card")) ocgCardsReady();
+    const rows = wants.map(w => { const st = wantStatus(w); return {w, st, kind: wantKind(w), away: wantElsewhere(w, st.price)}; }).sort(wantSorter(sortBy));
+    const cheaperAway = rows.filter(x => x.away).length;
     const hits = rows.filter(x => x.st.hit).length;
     const sum = list => list.reduce((s, x) => s + (x.st.price || 0) * x.w.qty, 0);
     const priced = rows.some(x => x.st.price != null);
     const head = '<div class="panel-head"><div><h2>Want list</h2><p>' + (wants.length
-      ? wantCount(wants.length) + (catalog || priced ? ", " + esc(usd(sum(rows))) + " at today's prices" : "") + (hits ? ", " + hits + " at or below your target" : "")
+      ? wantCount(wants.length) + (catalog || priced ? ", " + esc(usd(sum(rows))) + " at today's prices" : "") + (hits ? ", " + hits + " at or below your target" : "") +
+        (cheaperAway ? ", " + plural(cheaperAway, "card") + " cheaper in another market" : "")
       : "Cards and sealed products you're looking for, with the price you'd pay.") + "</p></div>" +
       '<div class="panel-tools">' + (SITE && wants.length ? '<button class="btn" type="button" data-want-action="share">Share…</button>' : "") +
       '<button class="btn" type="button" data-want-action="add-sealed">Add sealed</button>' +
@@ -10868,7 +10982,7 @@
       return '<div class="table-wrap"><table class="table want-table"><thead><tr><th class="c-thumb"><span class="sr">Image</span></th>' +
         "<th>" + (sealed ? "Product" : "Card") + "</th><th>" + (sealed ? "Where" : "Printing") + '</th><th class="num">' + (sealed ? "Price" : "Market price") +
         '</th><th class="num">Your target</th><th>Status</th><th><span class="sr">Actions</span></th></tr></thead><tbody>' +
-        list.map(({w, st}) => {
+        list.map(({w, st, away}) => {
           const have = w.productId ? owned(w.productId) : 0;
           let status;
           if (st.hit) status = '<span class="status"><span class="status-icon good" aria-hidden="true">&#10003;</span>At or below target</span>';
@@ -10888,7 +11002,7 @@
             '<td class="num" data-label="' + (sealed ? "Price" : "Market price") + '"' + (st.price == null ? " data-empty" : "") + ">" + esc(st.price == null ? "" : usd(st.price)) +
             (old ? ' <span class="small">when added</span>' : "") +
             '</td><td class="num" data-label="Your target"' + (w.target == null ? " data-empty" : "") + ">" + esc(w.target == null ? "" : usd(w.target)) +
-            "</td><td>" + status + "</td>" +
+            "</td><td>" + status + wantElsewhereHTML(w, away) + "</td>" +
             '<td><div class="want-actions"><button class="btn btn-small" type="button" data-want-action="got" data-id="' + esc(w.id) + '">I got it</button>' +
             '<button class="btn btn-small" type="button" data-want-action="edit" data-id="' + esc(w.id) + '">Edit</button>' +
             '<button class="btn btn-small" type="button" data-want-action="remove" data-id="' + esc(w.id) + '" aria-label="Remove ' + esc(w.name) + '">Remove</button></div></td></tr>';
@@ -10903,7 +11017,8 @@
         (titled ? '<h3 class="want-h">' + esc(l) + ' <span class="small">' + esc([plural(list.length, k === "card" ? "card" : "item"),
           list.some(x => x.st.price != null) ? usd(sum(list)) : "", hitsHere ? hitsHere + " at or below target" : ""].filter(Boolean).join(" · ")) + "</span></h3>" : "") +
         table(k, list) + "</section>";
-    }).join("");
+    }).join("") + (cheaperAway ? '<p class="small">"Cheaper as a Japanese, Korean or English copy": the lowest price Card Vault has for the same card (any rarity) in that market: ' +
+      "TCGplayer's market price, BIGWEB's or Fullahead's price for a copy in stock, or Bunjang's recent sales or listings. In US$ at today's exchange rate, before shipping and import costs; shown when it's at least 10% cheaper than the price above.</p>" : "");
   }
 
   /* ======================= Sales ======================= */
@@ -11792,6 +11907,53 @@
         '<button type="button" class="x" data-deck-del="' + esc(k.id) + '" aria-label="Delete ' + esc(k.name) + '">&times;</button></span>').join("") + "</div>" : "") +
       '</div><div id="deckOut">' + deckResultHTML() + "</div></div>";
   }
+  // The deck against a Forbidden & Limited list (Main, Extra and Side together): cards over their limit, and the
+  // limited cards it plays. TCG for English play, OCG for Japanese and Korean; Settings remembers the choice.
+  const BAN_MAX = {"Forbidden": 0, "Limited": 1, "Semi-Limited": 2};
+  function deckBanCheck(res, list) {
+    const b = banData();
+    if (!b) return null;
+    // (a list that couldn't be read yet isn't "everything allowed")
+    if (!b.lists[list] || !Object.keys(b.lists[list]).length) return {list, missing: true};
+    const counts = new Map();
+    for (const sec of res.sections) for (const r of sec.rows) { const e = counts.get(r.key) || {name: r.name, n: 0}; e.n += r.need; counts.set(r.key, e); }
+    const over = [], limited = [];
+    for (const [key, e] of counts) {
+      const hit = b.maps[list].get(key);
+      if (!hit) { if (e.n > 3) over.push({name: e.name, n: e.n, st: "", max: 3}); continue; }   // (any card: 3 at most)
+      const row = {name: e.name, n: e.n, st: hit.st, max: BAN_MAX[hit.st]};
+      (e.n > row.max ? over : limited).push(row);
+    }
+    const rank = x => x.st ? BAN_MAX[x.st] : 3;
+    const order = (x, y) => (rank(x) - rank(y)) || x.name.localeCompare(y.name);
+    return {list, over: over.sort(order), limited: limited.sort(order), checked: (b.lastOk && b.lastOk[list]) || b.checked};
+  }
+  const deckBanList = () => settings.deckBan === "ocg" ? "ocg" : "tcg";
+  function deckBanHTML(res) {
+    const list = deckBanList();
+    const seg = '<div class="seg seg-small" role="group" aria-label="Ban list">' + [["tcg", "TCG"], ["ocg", "OCG"]].map(([k, l]) =>
+      '<button type="button" data-deck-ban="' + k + '" aria-pressed="' + (k === list) + '">' + l + "</button>").join("") + "</div>";
+    const chk = deckBanCheck(res, list);
+    let body;
+    if (!chk) {
+      const waiting = siteFileURL("banlist.js") && (!live.at || live.loading);
+      // (when it arrives, the whole result is drawn again, so the table's tags show too)
+      if (waiting) (live.loading || loadLive()).then(() => { if (settings.tab === "decks" && $("deckOut") && banData()) $("deckOut").innerHTML = deckResultHTML(); });
+      body = '<p class="small" style="margin:0">' + (!siteFileURL("banlist.js") ? "Add the website's address in Settings to check the ban list."
+        : waiting ? "Loading the ban list…" : "The ban list isn't available right now; it comes with the nightly update.") + "</p>";
+    } else if (chk.missing) {
+      body = '<p class="small" style="margin:0">The ' + BAN_LISTS[list] + " list isn't available yet; it comes with the nightly update.</p>";
+    } else if (!chk.over.length) {
+      body = '<p style="margin:0"><span class="status"><span class="status-icon good" aria-hidden="true">&#10003;</span>Legal under the ' + BAN_LISTS[list] + " list</span>" +
+        (chk.limited.length ? ' <span class="small">(it plays ' + esc(chk.limited.map(x => x.name + " ×" + x.n + ", " + x.st).join("; ")) + ")</span>" : "") + "</p>";
+    } else {
+      body = '<p style="margin:0"><b>Not legal under the ' + BAN_LISTS[list] + " list:</b></p><ul class=\"deck-ban\">" + chk.over.map(x => "<li><b>" + esc(x.name) + "</b>" +
+        (!x.st ? ": " + x.n + " copies, and any card is 3 at most" : " is " + esc(x.st) + (x.max ? ": " + plural(x.max, "copy", "copies") + " allowed, the deck has " + x.n : ": none allowed, the deck has " + x.n)) + "</li>").join("") + "</ul>" +
+        (chk.limited.length ? '<p class="small" style="margin:6px 0 0">Within their limit: ' + esc(chk.limited.map(x => x.name + " ×" + x.n + " (" + x.st + ")").join("; ")) + ".</p>" : "");
+    }
+    return '<div class="deck-ban-head"><b>Ban list</b>' + seg + "</div>" + body + (chk && !chk.missing ? '<p class="small" style="margin:6px 0 0">Main, Extra and Side Deck together, from YGOPRODeck, checked ' + esc(fmtDate(parseDate(chk.checked))) + ".</p>" : "");
+  }
+  const deckBanInner = res => res && !res.error && res.need ? deckBanHTML(res) : "";
   function deckResultHTML() {
     const res = deckResult;
     if (!res) return '<div class="chart-empty" style="text-align:left">Your results show up here.' + (catalog ? "" : SITE ? " Prices need TCGplayer's card list (reload the page)." : " Prices need TCGplayer data (Update TCGplayer Data).") + "</div>";
@@ -11808,11 +11970,14 @@
       ((res.missing && wantable) || pull.cards ? '<div class="btn-row">' +
         (res.missing && wantable ? '<button class="btn btn-primary" type="button" data-deck="wants">Add the missing cards to my want list</button>' : "") +
         (pull.cards ? '<button class="btn' + (res.missing && wantable ? "" : " btn-primary") + '" type="button" data-deck="pull">Move the ' + plural(pull.cards, "card") + " I have into " + esc(pull.dest) + "</button>" : "") + "</div>" : "") +
-      (res.have && !pull.cards && pull.dest ? '<p class="small" style="margin:8px 0 0">Your copies are already in ' + esc(pull.dest) + " (graded cards stay where they are).</p>" : "") + "</div>";
+      (res.have && !pull.cards && pull.dest ? '<p class="small" style="margin:8px 0 0">Your copies are already in ' + esc(pull.dest) + " (graded cards stay where they are).</p>" : "") + "</div>" +
+      '<div class="box deck-ban-box" id="deckBan">' + deckBanInner(res) + "</div>";
+    const bd = banData(), banMap = bd && bd.maps[deckBanList()];
+    const banNote = r => { const h = banMap && banMap.get(r.key); return h ? ' <span class="ban-st ban-' + BAN_RANK[h.st] + ' ban-tag">' + esc(h.st) + "</span>" : ""; };
     for (const s of res.sections) {
       html += '<div class="table-wrap deck-table"><table class="data-table"><caption>' + esc(s.name) + " (" + s.need + ")</caption><thead><tr><th>Card</th>" +
         '<th class="num">Need</th><th class="num">Have</th><th class="num">Cheapest</th><th class="num">To buy</th></tr></thead><tbody>' +
-        s.rows.map(r => "<tr" + (r.missing ? ' class="short"' : "") + "><td>" + esc(r.name) + (r.known ? "" : '<span class="cell-sub">Not in TCGplayer\'s list. Check the spelling.</span>') +
+        s.rows.map(r => "<tr" + (r.missing ? ' class="short"' : "") + "><td>" + esc(r.name) + banNote(r) + (r.known ? "" : '<span class="cell-sub">Not in TCGplayer\'s list. Check the spelling.</span>') +
           '</td><td class="num">' + r.need + '</td><td class="num">' + (r.missing ? r.have : '<span class="status-icon good" aria-hidden="true">&#10003;</span> ' + r.have) +
           '</td><td class="num">' + esc(r.best ? usd(r.best.price) : "") + '</td><td class="num">' + (r.missing ? r.missing + (r.best ? " for " + esc(usd(r.best.price * r.missing)) : "") : "") +
           "</td></tr>").join("") + "</tbody></table></div>";
@@ -13822,6 +13987,8 @@
       else if (e.target.id === "deckName") deckDraft.name = e.target.value;
     });
     decksPanel.addEventListener("click", e => {
+      const bl = e.target.closest("[data-deck-ban]");
+      if (bl) { settings.deckBan = bl.dataset.deckBan; saveSettings(); if ($("deckOut")) $("deckOut").innerHTML = deckResultHTML(); const again = document.querySelector('[data-deck-ban="' + settings.deckBan + '"]'); if (again) again.focus(); return; }
       const b = e.target.closest("[data-deck], [data-deck-open], [data-deck-del]");
       if (!b) return;
       if (b.dataset.deckOpen) {
@@ -13837,6 +14004,7 @@
       }
       if (b.dataset.deckDel) { deleteDeck(b.dataset.deckDel); return; }
       const a = b.dataset.deck;
+      if (!a) return;
       if (a === "check") runDeckCheck();
       else if (a === "file") $("deckFile").click();
       else if (a === "save") saveDeck();
@@ -13881,6 +14049,8 @@
       if ($("wantSort")) $("wantSort").focus();
     });
     $("panel-wants").addEventListener("click", e => {
+      const ab = e.target.closest("[data-want-abroad]");
+      if (ab) { const at = ab.dataset.wantAbroad.indexOf("|"); openOcgCardPage(ab.dataset.wantAbroad.slice(0, at), ab.dataset.wantAbroad.slice(at + 1)); return; }
       const v = e.target.closest("[data-wantview]");
       if (v) {
         settings.wantsView = v.dataset.wantview; saveSettings(); renderWants();
@@ -14073,7 +14243,7 @@
     loadOcgCards, buildOcgCards, ocgCd: () => ocgCd, ocgCardAt, ocgFilePrice, ocgRowFor, ocgSetProgress, openOcgCardPage, ocgNameHits, upgradeRecord, addOrMerge,
     GRADING_FEE_TABLE, GRADING_COS, gradingFee, gradingLevels, gradingUsual, gradingCostFor, holdFor, holdKeep, holdApply, deviceLabel,
     loadLive, live: () => live, feeTable, levelFee, updateStatusHTML, renderStatusBanner, expectedBack, addBusinessDays, renderGradingBanner, lateAtGrader,
-    openGradePlan, planCompany, planMix, planIds, setPlanIds, planValue, gradingEstimate, renderWorthGrading,
+    openGradePlan, planCompany, planMix, planIds, setPlanIds, planValue, gradingEstimate, renderWorthGrading, gradingResults, deckBanCheck, wantElsewhere,
     openings: () => openings, sellSuggestions, listingTitle, listingText, afterFees, sellDrift, renderSelling, bulkSell, exportSellCSV, normSell, normPhotos,
     upgradeOpening, openingNumbers, openOpeningForm, showOpening, renderOpenings, pullFrom, banData, banYours, banChangesForYou, reprintsForYou, renderWatch,
     cloudPayload, cloudSeal, cloudAlertsWrite, cloudAlertsSetup, cloudAlertsOff, cleanCloudAlerts, cloudAlertsHTML, secretsPage, photoBoxHTML, addPhoto, shrinkPhoto, batchReady};
