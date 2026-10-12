@@ -1,3 +1,4 @@
+/* Card Vault's program, built from the files in src/ by build_app.py. Edit those, not this file, then run: python build_app.py */
 (function () {
   "use strict";
 
@@ -1783,6 +1784,12 @@
   }
 
   /* ======================= Drawer ======================= */
+  // While the Add / Settings panel or the import window is open, the page behind it can't be tabbed into (or read by a
+  // screen reader as if it were reachable): Tab stays inside the open window.
+  function syncBackdrop() {
+    const app = document.querySelector(".app");
+    if (app) app.inert = !$("drawer").hidden || !$("importModal").hidden;
+  }
   function openDrawer(title, html) {
     stopScanner();
     $("drawer").classList.remove("wide");
@@ -1792,6 +1799,7 @@
     $("drawerBody").scrollTop = 0;
     $("drawer").hidden = false;
     $("scrim").hidden = false;
+    syncBackdrop();
     document.body.classList.add("no-scroll");
     const first = $("drawerBody").querySelector("[autofocus]") || $("drawerClose");
     setTimeout(() => first.focus(), 20);
@@ -1799,6 +1807,7 @@
   function closeDrawer() {
     stopScanner();
     $("drawer").hidden = true;
+    syncBackdrop();
     if ($("importModal").hidden) { $("scrim").hidden = true; document.body.classList.remove("no-scroll"); }
     drawerCtx = null;
     if (lastFocus && document.contains(lastFocus)) lastFocus.focus();
@@ -6945,7 +6954,10 @@
       "<dt>Collection</dt><dd>" + plural(collection.length, "printing") + ", " + plural(cards, "card") + "</dd>" +
       "<dt>Want list</dt><dd>" + wantCount(wants.length) + "</dd>" +
       "<dt>Value history</dt><dd>" + (valueHistory.length ? plural(valueHistory.length, "price day") + " since " + esc(fmtDate(parseDay(valueHistory[0].d))) : "Starts with your first TCGplayer prices") +
-      "</dd></dl></div>";
+      "</dd></dl></div>" +
+
+      '<div class="section"><h3>Keyboard</h3><p class="small" style="margin:0">On a computer, press <kbd>?</kbd> anywhere in Card Vault for a list of shortcuts ' +
+      "(search, add a card, switch tabs).</p></div>";
   }
   // "$20.00 per card", with "(built in)" when the fee is the price list's; or the general estimate when there's nothing
   function feeTotalText(co) {
@@ -12041,12 +12053,14 @@
     }
     lastFocus = document.activeElement;
     $("importModal").hidden = false;
+    syncBackdrop();
     $("scrim").hidden = false;
     document.body.classList.add("no-scroll");
     setTimeout(() => ($("importFoot").querySelector(".btn-primary") || $("importClose")).focus(), 20);
   }
   function closeImport() {
     $("importModal").hidden = true;
+    syncBackdrop();
     pendingImport = null;
     if ($("drawer").hidden) { $("scrim").hidden = true; document.body.classList.remove("no-scroll"); }
     if (lastFocus && document.contains(lastFocus)) lastFocus.focus();
@@ -12119,6 +12133,62 @@
     reader.onerror = () => toast("Couldn't read that file.", {kind: "error"});
     reader.readAsText(file);
   }
+  /* ======================= Keyboard shortcuts ======================= */
+  const SHORTCUTS = [
+    ["<kbd>/</kbd>", "Search: your collection, or Card search when you're on another tab"],
+    ["<kbd>N</kbd>", "Add a card"],
+    ["<kbd>1</kbd> – <kbd>8</kbd>", "Go to a tab: Collection, Card search, Insights, Sets, Want list, Deck check, Trades &amp; sales, Market"],
+    ["<kbd>,</kbd>", "Settings"],
+    ["<kbd>?</kbd>", "Show this list"],
+    ["<kbd>Esc</kbd>", "Close whatever is open"]
+  ];
+  function showShortcuts() {
+    if ($("shortcutsBox")) return;
+    const back = document.activeElement;
+    const box = document.createElement("div");
+    box.id = "shortcutsBox";
+    box.className = "shortcuts-box";
+    box.setAttribute("role", "dialog");
+    box.setAttribute("aria-modal", "true");
+    box.setAttribute("aria-labelledby", "shortcutsTitle");
+    box.innerHTML = '<div class="shortcuts-card"><h2 id="shortcutsTitle">Keyboard shortcuts</h2><dl class="shortcuts">' +
+      SHORTCUTS.map(([k, d]) => "<dt>" + k + "</dt><dd>" + d + "</dd>").join("") +
+      '</dl><p class="small">Shortcuts pause while you are typing in a box.</p><button type="button" class="btn btn-small btn-primary">Close</button></div>';
+    const close = () => {
+      box.remove();
+      document.removeEventListener("keydown", onKey, true);
+      if (back && back.focus && document.contains(back)) back.focus();
+    };
+    const onKey = e => {
+      if (e.key === "Escape") { e.stopPropagation(); e.preventDefault(); close(); }
+      else if (e.key === "Tab") e.preventDefault();   // (the Close button is the only thing to reach)
+    };
+    box.addEventListener("click", e => { if (e.target === box || e.target.closest("button")) close(); });
+    document.addEventListener("keydown", onKey, true);
+    document.body.appendChild(box);
+    box.querySelector("button").focus();
+  }
+  // "/" searches where you are: the collection's search box, else Card search.
+  function focusSearch() {
+    if (settings.tab === "collection" && $("q")) { $("q").focus(); $("q").select(); return; }
+    setTab("search");
+    setTimeout(() => { if ($("csQ")) $("csQ").focus(); }, 0);
+  }
+  function wireShortcuts() {
+    document.addEventListener("keydown", e => {
+      if (e.defaultPrevented || e.isComposing || e.ctrlKey || e.metaKey || e.altKey) return;
+      const t = e.target;
+      if (t && (t.isContentEditable || /^(INPUT|TEXTAREA|SELECT)$/.test(t.tagName))) return;   // (typing)
+      if (document.querySelector("[role=dialog]:not([hidden])")) return;                          // (a window is open)
+      const k = e.key;
+      if (k === "/") { e.preventDefault(); focusSearch(); }
+      else if (k === "n" || k === "N") { e.preventDefault(); openAdd(); }
+      else if (k === ",") { e.preventDefault(); openSettings(); }
+      else if (k === "?") { e.preventDefault(); showShortcuts(); }
+      else if (/^[1-8]$/.test(k) && TABS[Number(k) - 1]) { e.preventDefault(); setTab(TABS[Number(k) - 1], true); }
+    });
+  }
+
   function wire() {
     $("addBtn").addEventListener("click", () => openAdd());
     $("settingsBtn").addEventListener("click", openSettings);
@@ -12129,6 +12199,7 @@
       if (e.key !== "Escape") return;
       if (!$("importModal").hidden) closeImport(); else if (!$("drawer").hidden) closeDrawer();
     });
+    wireShortcuts();
     // Backup buttons live in the Settings drawer and are redrawn as the backup state changes.
     $("drawerBody").addEventListener("click", e => { const b = e.target.closest("[data-bk]"); if (b) backupAction(b.dataset.bk); });
 

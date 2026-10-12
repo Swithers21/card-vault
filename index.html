@@ -38,6 +38,7 @@
     </div>
   </header>
 
+  <main id="main">
   <div class="banners" id="banners">
     <div class="banner" id="banner" hidden></div>
     <div class="banner" id="updateBanner" hidden></div>
@@ -148,7 +149,7 @@
     </div>
   </section>
 
-  <main id="collection" aria-live="polite"></main>
+  <div id="collection" aria-live="polite"></div>
   </section>
 
   <section id="panel-search" role="tabpanel" aria-labelledby="tab-search" hidden></section>
@@ -158,6 +159,7 @@
   <section id="panel-decks" role="tabpanel" aria-labelledby="tab-decks" hidden></section>
   <section id="panel-sales" role="tabpanel" aria-labelledby="tab-sales" hidden></section>
   <section id="panel-market" role="tabpanel" aria-labelledby="tab-market" hidden></section>
+  </main>
 
   <footer>
     <p>Card photos, card numbers, rarities and market prices come from TCGplayer, through TCGCSV (tcgcsv.com), a free daily mirror of TCGplayer's catalog. <span class="local-only">Run "Update TCGplayer Data" to refresh them, or turn on daily updates.</span><span class="site-only">They update every evening.</span> "Other markets" reference prices come from YGOPRODeck. Japanese prices and photos come from BIGWEB (a Japanese card shop; Rush Duel cards from Fullahead, another one), Korean prices from Bunjang (a Korean marketplace), and their card lists from Yugipedia.</p>
@@ -179,13 +181,13 @@
 <datalist id="locationList"></datalist>
 
 <div class="scrim" id="scrim" hidden></div>
-<aside class="drawer" id="drawer" role="dialog" aria-modal="true" aria-labelledby="drawerTitle" hidden>
+<div class="drawer" id="drawer" role="dialog" aria-modal="true" aria-labelledby="drawerTitle" hidden>
   <div class="drawer-head">
     <h2 id="drawerTitle">Add a card</h2>
     <button class="icon-btn" id="drawerClose" type="button" aria-label="Close">&times;</button>
   </div>
   <div class="drawer-body" id="drawerBody"></div>
-</aside>
+</div>
 
 <div class="modal" id="importModal" role="dialog" aria-modal="true" aria-labelledby="importTitle" hidden>
   <div class="modal-head">

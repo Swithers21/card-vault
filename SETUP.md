@@ -321,6 +321,27 @@ personal app: click **Continue**.
 4. Price comparisons (since the last update, 7 days, 30 days) are kept between runs in GitHub's cache. If the
    updates stopped for more than a week, they start over and fill in again day by day.
 
+## Safety checks, and going back
+
+- **Before every publish** the workflow runs the tests (`tests/` folder) and then `check_site.py` on the finished
+  website: every file is there, the program has no typing errors, and the TCGplayer prices file is real and hasn't
+  shrunk by more than a quarter since the last publish. If any of that fails, **nothing is published and the
+  website you already have stays as it was.** Prices that are only a few days old, or fewer Japanese cards than
+  before, show as warnings in the run's summary but don't stop anything.
+- **If a scheduled night doesn't publish**, the workflow opens an issue in this repository called "Card Vault's
+  nightly update didn't publish" (GitHub emails you about new issues), adds to it on later bad nights, and closes
+  it by itself when a night goes through. It needs **Issues** switched on under Settings > General > Features.
+  Failed workflow runs also email you by default (GitHub > Settings > Notifications > Actions).
+- **Going back to an earlier version of the website:** Actions > **Daily TCGplayer prices** > **Run workflow**, and
+  put an earlier commit's number (from the repository's **Commits** page) in **ref**. It publishes that version of
+  the website with today's prices. Run it again with **ref** empty to go back to the latest.
+
+## Changing Card Vault's program
+
+The program (`app.js`) is made from the topic files in `src/` (see `src/README.md`). Change those, then run
+`python build_app.py` and commit both. To run the tests yourself: `python -m unittest discover -s tests`.
+For a single-file copy to run from a folder on the PC (no website), run `python build_single_file.py`.
+
 ## Turning it off
 
 - **Settings** > **Turn off** (under Backup and sync) stops syncing on that device; the file stays in your
