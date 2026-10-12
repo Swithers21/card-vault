@@ -108,19 +108,47 @@ def level(name, fee, max_value=None, days="", paused=False, **extra):
 
 
 # ------------------------------------------------------------------ each company's page
+PSA_FILLER = {"pricing", "details", "started", "get", "imaging", "front", "back", "and", "only", "unavailable", "currently",
+              "business", "days", "time", "turnaround", "estimated", "value:", "insured", "max", "card", "per", "from"}
+PSA_NAME = r"([A-Z][A-Za-z]+(?: (?:[A-Z][A-Za-z]+|\d+)){0,2})"
+
+
+def psa_name(raw):
+    """A level's name from the words just before its price: leftovers of the block before it ("Get Started",
+    "Business Days") come off the front."""
+    words = raw.split()
+    while len(words) > 1 and words[0].lower() in PSA_FILLER:
+        words.pop(0)
+    while len(words) > 1 and words[-1].lower() == "from":   # ("Premium 10 From $9,999.00")
+        words.pop()
+    return " ".join(words).strip()
+
+
 def parse_psa(page):
     """PSA's levels: open ones with a fee per card ("Standard $59.99/Card Max Insured Value: $1,000 Estimated
-    Turnaround Time: 90 - 100 Business Days"), paused ones without ("Currently Unavailable Value Bulk Max Insured
-    Value: $500")."""
+    Turnaround Time: 90 - 100 Business Days*"), paused ones without a fee ("Value Bulk Max Insured Value: $500
+    Currently Unavailable"; the older page put "Currently Unavailable" in front of the name). Numbered levels
+    ("Premium 1") and "From $9,999.00" / "$250,001 or higher" count too."""
     t = text_of(page)
-    out = []
-    for m in re.finditer(r"Currently Unavailable\s+([A-Z][A-Za-z]+(?: [A-Z][A-Za-z]+){0,2})\s+Max Insured Value:\s*(\$[\d,]+)", t):
-        out.append(level(m.group(1).strip(), None, money(m.group(2)), "", True))
-    for m in re.finditer(r"([A-Z][A-Za-z]+(?: [A-Z][A-Za-z]+){0,2})\s+(\$[\d,]+(?:\.\d\d)?)\s*/\s*Card\s+Max Insured Value:\s*(\$[\d,]+)"
-                         r"(?:\s+Estimated Turnaround Time:\s*([\d+ \-–]+?)\s*Business Days)?", t):
-        name = re.sub(r"^(?:Pricing|Details|Started|Get Started)\s+", "", m.group(1)).strip()
-        out.append(level(name, money(m.group(2)), money(m.group(3)), days_text(m.group(4) or "")))
-    return {"levels": out, "complete": False}   # (PSA doesn't list every paused level: the others keep the built-in list)
+    out, seen = [], set()
+    for m in re.finditer(PSA_NAME + r"\s+(?:From\s+)?(\$[\d,]+(?:\.\d\d)?)\s*(?:/|per)\s*Card\b.{0,40}?Max Insured Value:\s*(\$[\d,]+)"
+                         r"(?:.{0,40}?Estimated Turnaround Time:\s*([\d+ \-–]+?)\s*Business Days)?", t):
+        name = psa_name(m.group(1))
+        if name.lower() not in seen:
+            seen.add(name.lower())
+            out.append(level(name, money(m.group(2)), money(m.group(3)), days_text(m.group(4) or "")))
+    paused = []
+    for m in re.finditer(r"Currently Unavailable\s+" + PSA_NAME + r"\s+Max Insured Value:\s*(\$[\d,]+)", t):   # (older layout)
+        paused.append((m.group(1), m.group(2)))
+    for m in re.finditer(PSA_NAME + r"\s+Max Insured Value:\s*(\$[\d,]+)\s*Currently Unavailable", t):   # (current layout)
+        paused.append((m.group(1), m.group(2)))
+    for raw, value in paused:
+        name = psa_name(raw)
+        if name.lower() not in seen:
+            seen.add(name.lower())
+            out.append(level(name, None, money(value), "", True))
+    # (what the page began with, so a failure can say what came back: a changed page or a "prove you're human" page)
+    return {"levels": out, "complete": False, "sample": t[:160]}   # (PSA doesn't list every paused level: the others keep the built-in list)
 
 
 def parse_bgs(page):
@@ -360,7 +388,11 @@ def run():
         try:
             got = read_company(co)
             if not got["levels"] or not any(l.get("fee") for l in got["levels"]):
-                raise ValueError("no fees found on the page (it may have changed)")
+                sample = got.get("sample") or ""
+                blocked = re.search(r"just a moment|captcha|verify you are human|access denied|enable javascript", sample, re.I)
+                raise ValueError("no fees found on the page (%s)%s" % (
+                    "PSA sent a check-you're-human page" if blocked else "it may have changed",
+                    ("; it began: " + sample[:90]) if sample else ""))
             entry = {"ok": True, "checked": now_iso(), "lastOk": now_iso(), "source": URLS[co], "complete": got.get("complete", False),
                      "levels": got["levels"]}
             if got.get("via"):   # (the Internet Archive's copy: as of the day it was saved; not older than what's kept)

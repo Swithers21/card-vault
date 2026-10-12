@@ -161,7 +161,7 @@ jobs:
       - name: Put the website together
         run: |
           mkdir -p _site/icons _site/card-images
-          cp index.html config.js manifest.webmanifest oauth.html share.html sw.js _site/
+          cp index.html app.css app.js config.js manifest.webmanifest oauth.html share.html sw.js _site/
           cp icons/*.png _site/icons/
           if [ -f tcgplayer-data.js ]; then cp tcgplayer-data.js tcgplayer-data-version.js _site/; fi
           if [ -f ocg-market.js ]; then cp ocg-market.js _site/; fi
