@@ -1271,3 +1271,8 @@
   .shortcuts{display:grid;grid-template-columns:max-content 1fr;gap:10px 18px;margin:0 0 14px;align-items:baseline}
   .shortcuts dt{margin:0;white-space:nowrap}
   .shortcuts dd{margin:0;color:var(--text-dim)}
+
+  /* ---------- back to top ---------- */
+  .to-top-row{display:flex;justify-content:flex-end;margin-top:14px}
+  .to-top{display:inline-flex;align-items:center;gap:7px}
+  .brand h1:focus{outline:none}

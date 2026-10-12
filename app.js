@@ -12200,6 +12200,13 @@
       if (!$("importModal").hidden) closeImport(); else if (!$("drawer").hidden) closeDrawer();
     });
     wireShortcuts();
+    // ----- back to top (the button at the bottom of the page)
+    $("toTop").addEventListener("click", () => {
+      const calm = window.matchMedia && window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+      window.scrollTo({top: 0, behavior: calm ? "auto" : "smooth"});
+      const h = document.querySelector(".brand h1");   // (keyboard focus goes back to the top too)
+      if (h) { h.tabIndex = -1; h.focus({preventScroll: true}); }
+    });
     // Backup buttons live in the Settings drawer and are redrawn as the backup state changes.
     $("drawerBody").addEventListener("click", e => { const b = e.target.closest("[data-bk]"); if (b) backupAction(b.dataset.bk); });
 
