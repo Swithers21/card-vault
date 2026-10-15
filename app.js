@@ -1385,6 +1385,32 @@
     s.onerror = () => s.remove();
     document.head.appendChild(s);
   }
+  // Settings > "Check for new prices now": looks right away, loads what's newer, reads the Japanese, Korean and Rush Duel
+  // list again (trying again if it had failed), and says in a few words what it found.
+  async function checkPricesNow() {
+    const parts = [];
+    ocgCd.failed = 0; ocgMk.failed = 0;
+    const v = await new Promise(resolve => {
+      const s = document.createElement("script");
+      s.src = "tcgplayer-data-version.js?t=" + Date.now();
+      s.onload = () => { const got = window.TCG_DATA_VERSION; s.remove(); resolve(got || null); };
+      s.onerror = () => { s.remove(); resolve(null); };
+      document.head.appendChild(s);
+    });
+    if (!v || !v.builtAt) parts.push("Couldn't look for new TCGplayer prices (the update file didn't load: check the connection).");
+    else if (catalog && catalog.builtAt && v.builtAt <= catalog.builtAt) parts.push("TCGplayer prices are up to date (from " + fmtDate(catalog.generated) + ").");
+    else {
+      dataLoad.tries = 0;
+      clearTimeout(dataLoad.timer);
+      await loadNewData(v, true);
+      parts.push(catalog && catalog.builtAt >= v.builtAt ? "New TCGplayer prices loaded (from " + fmtDate(catalog.generated) + ")."
+        : "The website has newer TCGplayer prices (" + fmtDate(parseDate(v.generated)) + ") but they didn't load. Try again in a minute.");
+    }
+    if (ocgCardsURL()) await loadOcgCards(true);
+    parts.push("Japanese, Korean and Rush Duel prices: " + ocgListStatus() + ".");
+    renderSoon();
+    return parts.join(" ");
+  }
   // (only if the new prices couldn't be loaded in place: then a reload does it)
   function showDataBanner(v) {
     const when = parseDate(v.generated);
@@ -1430,7 +1456,7 @@
       document.head.appendChild(s);
     });
   }
-  async function loadNewData(v) {
+  async function loadNewData(v, now) {
     if (dataLoad.loading || dataLoad.raw) return;
     if (dataLoad.version !== v.builtAt) { dataLoad.version = v.builtAt; dataLoad.tries = 0; }
     if (dataLoad.tries > 3) { showDataBanner(v); return; }   // (gave up on this one: the banner's reload does it)
@@ -1450,12 +1476,13 @@
     }
     dataLoad.tries = 0;
     dataLoad.raw = raw;
-    applyNewData();
+    applyNewData(now);
   }
-  function applyNewData() {
+  // now: someone asked for it (Settings > Check for new prices now), so it doesn't wait for a quiet moment
+  function applyNewData(now) {
     if (!dataLoad.raw) return;
     clearTimeout(dataLoad.timer);
-    if (viewBusy()) { dataLoad.timer = setTimeout(applyNewData, 15000); return; }
+    if (now !== true && viewBusy()) { dataLoad.timer = setTimeout(applyNewData, 15000); return; }
     let next = null;
     try { next = buildCatalog(dataLoad.raw); } catch (e) { next = null; }
     dataLoad.raw = null;
@@ -1465,6 +1492,9 @@
     setsCache = null;
     histFiles.clear();
     ocgMk.data = null;   // (rebuilt the same evening: read again when next shown)
+    // The Japanese, Korean and Rush Duel prices come from the same nightly run: read that list again too, keeping the
+    // old one on screen until the new one is here (Rush Duel prices come from it alone).
+    if (ocgCd.data) loadOcgCards(true);
     $("updateBanner").hidden = true;
     $("updateBanner").innerHTML = "";
     const linked = autoLink();
@@ -3775,7 +3805,7 @@
     if (http && SITE && siteAddress() && settings.siteUrl !== siteAddress()) { settings.siteUrl = siteAddress(); save({quiet: true}); }
     fxRates().catch(() => null);
     ocgMk.loading = (http
-      ? fetch(url).then(res => { if (!res.ok) throw new Error("answered " + res.status); return res.text(); }).then(t => readWindowJSON(t, "OCG_MARKET"))
+      ? fetch(url, {cache: "no-cache"}).then(res => { if (!res.ok) throw new Error("answered " + res.status); return res.text(); }).then(t => readWindowJSON(t, "OCG_MARKET"))
       : new Promise((resolve, reject) => {
         const s = document.createElement("script");
         s.src = url + "?h=" + Math.floor(Date.now() / 3600000);
@@ -3848,16 +3878,17 @@
     }
     return data;
   }
-  function loadOcgCards() {
-    if (ocgCd.data || ocgCd.loading) return ocgCd.loading || Promise.resolve(ocgCd.data);
+  // fresh: read it again even though one is here (it stays in use until the new one has arrived)
+  function loadOcgCards(fresh) {
+    if ((ocgCd.data && !fresh) || ocgCd.loading) return ocgCd.loading || Promise.resolve(ocgCd.data);
     const url = ocgCardsURL();
     if (!url) { ocgCd.failed = Date.now(); return Promise.resolve(null); }
     const http = /^https?:$/.test(location.protocol);
     ocgCd.loading = (http
-      ? fetch(url).then(res => { if (!res.ok) throw new Error("answered " + res.status); return res.text(); }).then(t => readWindowJSON(t, "OCG_CARDS"))
+      ? fetch(url, {cache: "no-cache"}).then(res => { if (!res.ok) throw new Error("answered " + res.status); return res.text(); }).then(t => readWindowJSON(t, "OCG_CARDS"))
       : new Promise((resolve, reject) => {
         const s = document.createElement("script");
-        s.src = url + "?h=" + Math.floor(Date.now() / 3600000);
+        s.src = url + "?h=" + (fresh ? Date.now() : Math.floor(Date.now() / 3600000));
         s.onload = () => { const raw = window.OCG_CARDS; window.OCG_CARDS = null; s.remove(); resolve(raw); };
         s.onerror = () => { s.remove(); reject(new Error("didn't load")); };
         document.head.appendChild(s);
@@ -3867,6 +3898,13 @@
       .then(() => ocgMk.data || ocgMarketURL() === "" ? null : loadOcgMarket())   // (the sets' names and dates come with it)
       .then(() => { ocgCd.loading = null; renderSoon(); return ocgCd.data; });
     return ocgCd.loading;
+  }
+  // Where the Japanese, Korean and Rush Duel list stands, in a few words (Settings)
+  function ocgListStatus() {
+    if (ocgCd.data) return ocgCd.data.generated ? "from " + fmtDate(ocgCd.data.generated) : "loaded";
+    if (ocgCd.loading) return "loading…";
+    if (!ocgCardsURL()) return "not available here (open Card Vault from its website)";
+    return ocgCd.failed ? "couldn't be loaded, so Rush Duel cards have no price (press the button to try again)" : "not loaded yet";
   }
   // The list when it's here or can be loaded; null after a failure, for 10 minutes (so nothing keeps asking)
   function loadOcgCardsSoft() {
@@ -6983,8 +7021,11 @@
       : '<p style="margin:0">To get new TCGplayer prices every day without doing anything, double-click <b>Turn On Daily Updates</b> in the Card Vault folder once. ' +
         "Windows then runs the updater every evening at 6 PM, or as soon as your computer is on after that. <b>Turn Off Daily Updates</b> stops it.</p>") +
       '<p class="small">When new prices arrive while Card Vault is open, it loads them by itself.</p>' +
-      '<dl class="kv"><dt>Prices loaded</dt><dd>' + (catalog ? esc(fmtDate(catalog.generated)) : "Not loaded yet") + "</dd>" +
-      "<dt>Price changes compare with</dt><dd>" + (refs.length ? refs.join(", ") : catalog ? "Nothing yet. Earlier prices build up as the updater runs on different days." : "Not loaded yet") + "</dd></dl></div>" +
+      '<dl class="kv"><dt>Prices loaded</dt><dd id="pricesLoadedAt">' + (catalog ? esc(fmtDate(catalog.generated)) : "Not loaded yet") + "</dd>" +
+      (SITE ? '<dt>Japanese, Korean and Rush Duel prices</dt><dd id="ocgListAt">' + esc(ocgListStatus()) + "</dd>" : "") +
+      "<dt>Price changes compare with</dt><dd>" + (refs.length ? refs.join(", ") : catalog ? "Nothing yet. Earlier prices build up as the updater runs on different days." : "Not loaded yet") + "</dd></dl>" +
+      '<p style="margin:10px 0 0"><button class="btn btn-small" type="button" id="priceCheckNow">Check for new prices now</button></p>' +
+      '<p class="small" id="priceCheckNote" role="status" aria-live="polite" style="margin:6px 0 0"></p></div>' +
 
       '<div class="section"><h3>Stored in this browser</h3><dl class="kv">' +
       "<dt>Collection</dt><dd>" + plural(collection.length, "printing") + ", " + plural(cards, "card") + "</dd>" +
@@ -7143,6 +7184,16 @@
       settings.condPct = Object.assign({}, DEFAULT_COND_PCT);
       pctInputs().forEach(i => { i.value = settings.condPct[i.dataset.cond]; });
       valuesChanged();
+    });
+    $("priceCheckNow").addEventListener("click", () => {
+      const b = $("priceCheckNow"), note = $("priceCheckNote");
+      b.disabled = true; note.textContent = "Checking…";
+      checkPricesNow().then(msg => {
+        b.disabled = false;
+        note.textContent = msg;
+        if ($("pricesLoadedAt") && catalog) $("pricesLoadedAt").textContent = fmtDate(catalog.generated);
+        if ($("ocgListAt")) $("ocgListAt").textContent = ocgListStatus();
+      }, () => { b.disabled = false; note.textContent = "Something went wrong while checking. Try again."; });
     });
     const pcWire = () => { const b = $("pcRefresh"); if (b) b.addEventListener("click", () => { b.disabled = true; refreshGradedPrices(true).then(() => { if ($("pcNote")) { $("pcNote").innerHTML = pcNoteHTML(); pcWire(); } }); }); };
     pcWire();
@@ -12790,7 +12841,7 @@
     // and changes from your other devices (signing back in to Google Drive first, if that has run out).
     document.addEventListener("visibilitychange", () => {
       if (document.visibilityState === "hidden") { if (backup.timer) writeBackup(); }
-      else maybeSilentSignIn().then(away => { if (!away) { checkForNewData(); checkBackupFile(); } });
+      else maybeSilentSignIn().then(away => { if (!away) { checkForNewData(); checkBackupFile(); retryOcgList(); } });
     });
     // Changes made on your other computers arrive through the backup file.
     window.addEventListener("focus", () => checkBackupFile());
@@ -12829,7 +12880,7 @@
       yugi.cache = null; ocg.cache = null; pc.cache = null;
       render();
     });
-    setInterval(() => { if (document.visibilityState === "visible") { checkForNewData(); loadLive(); renderGradingBanner(); cloudAlertsWrite(false); } }, 30 * 60000);
+    setInterval(() => { if (document.visibilityState === "visible") { checkForNewData(); loadLive(); renderGradingBanner(); cloudAlertsWrite(false); retryOcgList(); } }, 30 * 60000);
 
     // A photo that doesn't load: try the next one on its list, and when none is left, draw a stand-in.
     document.addEventListener("error", e => {
@@ -12861,6 +12912,11 @@
     opening.domReady = true;
     if (openSignIn) openSignIn.then(away => { if (!away || opening.stayed) startOnce(); });
     else startOnce();
+  }
+  // The Japanese, Korean and Rush Duel list didn't come (a slow connection at start-up, say): ask again now and then,
+  // since Rush Duel cards have no price without it. (loadOcgCardsSoft waits 10 minutes after a failure.)
+  function retryOcgList() {
+    if (!ocgCd.data && collection.some(isOcg)) loadOcgCardsSoft();
   }
   function startApp() {
     try { catalog = buildCatalog(window.TCG_DATA); } catch (e) { catalog = null; }
@@ -12898,7 +12954,7 @@
     openSoldForm, recordSale, saleNumbers, buildReport, openReport, phoneCopyHTML, savePhoneCopy, writePhoneCopy, backupTextFrom,
     matchScanned, numberVariants, openScanner, stopScanner, prepCanvas, openWantForm, resolveLink, chooseBackupFile, linkGoogleDrive, driveToken, openMove, moveCopies,
     searchSealed, openSealedSearch, openSealedForm, ocgCard, bigwebFor, bunjangFor, bigwebPick, bunjangPick, ocgPrice, refreshOcgPrices, fxRates, showOcgLookup,
-    psa10Value, gradedValue, gradedTotals, pcLookup, pcMatch, pcWhy, pcMisses, pcRarityNames, refreshGradedPrices, gradeShare, koRarity, jaRarity, ocgRegion, isRushNo, cleanName, artless, isOverframeRec, lookupName, driveDatedCopy, fillDriveCopies, deckPullPlan, deckPullIntoBox, openShare, shareLink, marketData, mkSetLine, mkKind, mkChase, renderMarket, analyzeDeckIdeas, runDeckIdeas, starterList, ideasState: () => ideas,
+    psa10Value, gradedValue, gradedTotals, pcLookup, pcMatch, pcWhy, pcMisses, pcRarityNames, refreshGradedPrices, checkPricesNow, loadOcgCardsSoft, ocgListStatus, gradeShare, koRarity, jaRarity, ocgRegion, isRushNo, cleanName, artless, isOverframeRec, lookupName, driveDatedCopy, fillDriveCopies, deckPullPlan, deckPullIntoBox, openShare, shareLink, marketData, mkSetLine, mkKind, mkChase, renderMarket, analyzeDeckIdeas, runDeckIdeas, starterList, ideasState: () => ideas,
     imgTag, productPics, recordPics, namePics, imageFor, shareItem, shareWant,
     silentSignInDue, maybeSilentSignIn, pageBusy, viewBusy, loadNewData, applyNewData, readDataText, dataLoad: () => dataLoad,
     loadOcgMarket, buildOcgMarket, ocgMk: () => ocgMk, loadYugiMarket, ymMatch, ymProduct, ymk: () => ymk, renderMarket, wantPrice,

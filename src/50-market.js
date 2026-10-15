@@ -314,7 +314,7 @@
     if (http && SITE && siteAddress() && settings.siteUrl !== siteAddress()) { settings.siteUrl = siteAddress(); save({quiet: true}); }
     fxRates().catch(() => null);
     ocgMk.loading = (http
-      ? fetch(url).then(res => { if (!res.ok) throw new Error("answered " + res.status); return res.text(); }).then(t => readWindowJSON(t, "OCG_MARKET"))
+      ? fetch(url, {cache: "no-cache"}).then(res => { if (!res.ok) throw new Error("answered " + res.status); return res.text(); }).then(t => readWindowJSON(t, "OCG_MARKET"))
       : new Promise((resolve, reject) => {
         const s = document.createElement("script");
         s.src = url + "?h=" + Math.floor(Date.now() / 3600000);
@@ -387,16 +387,17 @@
     }
     return data;
   }
-  function loadOcgCards() {
-    if (ocgCd.data || ocgCd.loading) return ocgCd.loading || Promise.resolve(ocgCd.data);
+  // fresh: read it again even though one is here (it stays in use until the new one has arrived)
+  function loadOcgCards(fresh) {
+    if ((ocgCd.data && !fresh) || ocgCd.loading) return ocgCd.loading || Promise.resolve(ocgCd.data);
     const url = ocgCardsURL();
     if (!url) { ocgCd.failed = Date.now(); return Promise.resolve(null); }
     const http = /^https?:$/.test(location.protocol);
     ocgCd.loading = (http
-      ? fetch(url).then(res => { if (!res.ok) throw new Error("answered " + res.status); return res.text(); }).then(t => readWindowJSON(t, "OCG_CARDS"))
+      ? fetch(url, {cache: "no-cache"}).then(res => { if (!res.ok) throw new Error("answered " + res.status); return res.text(); }).then(t => readWindowJSON(t, "OCG_CARDS"))
       : new Promise((resolve, reject) => {
         const s = document.createElement("script");
-        s.src = url + "?h=" + Math.floor(Date.now() / 3600000);
+        s.src = url + "?h=" + (fresh ? Date.now() : Math.floor(Date.now() / 3600000));
         s.onload = () => { const raw = window.OCG_CARDS; window.OCG_CARDS = null; s.remove(); resolve(raw); };
         s.onerror = () => { s.remove(); reject(new Error("didn't load")); };
         document.head.appendChild(s);
@@ -406,6 +407,13 @@
       .then(() => ocgMk.data || ocgMarketURL() === "" ? null : loadOcgMarket())   // (the sets' names and dates come with it)
       .then(() => { ocgCd.loading = null; renderSoon(); return ocgCd.data; });
     return ocgCd.loading;
+  }
+  // Where the Japanese, Korean and Rush Duel list stands, in a few words (Settings)
+  function ocgListStatus() {
+    if (ocgCd.data) return ocgCd.data.generated ? "from " + fmtDate(ocgCd.data.generated) : "loaded";
+    if (ocgCd.loading) return "loading…";
+    if (!ocgCardsURL()) return "not available here (open Card Vault from its website)";
+    return ocgCd.failed ? "couldn't be loaded, so Rush Duel cards have no price (press the button to try again)" : "not loaded yet";
   }
   // The list when it's here or can be loaded; null after a failure, for 10 minutes (so nothing keeps asking)
   function loadOcgCardsSoft() {

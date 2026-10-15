@@ -610,7 +610,7 @@
     // and changes from your other devices (signing back in to Google Drive first, if that has run out).
     document.addEventListener("visibilitychange", () => {
       if (document.visibilityState === "hidden") { if (backup.timer) writeBackup(); }
-      else maybeSilentSignIn().then(away => { if (!away) { checkForNewData(); checkBackupFile(); } });
+      else maybeSilentSignIn().then(away => { if (!away) { checkForNewData(); checkBackupFile(); retryOcgList(); } });
     });
     // Changes made on your other computers arrive through the backup file.
     window.addEventListener("focus", () => checkBackupFile());
@@ -649,7 +649,7 @@
       yugi.cache = null; ocg.cache = null; pc.cache = null;
       render();
     });
-    setInterval(() => { if (document.visibilityState === "visible") { checkForNewData(); loadLive(); renderGradingBanner(); cloudAlertsWrite(false); } }, 30 * 60000);
+    setInterval(() => { if (document.visibilityState === "visible") { checkForNewData(); loadLive(); renderGradingBanner(); cloudAlertsWrite(false); retryOcgList(); } }, 30 * 60000);
 
     // A photo that doesn't load: try the next one on its list, and when none is left, draw a stand-in.
     document.addEventListener("error", e => {
@@ -681,6 +681,11 @@
     opening.domReady = true;
     if (openSignIn) openSignIn.then(away => { if (!away || opening.stayed) startOnce(); });
     else startOnce();
+  }
+  // The Japanese, Korean and Rush Duel list didn't come (a slow connection at start-up, say): ask again now and then,
+  // since Rush Duel cards have no price without it. (loadOcgCardsSoft waits 10 minutes after a failure.)
+  function retryOcgList() {
+    if (!ocgCd.data && collection.some(isOcg)) loadOcgCardsSoft();
   }
   function startApp() {
     try { catalog = buildCatalog(window.TCG_DATA); } catch (e) { catalog = null; }
@@ -718,7 +723,7 @@
     openSoldForm, recordSale, saleNumbers, buildReport, openReport, phoneCopyHTML, savePhoneCopy, writePhoneCopy, backupTextFrom,
     matchScanned, numberVariants, openScanner, stopScanner, prepCanvas, openWantForm, resolveLink, chooseBackupFile, linkGoogleDrive, driveToken, openMove, moveCopies,
     searchSealed, openSealedSearch, openSealedForm, ocgCard, bigwebFor, bunjangFor, bigwebPick, bunjangPick, ocgPrice, refreshOcgPrices, fxRates, showOcgLookup,
-    psa10Value, gradedValue, gradedTotals, pcLookup, pcMatch, pcWhy, pcMisses, pcRarityNames, refreshGradedPrices, gradeShare, koRarity, jaRarity, ocgRegion, isRushNo, cleanName, artless, isOverframeRec, lookupName, driveDatedCopy, fillDriveCopies, deckPullPlan, deckPullIntoBox, openShare, shareLink, marketData, mkSetLine, mkKind, mkChase, renderMarket, analyzeDeckIdeas, runDeckIdeas, starterList, ideasState: () => ideas,
+    psa10Value, gradedValue, gradedTotals, pcLookup, pcMatch, pcWhy, pcMisses, pcRarityNames, refreshGradedPrices, checkPricesNow, loadOcgCardsSoft, ocgListStatus, gradeShare, koRarity, jaRarity, ocgRegion, isRushNo, cleanName, artless, isOverframeRec, lookupName, driveDatedCopy, fillDriveCopies, deckPullPlan, deckPullIntoBox, openShare, shareLink, marketData, mkSetLine, mkKind, mkChase, renderMarket, analyzeDeckIdeas, runDeckIdeas, starterList, ideasState: () => ideas,
     imgTag, productPics, recordPics, namePics, imageFor, shareItem, shareWant,
     silentSignInDue, maybeSilentSignIn, pageBusy, viewBusy, loadNewData, applyNewData, readDataText, dataLoad: () => dataLoad,
     loadOcgMarket, buildOcgMarket, ocgMk: () => ocgMk, loadYugiMarket, ymMatch, ymProduct, ymk: () => ymk, renderMarket, wantPrice,

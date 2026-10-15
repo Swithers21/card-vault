@@ -162,8 +162,11 @@
       : '<p style="margin:0">To get new TCGplayer prices every day without doing anything, double-click <b>Turn On Daily Updates</b> in the Card Vault folder once. ' +
         "Windows then runs the updater every evening at 6 PM, or as soon as your computer is on after that. <b>Turn Off Daily Updates</b> stops it.</p>") +
       '<p class="small">When new prices arrive while Card Vault is open, it loads them by itself.</p>' +
-      '<dl class="kv"><dt>Prices loaded</dt><dd>' + (catalog ? esc(fmtDate(catalog.generated)) : "Not loaded yet") + "</dd>" +
-      "<dt>Price changes compare with</dt><dd>" + (refs.length ? refs.join(", ") : catalog ? "Nothing yet. Earlier prices build up as the updater runs on different days." : "Not loaded yet") + "</dd></dl></div>" +
+      '<dl class="kv"><dt>Prices loaded</dt><dd id="pricesLoadedAt">' + (catalog ? esc(fmtDate(catalog.generated)) : "Not loaded yet") + "</dd>" +
+      (SITE ? '<dt>Japanese, Korean and Rush Duel prices</dt><dd id="ocgListAt">' + esc(ocgListStatus()) + "</dd>" : "") +
+      "<dt>Price changes compare with</dt><dd>" + (refs.length ? refs.join(", ") : catalog ? "Nothing yet. Earlier prices build up as the updater runs on different days." : "Not loaded yet") + "</dd></dl>" +
+      '<p style="margin:10px 0 0"><button class="btn btn-small" type="button" id="priceCheckNow">Check for new prices now</button></p>' +
+      '<p class="small" id="priceCheckNote" role="status" aria-live="polite" style="margin:6px 0 0"></p></div>' +
 
       '<div class="section"><h3>Stored in this browser</h3><dl class="kv">' +
       "<dt>Collection</dt><dd>" + plural(collection.length, "printing") + ", " + plural(cards, "card") + "</dd>" +
@@ -322,6 +325,16 @@
       settings.condPct = Object.assign({}, DEFAULT_COND_PCT);
       pctInputs().forEach(i => { i.value = settings.condPct[i.dataset.cond]; });
       valuesChanged();
+    });
+    $("priceCheckNow").addEventListener("click", () => {
+      const b = $("priceCheckNow"), note = $("priceCheckNote");
+      b.disabled = true; note.textContent = "Checking…";
+      checkPricesNow().then(msg => {
+        b.disabled = false;
+        note.textContent = msg;
+        if ($("pricesLoadedAt") && catalog) $("pricesLoadedAt").textContent = fmtDate(catalog.generated);
+        if ($("ocgListAt")) $("ocgListAt").textContent = ocgListStatus();
+      }, () => { b.disabled = false; note.textContent = "Something went wrong while checking. Try again."; });
     });
     const pcWire = () => { const b = $("pcRefresh"); if (b) b.addEventListener("click", () => { b.disabled = true; refreshGradedPrices(true).then(() => { if ($("pcNote")) { $("pcNote").innerHTML = pcNoteHTML(); pcWire(); } }); }); };
     pcWire();
