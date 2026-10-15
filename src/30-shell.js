@@ -197,6 +197,32 @@
     s.onerror = () => s.remove();
     document.head.appendChild(s);
   }
+  // Settings > "Check for new prices now": looks right away, loads what's newer, reads the Japanese, Korean and Rush Duel
+  // list again (trying again if it had failed), and says in a few words what it found.
+  async function checkPricesNow() {
+    const parts = [];
+    ocgCd.failed = 0; ocgMk.failed = 0;
+    const v = await new Promise(resolve => {
+      const s = document.createElement("script");
+      s.src = "tcgplayer-data-version.js?t=" + Date.now();
+      s.onload = () => { const got = window.TCG_DATA_VERSION; s.remove(); resolve(got || null); };
+      s.onerror = () => { s.remove(); resolve(null); };
+      document.head.appendChild(s);
+    });
+    if (!v || !v.builtAt) parts.push("Couldn't look for new TCGplayer prices (the update file didn't load: check the connection).");
+    else if (catalog && catalog.builtAt && v.builtAt <= catalog.builtAt) parts.push("TCGplayer prices are up to date (from " + fmtDate(catalog.generated) + ").");
+    else {
+      dataLoad.tries = 0;
+      clearTimeout(dataLoad.timer);
+      await loadNewData(v, true);
+      parts.push(catalog && catalog.builtAt >= v.builtAt ? "New TCGplayer prices loaded (from " + fmtDate(catalog.generated) + ")."
+        : "The website has newer TCGplayer prices (" + fmtDate(parseDate(v.generated)) + ") but they didn't load. Try again in a minute.");
+    }
+    if (ocgCardsURL()) await loadOcgCards(true);
+    parts.push("Japanese, Korean and Rush Duel prices: " + ocgListStatus() + ".");
+    renderSoon();
+    return parts.join(" ");
+  }
   // (only if the new prices couldn't be loaded in place: then a reload does it)
   function showDataBanner(v) {
     const when = parseDate(v.generated);
@@ -242,7 +268,7 @@
       document.head.appendChild(s);
     });
   }
-  async function loadNewData(v) {
+  async function loadNewData(v, now) {
     if (dataLoad.loading || dataLoad.raw) return;
     if (dataLoad.version !== v.builtAt) { dataLoad.version = v.builtAt; dataLoad.tries = 0; }
     if (dataLoad.tries > 3) { showDataBanner(v); return; }   // (gave up on this one: the banner's reload does it)
@@ -262,12 +288,13 @@
     }
     dataLoad.tries = 0;
     dataLoad.raw = raw;
-    applyNewData();
+    applyNewData(now);
   }
-  function applyNewData() {
+  // now: someone asked for it (Settings > Check for new prices now), so it doesn't wait for a quiet moment
+  function applyNewData(now) {
     if (!dataLoad.raw) return;
     clearTimeout(dataLoad.timer);
-    if (viewBusy()) { dataLoad.timer = setTimeout(applyNewData, 15000); return; }
+    if (now !== true && viewBusy()) { dataLoad.timer = setTimeout(applyNewData, 15000); return; }
     let next = null;
     try { next = buildCatalog(dataLoad.raw); } catch (e) { next = null; }
     dataLoad.raw = null;
@@ -277,6 +304,9 @@
     setsCache = null;
     histFiles.clear();
     ocgMk.data = null;   // (rebuilt the same evening: read again when next shown)
+    // The Japanese, Korean and Rush Duel prices come from the same nightly run: read that list again too, keeping the
+    // old one on screen until the new one is here (Rush Duel prices come from it alone).
+    if (ocgCd.data) loadOcgCards(true);
     $("updateBanner").hidden = true;
     $("updateBanner").innerHTML = "";
     const linked = autoLink();

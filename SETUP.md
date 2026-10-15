@@ -297,6 +297,11 @@ personal app: click **Continue**.
   the grading fee reads, and anything that went wrong in plain words (a site that stopped answering, far fewer cards
   priced than the night before, prices not updated in over two days). Card Vault shows a notice at the top when
   something broke (Dismiss hides it until it breaks again) and when the update hasn't run for a day and a half.
+- **Keeping prices current** (Settings > Daily price updates): a window left open loads each night's TCGplayer prices by
+  itself and now reads the Japanese, Korean and Rush Duel list again with them (Rush Duel cards are priced from that
+  list alone). **Check for new prices now** does it on the spot and says what it found, including whether that list
+  came. Card Vault.html opened from a folder gets prices only from the PC's own updater and has no Rush Duel prices:
+  use the website's address (or its app shortcut) for the full set.
 - **The sync safety check**: if changes from another device would take away 10 or more cards (cards removed, or
   quantities going down, after anything it adds), 5 or more want-list cards, or your whole want list, syncing stops on
   that device and asks: **Keep them** (they stay, and go back to your other devices) or **Remove them here too**. It
