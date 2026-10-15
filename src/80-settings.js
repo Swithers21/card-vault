@@ -111,6 +111,10 @@
       '<div class="alert-grid"><label class="field"><span>Share of the price</span><span class="pct"><input class="input" type="number" min="0" max="60" step="0.1" id="sSellPct" value="' + esc(sellPct()) + '">%</span></label>' +
       '<label class="field"><span>Plus, per card</span><span class="pct">$<input class="input" type="number" min="0" max="50" step="0.01" id="sSellFlat" value="' + esc(sellFlat()) + '"></span></label></div></div>' +
 
+      '<div class="section"><h3>On a phone or tablet</h3>' +
+      '<label class="check-row"><input type="checkbox" class="check" id="sSwipe"' + (settings.swipeCopies !== false ? " checked" : "") +
+      "><span>Swipe a card to change how many copies you have: right adds one, left takes one away (you can Undo it)</span></label></div>" +
+
       '<div class="section"><h3>Played cards</h3>' +
       '<label class="check-row"><input type="checkbox" class="check" id="sCondAdjust"' + (settings.condAdjust ? " checked" : "") +
       "><span>Value played cards below the market price</span></label>" +
@@ -292,6 +296,7 @@
       renderBackupBanner();
     });
     const pctInputs = () => document.querySelectorAll("#drawerBody [data-cond]");
+    $("sSwipe").addEventListener("change", () => { settings.swipeCopies = $("sSwipe").checked; saveSettings(); });
     $("sCondAdjust").addEventListener("change", () => {
       settings.condAdjust = $("sCondAdjust").checked;
       pctInputs().forEach(i => { i.disabled = !settings.condAdjust; });

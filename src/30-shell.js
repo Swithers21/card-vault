@@ -87,6 +87,7 @@
     renderDataStatus();
     renderBackupBanner();
     renderWantBanner();
+    renderChangeBanner();
     renderGradingBanner();
     renderSummary();
     renderTabs();
@@ -119,8 +120,11 @@
     if (!TABS.includes(tab)) tab = "collection";
     settings.tab = tab;
     saveSettings();
+    syncTabHash();
+    if (tab !== "collection") armBack();
     renderTabs();
     renderWantBanner();
+    renderChangeBanner();
     renderSummary();
     renderPanel();
     renderBulkBar();
@@ -323,7 +327,8 @@
   function renderSummary() {
     document.querySelectorAll("#valueMode button").forEach(b => b.setAttribute("aria-pressed", String((b.dataset.mode === "graded") === !!settings.gradedView)));
     $("basis").disabled = !!settings.gradedView;
-    if (settings.gradedView) { renderGradedSummary(); return; }
+    changeMemo = null;
+    if (settings.gradedView) { renderGradedSummary(); setHeroChange(""); syncValueBar(); return; }
     const t = totals(collection);
     const basisPaid = settings.basis === "paid";
     const adjusted = !basisPaid && settings.condAdjust && collection.some(r => marketValue(r).factor < 1);
@@ -348,7 +353,7 @@
       '<div class="fact"><b>' + collection.length.toLocaleString() + '</b><span>different ' + (collection.some(r => r.sealed) ? "items" : "printings") + "</span></div>";
     if (!basisPaid && catalog && catalog.refDays.m1) {
       const ch = periodChange("m1");
-      if (ch.covered) facts += '<div class="fact"><b>' + changeHTML(ch.diff, ch.pct, true) + '</b><span>since ' +
+      if (ch.covered) facts += '<div class="fact fact-chg"><b>' + changeHTML(ch.diff, ch.pct, true) + '</b><span>since ' +
         esc(fmtShortDate(parseDay(catalog.refDays.m1))) + " prices</span></div>";
     }
     if (t.paidCards) {
@@ -368,6 +373,8 @@
     const top = collection.filter(r => unitValue(r) != null)
       .sort((a, b) => unitValue(b) - unitValue(a)).slice(0, 5);
     $("topCards").innerHTML = handHTML(top, "Your most valuable cards");
+    setHeroChange(heroChangeHTML());
+    syncValueBar();
     setHeroArt(top[0]);
   }
   // The most valuable cards fanned out like a hand: the top one in the middle, then right, left, right, left;
@@ -472,10 +479,12 @@
     const list = visibleRecords();
     $("shown").textContent = filtersActive() ? "Showing " + list.length + " of " + collection.length : plural(collection.length, "printing");
     const need = photoCandidates();
-    const photoNotice = need.length && !yugiBatch.running ? '<div class="notice" style="margin:0 0 16px"><strong>' + plural(need.length, "card") +
+    const hushed = new Set(settings.photoNoticeSeen || []);   // ("Not now": it comes back only for cards added since)
+    const photoNotice = need.length && !yugiBatch.running && need.some(r => !hushed.has(r.id)) ? '<div class="notice" style="margin:0 0 16px"><strong>' + plural(need.length, "card") +
       " added manually " + (need.length === 1 ? "has" : "have") + " no photo.</strong> Card Vault can look for " + (need.length === 1 ? "it" : "them") +
       " on Yugipedia by card number (Japanese and Korean prints included) and use the closest match." +
-      '<br><button class="btn btn-small" type="button" data-action="find-photos">Find photos</button></div>' : "";
+      '<br><button class="btn btn-small" type="button" data-action="find-photos">Find photos</button> ' +
+      '<button class="btn btn-small" type="button" data-action="hide-photo-notice">Not now</button></div>' : "";
     if (!list.length) {
       main.innerHTML = photoNotice + '<div class="empty"><h2>No matches</h2><p>' + (filters.show === "extras" && !filtersActiveExceptShow()
         ? "You don't have more than 3 copies of any card." : "Nothing in your collection matches these filters.") + "</p>" +
@@ -521,7 +530,7 @@
   function tileHTML(r, extras) {
     const sel = selected.has(r.id);
     const extra = extras ? extras.get(r.id) || 0 : 0;
-    return '<article class="tile' + (sel ? " is-selected" : "") + '">' +
+    return '<article class="tile' + (sel ? " is-selected" : "") + '" data-card="' + esc(r.id) + '">' +
       '<div class="tile-art"><span class="sleeve' + (r.sealed ? " boxed" : "") + '"' + foilAttr(r.rarity, r.sealed) + ' data-open="' + esc(r.id) + '">' + imgTag(recordPics(r, "in_400x400"), r.name) + "</span>" +
       '<label class="tile-check"><input type="checkbox" class="check" data-select="' + esc(r.id) + '"' + (sel ? " checked" : "") +
       ' aria-label="Select ' + esc(r.name) + '"></label>' +
@@ -634,6 +643,7 @@
   }
   function openDrawer(title, html) {
     stopScanner();
+    armBack();
     $("drawer").classList.remove("wide");
     if ($("drawer").hidden) lastFocus = document.activeElement;
     $("drawerTitle").textContent = title;
@@ -840,7 +850,8 @@
     const preferred = opts.edition || (replacing && replacing.edition);
     const defaultEd = preferred && available.includes(preferred) ? preferred : (available[0] || (Object.keys(p.prices).length ? "No edition mark" : "1st Edition"));
     drawerCtx = {mode: "picked", product: p, replaceId: replacing ? replacing.id : null, fromWant: want ? want.id : null};
-    const v = replacing || {condition: "Near Mint", language: "English", qty: want ? want.qty : 1};
+    const last = settings.lastAdd || {};   // (the condition and place of the last card you added are filled in again)
+    const v = replacing || {condition: CONDITIONS.includes(last.condition) ? last.condition : "Near Mint", language: "English", qty: want ? want.qty : 1};
     openDrawer(replacing ? "Change printing" : "Add a card",
       pickedHeadHTML(p, want ? "" : "Pick a different printing") +
       (want ? '<div class="notice" style="margin:0 0 14px">From your want list. Adding it to your collection takes it off the want list.</div>' : "") +
@@ -853,7 +864,7 @@
       (replacing ? "" :
         '<div class="grid-2"><label class="field"><span>Price you paid, each (optional)</span><input class="input" id="fPaid" type="number" min="0" step="0.01" placeholder="$"></label>' +
         '<label class="field"><span>Notes (optional)</span><input class="input" id="fNotes" type="text" value="' + esc(want ? want.notes : "") + '"></label></div>' +
-        locationFieldHTML("fLoc", "") + gradeFieldsHTML("f", null)) +
+        locationFieldHTML("fLoc", last.location || "") + gradeFieldsHTML("f", null)) +
       '<div class="form-actions"><button class="btn btn-primary" type="submit">' + (replacing ? "Use this printing" : "Add to collection") + "</button>" +
       (replacing || want ? "" : '<button class="btn" type="button" id="toWant">Add to want list instead</button>') + "</div></form>");
     const updatePrice = () => {
@@ -895,6 +906,7 @@
         language: f.language, qty: f.qty, paid: num($("fPaid").value), notes: $("fNotes").value.trim(),
         location: $("fLoc").value, grade: readGradeFields("f"), snap: snapFromCatalog(p, f.edition), added: new Date().toISOString()});
       const res = addOrMerge(rec);
+      settings.lastAdd = {condition: f.condition, location: $("fLoc").value.trim()};
       const stillWanted = want && want.qty > f.qty;
       if (stillWanted) want.qty -= f.qty;
       else if (want) wants = wants.filter(w => w.id !== want.id);

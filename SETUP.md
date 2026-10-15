@@ -97,6 +97,17 @@ personal app: click **Continue**.
   signed out of Google), Card Vault shows "Sign in to Google Drive again": tap **Resume** (usually no typing).
   Until then, changes are kept on the device and sync afterwards. To turn the automatic part off:
   **Settings** > **Backup** > untick "Renew the Google Drive sign-in by itself".
+- **The Back button works like an app's.** On a phone (or the browser's Back button), Back closes a card or Settings
+  window that's open; with nothing open it goes from another tab to the Collection; on the Collection it leaves
+  (when Card Vault was opened as an app with nothing before it, it first says "Press Back again to leave"). The address
+  names the tab (`…/#wants`), so a tab can be bookmarked or linked to.
+- **Since you last looked.** When new prices have come in since this device last showed you prices, a bar at the top
+  says how your collection moved and which cards moved most, with **See what moved** (the Insights price movers) and
+  **Dismiss**. Moves under about a dollar don't interrupt you. The big value panel also shows the change since the
+  last price day, with a small trend line, and a slim value bar appears at the top once you scroll past the panel.
+- **Swipe a card** (touch screens, in the card grid not the list): right adds a copy, left takes one away (never the last one), and the toast has
+  **Undo**. Turn it off in **Settings** > **On a phone or tablet**.
+- **Adding cards** starts from the condition and place (binder, box) of the last card you added.
 - **No internet** (at a card shop, say): Card Vault opens and works; changes sync when you're back online.
 - **Syncing**: each device checks Google Drive every 15 seconds while Card Vault is open, and before every
   save. If the same card is changed on two devices, the later change wins.

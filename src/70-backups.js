@@ -92,7 +92,8 @@
     const win = opts.sameWindow ? null : window.open(url, "cardvault-google", "popup,width=480,height=680");
     if (!win) {   // popups blocked (or asked for): sign in in this window; oauth.html comes back here afterwards
       try { localStorage.setItem(GPENDING_KEY, opts.purpose || "resume"); } catch (e) { /* ignore */ }
-      if (opts.silent) location.replace(url);   // (no extra entry in the history: Back still leaves Card Vault)
+      noteSignInLeaving();   // (the page that comes back finds the entries this one leaves, and steps over them on Back)
+      if (opts.silent) location.replace(url);   // (no extra entry in the history)
       else location.assign(url);
       return new Promise(() => {});
     }
@@ -497,6 +498,7 @@
   }
   const trashPhoto = (fileId, trashed) => driveFetch("files/" + encodeURIComponent(fileId), {method: "PATCH", headers: {"Content-Type": "application/json"}, body: JSON.stringify({trashed})}).catch(() => null);
   function showPhoto(url, label) {
+    armBack();
     const box = document.createElement("div");
     box.className = "photo-full";
     box.setAttribute("role", "dialog");

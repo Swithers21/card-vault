@@ -137,7 +137,8 @@
     deckView: "check", mkView: "sets", mkLine: "", mkKind: "", mkSortSets: "newest", mkSortSealed: "deal", mkRegion: "en", mkLineOcg: "", mkKindOcg: "", mkGame: "", wantsView: "", wantsSort: "target", csSort: "best", csMode: "cards", csSetSort: "number", setGoals: [], goalsOpen: [], moverBy: "usd", moverMin: 1,
     gradedView: false, psa10Mult: 4, psa10Floor: 25, gradePct: Object.assign({}, DEFAULT_GRADE_PCT), pcToken: "",
     insightView: "history", salesView: "trade", gradingCost: 30, gradingMin: 50, gradingFees: {}, gradingCo: "PSA", ntfyTopic: "", siteUrl: "", autoSignIn: true, deviceName: "",
-    sellFeePct: 13, sellFeeFlat: 0.3, cloudAlerts: null, openingsOpen: [], watchView: ""};
+    sellFeePct: 13, sellFeeFlat: 0.3, cloudAlerts: null, openingsOpen: [], watchView: "",
+    photoNoticeSeen: [], pricesSeenDay: "", lastAdd: null, swipeCopies: true};
   const filters = {q: "", set: "", rarity: "", edition: "", language: "", location: "", show: ""};
   const selected = new Set();
   let selectMode = false;   // "Select" on: tapping a card ticks it instead of opening it (phones show no checkboxes otherwise)

@@ -17,6 +17,7 @@
   function showShortcuts() {
     if ($("shortcutsBox")) return;
     const back = document.activeElement;
+    armBack();
     const box = document.createElement("div");
     box.id = "shortcutsBox";
     box.className = "shortcuts-box";
@@ -73,12 +74,11 @@
     });
     wireShortcuts();
     // ----- back to top (the button at the bottom of the page)
-    $("toTop").addEventListener("click", () => {
-      const calm = window.matchMedia && window.matchMedia("(prefers-reduced-motion: reduce)").matches;
-      window.scrollTo({top: 0, behavior: calm ? "auto" : "smooth"});
-      const h = document.querySelector(".brand h1");   // (keyboard focus goes back to the top too)
-      if (h) { h.tabIndex = -1; h.focus({preventScroll: true}); }
-    });
+    $("toTop").addEventListener("click", backToTop);
+    initValueBar();
+    initScrollHints();
+    initSwipe();
+    if ($("heroChange")) $("heroChange").addEventListener("click", e => { const b = e.target.closest("[data-open]"); if (b) openDetails(b.dataset.open); });
     // Backup buttons live in the Settings drawer and are redrawn as the backup state changes.
     $("drawerBody").addEventListener("click", e => { const b = e.target.closest("[data-bk]"); if (b) backupAction(b.dataset.bk); });
 
@@ -124,6 +124,12 @@
         saveSettings();
         renderBackupBanner();
       } else if (a === "wants") setTab("wants");
+      else if (a === "changes-show") {
+        settings.insightView = "movers";
+        if (PERIODS.some(p => p[0] === $("changeBanner").dataset.key)) settings.histPeriod = $("changeBanner").dataset.key;
+        markPricesSeen();
+        setTab("history");
+      } else if (a === "changes-dismiss") { markPricesSeen(); renderChangeBanner(); }
       else if (a === "want-dismiss") {
         settings.wantAlertSeen = $("wantBanner").dataset.key || "";
         saveSettings();
@@ -141,9 +147,11 @@
         else if (a === "add") openAdd();
         else if (a === "clear-filters") { clearFilters(); render(); }
         else if (a === "find-photos") findPhotosBatch();
+        else if (a === "hide-photo-notice") { settings.photoNoticeSeen = photoCandidates().map(r => r.id); saveSettings(); renderCollection(); }
         return;
       }
       if (e.target.closest("input[type=checkbox]")) return;
+      if (justSwiped()) return;   // (the finger lifting at the end of a swipe isn't a tap)
       const sortBtn = e.target.closest("[data-sort]");
       if (sortBtn) {
         const field = sortBtn.dataset.sort;
@@ -695,7 +703,11 @@
     if (linked) save();
     else if (recordValueHistory()) save({quiet: true});  // today's value-history point
     wire();
+    const linkedTab = tabFromHash();   // (a link to a tab, like …/#wants)
+    if (linkedTab) settings.tab = linkedTab;
     render();
+    initBack();
+    syncTabHash();
     // back from signing in to Google while Card Vault was open: where you'd scrolled to
     let back = null;
     try { back = JSON.parse(sessionStorage.getItem(RETURN_KEY) || "null"); sessionStorage.removeItem(RETURN_KEY); } catch (e) { back = null; }
@@ -736,6 +748,7 @@
     openGradePlan, planCompany, planMix, planIds, setPlanIds, planValue, gradingEstimate, renderWorthGrading, gradingResults, deckBanCheck, wantElsewhere,
     openings: () => openings, sellSuggestions, listingTitle, listingText, afterFees, sellDrift, renderSelling, bulkSell, exportSellCSV, normSell, normPhotos,
     upgradeOpening, openingNumbers, openOpeningForm, showOpening, renderOpenings, pullFrom, banData, banYours, banChangesForYou, reprintsForYou, renderWatch,
+    heroChangeHTML, heroChangeData, changeSince, renderChangeBanner, markPricesSeen, syncValueBar, closeTopmost, swipeCopies, tabFromHash,
     cloudPayload, cloudSeal, cloudAlertsWrite, cloudAlertsSetup, cloudAlertsOff, cleanCloudAlerts, cloudAlertsHTML, secretsPage, photoBoxHTML, addPhoto, shrinkPhoto, batchReady};
 
   document.addEventListener("DOMContentLoaded", init);
