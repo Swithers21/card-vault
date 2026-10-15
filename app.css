@@ -1317,3 +1317,35 @@
   .tile.swipe-less{outline:2px solid var(--bad);outline-offset:-2px}
   .banner .cb-mv{display:inline-block;max-width:100%;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;vertical-align:bottom}
   .app{overflow-x:clip}   /* (a card sliding aside while it's swiped never makes the page wider) */
+
+  /* ---------- in-between screens: a foldable phone opened up, a small tablet, a window split in two ---------- */
+  /* Three columns of cards while the phone layout still has the room (a plain phone keeps two). */
+  @media (min-width:561px) and (max-width:640px){
+    .binder{grid-template-columns:repeat(3,minmax(0,1fr))}
+  }
+  /* A very narrow window (half a screen): the tab names are a hair smaller so none of them run together. */
+  @media (max-width:339px){
+    .tab{font-size:9.5px}
+  }
+  /* Past the phone layout the tabs sit along the top. Below a big desktop window the full names don't all fit,
+     so they use their short names (the full name stays there for screen readers) and share the row evenly. */
+  @media (min-width:641px) and (max-width:1099px){
+    .tabs{gap:2px;padding:0 6px}
+    .tab{position:relative;flex:1 1 auto;justify-content:center;gap:6px;padding:11px clamp(6px,1.4vw,14px) 10px;font-size:13px;letter-spacing:.01em}
+    .tab-label{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0);white-space:nowrap}
+    .tab-short{display:inline}
+  }
+  @media (min-width:641px) and (max-width:859px){
+    .tab .tab-icon{display:none}
+  }
+  /* Landscape on a phone with a camera cut-out or a rounded corner: keep things out from under it. */
+  .value-bar{padding-left:max(16px,env(safe-area-inset-left));padding-right:max(16px,env(safe-area-inset-right))}
+  .drawer{padding-right:env(safe-area-inset-right);padding-bottom:env(safe-area-inset-bottom)}
+  .modal{width:min(880px,calc(100vw - 24px - env(safe-area-inset-left) - env(safe-area-inset-right)));
+    left:calc(50% + (env(safe-area-inset-left) - env(safe-area-inset-right)) / 2);
+    max-height:calc(100vh - 32px);max-height:calc(100dvh - 32px - env(safe-area-inset-top) - env(safe-area-inset-bottom))}
+  .photo-full,.shortcuts-box{padding:max(16px,env(safe-area-inset-top)) max(16px,env(safe-area-inset-right)) max(16px,env(safe-area-inset-bottom)) max(16px,env(safe-area-inset-left))}
+  @media (min-width:641px){ .bulkbar{bottom:calc(18px + env(safe-area-inset-bottom))} }
+  /* (the trade's cash row wraps instead of running off the edge of a very narrow screen) */
+  .trade-extra .basis{max-width:100%;flex-wrap:wrap}
+  .trade-extra .input{max-width:100%}
