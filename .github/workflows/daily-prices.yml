@@ -125,7 +125,10 @@ jobs:
         id: fees
         continue-on-error: true   # the website then uses the last ones it read, or its built-in list
         timeout-minutes: 8
-        run: python grading_fees.py
+        run: |
+          # (so a page sent compressed with brotli or zstd, as PSA's can be, is unpacked; without them gzip and plain pages still read)
+          python -m pip install --quiet --disable-pip-version-check brotli zstandard || true
+          python grading_fees.py
 
       # The Forbidden & Limited lists (TCG and OCG), from YGOPRODeck, with the changes noticed night by night.
       - name: Ban lists
