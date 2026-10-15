@@ -3,6 +3,8 @@ name: Daily TCGplayer prices
 # Every evening this downloads the day's TCGplayer prices (through TCGCSV) for the Card Vault website and
 # publishes the website with GitHub Pages. It also publishes right away whenever the website's files change.
 # "Run workflow" on the Actions tab runs it by hand.
+# Going back: Actions > Daily TCGplayer prices > Run workflow, and put an earlier commit's number in "ref"
+# (find it under the repository's Commits). It publishes that version of the website with today's prices.
 # Before the first run: Settings > Pages > Build and deployment > Source: "GitHub Actions".
 
 on:
@@ -10,6 +12,11 @@ on:
     - cron: "40 21 * * *"   # 21:40 UTC: 5:40 PM New York time in summer, 4:40 PM in winter (TCGCSV refreshes before that)
     - cron: "10 4 * * *"    # and again overnight, in case TCGCSV was late or down (if nothing changed, it just republishes)
   workflow_dispatch:
+    inputs:
+      ref:
+        description: "Go back to an earlier version: a commit's code (from the repository's history) to publish with today's prices. Leave empty for the latest."
+        required: false
+        default: ""
   push:
     branches: [main]
 
@@ -30,11 +37,18 @@ jobs:
 
       - uses: actions/checkout@v7
         with:
+          ref: ${{ inputs.ref }}   # (empty: the latest; or an earlier commit, to go back to how the website was then)
           persist-credentials: false
 
       - uses: actions/setup-python@v7
         with:
           python-version: "3.12"
+
+      # The tests (tests/ folder) check the readers of the grading companies' pages, the ban lists and the pre-publish
+      # check. If one fails the website isn't touched: what is published stays as it was.
+      - name: Run the tests
+        if: hashFiles('tests/*.py') != ''   # (an earlier version being put back may not have them)
+        run: python -m unittest discover -s tests -v
 
       - name: Bring back yesterday's card lists and earlier prices
         uses: actions/cache/restore@v6
@@ -161,7 +175,8 @@ jobs:
       - name: Put the website together
         run: |
           mkdir -p _site/icons _site/card-images
-          cp index.html config.js manifest.webmanifest oauth.html share.html sw.js _site/
+          # (each if it's there: an earlier version being put back may not have all of them; the look-over below catches a missing one)
+          for f in index.html app.css app.js config.js manifest.webmanifest oauth.html share.html sw.js; do if [ -f "$f" ]; then cp "$f" _site/; fi; done
           cp icons/*.png _site/icons/
           if [ -f tcgplayer-data.js ]; then cp tcgplayer-data.js tcgplayer-data-version.js _site/; fi
           if [ -f ocg-market.js ]; then cp ocg-market.js _site/; fi
@@ -175,9 +190,28 @@ jobs:
           python card_history.py _site/history || echo "No price history files this time."
           ls -la _site
 
+      # Looks the finished website over (files all there, the program has no typing errors, the prices file is real and
+      # hasn't shrunk). A real problem stops the run here: nothing is published and the site stays as it is.
+      - name: Bring back the counts from the last published website
+        uses: actions/cache/restore@v6
+        with:
+          path: publish-counts.json
+          key: published-${{ github.run_id }}
+          restore-keys: published-
+
+      - name: Look the website over before publishing
+        if: hashFiles('check_site.py') != ''
+        run: python check_site.py _site --counts publish-counts.json --save
+
       - uses: actions/upload-pages-artifact@v5
         with:
           path: _site
+
+      - name: Keep the counts of what is being published
+        uses: actions/cache/save@v6
+        with:
+          path: publish-counts.json
+          key: published-${{ github.run_id }}
 
   deploy:
     needs: build
@@ -214,3 +248,29 @@ jobs:
           if git diff --cached --quiet; then echo "Already noted today."; exit 0; fi
           git commit -m "Daily prices are running ($(date -u +%F))"
           git push
+
+  # If a scheduled night breaks, say so where it is noticed: an issue in this repository (GitHub emails you about it),
+  # and close that issue again when a night goes through. (Needs Issues switched on for the repository.)
+  tell-me-if-it-broke:
+    needs: [build, deploy]
+    if: always() && github.event_name == 'schedule'
+    runs-on: ubuntu-24.04   # (pinned: GitHub moves "ubuntu-latest" to a new release now and then; move this on purpose)
+    permissions:
+      issues: write
+    steps:
+      - name: Open or close the "update didn't publish" issue
+        continue-on-error: true
+        env:
+          GH_TOKEN: ${{ github.token }}
+          BUILD: ${{ needs.build.result }}
+          DEPLOY: ${{ needs.deploy.result }}
+          RUN_URL: ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}
+        run: |
+          title="Card Vault's nightly update didn't publish"
+          open=$(gh issue list --repo "$GITHUB_REPOSITORY" --state open --search "in:title \"$title\"" --json number --jq '.[0].number // empty')
+          if [ "$BUILD" = "success" ] && [ "$DEPLOY" = "success" ]; then
+            if [ -n "$open" ]; then gh issue close "$open" --repo "$GITHUB_REPOSITORY" --comment "Tonight's update published fine ($RUN_URL)."; fi
+            exit 0
+          fi
+          body="Tonight's run did not publish (building: $BUILD, publishing: $DEPLOY). The website you already have is still up, with the last prices. Details: $RUN_URL"
+          if [ -n "$open" ]; then gh issue comment "$open" --repo "$GITHUB_REPOSITORY" --body "$body"; else gh issue create --repo "$GITHUB_REPOSITORY" --title "$title" --body "$body"; fi

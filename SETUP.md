@@ -139,6 +139,8 @@ personal app: click **Continue**.
   and cards you've had graded at their grade. Without more, it's a rough estimate from the raw price (Settings > Graded
   values). For real graded prices from eBay sales, add a PriceCharting key in Settings (it needs PriceCharting's
   Legendary plan, $49 a month as of October 2026). The key is saved with your Card Vault data in your Google Drive.
+  Under the key, **Cards with no match** lists each card PriceCharting couldn't price and why (it doesn't carry Korean
+  cards, for one); those keep your own PSA 10 value or the estimate.
 - **Dated backups**: every day, the first save also keeps a dated copy in **Card Vault > Backups** in your Google Drive
   (the last 30 days). Settings lists them; Restore puts one back on every device.
 - **Card search** tab: what any card is worth. Type a name (or part of one), a card number or a set; more words narrow it
@@ -320,6 +322,27 @@ personal app: click **Continue**.
    click **Enable workflow**.
 4. Price comparisons (since the last update, 7 days, 30 days) are kept between runs in GitHub's cache. If the
    updates stopped for more than a week, they start over and fill in again day by day.
+
+## Safety checks, and going back
+
+- **Before every publish** the workflow runs the tests (`tests/` folder) and then `check_site.py` on the finished
+  website: every file is there, the program has no typing errors, and the TCGplayer prices file is real and hasn't
+  shrunk by more than a quarter since the last publish. If any of that fails, **nothing is published and the
+  website you already have stays as it was.** Prices that are only a few days old, or fewer Japanese cards than
+  before, show as warnings in the run's summary but don't stop anything.
+- **If a scheduled night doesn't publish**, the workflow opens an issue in this repository called "Card Vault's
+  nightly update didn't publish" (GitHub emails you about new issues), adds to it on later bad nights, and closes
+  it by itself when a night goes through. It needs **Issues** switched on under Settings > General > Features.
+  Failed workflow runs also email you by default (GitHub > Settings > Notifications > Actions).
+- **Going back to an earlier version of the website:** Actions > **Daily TCGplayer prices** > **Run workflow**, and
+  put an earlier commit's number (from the repository's **Commits** page) in **ref**. It publishes that version of
+  the website with today's prices. Run it again with **ref** empty to go back to the latest.
+
+## Changing Card Vault's program
+
+The program (`app.js`) is made from the topic files in `src/` (see `src/README.md`). Change those, then run
+`python build_app.py` and commit both. To run the tests yourself: `python -m unittest discover -s tests`.
+For a single-file copy to run from a folder on the PC (no website), run `python build_single_file.py`.
 
 ## Turning it off
 
