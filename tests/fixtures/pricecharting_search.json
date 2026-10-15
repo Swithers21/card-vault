@@ -1,0 +1,131 @@
+{
+ "_about": "Names and sets PriceCharting returned (October 2026) for cards the app couldn't match. No prices, no key.",
+ "LDK2-ENS02": [
+  {
+   "product-name": "Obelisk the Tormentor LDK2-ENS02",
+   "console-name": "YuGiOh Legendary Decks II"
+  },
+  {
+   "product-name": "Obelisk the Tormentor [1st Edition] LDK2-ENS02",
+   "console-name": "YuGiOh Legendary Decks II"
+  },
+  {
+   "product-name": "Obelisk The Tormentor [Misprint] LDK2-ENS02",
+   "console-name": "YuGiOh Legendary Decks II"
+  }
+ ],
+ "LDK2-ENS01": [
+  {
+   "product-name": "Slifer the Sky Dragon LDK2-ENS01",
+   "console-name": "YuGiOh Legendary Decks II"
+  },
+  {
+   "product-name": "Slifer the Sky Dragon [1st Edition] LDK2-ENS01",
+   "console-name": "YuGiOh Legendary Decks II"
+  }
+ ],
+ "RA04-EN054": [
+  {
+   "product-name": "The Dark Magicians [Quarter Century Secret Rare] RA04-EN054",
+   "console-name": "YuGiOh Quarter Century Stampede"
+  },
+  {
+   "product-name": "The Dark Magicians [Platinum Secret Rare] RA04-EN054",
+   "console-name": "YuGiOh Quarter Century Stampede"
+  },
+  {
+   "product-name": "The Dark Magicians [Super Rare] RA04-EN054",
+   "console-name": "YuGiOh Quarter Century Stampede"
+  },
+  {
+   "product-name": "The Dark Magicians [Secret Rare] RA04-EN054",
+   "console-name": "YuGiOh Quarter Century Stampede"
+  },
+  {
+   "product-name": "The Dark Magicians [Ultra Rare] RA04-EN054",
+   "console-name": "YuGiOh Quarter Century Stampede"
+  },
+  {
+   "product-name": "The Dark Magicians [Collector's Rare] RA04-EN054",
+   "console-name": "YuGiOh Quarter Century Stampede"
+  },
+  {
+   "product-name": "The Dark Magicians [Ultimate Rare] RA04-EN054",
+   "console-name": "YuGiOh Quarter Century Stampede"
+  }
+ ],
+ "RA02-EN070": [
+  {
+   "product-name": "Ultimate Slayer [Quarter Century Secret Rare] RA02-EN070",
+   "console-name": "YuGiOh 25th Anniversary Rarity Collection II"
+  },
+  {
+   "product-name": "Ultimate Slayer [Platinum Secret Rare] RA02-EN070",
+   "console-name": "YuGiOh 25th Anniversary Rarity Collection II"
+  },
+  {
+   "product-name": "Ultimate Slayer [Secret Rare] RA02-EN070",
+   "console-name": "YuGiOh 25th Anniversary Rarity Collection II"
+  },
+  {
+   "product-name": "Ultimate Slayer [Ultra Rare] RA02-EN070",
+   "console-name": "YuGiOh 25th Anniversary Rarity Collection II"
+  },
+  {
+   "product-name": "Ultimate Slayer [Ultimate Rare] RA02-EN070",
+   "console-name": "YuGiOh 25th Anniversary Rarity Collection II"
+  },
+  {
+   "product-name": "Ultimate Slayer [Super Rare] RA02-EN070",
+   "console-name": "YuGiOh 25th Anniversary Rarity Collection II"
+  },
+  {
+   "product-name": "Ultimate Slayer [Collector's Rare] RA02-EN070",
+   "console-name": "YuGiOh 25th Anniversary Rarity Collection II"
+  }
+ ],
+ "LOCH-JP017": [
+  {
+   "product-name": "Cyberse Code Magician [Ultra Rare] LOCH-JP017",
+   "console-name": "YuGiOh Japanese Limit Over Collection: Heroes"
+  },
+  {
+   "product-name": "Cyberse Code Magician [Overframe Prismatic Secret Rare] LOCH-JP017",
+   "console-name": "YuGiOh Japanese Limit Over Collection: Heroes"
+  },
+  {
+   "product-name": "Cyberse Code Magician [Overframe] LOCH-JP017",
+   "console-name": "YuGiOh Japanese Limit Over Collection: Heroes"
+  },
+  {
+   "product-name": "Cyberse Code Magician [Secret Rare] LOCH-JP017",
+   "console-name": "YuGiOh Japanese Limit Over Collection: Heroes"
+  },
+  {
+   "product-name": "Cyberse Code Magician [Overframe Grand Master Rare] LOCH-JP017",
+   "console-name": "YuGiOh Japanese Limit Over Collection: Heroes"
+  }
+ ],
+ "LOCR-JP012": [
+  {
+   "product-name": "Galaxy Defense Robot Orbital 7 [Overframe Prismatic Secret Rare] LOCR-JP012",
+   "console-name": "YuGiOh Japanese Limit Over Collection: Rivals"
+  },
+  {
+   "product-name": "Galaxy Defense Robot Orbital 7 [Overframe] LOCR-JP012",
+   "console-name": "YuGiOh Japanese Limit Over Collection: Rivals"
+  },
+  {
+   "product-name": "Galaxy Defense Robot Orbital 7 [Ultra Rare] LOCR-JP012",
+   "console-name": "YuGiOh Japanese Limit Over Collection: Rivals"
+  },
+  {
+   "product-name": "Galaxy Defense Robot Orbital 7 [Secret Rare] LOCR-JP012",
+   "console-name": "YuGiOh Japanese Limit Over Collection: Rivals"
+  },
+  {
+   "product-name": "Galaxy Defense Robot Orbital 7 [Overframe Grand Master Rare] LOCR-JP012",
+   "console-name": "YuGiOh Japanese Limit Over Collection: Rivals"
+  }
+ ]
+}

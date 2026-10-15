@@ -139,6 +139,8 @@ personal app: click **Continue**.
   and cards you've had graded at their grade. Without more, it's a rough estimate from the raw price (Settings > Graded
   values). For real graded prices from eBay sales, add a PriceCharting key in Settings (it needs PriceCharting's
   Legendary plan, $49 a month as of October 2026). The key is saved with your Card Vault data in your Google Drive.
+  Under the key, **Cards with no match** lists each card PriceCharting couldn't price and why (it doesn't carry Korean
+  cards, for one); those keep your own PSA 10 value or the estimate.
 - **Dated backups**: every day, the first save also keeps a dated copy in **Card Vault > Backups** in your Google Drive
   (the last 30 days). Settings lists them; Restore puts one back on every device.
 - **Card search** tab: what any card is worth. Type a name (or part of one), a card number or a set; more words narrow it

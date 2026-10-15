@@ -352,7 +352,23 @@
     if (pcBad()) return '<div class="status-line off" style="margin-top:8px"><span class="dot" aria-hidden="true"></span><span>PriceCharting didn\'t accept this key. Check it on pricecharting.com (Subscriptions > API).</span></div>';
     const known = collection.filter(r => !r.sealed && pcKnown(r)).length, total = collection.filter(r => !r.sealed).length;
     return '<div class="status-line on" style="margin-top:8px"><span class="dot" aria-hidden="true"></span><span>Graded prices from PriceCharting: ' + known + " of " + plural(total, "card") + " matched so far" +
-      (pc.refreshing ? " (checking…)" : "") + '. Prices refresh about once a day. <button type="button" class="link-btn" id="pcRefresh">Check all now</button></span></div>';
+      (pc.refreshing ? " (checking…)" : "") + '. Prices refresh about once a day. <button type="button" class="link-btn" id="pcRefresh">Check all now</button></span></div>' + pcMissHTML();
+  }
+  // "Cards with no match": each card PriceCharting couldn't price and why, cards with the same reason together.
+  function pcMissHTML() {
+    const miss = pcMisses();
+    if (!miss.length) return "";
+    const groups = new Map();
+    for (const m of miss) {
+      const why = m.why || "No reason kept yet: press Check all now.";
+      if (!groups.has(why)) groups.set(why, []);
+      groups.get(why).push(m.r);
+    }
+    const rows = [...groups].sort((a, b) => b[1].length - a[1].length).map(([why, list]) => list.length > 1
+      ? "<li><b>" + plural(list.length, "card") + ":</b> " + esc(why) + '<div class="small">' + list.map(r => esc(r.name) + " (" + esc(r.number) + ")").join(", ") + "</div></li>"
+      : "<li><b>" + esc(list[0].name) + "</b> (" + esc(list[0].number) + "): " + esc(why) + "</li>").join("");
+    return '<details class="more pc-miss"><summary>Cards with no match (' + miss.length + ")</summary><ul>" + rows + "</ul>" +
+      '<p class="small" style="margin:6px 0 0">These show your own PSA 10 value (type one on the card) or the estimate below.</p></details>';
   }
   // The daily update reads your want list and cards from the backup file to send notifications.
   // Phone alerts: the same alerts as the Windows notifications, sent to the ntfy app (free, iPhone and Android) under a

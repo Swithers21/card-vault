@@ -3306,6 +3306,19 @@
     pc.queue = p.catch(() => {});
     return p;
   }
+  // The names PriceCharting could give a rarity of yours: its own, and where PriceCharting words it differently.
+  // "Ultra Rare (Overframe)" is just "[Overframe]" there, and its other Overframe rarities put the word first
+  // ("Overframe Prismatic Secret Rare"). Prismatic Collector's / Ultimate Rare are deliberately NOT mapped to
+  // PriceCharting's "Collector's Rare" / "Ultimate Rare": their own ids don't line up with TCGplayer's, so a match
+  // could show another card's price.
+  function pcRarityNames(rarity) {
+    const text = String(rarity || "").trim(), names = [text];
+    const m = text.match(/^(.*?)\s*\(overframe\)$/i);
+    const base = m ? m[1].trim() : /^grand master rare$/i.test(text) ? text : "";
+    if (base) { names.push("Overframe " + base); if (/^ultra rare$/i.test(base)) names.push("Overframe"); }
+    return names;
+  }
+  const pcMine = (list, r) => { const wants = pcRarityNames(r.rarity); return list.filter(it => { const v = pcVariant(it["product-name"]).replace(/[[\]]/g, ""); return v && r.rarity && wants.some(w => sameRarity(v, w)); }); };
   // Which of PriceCharting's items is this card? The card number must be in the name, the printing tag must match
   // (no tag means Unlimited), and the TCGplayer id settles it when PriceCharting has one.
   function pcMatch(items, r) {
@@ -3316,7 +3329,7 @@
     if (!list.length) return null;
     // A variant in brackets ([Starlight Rare], [Misprint]...) is a different item: only the one that is your rarity,
     // else the plain item.
-    const mine = list.filter(it => { const v = pcVariant(it["product-name"]).replace(/[[\]]/g, ""); return v && r.rarity && sameRarity(v, r.rarity); });
+    const mine = pcMine(list, r);
     const plain = list.filter(it => !pcVariant(it["product-name"]));
     list = mine.length ? mine : plain;
     if (!list.length) return null;
@@ -3327,6 +3340,25 @@
     if (exact.length) return exact[0];
     if (list.length === 1 && eds[0] === "") return list[0];   // PriceCharting doesn't split this card by printing
     return null;
+  }
+  // In plain words, why pcMatch found nothing for this card (shown in Settings > "Cards with no match").
+  function pcWhy(items, r) {
+    if (r.language === "Korean") return "PriceCharting doesn't list Korean cards.";
+    const number = normNumber(r.number);
+    const ygo = (items || []).filter(it => it && /yu-?gi-?oh/i.test(String(it["console-name"] || "")));
+    const list = ygo.filter(it => normNumber(String(it["product-name"] || "")).includes(number));
+    if (!list.length) {
+      const near = ygo[0];
+      return "PriceCharting has no card numbered " + r.number + (near ? " (the closest it found is " + String(near["product-name"] || "").slice(0, 70) + ", " + String(near["console-name"] || "").replace(/^yu-?gi-?oh\s*/i, "") + ")" : "") + ".";
+    }
+    const mine = pcMine(list, r), plain = list.filter(it => !pcVariant(it["product-name"]));
+    if (!mine.length && !plain.length) {
+      const seen = [...new Set(list.map(it => pcVariant(it["product-name"]).replace(/[[\]]/g, "")).filter(Boolean))];
+      return "It has this card number but not as " + (r.rarity || "your rarity") + ". It lists: " + seen.slice(0, 8).join(", ") + (seen.length > 8 ? ", …" : "") + ".";
+    }
+    const want = r.edition === "1st Edition" || r.edition === "Limited" ? r.edition : "Unlimited";
+    const have = [...new Set((mine.length ? mine : plain).map(it => pcEdition(it["product-name"]) || "Unlimited"))];
+    return have.includes(want) ? "PriceCharting has several listings for it and none stands out as yours." : "PriceCharting has it only as " + have.join(" and ") + ", not " + want + ".";
   }
   function pcPrices(it) {
     const out = {id: it.id, name: String(it["product-name"] || ""), set: String(it["console-name"] || ""), vol: num(it["sales-volume"]) || 0};
@@ -3342,15 +3374,19 @@
     // (the search list may carry no prices: fetch the item itself)
     if (it && it[PC_FIELDS["10"]] === undefined && it[PC_FIELDS.raw] === undefined && it.id) it = await pcFetch("product?id=" + encodeURIComponent(it.id));
     const p = it ? pcPrices(it) : null;
-    pcPut(key, {t: Date.now(), p});
+    pcPut(key, p ? {t: Date.now(), p} : {t: Date.now(), p, why: pcWhy(json.products, r)});
     return p;
+  }
+  // The cards PriceCharting was asked about and had no match for, with the reason kept when it was asked.
+  function pcMisses() {
+    return collection.filter(r => !r.sealed && normNumber(r.number)).map(r => ({r, h: pcCache()[pcKey(r)]})).filter(x => x.h && !x.h.p).map(x => ({r: x.r, why: x.h.why || ""}));
   }
   const pcKnown = r => { const h = pcCache()[pcKey(r)]; return h && h.p ? h.p : null; };
   const pcOn = () => !!(settings.pcToken && settings.pcToken.trim());
   const pcBad = () => !!pc.bad && pc.bad === settings.pcToken;   // (a key that was refused; a new key starts over)
   async function refreshGradedPrices(force) {
     if (!pcOn() || pc.refreshing || pcBad()) return 0;
-    const list = collection.filter(r => !r.sealed && normNumber(r.number)).filter(r => { const h = pcCache()[pcKey(r)]; return force || !h || Date.now() - h.t > (h.p ? PC_TTL : 3 * 86400000); });
+    const list = collection.filter(r => !r.sealed && normNumber(r.number)).filter(r => { const h = pcCache()[pcKey(r)]; return force || !h || Date.now() - h.t > (h.p ? PC_TTL : 3 * 86400000) || (!h.p && h.why === undefined); });   // (a miss kept before reasons were noted is asked again once)
     if (!list.length) return 0;
     pc.refreshing = true;
     let done = 0;
@@ -7137,7 +7173,23 @@
     if (pcBad()) return '<div class="status-line off" style="margin-top:8px"><span class="dot" aria-hidden="true"></span><span>PriceCharting didn\'t accept this key. Check it on pricecharting.com (Subscriptions > API).</span></div>';
     const known = collection.filter(r => !r.sealed && pcKnown(r)).length, total = collection.filter(r => !r.sealed).length;
     return '<div class="status-line on" style="margin-top:8px"><span class="dot" aria-hidden="true"></span><span>Graded prices from PriceCharting: ' + known + " of " + plural(total, "card") + " matched so far" +
-      (pc.refreshing ? " (checking…)" : "") + '. Prices refresh about once a day. <button type="button" class="link-btn" id="pcRefresh">Check all now</button></span></div>';
+      (pc.refreshing ? " (checking…)" : "") + '. Prices refresh about once a day. <button type="button" class="link-btn" id="pcRefresh">Check all now</button></span></div>' + pcMissHTML();
+  }
+  // "Cards with no match": each card PriceCharting couldn't price and why, cards with the same reason together.
+  function pcMissHTML() {
+    const miss = pcMisses();
+    if (!miss.length) return "";
+    const groups = new Map();
+    for (const m of miss) {
+      const why = m.why || "No reason kept yet: press Check all now.";
+      if (!groups.has(why)) groups.set(why, []);
+      groups.get(why).push(m.r);
+    }
+    const rows = [...groups].sort((a, b) => b[1].length - a[1].length).map(([why, list]) => list.length > 1
+      ? "<li><b>" + plural(list.length, "card") + ":</b> " + esc(why) + '<div class="small">' + list.map(r => esc(r.name) + " (" + esc(r.number) + ")").join(", ") + "</div></li>"
+      : "<li><b>" + esc(list[0].name) + "</b> (" + esc(list[0].number) + "): " + esc(why) + "</li>").join("");
+    return '<details class="more pc-miss"><summary>Cards with no match (' + miss.length + ")</summary><ul>" + rows + "</ul>" +
+      '<p class="small" style="margin:6px 0 0">These show your own PSA 10 value (type one on the card) or the estimate below.</p></details>';
   }
   // The daily update reads your want list and cards from the backup file to send notifications.
   // Phone alerts: the same alerts as the Windows notifications, sent to the ntfy app (free, iPhone and Android) under a
@@ -12846,7 +12898,7 @@
     openSoldForm, recordSale, saleNumbers, buildReport, openReport, phoneCopyHTML, savePhoneCopy, writePhoneCopy, backupTextFrom,
     matchScanned, numberVariants, openScanner, stopScanner, prepCanvas, openWantForm, resolveLink, chooseBackupFile, linkGoogleDrive, driveToken, openMove, moveCopies,
     searchSealed, openSealedSearch, openSealedForm, ocgCard, bigwebFor, bunjangFor, bigwebPick, bunjangPick, ocgPrice, refreshOcgPrices, fxRates, showOcgLookup,
-    psa10Value, gradedValue, gradedTotals, pcLookup, pcMatch, refreshGradedPrices, gradeShare, koRarity, jaRarity, ocgRegion, isRushNo, cleanName, artless, isOverframeRec, lookupName, driveDatedCopy, fillDriveCopies, deckPullPlan, deckPullIntoBox, openShare, shareLink, marketData, mkSetLine, mkKind, mkChase, renderMarket, analyzeDeckIdeas, runDeckIdeas, starterList, ideasState: () => ideas,
+    psa10Value, gradedValue, gradedTotals, pcLookup, pcMatch, pcWhy, pcMisses, pcRarityNames, refreshGradedPrices, gradeShare, koRarity, jaRarity, ocgRegion, isRushNo, cleanName, artless, isOverframeRec, lookupName, driveDatedCopy, fillDriveCopies, deckPullPlan, deckPullIntoBox, openShare, shareLink, marketData, mkSetLine, mkKind, mkChase, renderMarket, analyzeDeckIdeas, runDeckIdeas, starterList, ideasState: () => ideas,
     imgTag, productPics, recordPics, namePics, imageFor, shareItem, shareWant,
     silentSignInDue, maybeSilentSignIn, pageBusy, viewBusy, loadNewData, applyNewData, readDataText, dataLoad: () => dataLoad,
     loadOcgMarket, buildOcgMarket, ocgMk: () => ocgMk, loadYugiMarket, ymMatch, ymProduct, ymk: () => ymk, renderMarket, wantPrice,

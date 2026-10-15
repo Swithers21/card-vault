@@ -882,6 +882,8 @@
   .hold-list{margin:8px 0 0}
   .hold-list summary{cursor:pointer;text-decoration:underline;text-underline-offset:2px}
   .hold-list ul{margin:6px 0 0;padding-left:18px;max-height:180px;overflow:auto;columns:2 220px;font-size:13px}
+  .pc-miss ul{margin:8px 0 0;padding-left:18px;max-height:280px;overflow:auto;font-size:13px}
+  .pc-miss li{margin:0 0 8px}
   @media (max-width:420px){ .fee-fields{grid-template-columns:1fr 1fr} .fee-fields label:first-child{grid-column:1 / -1} }
   .grade-status{padding:12px 14px;border-radius:10px;background:var(--bg-2);border:1px solid rgba(76,187,165,.4);font-size:13.5px}
   .card-hist .box-head{align-items:center;margin-bottom:6px}
