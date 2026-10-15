@@ -25,6 +25,7 @@ import sys
 import urllib.error
 import urllib.parse
 import urllib.request
+import zlib
 from datetime import datetime, timezone
 
 HERE = os.path.dirname(os.path.abspath(__file__))
@@ -61,11 +62,105 @@ def today():
     return t if t else datetime.now(timezone.utc).date().isoformat()
 
 
+def _brotli(data):
+    try:
+        import brotli
+    except ImportError:
+        raise ValueError("the page is compressed with brotli, which isn't installed here (pip install brotli)")
+    return brotli.decompress(data)
+
+
+def _zstd(data):
+    try:
+        from compression import zstd      # (Python 3.14 and later)
+        return zstd.decompress(data)
+    except ImportError:
+        pass
+    try:
+        import zstandard
+    except ImportError:
+        raise ValueError("the page is compressed with zstd, which isn't installed here (pip install zstandard)")
+    return zstandard.ZstdDecompressor().decompressobj().decompress(data)
+
+
+def _deflate(data, wbits):
+    return zlib.decompressobj(wbits).decompress(data)      # (a page cut short at the size limit still gives what it has)
+
+
+def accepted_encodings():
+    """What this program asks pages to be sent as: the ones it can unpack here."""
+    names = ["gzip", "deflate"]
+    for name, probe in (("br", _brotli), ("zstd", _zstd)):
+        try:
+            probe(b"")
+        except ValueError:
+            continue
+        except Exception:
+            pass
+        names.append(name)
+    return ", ".join(names)
+
+
+def unpack(data, encoding=""):
+    """A page's bytes with the compression it came in undone (gzip, deflate, and brotli or zstd when installed).
+
+    Some sites, and the Internet Archive's copies of them, send compressed bytes whatever was asked for or said, so
+    gzip and zstd are also recognised by how they begin."""
+    names = [e.strip().lower() for e in str(encoding or "").split(",") if e.strip()]
+    if data[:2] == b"\x1f\x8b" and "gzip" not in names and "x-gzip" not in names:
+        names = ["gzip"]
+    elif data[:4] == b"\x28\xb5\x2f\xfd" and "zstd" not in names:
+        names = ["zstd"]
+    for name in reversed(names):             # (undone in the opposite order to how they were applied)
+        try:
+            if name in ("gzip", "x-gzip"):
+                data = _deflate(data, 16 + zlib.MAX_WBITS)
+            elif name == "deflate":
+                try:
+                    data = _deflate(data, zlib.MAX_WBITS)
+                except zlib.error:
+                    data = _deflate(data, -zlib.MAX_WBITS)
+            elif name == "br":
+                data = _brotli(data)
+            elif name == "zstd":
+                data = _zstd(data)
+        except ValueError:
+            raise
+        except Exception:
+            pass                             # (said it was compressed but isn't: used as it is, and checked below)
+    return data
+
+
+def looks_binary(text):
+    """True when text (a page's start) is mostly not words: compressed or other data that wasn't unpacked."""
+    head = text[:400]
+    odd = sum(1 for c in head if c == "�" or (c < " " and c not in "\t\n\r"))
+    return bool(head) and odd * 10 > len(head)
+
+
+def decode_page(raw, encoding=""):
+    """A page's text from the bytes the site sent."""
+    data = unpack(raw, encoding)
+    text = data.decode("utf-8", "replace")
+    if not looks_binary(text):
+        return text
+    # (compressed without saying so, and not by gzip: try each of the others)
+    for attempt in (_brotli, _zstd, lambda d: _deflate(d, -zlib.MAX_WBITS), lambda d: _deflate(d, zlib.MAX_WBITS)):
+        try:
+            again = attempt(data).decode("utf-8", "replace")
+        except Exception:
+            continue
+        if again.strip() and not looks_binary(again):
+            return again
+    raise ValueError("the page came back as compressed data this program couldn't unpack (it starts %s)" % " ".join("%02x" % b for b in raw[:6]))
+
+
 def fetch(url, limit=8 * 1048576):
-    req = urllib.request.Request(url, headers={"User-Agent": USER_AGENT, "Accept": "text/html,application/json,*/*", "Accept-Language": "en-US,en"})
+    req = urllib.request.Request(url, headers={"User-Agent": USER_AGENT, "Accept": "text/html,application/json,*/*", "Accept-Language": "en-US,en",
+                                               "Accept-Encoding": accepted_encodings()})
     try:
         with urllib.request.urlopen(req, timeout=25) as res:
-            return res.read(limit).decode("utf-8", "replace")
+            return decode_page(res.read(limit), res.headers.get("Content-Encoding", ""))
     except urllib.error.HTTPError as err:
         # (a site that turns this program away may still answer curl, which asks the way browsers' tools do)
         if err.code != 403 or not shutil.which("curl"):
@@ -73,7 +168,7 @@ def fetch(url, limit=8 * 1048576):
         done = subprocess.run(["curl", "-sS", "-L", "--compressed", "--max-time", "25", "-A", USER_AGENT, "-H", "Accept: text/html,application/json,*/*",
                                "-H", "Accept-Language: en-US,en", "-w", "\n%{http_code}", url], capture_output=True, timeout=40)
         body, _, code = done.stdout.decode("utf-8", "replace").rpartition("\n")
-        if done.returncode != 0 or code.strip() != "200":
+        if done.returncode != 0 or code.strip() != "200" or looks_binary(body):
             raise
         return body[:limit]
 

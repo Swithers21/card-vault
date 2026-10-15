@@ -1,7 +1,11 @@
 """grading_fees.py: the readers of the grading companies' pages. Pages change; these keep the known layouts working."""
+import gzip
+import http.server
 import os
 import sys
+import threading
 import unittest
+import zlib
 
 sys.path.insert(0, os.path.join(os.path.dirname(os.path.abspath(__file__)), ".."))
 import grading_fees as g  # noqa: E402
@@ -91,3 +95,94 @@ class Helpers(unittest.TestCase):
 
 if __name__ == "__main__":
     unittest.main()
+
+
+class Served(http.server.BaseHTTPRequestHandler):
+    """A stand-in for a site: each path answers with the bytes and Content-Encoding it was given."""
+    pages = {}
+    asked = []
+
+    def do_GET(self):
+        Served.asked.append(self.headers.get("Accept-Encoding", ""))
+        body, encoding = Served.pages.get(self.path, (b"", None))
+        self.send_response(200)
+        self.send_header("Content-Type", "text/html; charset=utf-8")
+        if encoding:
+            self.send_header("Content-Encoding", encoding)
+        self.send_header("Content-Length", str(len(body)))
+        self.end_headers()
+        self.wfile.write(body)
+
+    def log_message(self, *args):
+        pass
+
+
+class Compressed(unittest.TestCase):
+    """PSA's page once came back as scrambled bytes (compressed, and not unpacked): the reader must unpack it."""
+
+    @classmethod
+    def setUpClass(cls):
+        cls.server = http.server.ThreadingHTTPServer(("127.0.0.1", 0), Served)
+        threading.Thread(target=cls.server.serve_forever, daemon=True).start()
+        cls.base = "http://127.0.0.1:%d" % cls.server.server_address[1]
+        raw = PSA_CURRENT.encode("utf-8")
+        Served.pages = {
+            "/plain": (raw, None),
+            "/gzip": (gzip.compress(raw), "gzip"),
+            "/gzip-unlabeled": (gzip.compress(raw), None),
+            "/deflate": (zlib.compress(raw), "deflate"),
+            "/deflate-raw": (zlib.compress(raw)[2:-4], "deflate"),
+            "/junk": (bytes([0xfe, 0x9a, 0x01, 0xc3, 0x76, 0x80, 0x48]) * 60, None),
+        }
+        try:
+            import brotli
+            Served.pages["/br"] = (brotli.compress(raw), "br")
+            Served.pages["/br-unlabeled"] = (brotli.compress(raw), None)
+        except ImportError:
+            pass
+        try:
+            import zstandard
+            Served.pages["/zstd"] = (zstandard.ZstdCompressor().compress(raw), "zstd")
+        except ImportError:
+            pass
+
+    @classmethod
+    def tearDownClass(cls):
+        cls.server.shutdown()
+
+    def standard_fee(self, path):
+        return summary(g.parse_psa(g.fetch(self.base + path)))["Standard"][0]
+
+    def test_plain_gzip_and_deflate_pages_read(self):
+        for path in ("/plain", "/gzip", "/gzip-unlabeled", "/deflate", "/deflate-raw"):
+            with self.subTest(path=path):
+                self.assertEqual(self.standard_fee(path), 59.99)
+
+    def test_brotli_pages_read_when_brotli_is_installed(self):
+        for path in ("/br", "/br-unlabeled"):
+            if path not in Served.pages:
+                self.skipTest("brotli isn't installed here")
+            with self.subTest(path=path):
+                self.assertEqual(self.standard_fee(path), 59.99)
+
+    def test_zstd_pages_read_when_zstandard_is_installed(self):
+        if "/zstd" not in Served.pages:
+            self.skipTest("zstandard isn't installed here")
+        self.assertEqual(self.standard_fee("/zstd"), 59.99)
+
+    def test_data_that_cant_be_unpacked_says_so_instead_of_printing_junk(self):
+        with self.assertRaises(ValueError) as caught:
+            g.fetch(self.base + "/junk")
+        self.assertIn("couldn't unpack", str(caught.exception))
+        self.assertIn("fe 9a 01", str(caught.exception))
+
+    def test_it_asks_for_the_encodings_it_can_unpack(self):
+        Served.asked.clear()
+        g.fetch(self.base + "/plain")
+        self.assertIn("gzip", Served.asked[0])
+        self.assertIn("deflate", Served.asked[0])
+        self.assertEqual(g.accepted_encodings().split(", ")[:2], ["gzip", "deflate"])
+
+    def test_looks_binary(self):
+        self.assertFalse(g.looks_binary("<html><body>Standard $59.99/Card</body></html>"))
+        self.assertTrue(g.looks_binary("\ufffd\ufffd\ufffd\ufffdv\ufffdH\ufffd \ufffd~\ufffd\ufffd\ufffd>)W"))
