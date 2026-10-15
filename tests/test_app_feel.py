@@ -58,7 +58,8 @@ class Quiet(http.server.SimpleHTTPRequestHandler):
 
 
 @unittest.skipIf(sync_playwright is None, "Playwright isn't installed")
-class Feel(unittest.TestCase):
+class FeelBase(unittest.TestCase):
+    """The browser, the little web server and the made-up data; other test files build on this too."""
     @classmethod
     def setUpClass(cls):
         cls.server = http.server.ThreadingHTTPServer(("127.0.0.1", 0), functools.partial(Quiet, directory=ROOT))
@@ -109,6 +110,9 @@ class Feel(unittest.TestCase):
 
     def tearDown(self):
         self.assertEqual(self.errors, [], "the page reported errors")
+
+
+class Feel(FeelBase):
 
     # ----- the change since the last price day, in the big panel
     def test_the_value_panel_says_how_the_value_moved_and_what_moved_most(self):
