@@ -248,6 +248,7 @@
       updateImportButton();
     }
     lastFocus = document.activeElement;
+    armBack();
     $("importModal").hidden = false;
     syncBackdrop();
     $("scrim").hidden = false;
