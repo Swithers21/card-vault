@@ -350,7 +350,7 @@
   // Each set's cards and rarities with BIGWEB's price, stock and photo (Japanese) or Bunjang's asking price (Korean),
   // and the price a day, a week and a month before. It's a few MB, so it's read once per visit, the first time
   // something needs it: your Japanese and Korean cards, a lookup, a set, the movers.
-  const ocgCd = {data: null, loading: null, failed: 0};
+  const ocgCd = {data: null, loading: null, failed: 0, gaveUp: false};   // (gaveUp: it failed at some point this visit, even if "Check for new prices now" is asking again)
   const ocgCardsURL = () => ocgMarketURL().replace(/ocg-market\.js$/, "ocg-cards.js");
   const ocgHistoryBase = () => ocgMarketURL().replace(/ocg-market\.js$/, "ocg-history/");
   // BIGWEB's photos all live at one address pattern, so the list carries just the number
@@ -391,7 +391,7 @@
   function loadOcgCards(fresh) {
     if ((ocgCd.data && !fresh) || ocgCd.loading) return ocgCd.loading || Promise.resolve(ocgCd.data);
     const url = ocgCardsURL();
-    if (!url) { ocgCd.failed = Date.now(); return Promise.resolve(null); }
+    if (!url) { ocgCd.failed = Date.now(); ocgCd.gaveUp = true; return Promise.resolve(null); }
     const http = /^https?:$/.test(location.protocol);
     ocgCd.loading = (http
       ? fetch(url, {cache: "no-cache"}).then(res => { if (!res.ok) throw new Error("answered " + res.status); return res.text(); }).then(t => readWindowJSON(t, "OCG_CARDS"))
@@ -402,8 +402,8 @@
         s.onerror = () => { s.remove(); reject(new Error("didn't load")); };
         document.head.appendChild(s);
       }))
-      .then(raw => { ocgCd.data = buildOcgCards(raw); ocgCd.failed = 0; renderSoon(0); })   // (prices are in: show them now, not after the set names that follow)
-      .catch(() => { ocgCd.failed = Date.now(); })
+      .then(raw => { ocgCd.data = buildOcgCards(raw); ocgCd.failed = 0; keepOcgPrices(); renderSoon(0); })   // (prices are in: show them now, not after the set names that follow)
+      .catch(() => { ocgCd.failed = Date.now(); ocgCd.gaveUp = true; })
       .then(() => ocgMk.data || ocgMarketURL() === "" ? null : loadOcgMarket())   // (the sets' names and dates come with it)
       .then(() => { ocgCd.loading = null; renderSoon(); return ocgCd.data; });
     return ocgCd.loading;

@@ -1216,9 +1216,9 @@
     const mine = g.region === "JP" ? r.jp : r.kr;
     if (pi.from === "manual") html += '<p class="price-yours">Your estimate, <b>' + esc(usd(pi.unit)) + '</b>, is used while no shop price is found.</p>';
     else if (pi.from === "local") html += '<p class="price-yours">Your price, <b>' + esc(fmtLocal(pi.local, pi.cur)) + " ≈ " + esc(usd(pi.unit)) + "</b>, is used while no shop price is found.</p>";
-    else if (pi.from === "ocg" && (r.manualPrice != null || mine != null)) html += '<p class="small">The price above is used' +
+    else if (pi.from === "ocg" && !pi.kept && (r.manualPrice != null || mine != null)) html += '<p class="small">The price above is used' +
       (r.manualPrice != null ? ", not your estimate of " + esc(usd(r.manualPrice)) : ", not the " + esc(fmtLocal(mine, g.region === "JP" ? "JPY" : "KRW")) + " you entered") + ".</p>";
-    if (pi.from === "ocg" && marketValue(r).factor != null && marketValue(r).factor !== 1) html += '<p class="price-yours">Your copy: <b>' + esc(usd(marketValue(r).unit)) +
+    if (pi.from === "ocg" && !pi.kept && marketValue(r).factor != null && marketValue(r).factor !== 1) html += '<p class="price-yours">Your copy: <b>' + esc(usd(marketValue(r).unit)) +
       '</b> <span class="small">(' + esc(r.condition) + " at " + Math.round(marketValue(r).factor * 100) + "% of that price, see Settings)</span></p>";
     const when = op && op.at ? (op.file ? "From Card Vault's daily price list, " + fmtDate(new Date(op.at)) : "Checked " + fmtDateTime(new Date(op.at))) : "";
     const shop = ocgSrc(g.region, g.code);

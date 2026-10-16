@@ -108,6 +108,9 @@
     if (g) {
       const op = ocgPrice(r);
       if (op && op.usd != null) return {unit: op.usd, kind: "market", from: "ocg", local: op.local, cur: op.cur, src: op.src, note: op.note, at: op.at, url: op.url};
+      // today's list hasn't come in yet (the first moments after opening): the price it gave last time stands in for it
+      const kept = ocgKeptPrice(r, g);
+      if (kept) return {unit: kept.usd, kind: "market", from: "ocg", src: kept.src, note: "as of last time", at: kept.at, kept: true};
     }
     if (r.manualPrice != null) return {unit: r.manualPrice, kind: "estimate", from: "manual"};
     if (g) {

@@ -435,7 +435,7 @@
     let ok = write();
     if (!ok) {
       // Out of room: the photo-lookup cache is only a convenience, so drop it and try again.
-      try { [YUGI_CACHE_KEY, OCG_CACHE_KEY, PC_CACHE_KEY, "cardvault.v2.ygocards", "cardvault.v2.ygoarch"].forEach(k => localStorage.removeItem(k)); yugi.cache = {}; ocg.cache = {}; pc.cache = {}; } catch (e) { /* ignore */ }
+      try { [YUGI_CACHE_KEY, OCG_CACHE_KEY, OCG_KEPT_KEY, PC_CACHE_KEY, "cardvault.v2.ygocards", "cardvault.v2.ygoarch"].forEach(k => localStorage.removeItem(k)); yugi.cache = {}; ocg.cache = {}; ocg.kept = null; pc.cache = {}; } catch (e) { /* ignore */ }
       ok = write();
     }
     storageOK = ok;

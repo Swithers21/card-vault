@@ -759,7 +759,7 @@
     let ok = write();
     if (!ok) {
       // Out of room: the photo-lookup cache is only a convenience, so drop it and try again.
-      try { [YUGI_CACHE_KEY, OCG_CACHE_KEY, PC_CACHE_KEY, "cardvault.v2.ygocards", "cardvault.v2.ygoarch"].forEach(k => localStorage.removeItem(k)); yugi.cache = {}; ocg.cache = {}; pc.cache = {}; } catch (e) { /* ignore */ }
+      try { [YUGI_CACHE_KEY, OCG_CACHE_KEY, OCG_KEPT_KEY, PC_CACHE_KEY, "cardvault.v2.ygocards", "cardvault.v2.ygoarch"].forEach(k => localStorage.removeItem(k)); yugi.cache = {}; ocg.cache = {}; ocg.kept = null; pc.cache = {}; } catch (e) { /* ignore */ }
       ok = write();
     }
     storageOK = ok;
@@ -883,6 +883,9 @@
     if (g) {
       const op = ocgPrice(r);
       if (op && op.usd != null) return {unit: op.usd, kind: "market", from: "ocg", local: op.local, cur: op.cur, src: op.src, note: op.note, at: op.at, url: op.url};
+      // today's list hasn't come in yet (the first moments after opening): the price it gave last time stands in for it
+      const kept = ocgKeptPrice(r, g);
+      if (kept) return {unit: kept.usd, kind: "market", from: "ocg", src: kept.src, note: "as of last time", at: kept.at, kept: true};
     }
     if (r.manualPrice != null) return {unit: r.manualPrice, kind: "estimate", from: "manual"};
     if (g) {
@@ -2405,9 +2408,9 @@
     const mine = g.region === "JP" ? r.jp : r.kr;
     if (pi.from === "manual") html += '<p class="price-yours">Your estimate, <b>' + esc(usd(pi.unit)) + '</b>, is used while no shop price is found.</p>';
     else if (pi.from === "local") html += '<p class="price-yours">Your price, <b>' + esc(fmtLocal(pi.local, pi.cur)) + " ≈ " + esc(usd(pi.unit)) + "</b>, is used while no shop price is found.</p>";
-    else if (pi.from === "ocg" && (r.manualPrice != null || mine != null)) html += '<p class="small">The price above is used' +
+    else if (pi.from === "ocg" && !pi.kept && (r.manualPrice != null || mine != null)) html += '<p class="small">The price above is used' +
       (r.manualPrice != null ? ", not your estimate of " + esc(usd(r.manualPrice)) : ", not the " + esc(fmtLocal(mine, g.region === "JP" ? "JPY" : "KRW")) + " you entered") + ".</p>";
-    if (pi.from === "ocg" && marketValue(r).factor != null && marketValue(r).factor !== 1) html += '<p class="price-yours">Your copy: <b>' + esc(usd(marketValue(r).unit)) +
+    if (pi.from === "ocg" && !pi.kept && marketValue(r).factor != null && marketValue(r).factor !== 1) html += '<p class="price-yours">Your copy: <b>' + esc(usd(marketValue(r).unit)) +
       '</b> <span class="small">(' + esc(r.condition) + " at " + Math.round(marketValue(r).factor * 100) + "% of that price, see Settings)</span></p>";
     const when = op && op.at ? (op.file ? "From Card Vault's daily price list, " + fmtDate(new Date(op.at)) : "Checked " + fmtDateTime(new Date(op.at))) : "";
     const shop = ocgSrc(g.region, g.code);
@@ -2865,10 +2868,11 @@
   // rarities; BIGWEB, a big Japanese card shop, has Japanese prices and photos; Bunjang, a Korean marketplace, has
   // asking prices for Korean cards. They're read straight from this browser, for your own cards, at most once a day.
   const OCG_CACHE_KEY = "cardvault.v2.ocg";
+  const OCG_KEPT_KEY = "cardvault.v2.ocgKept";
   const FX_KEY = "cardvault.v2.fx";
   const OCG_TTL = 20 * 3600000;        // prices: about once a day
   const OCG_CARD_TTL = 30 * 86400000;  // card names and rarities
-  const ocg = {cache: null, queue: Promise.resolve(), last: 0, refreshing: false, timer: null};
+  const ocg = {cache: null, kept: null, queue: Promise.resolve(), last: 0, refreshing: false, timer: null};
   // A Japanese or Korean card number: DUNE-JP004, DUNE-KR004, LOB-K025 (Korean sets up to the late 2000s), Rush Duel's
   // RD/KP25-JP001 and RD/KP25-KR001, and, once the daily list is here, the older Japanese forms it knows (LB-35,
   // 302-001...). region is "JP" or "KR".
@@ -2909,6 +2913,33 @@
   function ocgCache() {
     if (!ocg.cache) { const c = readJSON(OCG_CACHE_KEY, {}); ocg.cache = c && typeof c === "object" && !Array.isArray(c) ? c : {}; }
     return ocg.cache;
+  }
+  // The prices the daily list gave last time, kept on this device (US$ before any condition adjustment, by card number
+  // and rarity). Until today's list has come in, they stand in for it, so the collection's total is right from the first
+  // moment instead of counting those cards as $0 for a blink.
+  function ocgKept() {
+    if (!ocg.kept) { const k = readJSON(OCG_KEPT_KEY, {}); ocg.kept = k && typeof k === "object" && !Array.isArray(k) ? k : {}; }
+    return ocg.kept;
+  }
+  const ocgKeptKey = (r, g) => g.code + "|" + (r.rarity || "");
+  function ocgKeptPrice(r, g) {
+    // (the list is here and decides; or it couldn't be read, now or earlier, and nothing stands in for it; or there is nowhere to read it from)
+    if (ocgCd.data || ocgCd.failed || ocgCd.gaveUp || !ocgCardsURL()) return null;
+    const k = ocgKept()[ocgKeptKey(r, g)];
+    return k && typeof k.usd === "number" && k.usd >= 0 ? k : null;
+  }
+  // (called whenever the list comes in: what it priced your cards at, for next time)
+  function keepOcgPrices() {
+    const next = {};
+    for (const r of collection) {
+      const g = isOcg(r) ? ocgRegion(r.number) : null;
+      const fp = g ? ocgFilePrice(r) : null;
+      if (fp && !fp.none && fp.usd != null) next[ocgKeptKey(r, g)] = {usd: fp.usd, src: fp.src, at: fp.at};
+    }
+    const text = JSON.stringify(next);
+    if (text === JSON.stringify(ocgKept())) return;
+    ocg.kept = next;
+    try { localStorage.setItem(OCG_KEPT_KEY, text); } catch (e) { /* optional */ }
   }
   function ocgPut(key, value) {
     const c = ocgCache();
@@ -3855,7 +3886,7 @@
   // Each set's cards and rarities with BIGWEB's price, stock and photo (Japanese) or Bunjang's asking price (Korean),
   // and the price a day, a week and a month before. It's a few MB, so it's read once per visit, the first time
   // something needs it: your Japanese and Korean cards, a lookup, a set, the movers.
-  const ocgCd = {data: null, loading: null, failed: 0};
+  const ocgCd = {data: null, loading: null, failed: 0, gaveUp: false};   // (gaveUp: it failed at some point this visit, even if "Check for new prices now" is asking again)
   const ocgCardsURL = () => ocgMarketURL().replace(/ocg-market\.js$/, "ocg-cards.js");
   const ocgHistoryBase = () => ocgMarketURL().replace(/ocg-market\.js$/, "ocg-history/");
   // BIGWEB's photos all live at one address pattern, so the list carries just the number
@@ -3896,7 +3927,7 @@
   function loadOcgCards(fresh) {
     if ((ocgCd.data && !fresh) || ocgCd.loading) return ocgCd.loading || Promise.resolve(ocgCd.data);
     const url = ocgCardsURL();
-    if (!url) { ocgCd.failed = Date.now(); return Promise.resolve(null); }
+    if (!url) { ocgCd.failed = Date.now(); ocgCd.gaveUp = true; return Promise.resolve(null); }
     const http = /^https?:$/.test(location.protocol);
     ocgCd.loading = (http
       ? fetch(url, {cache: "no-cache"}).then(res => { if (!res.ok) throw new Error("answered " + res.status); return res.text(); }).then(t => readWindowJSON(t, "OCG_CARDS"))
@@ -3907,8 +3938,8 @@
         s.onerror = () => { s.remove(); reject(new Error("didn't load")); };
         document.head.appendChild(s);
       }))
-      .then(raw => { ocgCd.data = buildOcgCards(raw); ocgCd.failed = 0; renderSoon(0); })   // (prices are in: show them now, not after the set names that follow)
-      .catch(() => { ocgCd.failed = Date.now(); })
+      .then(raw => { ocgCd.data = buildOcgCards(raw); ocgCd.failed = 0; keepOcgPrices(); renderSoon(0); })   // (prices are in: show them now, not after the set names that follow)
+      .catch(() => { ocgCd.failed = Date.now(); ocgCd.gaveUp = true; })
       .then(() => ocgMk.data || ocgMarketURL() === "" ? null : loadOcgMarket())   // (the sets' names and dates come with it)
       .then(() => { ocgCd.loading = null; renderSoon(); return ocgCd.data; });
     return ocgCd.loading;
