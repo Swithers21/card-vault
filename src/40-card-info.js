@@ -515,9 +515,10 @@
     if (fetched) renderSoon();
     return fetched;
   }
-  function renderSoon() {
+  // (ms: how long to wait for more to come in first; the default gathers a burst of price lookups into one redraw)
+  function renderSoon(ms) {
     clearTimeout(ocg.timer);
-    ocg.timer = setTimeout(() => { if (recordValueHistory()) save({quiet: true, noBackup: true}); render(); }, 400);
+    ocg.timer = setTimeout(() => { if (recordValueHistory()) save({quiet: true, noBackup: true}); render(); }, ms == null ? 400 : ms);
   }
 
   /* ----- adding a Japanese or Korean card by its number ----- */

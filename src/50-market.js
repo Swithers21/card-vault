@@ -402,7 +402,7 @@
         s.onerror = () => { s.remove(); reject(new Error("didn't load")); };
         document.head.appendChild(s);
       }))
-      .then(raw => { ocgCd.data = buildOcgCards(raw); ocgCd.failed = 0; })
+      .then(raw => { ocgCd.data = buildOcgCards(raw); ocgCd.failed = 0; renderSoon(0); })   // (prices are in: show them now, not after the set names that follow)
       .catch(() => { ocgCd.failed = Date.now(); })
       .then(() => ocgMk.data || ocgMarketURL() === "" ? null : loadOcgMarket())   // (the sets' names and dates come with it)
       .then(() => { ocgCd.loading = null; renderSoon(); return ocgCd.data; });
