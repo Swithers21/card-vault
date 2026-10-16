@@ -222,10 +222,11 @@
   // rarities; BIGWEB, a big Japanese card shop, has Japanese prices and photos; Bunjang, a Korean marketplace, has
   // asking prices for Korean cards. They're read straight from this browser, for your own cards, at most once a day.
   const OCG_CACHE_KEY = "cardvault.v2.ocg";
+  const OCG_KEPT_KEY = "cardvault.v2.ocgKept";
   const FX_KEY = "cardvault.v2.fx";
   const OCG_TTL = 20 * 3600000;        // prices: about once a day
   const OCG_CARD_TTL = 30 * 86400000;  // card names and rarities
-  const ocg = {cache: null, queue: Promise.resolve(), last: 0, refreshing: false, timer: null};
+  const ocg = {cache: null, kept: null, queue: Promise.resolve(), last: 0, refreshing: false, timer: null};
   // A Japanese or Korean card number: DUNE-JP004, DUNE-KR004, LOB-K025 (Korean sets up to the late 2000s), Rush Duel's
   // RD/KP25-JP001 and RD/KP25-KR001, and, once the daily list is here, the older Japanese forms it knows (LB-35,
   // 302-001...). region is "JP" or "KR".
@@ -266,6 +267,33 @@
   function ocgCache() {
     if (!ocg.cache) { const c = readJSON(OCG_CACHE_KEY, {}); ocg.cache = c && typeof c === "object" && !Array.isArray(c) ? c : {}; }
     return ocg.cache;
+  }
+  // The prices the daily list gave last time, kept on this device (US$ before any condition adjustment, by card number
+  // and rarity). Until today's list has come in, they stand in for it, so the collection's total is right from the first
+  // moment instead of counting those cards as $0 for a blink.
+  function ocgKept() {
+    if (!ocg.kept) { const k = readJSON(OCG_KEPT_KEY, {}); ocg.kept = k && typeof k === "object" && !Array.isArray(k) ? k : {}; }
+    return ocg.kept;
+  }
+  const ocgKeptKey = (r, g) => g.code + "|" + (r.rarity || "");
+  function ocgKeptPrice(r, g) {
+    // (the list is here and decides; or it couldn't be read, now or earlier, and nothing stands in for it; or there is nowhere to read it from)
+    if (ocgCd.data || ocgCd.failed || ocgCd.gaveUp || !ocgCardsURL()) return null;
+    const k = ocgKept()[ocgKeptKey(r, g)];
+    return k && typeof k.usd === "number" && k.usd >= 0 ? k : null;
+  }
+  // (called whenever the list comes in: what it priced your cards at, for next time)
+  function keepOcgPrices() {
+    const next = {};
+    for (const r of collection) {
+      const g = isOcg(r) ? ocgRegion(r.number) : null;
+      const fp = g ? ocgFilePrice(r) : null;
+      if (fp && !fp.none && fp.usd != null) next[ocgKeptKey(r, g)] = {usd: fp.usd, src: fp.src, at: fp.at};
+    }
+    const text = JSON.stringify(next);
+    if (text === JSON.stringify(ocgKept())) return;
+    ocg.kept = next;
+    try { localStorage.setItem(OCG_KEPT_KEY, text); } catch (e) { /* optional */ }
   }
   function ocgPut(key, value) {
     const c = ocgCache();
