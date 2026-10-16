@@ -699,6 +699,9 @@
     try { catalog = buildCatalog(window.TCG_DATA); } catch (e) { catalog = null; }
     window.TCG_DATA = null; // free the raw copy; the catalog keeps what it needs
     loadState();
+    // Japanese, Korean and Rush Duel cards are priced from a list that has to be fetched: start on it right away, so the
+    // total doesn't sit low for the first few seconds (those cards count as $0 until it is here).
+    if (collection.some(isOcg)) loadOcgCardsSoft();
     const linked = autoLink();
     if (linked) save();
     else if (recordValueHistory()) save({quiet: true});  // today's value-history point

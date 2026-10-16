@@ -3158,9 +3158,10 @@
     if (fetched) renderSoon();
     return fetched;
   }
-  function renderSoon() {
+  // (ms: how long to wait for more to come in first; the default gathers a burst of price lookups into one redraw)
+  function renderSoon(ms) {
     clearTimeout(ocg.timer);
-    ocg.timer = setTimeout(() => { if (recordValueHistory()) save({quiet: true, noBackup: true}); render(); }, 400);
+    ocg.timer = setTimeout(() => { if (recordValueHistory()) save({quiet: true, noBackup: true}); render(); }, ms == null ? 400 : ms);
   }
 
   /* ----- adding a Japanese or Korean card by its number ----- */
@@ -3906,7 +3907,7 @@
         s.onerror = () => { s.remove(); reject(new Error("didn't load")); };
         document.head.appendChild(s);
       }))
-      .then(raw => { ocgCd.data = buildOcgCards(raw); ocgCd.failed = 0; })
+      .then(raw => { ocgCd.data = buildOcgCards(raw); ocgCd.failed = 0; renderSoon(0); })   // (prices are in: show them now, not after the set names that follow)
       .catch(() => { ocgCd.failed = Date.now(); })
       .then(() => ocgMk.data || ocgMarketURL() === "" ? null : loadOcgMarket())   // (the sets' names and dates come with it)
       .then(() => { ocgCd.loading = null; renderSoon(); return ocgCd.data; });
@@ -13207,6 +13208,9 @@
     try { catalog = buildCatalog(window.TCG_DATA); } catch (e) { catalog = null; }
     window.TCG_DATA = null; // free the raw copy; the catalog keeps what it needs
     loadState();
+    // Japanese, Korean and Rush Duel cards are priced from a list that has to be fetched: start on it right away, so the
+    // total doesn't sit low for the first few seconds (those cards count as $0 until it is here).
+    if (collection.some(isOcg)) loadOcgCardsSoft();
     const linked = autoLink();
     if (linked) save();
     else if (recordValueHistory()) save({quiet: true});  // today's value-history point
