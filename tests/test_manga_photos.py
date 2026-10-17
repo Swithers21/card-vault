@@ -20,11 +20,26 @@ GALLERY = ["DarkMagician-YAC1-JP-UR.png", "DarkMagician-YAC1-JP-UR-MangaStyle-Mo
 DEAD = "https://image.bigweb.co.jp/new/imgc/035/869/3586905.jpg"
 
 
+# A popular card's gallery on Yugipedia: hundreds of files, over two pages, and photo links for only the first few of a
+# page (the rest come when asked for by name), which is how the real API answers.
+FILLER = ["DarkMagician-%s-EN-UR-1E.png" % code for code in ("CT13", "DLG1", "DPYG", "GLD1", "LCYW", "LDK2", "MVP1", "SDY", "SS01", "YGLD")]
+
+
 def yugipedia(url, gallery=GALLERY):
     q = parse_qs(urlsplit(url).query)
-    if q.get("generator") == ["images"]:
-        return {"query": {"pages": [{"title": "File:" + f, "imageinfo": [{"url": "https://ms.yugipedia.com/" + f, "thumburl": THUMB % (f, f)}]} for f in gallery]}}
     titles = q.get("titles", [""])[0].split("|")
+    if q.get("generator") == ["images"]:
+        files = sorted(set(FILLER + list(gallery)))
+        pages = [files[:7], files[7:]]
+        at = 1 if q.get("gimcontinue") else 0
+        info = lambda i, f: ([{"url": "https://ms.yugipedia.com/" + f, "thumburl": THUMB % (f, f)}] if i < 2 else None)
+        out = {"query": {"pages": [dict({"title": "File:" + f}, **({"imageinfo": info(i, f)} if info(i, f) else {})) for i, f in enumerate(pages[at])]}}
+        if at == 0:
+            out["continue"] = {"gimcontinue": "page2", "continue": "gimcontinue||"}
+        return out
+    if q.get("prop") == ["imageinfo"]:
+        names = [t.replace("File:", "") for t in titles]
+        return {"query": {"pages": [{"title": "File:" + f, "imageinfo": [{"url": "https://ms.yugipedia.com/" + f, "thumburl": THUMB % (f, f)}]} for f in names]}}
     known = {DM, "Dark Magician"}
     return {"query": {"pages": [{"title": t, "missing": True} for t in titles if t not in known] + [{"title": "Dark Magician", "pageid": 1}],
                       "redirects": [{"from": DM, "to": "Dark Magician"}] if DM in titles else []}}

@@ -1,7 +1,8 @@
   /* ======================= Photos from Yugipedia ======================= */
   const yugi = {queue: Promise.resolve(), last: 0, cache: null};
   const YUGI_TTL = 30 * 86400000;
-  const yugiKey = (number, name) => normNumber(number) + "|" + String(name || "").trim().toLowerCase();
+  // ("|2": lookups made before the gallery was read in full are not reused)
+  const yugiKey = (number, name) => normNumber(number) + "|" + String(name || "").trim().toLowerCase() + "|2";
   function yugiCache() {
     if (!yugi.cache) {
       const c = readJSON(YUGI_CACHE_KEY, {});
@@ -96,14 +97,24 @@
     const title = resolveYugiTitle(await yugiFetch({action: "query", titles: tries.join("|"), redirects: "1"}), tries);
     let images = [];
     if (title) {
-      const g = await yugiFetch({action: "query", generator: "images", titles: "Card Gallery:" + title, gimlimit: "500",
-        prop: "imageinfo", iiprop: "url", iiurlwidth: "400"});
-      const all = pagesOf(g).filter(p => p && p.imageinfo && p.imageinfo[0]).map(p => ({
-        file: String(p.title || "").replace(/^File:/, ""),
-        thumb: safeImg(p.imageinfo[0].thumburl || p.imageinfo[0].url)})).filter(im => im.thumb);
-      // Keep the 60 most relevant photos for this card number (a gallery can have hundreds).
-      const rk = rankYugiImages(all, number, "");
-      images = rk.exact.concat(rk.near, rk.other).slice(0, 60).map(im => ({file: im.file, thumb: im.thumb}));
+      // The gallery's file names first (a popular card's gallery has hundreds, over several pages), then the photo
+      // links of the 50 most relevant to this card number: Yugipedia gives links for only the first few dozen files
+      // of a list, which for a big gallery would leave out everything past the letter C.
+      const files = [];
+      let cont = null;
+      for (let page = 0; page < 4; page++) {
+        const g = await yugiFetch(Object.assign({action: "query", generator: "images", titles: "Card Gallery:" + title, gimlimit: "500"}, cont || {}));
+        for (const p of pagesOf(g)) if (p && p.title) files.push({file: String(p.title).replace(/^File:/, "")});
+        cont = g && g.continue && g.continue.gimcontinue ? {gimcontinue: g.continue.gimcontinue} : null;
+        if (!cont) break;
+      }
+      const rk = rankYugiImages(files, number, "");
+      const want = rk.exact.concat(rk.near, rk.other).slice(0, 50);
+      if (want.length) {
+        const info = await yugiFetch({action: "query", titles: want.map(im => "File:" + im.file).join("|"), prop: "imageinfo", iiprop: "url", iiurlwidth: "400"});
+        const thumbs = new Map(pagesOf(info).filter(p => p && p.imageinfo && p.imageinfo[0]).map(p => [String(p.title || "").replace(/^File:/, ""), safeImg(p.imageinfo[0].thumburl || p.imageinfo[0].url)]));
+        images = want.map(im => ({file: im.file, thumb: thumbs.get(im.file) || ""})).filter(im => im.thumb);
+      }
     }
     const result = {t: Date.now(), title, images};
     yugiCachePut(key, result);
