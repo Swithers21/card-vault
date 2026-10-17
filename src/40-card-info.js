@@ -123,7 +123,7 @@
     const m = normNumber(number).replace(/^RD\//, "").match(/^([A-Z0-9]+)-([A-Z]{2})?([A-Z]?\d+)$/);
     const set = m ? m[1] : "";
     const region = m && m[2] && YUGI_REGIONS[m[2]] ? m[2] : "";
-    const plain = String(rarity || "").replace(/\s*\(overframe\)$/i, ""), code = Object.keys(YUGI_RARITY).find(k => YUGI_RARITY[k] === plain) || "";
+    const plain = String(rarity || "").replace(/\s*\(overframe\)$/i, "").replace(MANGA_SUFFIX, ""), code = Object.keys(YUGI_RARITY).find(k => YUGI_RARITY[k] === plain) || "";
     const wantEA = /\(overframe\)|grand master/i.test(String(rarity || "")), ea = x => (x.extra || []).includes("EA");
     const exact = [], near = [], other = [];
     for (const im of images || []) {
@@ -378,6 +378,10 @@
     [/スーパー/, "Super Rare"], [/ノーマル/, "Common"], [/レア/, "Rare"]];
   // (BIGWEB's Overframe ones: "【オーバーフレーム】ウルトラレア" is "Ultra Rare (Overframe)")
   const withOverframe = (name, yes) => yes && name && !/\(overframe\)|grand master|rush/i.test(name) ? name + OVERFRAME : name;
+  // (and BIGWEB's Manga-Style cards, a listing per version: "ブラック・マジシャン【モノクロ】" is the monochrome one, "…【カラー版】" the colour one)
+  const JA_MANGA = [[/【\s*モノクロ\s*】/, MANGA_MONO], [/【\s*カラー(?:版)?\s*】/, MANGA_COLOR]];
+  const withManga = (rarity, name) => { const hit = JA_MANGA.find(([re]) => re.test(String(name || ""))); return hit && rarity ? rarity.replace(MANGA_SUFFIX, "") + hit[1] : rarity; };
+  const mangaFree = name => String(name || "").replace(/\s*【\s*(?:モノクロ|カラー版?)\s*】\s*/g, " ").trim();
   const jaRarity = web => { const t = String(web || ""), hit = JA_RARITY.find(([re]) => re.test(t)); return hit ? withOverframe(hit[1], /オーバーフレーム/.test(t)) : t; };
   async function bigwebFor(code, fresh) {
     code = normNumber(code);
@@ -386,7 +390,7 @@
     const j = await politeJSON("https://api.bigweb.co.jp/products?game_id=9&name=" + encodeURIComponent(code));
     const now = Date.now();
     const items = (j && Array.isArray(j.items) ? j.items : []).filter(it => it && normNumber(it.fname) === code).map(it => {
-      const x = {rarity: jaRarity(it.rarity && it.rarity.web), ja: String((it.rarity && it.rarity.web) || ""), name: String(it.name || ""),
+      const x = {rarity: withManga(jaRarity(it.rarity && it.rarity.web), it.name), ja: String((it.rarity && it.rarity.web) || ""), name: mangaFree(it.name),
         price: num(it.price) || 0, stock: num(it.stock_count) || 0, cond: String((it.condition && it.condition.web) || ""), image: safeImg(it.image) || ""};
       if (x.price > 0 && x.stock > 0) x.at = now;
       else {   // sold out now: remember the last price seen
@@ -707,7 +711,7 @@
     if (keys.length > 3000) keys.sort((a, b) => (c[a].t || 0) - (c[b].t || 0)).slice(0, keys.length - 3000).forEach(k => delete c[k]);
     try { localStorage.setItem(PC_CACHE_KEY, JSON.stringify(c)); } catch (e) { /* optional */ }
   }
-  const pcKey = r => r.productId ? "p|" + r.productId + "|" + (r.edition || "") : "n|" + normNumber(r.number) + "|" + lookupName(r.name).toLowerCase() + "|" + (r.edition || "");
+  const pcKey = r => r.productId ? "p|" + r.productId + "|" + (r.edition || "") : "n|" + normNumber(r.number) + "|" + lookupName(r.name).toLowerCase() + "|" + (r.edition || "") + (mangaOf(r.rarity) ? "|" + r.rarity.toLowerCase() : "");
   const cents = v => { const n = num(v); return n != null && n > 0 ? round2(n / 100) : null; };
   // PriceCharting's price fields for trading cards (their documentation): ungraded, then each grade.
   const PC_FIELDS = {raw: "loose-price", "7": "cib-price", "8": "new-price", "9": "graded-price", "9.5": "box-only-price", "10": "manual-only-price",
@@ -745,6 +749,8 @@
     const m = text.match(/^(.*?)\s*\(overframe\)$/i);
     const base = m ? m[1].trim() : /^grand master rare$/i.test(text) ? text : "";
     if (base) { names.push("Overframe " + base); if (/^ultra rare$/i.test(base)) names.push("Overframe"); }
+    // (a Manga-Style card is "[Manga Color]" or "[Manga Monochrome]" there, whichever of its two rarities)
+    if (mangaOf(text)) names.push("Manga " + mangaOf(text));
     return names;
   }
   const pcMine = (list, r) => { const wants = pcRarityNames(r.rarity); return list.filter(it => { const v = pcVariant(it["product-name"]).replace(/[[\]]/g, ""); return v && r.rarity && wants.some(w => sameRarity(v, w)); }); };

@@ -595,7 +595,7 @@
     if (!card) return null;
     const row = ocgRowFor(card, r.rarity), region = card.region, src = ocgSrc(region, card.number);
     const at = ocgCd.data.generated ? ocgCd.data.generated.getTime() : Date.now();
-    if (!row || !row.local) return {none: true, src, at, file: true, row, card, note: !row ? (card.rows.length > 1 ? "which rarity is yours?" : "no price") : region === "jp" ? "sold out, no price seen yet" : "no listings"};
+    if (!row || !row.local) return {none: true, src, at, file: true, row, card, note: !row ? (card.rows.length > 1 ? (card.rows.some(x => mangaOf(x.rarity)) ? "which version is yours?" : "which rarity is yours?") : "no price") : region === "jp" ? "sold out, no price seen yet" : "no listings"};
     return {local: row.local, cur: OCG_CUR[region], usd: ocgUSD(row.local, region), src, note: rowNote(row), at, file: true, row, card,
       url: ocgShopURL(region, g.code)};
   }

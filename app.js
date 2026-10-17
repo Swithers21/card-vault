@@ -36,6 +36,7 @@
     "Normal Parallel Rare", "Super Parallel Rare", "Ultra Parallel Rare", "Extra Secret Rare", "20th Secret Rare",
     "10000 Secret Rare", "Millennium Rare", "Millennium Secret Rare", "Millennium Ultra Rare", "Millennium Gold Rare",
     "Holographic Rare", "Grand Master Rare", "Ultra Rare (Overframe)", "Prismatic Secret Rare (Overframe)",
+    "Ultra Rare (Manga Monochrome)", "Ultra Rare (Manga Color)", "Secret Rare (Manga Monochrome)", "Secret Rare (Manga Color)",
     "Rush Rare", "Gold Rush Rare", "Over Rush Rare"];
   // Overframe ("extended art" on Yugipedia and TCGplayer): the artwork breaks out of its frame. It isn't a rarity, but an
   // Overframe Ultra Rare is another card to collect (and price) than the usual Ultra Rare with the same number, so
@@ -46,14 +47,27 @@
   // (a Japanese or Korean card of yours with a plain rarity the card has only as Overframe is one too)
   const isOverframeRec = r => !r.sealed && (isOverframe(r) || (!r.productId && !!r.rarity && /\(overframe\)/i.test(rowRarityOf(r.number, r.rarity) || "")));
   const overframeBadge = r => isOverframeRec(r) ? '<span class="ed ed-of" title="Overframe (extended art): the artwork breaks out of the frame">Overframe</span>' : "";
+  // Manga-Style cards (Original Artwork Collection, YAC1-JP071 to 100): the same Ultra Rare or Secret Rare in a black-and-white
+  // manga look and in colour, so a number has up to four printings, at four prices. The version is part of the rarity
+  // ("Ultra Rare (Manga Monochrome)", "Secret Rare (Manga Color)"), as Card Vault's daily list names them.
+  const MANGA_MONO = " (Manga Monochrome)", MANGA_COLOR = " (Manga Color)";
+  const MANGA_SUFFIX = /\s*\(manga (monochrome|color)\)$/i;
+  const mangaOf = rarity => { const m = String(rarity || "").match(MANGA_SUFFIX); return m ? (m[1].toLowerCase() === "color" ? "Color" : "Monochrome") : ""; };
+  const isMangaRec = r => !r.sealed && !r.productId && !!mangaOf(r.rarity);
+  const mangaBadge = r => isMangaRec(r) ? '<span class="ed ed-mg" title="Manga-Style card (Original Artwork Collection): ' + mangaOf(r.rarity).toLowerCase() + ' version">Manga ' + (mangaOf(r.rarity) === "Color" ? "color" : "mono") + "</span>" : "";
   // A rarity as the list names it: the same one, else the Overframe one when the card has only that (shops and older
   // entries say just "Prismatic Secret Rare" for Limit Over Collection's, which are all Overframe)
   // An Overframe rarity of a card the list (or shop) knows no Overframe printing of at all: its plain row, the only
-  // price there is.
+  // price there is. Likewise a Manga-Style version of a card the list knows no versions of. A plain rarity of a card
+  // that has only versions is no match: which version is yours isn't a guess to make.
   function matchRarity(list, rarity, name) {
     name = name || (x => x);
     const hit = list.find(x => sameRarity(name(x), rarity));
     if (hit || !rarity) return hit || null;
+    if (MANGA_SUFFIX.test(rarity)) {
+      if (list.some(x => MANGA_SUFFIX.test(name(x) || ""))) return null;
+      return list.find(x => sameRarity(name(x), rarity.replace(MANGA_SUFFIX, ""))) || null;
+    }
     if (/\(overframe\)$/i.test(rarity)) {
       if (list.some(x => /\(overframe\)$/i.test(name(x) || ""))) return null;
       return list.find(x => sameRarity(name(x), rarity.replace(/\s*\(overframe\)$/i, ""))) || null;
@@ -1223,6 +1237,7 @@
       (filters.show === "manual" && !r.productId) ||
       (filters.show === "rush" && !r.sealed && isRushNo(r.number)) ||
       (filters.show === "overframe" && isOverframeRec(r)) ||
+      (filters.show === "manga" && isMangaRec(r)) ||
       (filters.show === "selling" && !!r.sell) ||
       (filters.show === "sealed" && r.sealed) ||
       (filters.show === "cards" && !r.sealed);
@@ -1233,7 +1248,7 @@
       (!filters.language || r.language === filters.language) &&
       (!filters.location || (filters.location === NO_LOCATION ? !r.location : r.location === filters.location)) &&
       show(r) &&
-      (!q || (r.name + " " + r.productName + " " + r.number + " " + r.setName + " " + r.location + " " + r.notes + " " + r.rarity + (isRushNo(r.number) ? " rush duel" : "") + (isOverframeRec(r) ? " overframe over frame extended art" : "") + (r.sell ? " selling sell list" : "")).toLowerCase().includes(q)));
+      (!q || (r.name + " " + r.productName + " " + r.number + " " + r.setName + " " + r.location + " " + r.notes + " " + r.rarity + (isRushNo(r.number) ? " rush duel" : "") + (isOverframeRec(r) ? " overframe over frame extended art" : "") + (isMangaRec(r) ? " manga style" + (mangaOf(r.rarity) === "Color" ? " colour" : " black and white") : "") + (r.sell ? " selling sell list" : "")).toLowerCase().includes(q)));
     return sortRecords(list);
   }
   function sortRecords(list) {
@@ -1733,7 +1748,7 @@
         '<span class="tile-meta">Sealed product</span></button>'
       : '<span class="tile-meta">' + esc(r.number || "No card number") + "</span>" +
         '<span class="tile-meta" title="' + esc(r.rarity) + '">' + esc(r.rarity || " ") + "</span></button>") +
-      '<div class="tile-foot"><span class="badges">' + (r.sealed ? '<span class="ed ed-sealed">Sealed</span>' : editionBadge(r.edition) + rushBadge(r.number) + overframeBadge(r)) + gradeBadge(r.grade) +
+      '<div class="tile-foot"><span class="badges">' + (r.sealed ? '<span class="ed ed-sealed">Sealed</span>' : editionBadge(r.edition) + rushBadge(r.number) + overframeBadge(r) + mangaBadge(r)) + gradeBadge(r.grade) +
       (r.grading ? '<span class="ed ed-away' + (expectedBack(r.grading) && expectedBack(r.grading).late ? " ed-late" : "") + '">At ' + esc(r.grading.company) + (expectedBack(r.grading) && expectedBack(r.grading).late ? ", late" : "") + "</span>" : "") +
       (extra ? '<span class="ed ed-extra">' + extra + " extra</span>" : "") + (r.sell ? '<span class="ed ed-sell">Selling</span>' : "") + "</span>" + priceHTML(r, extra) + "</div></article>";
   }
@@ -2398,6 +2413,10 @@
       html += "<p>" + esc(op.src) + ": <b>" + esc(fmtLocal(op.local, op.cur)) + "</b>" + (op.usd != null ? " ≈ <b>" + esc(usd(op.usd)) + "</b>" : "") +
         ' <span class="small">(' + esc(r.rarity || "") + (r.rarity ? ", " : "") + esc(op.note) + ")</span></p>" +
         (fp && !fp.none ? ocgChangesHTML(fp.row, "Price change") : "");
+    } else if (op && op.none && fp && fp.none && !fp.row && fp.card && fp.card.rows.some(x => mangaOf(x.rarity))) {
+      // (a Manga-Style card entered with no version, or a plain rarity: there is no one price to show for it)
+      html += '<p class="small">This card comes in separate versions, each with its own price. Change its rarity (Edit) to the one you have:</p><ul class="small">' +
+        fp.card.rows.map(x => "<li>" + esc(x.rarity) + ": " + (x.local ? esc(fmtLocal(x.local, OCG_CUR[fp.card.region])) + (ocgUSD(x.local, fp.card.region) != null ? " ≈ " + esc(usd(ocgUSD(x.local, fp.card.region))) : "") : "no price") + "</li>").join("") + "</ul>";
     } else if (op && op.none) {
       html += '<p class="small">' + esc(op.src) + " has no price for " + esc(r.rarity || "this card") + (op.note ? " (" + esc(op.note) + ")" : "") + ".</p>";
     } else if (!ocgLiveOK(g)) {
@@ -2769,7 +2788,7 @@
     const m = normNumber(number).replace(/^RD\//, "").match(/^([A-Z0-9]+)-([A-Z]{2})?([A-Z]?\d+)$/);
     const set = m ? m[1] : "";
     const region = m && m[2] && YUGI_REGIONS[m[2]] ? m[2] : "";
-    const plain = String(rarity || "").replace(/\s*\(overframe\)$/i, ""), code = Object.keys(YUGI_RARITY).find(k => YUGI_RARITY[k] === plain) || "";
+    const plain = String(rarity || "").replace(/\s*\(overframe\)$/i, "").replace(MANGA_SUFFIX, ""), code = Object.keys(YUGI_RARITY).find(k => YUGI_RARITY[k] === plain) || "";
     const wantEA = /\(overframe\)|grand master/i.test(String(rarity || "")), ea = x => (x.extra || []).includes("EA");
     const exact = [], near = [], other = [];
     for (const im of images || []) {
@@ -3024,6 +3043,10 @@
     [/スーパー/, "Super Rare"], [/ノーマル/, "Common"], [/レア/, "Rare"]];
   // (BIGWEB's Overframe ones: "【オーバーフレーム】ウルトラレア" is "Ultra Rare (Overframe)")
   const withOverframe = (name, yes) => yes && name && !/\(overframe\)|grand master|rush/i.test(name) ? name + OVERFRAME : name;
+  // (and BIGWEB's Manga-Style cards, a listing per version: "ブラック・マジシャン【モノクロ】" is the monochrome one, "…【カラー版】" the colour one)
+  const JA_MANGA = [[/【\s*モノクロ\s*】/, MANGA_MONO], [/【\s*カラー(?:版)?\s*】/, MANGA_COLOR]];
+  const withManga = (rarity, name) => { const hit = JA_MANGA.find(([re]) => re.test(String(name || ""))); return hit && rarity ? rarity.replace(MANGA_SUFFIX, "") + hit[1] : rarity; };
+  const mangaFree = name => String(name || "").replace(/\s*【\s*(?:モノクロ|カラー版?)\s*】\s*/g, " ").trim();
   const jaRarity = web => { const t = String(web || ""), hit = JA_RARITY.find(([re]) => re.test(t)); return hit ? withOverframe(hit[1], /オーバーフレーム/.test(t)) : t; };
   async function bigwebFor(code, fresh) {
     code = normNumber(code);
@@ -3032,7 +3055,7 @@
     const j = await politeJSON("https://api.bigweb.co.jp/products?game_id=9&name=" + encodeURIComponent(code));
     const now = Date.now();
     const items = (j && Array.isArray(j.items) ? j.items : []).filter(it => it && normNumber(it.fname) === code).map(it => {
-      const x = {rarity: jaRarity(it.rarity && it.rarity.web), ja: String((it.rarity && it.rarity.web) || ""), name: String(it.name || ""),
+      const x = {rarity: withManga(jaRarity(it.rarity && it.rarity.web), it.name), ja: String((it.rarity && it.rarity.web) || ""), name: mangaFree(it.name),
         price: num(it.price) || 0, stock: num(it.stock_count) || 0, cond: String((it.condition && it.condition.web) || ""), image: safeImg(it.image) || ""};
       if (x.price > 0 && x.stock > 0) x.at = now;
       else {   // sold out now: remember the last price seen
@@ -3353,7 +3376,7 @@
     if (keys.length > 3000) keys.sort((a, b) => (c[a].t || 0) - (c[b].t || 0)).slice(0, keys.length - 3000).forEach(k => delete c[k]);
     try { localStorage.setItem(PC_CACHE_KEY, JSON.stringify(c)); } catch (e) { /* optional */ }
   }
-  const pcKey = r => r.productId ? "p|" + r.productId + "|" + (r.edition || "") : "n|" + normNumber(r.number) + "|" + lookupName(r.name).toLowerCase() + "|" + (r.edition || "");
+  const pcKey = r => r.productId ? "p|" + r.productId + "|" + (r.edition || "") : "n|" + normNumber(r.number) + "|" + lookupName(r.name).toLowerCase() + "|" + (r.edition || "") + (mangaOf(r.rarity) ? "|" + r.rarity.toLowerCase() : "");
   const cents = v => { const n = num(v); return n != null && n > 0 ? round2(n / 100) : null; };
   // PriceCharting's price fields for trading cards (their documentation): ungraded, then each grade.
   const PC_FIELDS = {raw: "loose-price", "7": "cib-price", "8": "new-price", "9": "graded-price", "9.5": "box-only-price", "10": "manual-only-price",
@@ -3391,6 +3414,8 @@
     const m = text.match(/^(.*?)\s*\(overframe\)$/i);
     const base = m ? m[1].trim() : /^grand master rare$/i.test(text) ? text : "";
     if (base) { names.push("Overframe " + base); if (/^ultra rare$/i.test(base)) names.push("Overframe"); }
+    // (a Manga-Style card is "[Manga Color]" or "[Manga Monochrome]" there, whichever of its two rarities)
+    if (mangaOf(text)) names.push("Manga " + mangaOf(text));
     return names;
   }
   const pcMine = (list, r) => { const wants = pcRarityNames(r.rarity); return list.filter(it => { const v = pcVariant(it["product-name"]).replace(/[[\]]/g, ""); return v && r.rarity && wants.some(w => sameRarity(v, w)); }); };
@@ -4131,7 +4156,7 @@
     if (!card) return null;
     const row = ocgRowFor(card, r.rarity), region = card.region, src = ocgSrc(region, card.number);
     const at = ocgCd.data.generated ? ocgCd.data.generated.getTime() : Date.now();
-    if (!row || !row.local) return {none: true, src, at, file: true, row, card, note: !row ? (card.rows.length > 1 ? "which rarity is yours?" : "no price") : region === "jp" ? "sold out, no price seen yet" : "no listings"};
+    if (!row || !row.local) return {none: true, src, at, file: true, row, card, note: !row ? (card.rows.length > 1 ? (card.rows.some(x => mangaOf(x.rarity)) ? "which version is yours?" : "which rarity is yours?") : "no price") : region === "jp" ? "sold out, no price seen yet" : "no listings"};
     return {local: row.local, cur: OCG_CUR[region], usd: ocgUSD(row.local, region), src, note: rowNote(row), at, file: true, row, card,
       url: ocgShopURL(region, g.code)};
   }
@@ -10189,6 +10214,7 @@
       row("Printing", r.edition && r.edition !== "No edition mark" ? r.edition : "");
       if (isRushNo(r.number)) row("Game", "Rush Duel");
       if (isOverframeRec(r)) row("Frame", "Overframe (extended art)");
+      if (isMangaRec(r)) row("Artwork", "Manga-Style, " + (mangaOf(r.rarity) === "Color" ? "color" : "black and white") + " version");
     }
     if (r.grade) row("Graded", gradeLabel(r.grade) + (r.grade.cert ? " (cert " + r.grade.cert + ")" : ""));
     else row("Condition", r.sealed ? "Factory sealed" : r.condition);
@@ -12348,7 +12374,7 @@
   // TCGplayer product match on card number, name and edition instead.
   function printingKey(r) {
     return r.productId ? "p|" + r.productId + "|" + (r.edition || "")
-      : "n|" + normNumber(r.number) + "|" + r.name.toLowerCase() + "|" + (r.edition || "");
+      : "n|" + normNumber(r.number) + "|" + r.name.toLowerCase() + "|" + (r.edition || "") + (mangaOf(r.rarity) ? "|" + r.rarity.toLowerCase() : "");   // (a Manga-Style card's two versions are two printings)
   }
   function groupByPrinting(list) {
     const map = new Map();
@@ -13278,7 +13304,7 @@
     openSoldForm, recordSale, saleNumbers, buildReport, openReport, phoneCopyHTML, savePhoneCopy, writePhoneCopy, backupTextFrom,
     matchScanned, numberVariants, openScanner, stopScanner, prepCanvas, openWantForm, resolveLink, chooseBackupFile, linkGoogleDrive, driveToken, openMove, moveCopies,
     searchSealed, openSealedSearch, openSealedForm, ocgCard, bigwebFor, bunjangFor, bigwebPick, bunjangPick, ocgPrice, refreshOcgPrices, fxRates, showOcgLookup,
-    psa10Value, gradedValue, gradedTotals, pcLookup, pcMatch, pcWhy, pcMisses, pcRarityNames, refreshGradedPrices, checkPricesNow, loadOcgCardsSoft, ocgListStatus, gradeShare, koRarity, jaRarity, ocgRegion, isRushNo, cleanName, artless, isOverframeRec, lookupName, driveDatedCopy, fillDriveCopies, deckPullPlan, deckPullIntoBox, openShare, shareLink, marketData, mkSetLine, mkKind, mkChase, renderMarket, analyzeDeckIdeas, runDeckIdeas, starterList, ideasState: () => ideas,
+    psa10Value, gradedValue, gradedTotals, pcLookup, pcKey, pcMatch, pcWhy, pcMisses, pcRarityNames, refreshGradedPrices, checkPricesNow, loadOcgCardsSoft, ocgListStatus, gradeShare, koRarity, jaRarity, ocgRegion, isRushNo, cleanName, artless, isOverframeRec, isMangaRec, mangaOf, matchRarity, withManga, mangaFree, lookupName, driveDatedCopy, fillDriveCopies, deckPullPlan, deckPullIntoBox, openShare, shareLink, marketData, mkSetLine, mkKind, mkChase, renderMarket, analyzeDeckIdeas, runDeckIdeas, starterList, ideasState: () => ideas,
     imgTag, productPics, recordPics, namePics, imageFor, shareItem, shareWant,
     silentSignInDue, maybeSilentSignIn, pageBusy, viewBusy, loadNewData, applyNewData, readDataText, dataLoad: () => dataLoad,
     loadOcgMarket, buildOcgMarket, ocgMk: () => ocgMk, loadYugiMarket, ymMatch, ymProduct, ymk: () => ymk, renderMarket, wantPrice,

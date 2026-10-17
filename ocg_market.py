@@ -280,6 +280,48 @@ def overframe(rarity):
     return rarity + OVERFRAME
 
 
+# Manga-Style cards (Original Artwork Collection, YAC1-JP071 to 100): the same Ultra Rare and Secret Rare printed in a
+# black-and-white manga look and in colour. A number has up to four printings to collect (and they sell at four
+# prices), so the version is part of the rarity: "Ultra Rare (Manga Monochrome)", "Secret Rare (Manga Color)".
+# Yugipedia lists the 30 cards without numbers ("; Dark Magician //description::(Manga-Style)"); BIGWEB tells the
+# versions apart by the product's name: "ブラック・マジシャン【モノクロ】", "ブラック・マジシャン【カラー版】".
+MANGA_MONO = " (Manga Monochrome)"
+MANGA_COLOR = " (Manga Color)"
+MANGA_SINCE = "2026-01-01"   # (sets from before don't have Manga-Style cards)
+MANGA_STYLE = re.compile(r"manga[\s-]*style", re.I)
+JA_MANGA = ((re.compile(r"【\s*モノクロ\s*】"), MANGA_MONO), (re.compile(r"【\s*カラー(?:版)?\s*】"), MANGA_COLOR))
+JA_MANGA_MARK = re.compile(r"\s*【\s*(?:モノクロ|カラー(?:版)?)\s*】\s*")
+MANGA_SUFFIX = re.compile(r"\s*\(manga (?:monochrome|color)\)$", re.I)
+
+
+def is_manga(rarity):
+    return bool(MANGA_SUFFIX.search(rarity or ""))
+
+
+def manga_base(rarity):
+    """"Ultra Rare (Manga Color)" -> "Ultra Rare"."""
+    return MANGA_SUFFIX.sub("", rarity or "")
+
+
+def manga_versions(rarity):
+    """A rarity of a Manga-Style card as the printings there are of it."""
+    rarity = manga_base(rarity)
+    return [rarity + MANGA_MONO, rarity + MANGA_COLOR]
+
+
+def manga_rarity(rarity, name):
+    """BIGWEB's rarity with the version its product name says ("…【モノクロ】"); a name that says none leaves it."""
+    for pattern, suffix in JA_MANGA:
+        if rarity and pattern.search(name or ""):
+            return manga_base(rarity) + suffix
+    return rarity
+
+
+def manga_free(name):
+    """The product's name without its version mark: the card's own Japanese name."""
+    return JA_MANGA_MARK.sub(" ", name or "").strip()
+
+
 def resolve_rarity(listed, rarity):
     """The rarity of the list (Yugipedia's names, Overframe ones included) that a shop's rarity is: the same one, else
     the Overframe one when the list has only that (BIGWEB calls Limit Over Collection's Prismatic Secret Rares, which
@@ -437,11 +479,11 @@ def build_sets(rows, region, rush=False):
 
 
 # ------------------------------------------------------------------ Yugipedia: a set's cards, in English
-def read_card_list(web, prefix, region):
+def read_card_list(web, prefix, region, manga=False):
     """A set's cards from Yugipedia's list page for the region ("Set Card Lists:Phantom Nightmare (OCG-KR)"). Numbers are
     PREFIX-JP001 and PREFIX-KR001; Korean sets up to the late 2000s used PREFIX-K001 (LOB-K025), and the oldest
     Japanese sets their own forms (LB-35, 302-001), so those are read with a wider search when the usual one finds
-    nothing."""
+    nothing. manga: the set may have Manga-Style cards (a recent Japanese set)."""
     tag = "(OCG-%s)" % ("JP" if region == "jp" else "KR")
     searches = [prefix + "-JP", prefix + "-"] if region == "jp" else [prefix + "-K"]   # (~LOB-K* finds LOB-K001 and LOB-KR001)
     for search in searches:
@@ -473,6 +515,9 @@ def read_card_list(web, prefix, region):
             # (a page that can't be read fails the list's lookup, so it's read again next time)
             for title in pages[:3]:
                 mark_overframe(cards, read_extended_lines(web, title))
+            # (Manga-Style cards, in a recent set's list: lines without a number; the list's own page is among the rows' titles)
+            if manga and search.endswith("-JP"):
+                read_manga_style(web, sorted({t for ts in rows.values() for t in ts if t.startswith("Set Card Lists:")}), cards, search)
             return cards
     return {}
 
@@ -486,17 +531,58 @@ RARITY_ABBR = {"C": "Common", "R": "Rare", "SR": "Super Rare", "UR": "Ultra Rare
                "PUR": "Prismatic Ultimate Rare", "RR": "Rush Rare", "ORR": "Over Rush Rare", "GRR": "Gold Rush Rare"}
 
 
-def read_extended_lines(web, title):
-    """Which lines of a set list are extended art (Overframe), from the page's own text (Yugipedia's data has a row per
-    line but doesn't say which is which): {number: (rarities on its usual lines, rarities on its Overframe lines)}.
-    A line looks like "LOCH-JP001; Dark Magician, the Pharaoh's Servant; Ultra Rare, Prismatic Secret Rare, Grand
-    Master Rare; New // description::(extended art)"; one without rarities has the list's own ("rarities=...")."""
+def list_text(web, title):
+    """The wiki text of one of Yugipedia's set list pages."""
     url = YUGIPEDIA + "?" + urllib.parse.urlencode({"action": "query", "prop": "revisions", "rvprop": "content", "rvslots": "main",
                                                      "titles": title, "format": "json", "formatversion": "2"})
     j = web.get_json(url, 1.1, {"Api-User-Agent": USER_AGENT})
     pages = (j.get("query") or {}).get("pages") or []
     rev = (((pages[0] if pages else {}) or {}).get("revisions") or [{}])[0] or {}
-    text = rev.get("content") or ((rev.get("slots") or {}).get("main") or {}).get("content") or ""
+    return rev.get("content") or ((rev.get("slots") or {}).get("main") or {}).get("content") or ""
+
+
+def read_manga_style(web, titles, cards, search):
+    """Manga-Style cards of a set list (see MANGA_*), added to cards: {number: [name, rarities]}. Yugipedia has them as
+    lines without a number, in the set's order, after the numbered cards ("; Dark Magician //description::(Manga-Style)"):
+    each takes the next number after the line before it (YAC1-JP070's next is YAC1-JP071). A line that does have its
+    number is the same card. Every rarity of one is a rarity per version: "Ultra Rare" is the monochrome and the colour
+    printing. Only a number that isn't taken yet is given."""
+    for title in titles[:3]:
+        text = list_text(web, title)
+        last, width = 0, 3
+        for block in re.findall(r"\{\{\s*Set list\s*\|(.*?)\n\s*\}\}", text, re.S | re.I):
+            head, _, body = block.partition("\n")
+            default = (re.search(r"(?:^|\|)\s*rarities\s*=\s*([^|]*)", head) or [None, ""])[1]
+            for line in body.splitlines():
+                main, _, notes = line.partition("//")
+                parts = [x.strip() for x in main.split(";")]
+                if len(parts) < 2:
+                    continue
+                number, manga = parts[0].upper(), bool(MANGA_STYLE.search(notes))
+                if number:
+                    at = re.match(re.escape(search) + r"(\d+)$", number)
+                    if at:
+                        last, width = int(at.group(1)), len(at.group(1))
+                    if manga and number in cards:
+                        cards[number][1] = [v for r in cards[number][1] for v in manga_versions(r)]
+                    continue
+                name = plain_text(parts[1])
+                if not manga or not name or not last:
+                    continue
+                last += 1
+                number = "%s%0*d" % (search, width, last)
+                if number in cards:
+                    continue
+                rarities = [RARITY_ABBR.get(x.strip(), x.strip()) for x in ((parts[2] if len(parts) > 2 else "") or default).split(",") if x.strip()]
+                cards[number] = [name, [v for r in rarities for v in manga_versions(r)]]
+
+
+def read_extended_lines(web, title):
+    """Which lines of a set list are extended art (Overframe), from the page's own text (Yugipedia's data has a row per
+    line but doesn't say which is which): {number: (rarities on its usual lines, rarities on its Overframe lines)}.
+    A line looks like "LOCH-JP001; Dark Magician, the Pharaoh's Servant; Ultra Rare, Prismatic Secret Rare, Grand
+    Master Rare; New // description::(extended art)"; one without rarities has the list's own ("rarities=...")."""
+    text = list_text(web, title)
     out = {}
     for block in re.findall(r"\{\{\s*Set list\s*\|(.*?)\n\s*\}\}", text, re.S | re.I):
         head, _, body = block.partition("\n")
@@ -539,25 +625,28 @@ def read_bigweb_sets(web):
     return out
 
 
+BIGWEB_PAGES = 15   # (30 listings a page; a set with a listing per version of its cards, like Original Artwork Collection's, has many)
+
+
 def read_bigweb_prices(web, prefix, ids, old):
     """Each card and rarity: the cheapest copy in stock for play ("プレイ用"), else any undamaged copy, else any; when it's
     sold out, the last price seen."""
     code = prefix + "-JP"
     found = {}
     for set_id in ids:
-        for page in range(1, 9):
+        for page in range(1, BIGWEB_PAGES + 1):
             j = web.get_json(BIGWEB + "/products?game_id=9&cardsets=%s&page=%d" % (set_id, page), 1.5)
             for it in j.get("items") or []:
                 number = unicodedata.normalize("NFKC", it.get("fname") or "").strip().upper()
                 if not number.startswith(code) and not re.match(re.escape(prefix) + r"-\d", number):   # (LB-35: the oldest sets' form)
                     continue
-                rarity = ja_rarity(((it.get("rarity") or {}).get("web")) or "")
+                rarity = manga_rarity(ja_rarity(((it.get("rarity") or {}).get("web")) or ""), unicodedata.normalize("NFKC", it.get("name") or ""))
                 cond = ((it.get("condition") or {}).get("web")) or ""
                 found.setdefault(number + "|" + rarity, []).append({
                     "price": it.get("price") if isinstance(it.get("price"), (int, float)) else 0,
                     "stock": it.get("stock_count") if isinstance(it.get("stock_count"), int) else 0,
                     "cond": cond, "img": it.get("image") if str(it.get("image") or "").startswith("https://") else "",
-                    "ja": plain_text(it.get("name"))})
+                    "ja": manga_free(plain_text(it.get("name")))})
             if not (j.get("pagenate") or {}).get("nextPage"):
                 break
     return pick_items(found, old)
@@ -1032,6 +1121,9 @@ def cards_jp(s, lists, prices, names, ja, rar):
     rows = []
     for number in sorted(by_number, key=lambda n: (len(n), n)):
         name, slots = by_number[number]
+        # (a plain "Ultra Rare" the list names but the shop sells only as Manga-Style versions: not a printing of its own)
+        versions = [manga_base(x[0]) for x in slots if is_manga(x[0])]
+        slots = [x for x in slots if is_manga(x[0]) or x[1] is not None or not any(same_rarity(x[0], b) for b in versions)]
         out = []
         for rarity, e, key in slots:
             e = e or {}
@@ -1170,6 +1262,29 @@ def host_of(region, kind):
     return "yugipedia" if kind == "list" else "fullahead" if kind == "fullahead" else "bigweb" if region == "jp" else "bunjang"
 
 
+def reread_old(sets_by_region, meta):
+    """What was read before a change of what the files hold is read again, newest sets first, as if never read: forgets
+    when it was looked up (meta). Since October 2026 Overframe printings have rarities of their own (lists and BIGWEB
+    prices of sets from the Overframe years); since the Manga-Style versions got theirs, a recent set's too."""
+    for region, sets in sets_by_region.items():
+        for s in sets:
+            if s["date"] < OVERFRAME_SINCE or s.get("rush"):
+                continue
+            name = "%s-%s.json" % (region, safe_name(s["prefix"]))
+            lst = read_json(cache_path("lists", name), None)
+            if lst is not None and not lst.get("ov"):
+                meta.pop("%s|%s|list" % (region, s["prefix"]), None)
+            prices_now = (read_json(cache_path("prices", name), None) or {}) if region == "jp" else {}
+            items = prices_now.get("items")
+            if items and not any((e or {}).get("v") for e in items.values()):
+                meta.pop("%s|%s|price" % (region, s["prefix"]), None)
+            if region == "jp" and s["date"] >= MANGA_SINCE:
+                if lst is not None and not lst.get("mg"):
+                    meta.pop("%s|%s|list" % (region, s["prefix"]), None)
+                if items and not prices_now.get("mg"):
+                    meta.pop("%s|%s|price" % (region, s["prefix"]), None)
+
+
 def run():
     web = Web(BUDGET)
     meta = read_json(cache_path("meta.json"), {})           # "region|prefix|kind" -> when it was last looked up
@@ -1198,19 +1313,7 @@ def run():
             say("  Couldn't read BIGWEB's set list (%s); using the last one." % err)
     for s in sets_by_region["jp"]:
         s["bigweb"] = (bw.get("sets") or {}).get(s["prefix"]) or []
-    # (since October 2026 Overframe printings have rarities of their own: the lists and BIGWEB prices of sets from the
-    # Overframe years read before that are read again, newest first, as if never read)
-    for region, sets in sets_by_region.items():
-        for s in sets:
-            if s["date"] < OVERFRAME_SINCE or s.get("rush"):
-                continue
-            name = "%s-%s.json" % (region, safe_name(s["prefix"]))
-            lst = read_json(cache_path("lists", name), None)
-            if lst is not None and not lst.get("ov"):
-                meta.pop("%s|%s|list" % (region, s["prefix"]), None)
-            items = (read_json(cache_path("prices", name), None) or {}).get("items") if region == "jp" else None
-            if items and not any((e or {}).get("v") for e in items.values()):
-                meta.pop("%s|%s|price" % (region, s["prefix"]), None)
+    reread_old(sets_by_region, meta)
     if not sets_by_region["jp"] and not sets_by_region["kr"]:
         say("  No sets: nothing to do this time.")
         return 0
@@ -1252,14 +1355,16 @@ def run():
         with lock:
             load(region, prefix)
         if kind == "list":
-            cards = read_card_list(web, prefix, region)
+            manga = region == "jp" and s["date"] >= MANGA_SINCE
+            cards = read_card_list(web, prefix, region, manga)
             with lock:
-                lists[k] = {"cards": cards, "ov": 1}   # (read with its Overframe printings)
+                lists[k] = {"cards": cards, "ov": 1, "mg": 1}   # (read with its Overframe printings and Manga-Style cards)
                 write_json(cache_path("lists", "%s-%s.json" % (region, safe_name(prefix))), lists[k])
         elif kind == "price" and region == "jp":
             items = read_bigweb_prices(web, prefix, s["bigweb"], prices[k].get("items"))
             with lock:
                 prices[k]["items"] = items
+                prices[k]["mg"] = 1   # (read with the Manga-Style versions told apart)
                 write_json(cache_path("prices", "%s-%s.json" % (region, safe_name(prefix))), prices[k])
             record_history("jp", prefix, {key: e.get("p") or None for key, e in items.items()})
         elif kind == "price":

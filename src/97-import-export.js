@@ -133,7 +133,7 @@
   // TCGplayer product match on card number, name and edition instead.
   function printingKey(r) {
     return r.productId ? "p|" + r.productId + "|" + (r.edition || "")
-      : "n|" + normNumber(r.number) + "|" + r.name.toLowerCase() + "|" + (r.edition || "");
+      : "n|" + normNumber(r.number) + "|" + r.name.toLowerCase() + "|" + (r.edition || "") + (mangaOf(r.rarity) ? "|" + r.rarity.toLowerCase() : "");   // (a Manga-Style card's two versions are two printings)
   }
   function groupByPrinting(list) {
     const map = new Map();

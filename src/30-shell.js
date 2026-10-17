@@ -31,6 +31,7 @@
       (filters.show === "manual" && !r.productId) ||
       (filters.show === "rush" && !r.sealed && isRushNo(r.number)) ||
       (filters.show === "overframe" && isOverframeRec(r)) ||
+      (filters.show === "manga" && isMangaRec(r)) ||
       (filters.show === "selling" && !!r.sell) ||
       (filters.show === "sealed" && r.sealed) ||
       (filters.show === "cards" && !r.sealed);
@@ -41,7 +42,7 @@
       (!filters.language || r.language === filters.language) &&
       (!filters.location || (filters.location === NO_LOCATION ? !r.location : r.location === filters.location)) &&
       show(r) &&
-      (!q || (r.name + " " + r.productName + " " + r.number + " " + r.setName + " " + r.location + " " + r.notes + " " + r.rarity + (isRushNo(r.number) ? " rush duel" : "") + (isOverframeRec(r) ? " overframe over frame extended art" : "") + (r.sell ? " selling sell list" : "")).toLowerCase().includes(q)));
+      (!q || (r.name + " " + r.productName + " " + r.number + " " + r.setName + " " + r.location + " " + r.notes + " " + r.rarity + (isRushNo(r.number) ? " rush duel" : "") + (isOverframeRec(r) ? " overframe over frame extended art" : "") + (isMangaRec(r) ? " manga style" + (mangaOf(r.rarity) === "Color" ? " colour" : " black and white") : "") + (r.sell ? " selling sell list" : "")).toLowerCase().includes(q)));
     return sortRecords(list);
   }
   function sortRecords(list) {
@@ -541,7 +542,7 @@
         '<span class="tile-meta">Sealed product</span></button>'
       : '<span class="tile-meta">' + esc(r.number || "No card number") + "</span>" +
         '<span class="tile-meta" title="' + esc(r.rarity) + '">' + esc(r.rarity || " ") + "</span></button>") +
-      '<div class="tile-foot"><span class="badges">' + (r.sealed ? '<span class="ed ed-sealed">Sealed</span>' : editionBadge(r.edition) + rushBadge(r.number) + overframeBadge(r)) + gradeBadge(r.grade) +
+      '<div class="tile-foot"><span class="badges">' + (r.sealed ? '<span class="ed ed-sealed">Sealed</span>' : editionBadge(r.edition) + rushBadge(r.number) + overframeBadge(r) + mangaBadge(r)) + gradeBadge(r.grade) +
       (r.grading ? '<span class="ed ed-away' + (expectedBack(r.grading) && expectedBack(r.grading).late ? " ed-late" : "") + '">At ' + esc(r.grading.company) + (expectedBack(r.grading) && expectedBack(r.grading).late ? ", late" : "") + "</span>" : "") +
       (extra ? '<span class="ed ed-extra">' + extra + " extra</span>" : "") + (r.sell ? '<span class="ed ed-sell">Selling</span>' : "") + "</span>" + priceHTML(r, extra) + "</div></article>";
   }
@@ -1206,6 +1207,10 @@
       html += "<p>" + esc(op.src) + ": <b>" + esc(fmtLocal(op.local, op.cur)) + "</b>" + (op.usd != null ? " ≈ <b>" + esc(usd(op.usd)) + "</b>" : "") +
         ' <span class="small">(' + esc(r.rarity || "") + (r.rarity ? ", " : "") + esc(op.note) + ")</span></p>" +
         (fp && !fp.none ? ocgChangesHTML(fp.row, "Price change") : "");
+    } else if (op && op.none && fp && fp.none && !fp.row && fp.card && fp.card.rows.some(x => mangaOf(x.rarity))) {
+      // (a Manga-Style card entered with no version, or a plain rarity: there is no one price to show for it)
+      html += '<p class="small">This card comes in separate versions, each with its own price. Change its rarity (Edit) to the one you have:</p><ul class="small">' +
+        fp.card.rows.map(x => "<li>" + esc(x.rarity) + ": " + (x.local ? esc(fmtLocal(x.local, OCG_CUR[fp.card.region])) + (ocgUSD(x.local, fp.card.region) != null ? " ≈ " + esc(usd(ocgUSD(x.local, fp.card.region))) : "") : "no price") + "</li>").join("") + "</ul>";
     } else if (op && op.none) {
       html += '<p class="small">' + esc(op.src) + " has no price for " + esc(r.rarity || "this card") + (op.note ? " (" + esc(op.note) + ")" : "") + ".</p>";
     } else if (!ocgLiveOK(g)) {
