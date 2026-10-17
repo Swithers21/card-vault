@@ -726,6 +726,7 @@
       esc(choice.rarity || "rarity unknown") + "</p><p>" + esc(lang) + "</p>" +
       (want ? "" : '<p style="margin-top:8px"><button type="button" class="link-btn" id="backToSearch">Pick a different rarity</button></p>') + "</div></div>" +
       (want ? fromWantNotice : "") +
+      ownedWhereHTML(r => !r.productId && !r.sealed && normNumber(r.number) === normNumber(card.code), "oLoc") +
       '<form id="ocgForm" class="stack">' +
       '<div class="price-line">' + (pr ? esc(pr.src) + ": <b>" + esc(fmtLocal(pr.local, pr.cur)) + "</b>" + (toUSD(pr.local, pr.cur) != null ? " ≈ <b>" + esc(usd(toUSD(pr.local, pr.cur))) + "</b>" : "") +
         ' <span class="small">(' + esc(pr.note) + ")</span>" : '<span class="small">No price found yet. Card Vault checks again every day; you can also enter your own estimate later.</span>') + "</div>" +
@@ -739,6 +740,7 @@
       '<div class="form-actions"><button class="btn btn-primary" type="submit">Add to collection</button></div></form>');
     if (want) $("oQty").value = String(want.qty || 1);
     wireSealedCard("oSealedCard", "oCond");
+    wireOwnedWhere();
     if ($("backToSearch")) $("backToSearch").addEventListener("click", () => openAdd({number: card.code}));
     $("ocgForm").addEventListener("submit", e => {
       e.preventDefault();

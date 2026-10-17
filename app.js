@@ -2048,6 +2048,26 @@
   }
 
   /* ----- shared form pieces ----- */
+  // What you already have of the card (or product) being added, by place: "You already have 3: Binder 1 ×2 · No location ×1".
+  // Tapping a place puts it in the form's location field (locId), to keep the new copies with the others. match(r) says
+  // which entries count; graded copies and ones away at a grader count too.
+  function ownedWhereHTML(match, locId) {
+    const mine = collection.filter(match);
+    if (!mine.length) return "";
+    const by = new Map();
+    for (const r of mine) by.set(r.location || "", (by.get(r.location || "") || 0) + r.qty);
+    const total = mine.reduce((t, r) => t + r.qty, 0);
+    const places = Array.from(by.entries()).sort((a, b) => b[1] - a[1] || a[0].localeCompare(b[0]));
+    return '<div class="owned-where" id="' + locId + 'Owned"><span>You already have <b>' + total + "</b>" + (places.length === 1 && !places[0][0] ? ", in no location." : places.length === 1 ? " in" : ":") + "</span>" +
+      (places.length === 1 && !places[0][0] ? "" : places.map(([loc, n]) => '<button type="button" class="chip" data-loc-pick="' + esc(loc) + '" data-loc-field="' + locId + '" title="Put the new ' +
+        (total === 1 ? "copy" : "copies") + ' here too">' + esc(locName(loc)) + " ×" + n + "</button>").join("")) + "</div>";
+  }
+  function wireOwnedWhere(root) {
+    (root || $("drawerBody")).querySelectorAll("[data-loc-pick]").forEach(b => b.addEventListener("click", () => {
+      const f = $(b.dataset.locField);
+      if (f) { f.value = b.dataset.locPick; f.dispatchEvent(new Event("input", {bubbles: true})); }
+    }));
+  }
   function locationFieldHTML(id, value) {
     return '<label class="field"><span>Location (optional): binder, box or deck</span><input class="input" id="' + id +
       '" list="locationList" autocomplete="off" placeholder="e.g. Binder 1" value="' + esc(value || "") + '"></label>';
@@ -2104,6 +2124,7 @@
     openDrawer(replacing ? "Change printing" : "Add a card",
       pickedHeadHTML(p, want ? "" : "Pick a different printing") +
       (want ? '<div class="notice" style="margin:0 0 14px">From your want list. Adding it to your collection takes it off the want list.</div>' : "") +
+      (replacing ? "" : ownedWhereHTML(r => r.productId === p.id, "fLoc")) +
       '<form id="pickedForm" class="stack">' +
       '<div class="grid-2"><label class="field"><span>Printing</span><select class="input" id="fEd">' + options(available.concat(PRINTINGS), defaultEd) + "</select></label>" +
       '<label class="field"><span>Condition</span><select class="input" id="fCond">' + options(CARD_CONDITIONS, v.condition) + "</select></label></div>" +
@@ -2137,6 +2158,7 @@
     $("fEd").addEventListener("change", updatePrice);
     $("fCond").addEventListener("change", updatePrice);
     wireSealedCard("fSealedCard", "fCond");
+    wireOwnedWhere();
     updatePrice();
     if ($("backToSearch")) $("backToSearch").addEventListener("click", () => openAdd({number: p.number, replaceId: replacing ? replacing.id : null}));
     if ($("toWant")) $("toWant").addEventListener("click", () => openWantForm(p, null, {edition: $("fEd").value, notes: $("fNotes").value.trim()}));
@@ -2361,6 +2383,7 @@
       "<h3>" + esc(p.name) + "</h3><p>" + esc(p.group.name) + "</p>" +
       (want ? "" : '<p style="margin-top:8px"><button type="button" class="link-btn" id="backToSearch">Pick a different product</button></p>') + "</div></div>" +
       (want ? fromWantNotice : "") +
+      ownedWhereHTML(r => r.productId === p.id, "sLocS") +
       '<form id="sealedForm" class="stack">' +
       '<div class="price-line">' + (v == null ? '<span class="small">TCGplayer has no recent sales for this product.</span>'
         : "TCGplayer market price: <b>" + esc(usd(v)) + "</b>" + (catalog && catalog.generated ? ' <span class="small">(' + esc(fmtDate(catalog.generated)) + ")</span>" : "")) + "</div>" +
@@ -2370,6 +2393,7 @@
       locationFieldHTML("sLocS", "") +
       '<div class="form-actions"><button class="btn btn-primary" type="submit">Add to collection</button></div></form>');
     if ($("backToSearch")) $("backToSearch").addEventListener("click", () => openSealedSearch(query));
+    wireOwnedWhere();
     $("sealedForm").addEventListener("submit", e => {
       e.preventDefault();
       const rec = upgradeRecord({id: newId(), productId: p.id, sealed: true, name: p.name, productName: p.name, setName: p.group.name,
@@ -2397,6 +2421,7 @@
       "<h3>" + esc(it.name) + "</h3><p>" + esc(it.setName) + "</p><p>" + esc(WANT_ONE[it.kind] + ", " + it.language) + "</p>" +
       (want ? "" : '<p style="margin-top:8px"><button type="button" class="link-btn" id="backToSearch">Pick a different product</button></p>') + "</div></div>" +
       (want ? fromWantNotice : "") +
+      (it.ref ? ownedWhereHTML(r => r.sealed && r.ref === it.ref, "gLoc") : "") +
       '<form id="shopSealedForm" class="stack">' +
       '<div class="price-line">' + (price != null ? esc(src) + " price: <b>" + esc(usd(price)) + "</b>" + (it.soldOut ? ' <span class="small">(sold out right now)</span>' : "") : '<span class="small">No price yet.</span>') + "</div>" +
       '<div class="grid-2"><label class="field"><span>Quantity</span><input class="input" id="gQty" type="number" min="1" step="1" value="' + (want ? want.qty || 1 : 1) + '"></label>' +
@@ -2409,6 +2434,7 @@
       locationFieldHTML("gLoc", "") +
       '<div class="form-actions"><button class="btn btn-primary" type="submit">Add to collection</button></div></form>');
     if ($("backToSearch")) $("backToSearch").addEventListener("click", () => openSealedSearch(opts.query || "", {lang: it.language}));
+    wireOwnedWhere();
     $("shopSealedForm").addEventListener("submit", e => {
       e.preventDefault();
       const cur = want ? wants.find(x => x.id === want.id) : null;
@@ -2464,7 +2490,7 @@
       '<p class="hint m-sealed-word" style="margin:-6px 0 0">No shop Card Vault reads sells this sealed, so it has no price of its own: the value you enter here is what it counts for (you can change it under Edit anytime).</p>' +
       '<div class="grid-2 m-card"><label class="field"><span>Japan price (¥)</span><input class="input" id="mJp" type="number" min="0" step="1"></label>' +
       '<label class="field"><span>Korea price (₩)</span><input class="input" id="mKr" type="number" min="0" step="1"></label></div>' +
-      '<div id="mLinks"></div>' +
+      '<div id="mLinks"></div><div id="mOwnedBox"></div>' +
       '<div class="field"><span>Photo (optional)</span>' +
       '<div class="lookup-row"><input class="input" id="mImage" type="url" placeholder="Paste a photo link, or find one" aria-label="Photo link" style="text-transform:none">' +
       '<button class="btn m-card" type="button" id="mFind">Find photos</button></div>' +
@@ -2478,7 +2504,14 @@
     const isSealed = () => $("mSealed").checked;
     wireSealedCard("mSealedCard", "mCond");
     $("mSealed").addEventListener("change", () => { $("manualForm").classList.toggle("m-sealed", isSealed()); refreshLinks(); });
-    const refreshLinks = () => { $("mLinks").innerHTML = isSealed() ? "" : manualLinks($("mName").value, $("mNumber").value); };
+    const refreshOwned = () => {
+      const number = isSealed() ? "" : normNumber($("mNumber").value), name = $("mName").value.trim().toLowerCase();
+      const box = $("mOwnedBox");
+      if (!box) return;
+      box.innerHTML = !number && !name ? "" : ownedWhereHTML(r => !!r.sealed === isSealed() && (number ? normNumber(r.number) === number : r.name.trim().toLowerCase() === name), "mLoc");
+      wireOwnedWhere(box);
+    };
+    const refreshLinks = () => { $("mLinks").innerHTML = isSealed() ? "" : manualLinks($("mName").value, $("mNumber").value); refreshOwned(); };
     $("mName").addEventListener("input", refreshLinks);
     $("mNumber").addEventListener("input", refreshLinks);
     refreshLinks();
@@ -3526,6 +3559,7 @@
       esc(choice.rarity || "rarity unknown") + "</p><p>" + esc(lang) + "</p>" +
       (want ? "" : '<p style="margin-top:8px"><button type="button" class="link-btn" id="backToSearch">Pick a different rarity</button></p>') + "</div></div>" +
       (want ? fromWantNotice : "") +
+      ownedWhereHTML(r => !r.productId && !r.sealed && normNumber(r.number) === normNumber(card.code), "oLoc") +
       '<form id="ocgForm" class="stack">' +
       '<div class="price-line">' + (pr ? esc(pr.src) + ": <b>" + esc(fmtLocal(pr.local, pr.cur)) + "</b>" + (toUSD(pr.local, pr.cur) != null ? " ≈ <b>" + esc(usd(toUSD(pr.local, pr.cur))) + "</b>" : "") +
         ' <span class="small">(' + esc(pr.note) + ")</span>" : '<span class="small">No price found yet. Card Vault checks again every day; you can also enter your own estimate later.</span>') + "</div>" +
@@ -3539,6 +3573,7 @@
       '<div class="form-actions"><button class="btn btn-primary" type="submit">Add to collection</button></div></form>');
     if (want) $("oQty").value = String(want.qty || 1);
     wireSealedCard("oSealedCard", "oCond");
+    wireOwnedWhere();
     if ($("backToSearch")) $("backToSearch").addEventListener("click", () => openAdd({number: card.code}));
     $("ocgForm").addEventListener("submit", e => {
       e.preventDefault();
