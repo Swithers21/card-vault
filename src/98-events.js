@@ -707,6 +707,7 @@
     // total doesn't sit low for the first few seconds (those cards count as $0 until it is here).
     if (collection.some(isOcg)) loadOcgCardsSoft();
     shopPricesReady();   // (the same for the Japanese and Korean sealed products you own: priced from the shops' lists)
+    if (collection.some(isMangaRec)) setTimeout(fillMangaPhotos, 3000);   // (Manga-Style cards: their version's scan as the photo)
     const linked = autoLink();
     if (linked) save();
     else if (recordValueHistory()) save({quiet: true});  // today's value-history point
@@ -738,7 +739,7 @@
     mergeBackup, checkBackupFile, openBatch, parseBatchLine, batchRowFor, addBatch, save, analyzeCSV, commitImport, openImport,
     findByNumber, searchByName, priceInfo, marketValue, unitValue, changeFor, periodChange, historySeries, totals, deleteRecords, exportCSV,
     openDetails, openAdd, openSettings, render, setTab, setsData, extrasMap, wantStatus, addWant, restoreBackup, backupPayload,
-    findYugiImages, rankYugiImages, parseYugiFile, recordValueHistory, niceTicks, dateTicks, checkForNewData, writeBackup, initBackup,
+    findYugiImages, rankYugiImages, parseYugiFile, yugiMangaPhoto, fillMangaPhotos, yugiLabel, recordValueHistory, niceTicks, dateTicks, checkForNewData, writeBackup, initBackup,
     photoCandidates, findPhotosBatch, tradeListText, parseDeckText, parseYdk, parseYdke, checkDeck, cardNamesFor, runDeckCheck,
     openSoldForm, recordSale, saleNumbers, buildReport, openReport, phoneCopyHTML, savePhoneCopy, writePhoneCopy, backupTextFrom,
     matchScanned, numberVariants, openScanner, stopScanner, prepCanvas, openWantForm, resolveLink, chooseBackupFile, linkGoogleDrive, driveToken, openMove, moveCopies,
