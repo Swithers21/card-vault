@@ -70,7 +70,7 @@ class SealedBase(unittest.TestCase):
         cls.pw.stop()
         cls.server.shutdown()
 
-    def open(self, records=(), wants=(), files=None, routes=None, width=1100, local=None):
+    def open(self, records=(), wants=(), files=None, routes=None, width=1100, local=None, raw=None):
         files = dict({"tcgplayer-data.js": tcg(), "tcgplayer-data-version.js": data.version(BUILT), "ocg-cards.js": data.cards(BUILT, 1500), "ocg-market.js": data.market(BUILT)}, **(files or {}))
         ctx = self.browser.new_context(service_workers="block", viewport={"width": width, "height": 900})
         self.addCleanup(ctx.close)
@@ -90,6 +90,10 @@ class SealedBase(unittest.TestCase):
             return go
         for pattern, body in (routes or {}).items():
             ctx.route(pattern, answer(body))
+        def plain(ctype, body):
+            return lambda route: route.fulfill(status=200, content_type=ctype, body=body)
+        for pattern, (ctype, body) in (raw or {}).items():     # (pictures and other files as they are)
+            ctx.route(pattern, plain(ctype, body))
 
         def serve(body):
             if body is None:        # the file can't be fetched at all

@@ -298,7 +298,7 @@
       const s = {region, id: region + ":" + r[0], prefix: String(r[0]), name: String(r[1] || r[0]), date: String(r[2] || ""), line: String(r[3] || "other"),
         cards: +r[4] || 0, local: String(r[6] || ""), box: region === "kr" && Array.isArray(r[7]) && +r[7][0] > 0 ? {price: +r[7][0], n: +r[7][1] || 0} : null, rush: isRushNo(r[0])};
       s.chase = (Array.isArray(r[5]) ? r[5] : []).filter(Array.isArray).map(c => ({number: normNumber(c[0]), name: String(c[1] || c[0]), rarity: String(c[2] || ""),
-        local: +c[3] || 0, stock: region === "jp" ? !!c[4] : null, n: region === "kr" ? +c[4] || 0 : null, img: safeImg(c[5]), set: s,
+        local: +c[3] || 0, stock: region === "jp" ? !!c[4] : null, n: region === "kr" ? +c[4] || 0 : null, img: bigwebImg(c[5]), set: s,
         sales: region === "kr" ? +c[6] || 0 : 0, sold: region === "kr" ? +c[7] || null : null, last: region === "kr" ? String(c[8] || "") : ""})).filter(c => c.local > 0);
       s.top = s.chase[0] || null;
       return s;
@@ -354,8 +354,15 @@
   const ocgCd = {data: null, loading: null, failed: 0, gaveUp: false};   // (gaveUp: it failed at some point this visit, even if "Check for new prices now" is asking again)
   const ocgCardsURL = () => ocgMarketURL().replace(/ocg-market\.js$/, "ocg-cards.js");
   const ocgHistoryBase = () => ocgMarketURL().replace(/ocg-market\.js$/, "ocg-history/");
+  // The nightly job's copies of Yugipedia's scans (card-scans/ on the website): "scan:<file>" in the lists
+  function scanURL(ref) {
+    const m = /^scan:([a-z0-9_.-]{1,160}\.(?:jpg|png|gif|webp))$/.exec(String(ref || ""));
+    const base = m ? ocgMarketURL().replace(/ocg-market\.js$/, "card-scans/") : "";
+    if (!base) return "";
+    try { return new URL(base + m[1], location.href).href; } catch (e) { return ""; }
+  }
   // BIGWEB's photos all live at one address pattern, so the list carries just the number
-  const bigwebImg = ref => { if (typeof ref === "number" && ref > 0) { const s = String(ref).padStart(8, "0"); return "https://image.bigweb.co.jp/new/imgc/" + s.slice(0, 3) + "/" + s.slice(3, 6) + "/" + ref + ".jpg"; } return safeImg(ref) || ""; };
+  const bigwebImg = ref => { if (typeof ref === "string" && ref.startsWith("scan:")) return scanURL(ref); if (typeof ref === "number" && ref > 0) { const s = String(ref).padStart(8, "0"); return "https://image.bigweb.co.jp/new/imgc/" + s.slice(0, 3) + "/" + s.slice(3, 6) + "/" + ref + ".jpg"; } return safeImg(ref) || ""; };
   function buildOcgCards(raw) {
     if (!raw || !Array.isArray(raw.jp) || !Array.isArray(raw.kr) || !Array.isArray(raw.names)) throw new Error("not the Japanese and Korean card data");
     const names = raw.names.map(String), ja = (raw.ja || []).map(String), rar = (raw.rar || []).map(String);
