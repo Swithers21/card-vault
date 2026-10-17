@@ -2898,6 +2898,10 @@
     const region = m && m[2] && YUGI_REGIONS[m[2]] ? m[2] : "";
     const plain = String(rarity || "").replace(/\s*\(overframe\)$/i, "").replace(MANGA_SUFFIX, ""), code = Object.keys(YUGI_RARITY).find(k => YUGI_RARITY[k] === plain) || "";
     const wantEA = /\(overframe\)|grand master/i.test(String(rarity || "")), ea = x => (x.extra || []).includes("EA");
+    // (a Manga-Style version's scan is named ...-MangaStyle-Monochrome / -MangaStyle-Color: that version's first, and
+    // for any other printing the Manga-Style scans last)
+    const mangaWant = mangaOf(rarity), isManga = x => (x.extra || []).includes("MangaStyle");
+    const mangaMatch = x => isManga(x) && (x.extra || []).includes(mangaWant === "Color" ? "Color" : "Monochrome");
     const exact = [], near = [], other = [];
     for (const im of images || []) {
       const f = parseYugiFile(im.file);
@@ -2911,16 +2915,49 @@
     const order = YUGI_FALLBACK[region] || ["EN", "NA", "EU", "AE", "JP", "KR"];
     const regionRank = r => r === region ? -1 : (order.indexOf(r) < 0 ? 99 : order.indexOf(r));
     // (the rarity's scan first; an Overframe printing's extended art, "-EA", or the usual art for the others)
-    const better = (a, b) => (b.rarity === code) - (a.rarity === code) || (rarity ? (ea(b) === wantEA) - (ea(a) === wantEA) : 0) || (a.rarity === "OP") - (b.rarity === "OP");
+    const better = (a, b) => (mangaWant ? mangaMatch(b) - mangaMatch(a) : isManga(a) - isManga(b)) ||
+      (b.rarity === code) - (a.rarity === code) || (rarity ? (ea(b) === wantEA) - (ea(a) === wantEA) : 0) || (a.rarity === "OP") - (b.rarity === "OP");
     exact.sort((a, b) => better(a, b) || regionRank(a.region) - regionRank(b.region));
     near.sort((a, b) => regionRank(a.region) - regionRank(b.region) || better(a, b));
     other.sort((a, b) => regionRank(a.region) - regionRank(b.region) || better(a, b));
-    return {exact, near, other, set, region};
+    return {exact, near, other, set, region, mangaMatch: mangaWant ? mangaMatch : null};
   }
   function yugiLabel(im) {
     const ed = im.extra.find(x => /^(1E|LE)$/.test(x));
-    return [im.set, YUGI_REGIONS[im.region] || im.region, YUGI_RARITY[im.rarity] || im.rarity, ed === "1E" ? "1st Ed." : ed === "LE" ? "Limited" : "", im.extra.includes("EA") ? "Overframe" : ""]
+    return [im.set, YUGI_REGIONS[im.region] || im.region, YUGI_RARITY[im.rarity] || im.rarity, ed === "1E" ? "1st Ed." : ed === "LE" ? "Limited" : "",
+      im.extra.includes("EA") ? "Overframe" : "", im.extra.includes("MangaStyle") ? (im.extra.includes("Color") ? "Manga colour" : "Manga B&W") : ""]
       .filter(Boolean).join(" · ");
+  }
+  // Yugipedia's scan of a Manga-Style version (black-and-white or colour), this printing's: the other version's scan
+  // is never used for it. null when Yugipedia has none yet.
+  async function yugiMangaPhoto(number, name, rarity) {
+    if (!mangaOf(rarity)) return null;
+    const res = await findYugiImages(number, name);
+    const rk = rankYugiImages(res.images, number, rarity);
+    const pick = rk.exact.find(rk.mangaMatch);
+    return pick ? pick.thumb : null;
+  }
+  // The Manga-Style cards you own get Yugipedia's scan of their version as their photo, since the shop's photo
+  // (BIGWEB's) may not load from where you are, and the scan shows the version itself. Quietly, once per opening,
+  // one request a second; a card whose photo you chose yourself (not the shop's) is left alone.
+  const mangaFill = {running: false, done: new Set()};
+  const shopPhoto = u => !u || /^https:\/\/image\.bigweb\.co\.jp\//.test(String(u));
+  async function fillMangaPhotos() {
+    if (mangaFill.running) return 0;
+    const list = collection.filter(r => isMangaRec(r) && shopPhoto(r.customImage) && !mangaFill.done.has(r.id) && ocgRegion(r.number));
+    if (!list.length) return 0;
+    mangaFill.running = true;
+    let found = 0;
+    try {
+      for (const r of list) {
+        mangaFill.done.add(r.id);
+        let pick = null;
+        try { pick = await yugiMangaPhoto(r.number, lookupName(r.name), r.rarity); } catch (e) { break; }   // (Yugipedia can't be reached: next time)
+        if (pick && collection.includes(r) && shopPhoto(r.customImage)) { r.customImage = pick; found++; }
+      }
+    } finally { mangaFill.running = false; }
+    if (found) { save({quiet: true}); render(); }
+    return found;
   }
   async function showYugiPicker(box, number, name, rarity, onPick) {
     number = normNumber(number);
@@ -3425,6 +3462,19 @@
     out.querySelector("#manualOcg").addEventListener("click", () => openManual({number: code, language: lang, name: card.name, setName: info.setName}));
     if (out.querySelector("#ocgLive")) out.querySelector("#ocgLive").addEventListener("click", () => showOcgLookup(out, code, m, Object.assign({}, opts, {live: true})));
     out.querySelectorAll(".result").forEach(btn => btn.addEventListener("click", () => openOcgForm(info, lang, choices[+btn.dataset.idx])));
+    // Manga-Style versions: Yugipedia's scan of each version, once it's here (the shop's photo may not load)
+    if (choices.some(c => mangaOf(c.rarity))) {
+      findYugiImages(code, card.name).then(res => {
+        choices.forEach((c, i) => {
+          if (!mangaOf(c.rarity)) return;
+          const rk = rankYugiImages(res.images, code, c.rarity), pick = rk.exact.find(rk.mangaMatch);
+          if (!pick) return;
+          c.yugi = pick.thumb;
+          const img = out.querySelector('.result[data-idx="' + i + '"] .sleeve');
+          if (img) img.innerHTML = imgTag({list: [pick.thumb, c.image]}, card.name);
+        });
+      }).catch(() => {});
+    }
   }
   // opts.fromWant: the want-list entry this card came from (it's taken off once the card is added)
   function openOcgForm(card, lang, choice, opts) {
@@ -3433,7 +3483,7 @@
     const pr = choice.price;
     const want = opts.fromWant ? wants.find(w => w.id === opts.fromWant) : null;
     openDrawer("Add a card",
-      '<div class="picked"><span class="sleeve">' + imgTag({list: [choice.image, choice.backup].concat(namePics(card.name, "in_400x400").list)}, card.name, true) + "</span><div>" +
+      '<div class="picked"><span class="sleeve">' + imgTag({list: [choice.yugi, choice.image, choice.backup].concat(namePics(card.name, "in_400x400").list)}, card.name, true) + "</span><div>" +
       "<h3>" + esc(card.name) + "</h3>" + (choice.ja ? "<p>" + esc(choice.ja) + "</p>" : "") + "<p>" + esc(card.setName || "") + "</p><p>" + esc(card.code) + ", " +
       esc(choice.rarity || "rarity unknown") + "</p><p>" + esc(lang) + "</p>" +
       (want ? "" : '<p style="margin-top:8px"><button type="button" class="link-btn" id="backToSearch">Pick a different rarity</button></p>') + "</div></div>" +
@@ -3454,11 +3504,12 @@
       e.preventDefault();
       const rec = upgradeRecord({id: newId(), productId: null, name: card.name, productName: card.name, setName: card.setName, number: card.code,
         rarity: choice.rarity, edition: $("oEd").value, condition: $("oCond").value, language: lang, qty: posInt($("oQty").value) || 1,
-        customImage: choice.image || null, paid: num($("oPaid").value), notes: $("oNotes").value.trim(), location: $("oLoc").value,
+        customImage: choice.yugi || choice.image || null, paid: num($("oPaid").value), notes: $("oNotes").value.trim(), location: $("oLoc").value,
         grade: readGradeFields("o"), added: new Date().toISOString()});
       const res = addOrMerge(rec);
       const took = want ? tookWant(want.id, rec.qty) : "";
       save(); render(); closeDrawer();
+      if (isMangaRec(rec) && !choice.yugi) fillMangaPhotos();   // (its version's scan, when the pick screen hadn't got it yet)
       if (want) { toast("Added " + rec.name + " (" + rec.number + ")" + took); return; }
       toast(res.merged ? "Added. You now have " + res.record.qty + " of " + rec.name + " (" + rec.number + ")." : "Added " + rec.name + " (" + rec.number + ").",
         {action: "Add another", onAction: () => openAdd()});
@@ -13469,6 +13520,7 @@
     // total doesn't sit low for the first few seconds (those cards count as $0 until it is here).
     if (collection.some(isOcg)) loadOcgCardsSoft();
     shopPricesReady();   // (the same for the Japanese and Korean sealed products you own: priced from the shops' lists)
+    if (collection.some(isMangaRec)) setTimeout(fillMangaPhotos, 3000);   // (Manga-Style cards: their version's scan as the photo)
     const linked = autoLink();
     if (linked) save();
     else if (recordValueHistory()) save({quiet: true});  // today's value-history point
@@ -13500,7 +13552,7 @@
     mergeBackup, checkBackupFile, openBatch, parseBatchLine, batchRowFor, addBatch, save, analyzeCSV, commitImport, openImport,
     findByNumber, searchByName, priceInfo, marketValue, unitValue, changeFor, periodChange, historySeries, totals, deleteRecords, exportCSV,
     openDetails, openAdd, openSettings, render, setTab, setsData, extrasMap, wantStatus, addWant, restoreBackup, backupPayload,
-    findYugiImages, rankYugiImages, parseYugiFile, recordValueHistory, niceTicks, dateTicks, checkForNewData, writeBackup, initBackup,
+    findYugiImages, rankYugiImages, parseYugiFile, yugiMangaPhoto, fillMangaPhotos, yugiLabel, recordValueHistory, niceTicks, dateTicks, checkForNewData, writeBackup, initBackup,
     photoCandidates, findPhotosBatch, tradeListText, parseDeckText, parseYdk, parseYdke, checkDeck, cardNamesFor, runDeckCheck,
     openSoldForm, recordSale, saleNumbers, buildReport, openReport, phoneCopyHTML, savePhoneCopy, writePhoneCopy, backupTextFrom,
     matchScanned, numberVariants, openScanner, stopScanner, prepCanvas, openWantForm, resolveLink, chooseBackupFile, linkGoogleDrive, driveToken, openMove, moveCopies,
