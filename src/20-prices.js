@@ -360,9 +360,12 @@
   function recordPics(r, size) {
     const own = safeImg(r.customImage);
     const p = r.productId && catalog ? catalog.byId.get(r.productId) : null;
-    if (p) { const pp = productPics(p, size); return {list: [own].concat(pp.list), sub: pp.sub, art: pp.art}; }
+    // (a card in another language: its own language's print before TCGplayer's English photo)
+    if (p) { const pp = productPics(p, size), lp = printPicOf(r); return {list: [own, lp && lp.u ? lp.u : ""].concat(pp.list), sub: pp.sub, art: pp.art}; }
     if (r.sealed && r.ref) return shopSealedPics(r, own);
-    const list = [own, r.productId ? tcgImg(r.productId, size) : "", ocgImage(r)];
+    // (a photo kept from BIGWEB, whose server may not answer, after the list's own: the website's copy of the scan)
+    const shopOwn = /^https:\/\/image\.bigweb\.co\.jp\//.test(own);
+    const list = shopOwn ? [ocgImage(r), own, r.productId ? tcgImg(r.productId, size) : ""] : [own, r.productId ? tcgImg(r.productId, size) : "", ocgImage(r)];
     if (!r.sealed) {
       const key = photoKey(r.name);
       list.push(...printingPhotos(key, r.rarity, 0, size, 2));

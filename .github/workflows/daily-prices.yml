@@ -120,6 +120,36 @@ jobs:
           python ocg_market.py | tee ocg.log
           echo "::notice title=Japanese and Korean cards::$(tail -n 1 ocg.log)"
 
+      # Pictures of the Market's Japanese and Korean chase cards: Yugipedia's scan of each card's own print (set,
+      # language, rarity), for the ones whose shop has no photo that loads. Yugipedia asks sites to keep their own copy
+      # of the pictures they use, so the folder is kept between runs and a picture is never downloaded twice; a few
+      # hundred a run, at Yugipedia's pace (one request a second), until all are done.
+      - name: Bring back the card scans kept so far
+        uses: actions/cache/restore@v6
+        with:
+          path: card-scans
+          key: card-scans-${{ github.run_id }}
+          restore-keys: card-scans-
+
+      - name: Card scans from Yugipedia
+        id: scans
+        continue-on-error: true   # the website then shows the photos it had
+        timeout-minutes: 16
+        env:
+          CARDVAULT_SCANS_MINUTES: "12"
+        run: |
+          # (Pillow shrinks the scans to small JPEGs; without it they are kept as they come)
+          python -m pip install --quiet --disable-pip-version-check Pillow || true
+          python card_scans.py | tee scans.log
+          echo "::notice title=Card scans::$(tail -n 1 scans.log)"
+
+      - name: Keep the card scans for tomorrow
+        if: always()
+        uses: actions/cache/save@v6
+        with:
+          path: card-scans
+          key: card-scans-${{ github.run_id }}
+
       # The grading companies' price lists (PSA, Beckett, CGC, SGC, TAG), read from their own pages once a day.
       - name: Grading companies' fees
         id: fees
@@ -177,7 +207,7 @@ jobs:
 
       - name: Put the website together
         run: |
-          mkdir -p _site/icons _site/card-images
+          mkdir -p _site/icons _site/card-images _site/card-scans
           # (each if it's there: an earlier version being put back may not have all of them; the look-over below catches a missing one)
           for f in index.html app.css app.js config.js manifest.webmanifest oauth.html share.html sw.js; do if [ -f "$f" ]; then cp "$f" _site/; fi; done
           cp icons/*.png _site/icons/
@@ -190,6 +220,8 @@ jobs:
           if ls ocg-history/*.json >/dev/null 2>&1; then mkdir -p _site/ocg-history && cp ocg-history/*.json _site/ocg-history/; fi
           if ls card-images/*.jpg >/dev/null 2>&1; then cp card-images/*.jpg _site/card-images/; fi
           echo "$(ls _site/card-images | wc -l) card pictures"
+          if [ -d card-scans ]; then find card-scans -maxdepth 1 -type f \( -name '*.jpg' -o -name '*.png' -o -name '*.gif' -o -name '*.webp' \) -exec cp {} _site/card-scans/ \;; fi
+          echo "$(ls _site/card-scans | wc -l) card scans"
           python card_history.py _site/history || echo "No price history files this time."
           ls -la _site
 

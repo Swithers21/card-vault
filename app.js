@@ -1179,9 +1179,12 @@
   function recordPics(r, size) {
     const own = safeImg(r.customImage);
     const p = r.productId && catalog ? catalog.byId.get(r.productId) : null;
-    if (p) { const pp = productPics(p, size); return {list: [own].concat(pp.list), sub: pp.sub, art: pp.art}; }
+    // (a card in another language: its own language's print before TCGplayer's English photo)
+    if (p) { const pp = productPics(p, size), lp = printPicOf(r); return {list: [own, lp && lp.u ? lp.u : ""].concat(pp.list), sub: pp.sub, art: pp.art}; }
     if (r.sealed && r.ref) return shopSealedPics(r, own);
-    const list = [own, r.productId ? tcgImg(r.productId, size) : "", ocgImage(r)];
+    // (a photo kept from BIGWEB, whose server may not answer, after the list's own: the website's copy of the scan)
+    const shopOwn = /^https:\/\/image\.bigweb\.co\.jp\//.test(own);
+    const list = shopOwn ? [ocgImage(r), own, r.productId ? tcgImg(r.productId, size) : ""] : [own, r.productId ? tcgImg(r.productId, size) : "", ocgImage(r)];
     if (!r.sealed) {
       const key = photoKey(r.name);
       list.push(...printingPhotos(key, r.rarity, 0, size, 2));
@@ -2999,37 +3002,90 @@
       im.extra.includes("EA") ? "Overframe" : "", im.extra.includes("MangaStyle") ? (im.extra.includes("Color") ? "Manga colour" : "Manga B&W") : ""]
       .filter(Boolean).join(" · ");
   }
-  // Yugipedia's scan of a Manga-Style version (black-and-white or colour), this printing's: the other version's scan
-  // is never used for it. null when Yugipedia has none yet.
-  async function yugiMangaPhoto(number, name, rarity) {
-    if (!mangaOf(rarity)) return null;
+  // Yugipedia's scan of this exact print among a card's gallery (as ranked by rankYugiImages): the same set and language;
+  // a Manga-Style version's own scan, never the other version's, and for any other print never a Manga-Style one (an
+  // Overframe print's extended art first). null when Yugipedia has none yet.
+  function yugiPrintPick(rk, rarity) {
+    if (mangaOf(rarity)) return rk.exact.find(rk.mangaMatch) || null;
+    return rk.exact.find(x => !(x.extra || []).includes("MangaStyle")) || null;
+  }
+  async function yugiPrintPhoto(number, name, rarity) {
     const res = await findYugiImages(number, name);
-    const rk = rankYugiImages(res.images, number, rarity);
-    const pick = rk.exact.find(rk.mangaMatch);
+    const pick = yugiPrintPick(rankYugiImages(res.images, number, rarity), rarity);
     return pick ? pick.thumb : null;
   }
-  // The Manga-Style cards you own get Yugipedia's scan of their version as their photo, since the shop's photo
-  // (BIGWEB's) may not load from where you are, and the scan shows the version itself. Quietly, once per opening,
-  // one request a second; a card whose photo you chose yourself (not the shop's) is left alone.
-  const mangaFill = {running: false, done: new Set()};
+  const yugiMangaPhoto = (number, name, rarity) => mangaOf(rarity) ? yugiPrintPhoto(number, name, rarity) : Promise.resolve(null);
+  // A card from TCGplayer in another language: that language's print (LOB-EN001 in French is LOB-FR001 on Yugipedia).
+  const LANG_REGION = {Japanese: "JP", Korean: "KR", French: "FR", German: "DE", Italian: "IT", Spanish: "SP", Portuguese: "PT"};
+  function langNumber(number, language) {
+    const code = LANG_REGION[language], m = normNumber(number).match(/^([A-Z0-9]+)-(?:[A-Z]{1,2})?(\d+[A-Z]?)$/);
+    return code && m ? m[1] + "-" + code + m[2] : "";
+  }
+  // Those photos are kept on this device ({u: the photo, "" when Yugipedia had none, asked again after two weeks; t}),
+  // under TCGplayer's (which stays the photo when there's none); a photo you chose yourself always comes first.
+  const PRINT_PICS_KEY = "cardvault.v2.printpics";
+  const printPics = {map: null};
+  function printPicMap() {
+    if (!printPics.map) { const c = readJSON(PRINT_PICS_KEY, {}); printPics.map = c && typeof c === "object" && !Array.isArray(c) ? c : {}; }
+    return printPics.map;
+  }
+  const printPicKey = r => r.productId + "|" + r.language + "|" + String(r.rarity || "").toLowerCase();
+  function printPicOf(r) {
+    if (!r || !r.productId || r.sealed || r.language === "English" || !LANG_REGION[r.language]) return null;
+    const e = printPicMap()[printPicKey(r)];
+    return e && typeof e === "object" ? e : null;
+  }
+  function printPicPut(r, url) {
+    const m = printPicMap();
+    m[printPicKey(r)] = {u: safeImg(url) || "", t: Date.now()};
+    const keys = Object.keys(m);
+    if (keys.length > 3000) keys.sort((a, b) => (m[a].t || 0) - (m[b].t || 0)).slice(0, keys.length - 3000).forEach(k => delete m[k]);
+    try { localStorage.setItem(PRINT_PICS_KEY, JSON.stringify(m)); } catch (e) { /* optional */ }
+  }
+  // The nightly job's copy of Yugipedia's scan of a print, on the website (card-scans/)
+  const isScanURL = u => /\/card-scans\/[a-z0-9_.-]+\.(jpg|png|gif|webp)$/.test(String(u || ""));
+  // Your cards get a photo of their own print, quietly, a few seconds after opening, one Yugipedia request a second (up
+  // to 80 cards an opening; the rest the next time): Japanese and Korean cards whose list and shop have no photo that
+  // loads (BIGWEB's doesn't from outside Japan), Manga-Style ones their version's, and cards from TCGplayer in another
+  // language that language's print. A photo you chose yourself is left alone.
+  const printFill = {running: false, done: new Set()};
+  const mangaFill = printFill;
   const shopPhoto = u => !u || /^https:\/\/image\.bigweb\.co\.jp\//.test(String(u));
-  async function fillMangaPhotos() {
-    if (mangaFill.running) return 0;
-    const list = collection.filter(r => isMangaRec(r) && shopPhoto(r.customImage) && !mangaFill.done.has(r.id) && ocgRegion(r.number));
-    if (!list.length) return 0;
-    mangaFill.running = true;
-    let found = 0;
+  const PRINT_FILL_MAX = 80;
+  async function fillPrintPhotos() {
+    if (printFill.running) return 0;
+    const fresh = r => !printFill.done.has(r.id);
+    const ocgList = collection.filter(r => fresh(r) && isOcg(r) && !r.sealed && shopPhoto(r.customImage) && !isScanURL(ocgImage(r)) && ocgRegion(r.number))
+      .sort((a, b) => !!isMangaRec(b) - !!isMangaRec(a));
+    const langList = collection.filter(r => fresh(r) && r.productId && !r.sealed && !safeImg(r.customImage) && langNumber(r.number, r.language) &&
+      (e => !e || (!e.u && Date.now() - (e.t || 0) > 14 * 86400000))(printPicOf(r)));
+    if (!ocgList.length && !langList.length) return 0;
+    printFill.running = true;
+    let found = 0, kept = 0, asked = 0;
     try {
-      for (const r of list) {
-        mangaFill.done.add(r.id);
+      for (const r of ocgList) {
+        if (asked++ >= PRINT_FILL_MAX) break;
+        printFill.done.add(r.id);
         let pick = null;
-        try { pick = await yugiMangaPhoto(r.number, lookupName(r.name), r.rarity); } catch (e) { break; }   // (Yugipedia can't be reached: next time)
+        try { pick = await yugiPrintPhoto(r.number, lookupName(r.name), r.rarity); } catch (e) { return found; }   // (Yugipedia can't be reached: next time)
         if (pick && collection.includes(r) && shopPhoto(r.customImage)) { r.customImage = pick; found++; }
       }
-    } finally { mangaFill.running = false; }
-    if (found) { save({quiet: true}); render(); }
-    return found;
+      for (const r of langList) {
+        if (asked++ >= PRINT_FILL_MAX) break;
+        printFill.done.add(r.id);
+        let pick = null;
+        try { pick = await yugiPrintPhoto(langNumber(r.number, r.language), lookupName(r.name), r.rarity); } catch (e) { return found + kept; }
+        printPicPut(r, pick);
+        if (pick) kept++;
+      }
+    } finally {
+      printFill.running = false;
+      if (found) save({quiet: true});
+      if (found || kept) render();
+    }
+    return found + kept;
   }
+  const fillMangaPhotos = fillPrintPhotos;
   async function showYugiPicker(box, number, name, rarity, onPick) {
     number = normNumber(number);
     name = String(name || "").trim();
@@ -3533,12 +3589,13 @@
     out.querySelector("#manualOcg").addEventListener("click", () => openManual({number: code, language: lang, name: card.name, setName: info.setName}));
     if (out.querySelector("#ocgLive")) out.querySelector("#ocgLive").addEventListener("click", () => showOcgLookup(out, code, m, Object.assign({}, opts, {live: true})));
     out.querySelectorAll(".result").forEach(btn => btn.addEventListener("click", () => openOcgForm(info, lang, choices[+btn.dataset.idx])));
-    // Manga-Style versions: Yugipedia's scan of each version, once it's here (the shop's photo may not load)
-    if (choices.some(c => mangaOf(c.rarity))) {
+    // Each print with no picture of its own here yet (the website's copy of its scan): Yugipedia's scan of it, once it's
+    // here (BIGWEB's photo may not load); a Manga-Style version's own scan
+    if (choices.some(c => !isScanURL(c.image))) {
       findYugiImages(code, card.name).then(res => {
         choices.forEach((c, i) => {
-          if (!mangaOf(c.rarity)) return;
-          const rk = rankYugiImages(res.images, code, c.rarity), pick = rk.exact.find(rk.mangaMatch);
+          if (isScanURL(c.image)) return;
+          const pick = yugiPrintPick(rankYugiImages(res.images, code, c.rarity), c.rarity);
           if (!pick) return;
           c.yugi = pick.thumb;
           const img = out.querySelector('.result[data-idx="' + i + '"] .sleeve');
@@ -3584,7 +3641,7 @@
       const res = addOrMerge(rec);
       const took = want ? tookWant(want.id, rec.qty) : "";
       save(); render(); closeDrawer();
-      if (isMangaRec(rec) && !choice.yugi) fillMangaPhotos();   // (its version's scan, when the pick screen hadn't got it yet)
+      if (!choice.yugi && !isScanURL(choice.image)) fillPrintPhotos();   // (its print's scan, when the pick screen hadn't got it yet)
       if (want) { toast("Added " + rec.name + " (" + rec.number + ")" + took); return; }
       toast(res.merged ? "Added. You now have " + res.record.qty + " of " + rec.name + " (" + rec.number + ")." : "Added " + rec.name + " (" + rec.number + ").",
         {action: "Add another", onAction: () => openAdd()});
@@ -4093,7 +4150,7 @@
       const s = {region, id: region + ":" + r[0], prefix: String(r[0]), name: String(r[1] || r[0]), date: String(r[2] || ""), line: String(r[3] || "other"),
         cards: +r[4] || 0, local: String(r[6] || ""), box: region === "kr" && Array.isArray(r[7]) && +r[7][0] > 0 ? {price: +r[7][0], n: +r[7][1] || 0} : null, rush: isRushNo(r[0])};
       s.chase = (Array.isArray(r[5]) ? r[5] : []).filter(Array.isArray).map(c => ({number: normNumber(c[0]), name: String(c[1] || c[0]), rarity: String(c[2] || ""),
-        local: +c[3] || 0, stock: region === "jp" ? !!c[4] : null, n: region === "kr" ? +c[4] || 0 : null, img: safeImg(c[5]), set: s,
+        local: +c[3] || 0, stock: region === "jp" ? !!c[4] : null, n: region === "kr" ? +c[4] || 0 : null, img: bigwebImg(c[5]), set: s,
         sales: region === "kr" ? +c[6] || 0 : 0, sold: region === "kr" ? +c[7] || null : null, last: region === "kr" ? String(c[8] || "") : ""})).filter(c => c.local > 0);
       s.top = s.chase[0] || null;
       return s;
@@ -4149,8 +4206,15 @@
   const ocgCd = {data: null, loading: null, failed: 0, gaveUp: false};   // (gaveUp: it failed at some point this visit, even if "Check for new prices now" is asking again)
   const ocgCardsURL = () => ocgMarketURL().replace(/ocg-market\.js$/, "ocg-cards.js");
   const ocgHistoryBase = () => ocgMarketURL().replace(/ocg-market\.js$/, "ocg-history/");
+  // The nightly job's copies of Yugipedia's scans (card-scans/ on the website): "scan:<file>" in the lists
+  function scanURL(ref) {
+    const m = /^scan:([a-z0-9_.-]{1,160}\.(?:jpg|png|gif|webp))$/.exec(String(ref || ""));
+    const base = m ? ocgMarketURL().replace(/ocg-market\.js$/, "card-scans/") : "";
+    if (!base) return "";
+    try { return new URL(base + m[1], location.href).href; } catch (e) { return ""; }
+  }
   // BIGWEB's photos all live at one address pattern, so the list carries just the number
-  const bigwebImg = ref => { if (typeof ref === "number" && ref > 0) { const s = String(ref).padStart(8, "0"); return "https://image.bigweb.co.jp/new/imgc/" + s.slice(0, 3) + "/" + s.slice(3, 6) + "/" + ref + ".jpg"; } return safeImg(ref) || ""; };
+  const bigwebImg = ref => { if (typeof ref === "string" && ref.startsWith("scan:")) return scanURL(ref); if (typeof ref === "number" && ref > 0) { const s = String(ref).padStart(8, "0"); return "https://image.bigweb.co.jp/new/imgc/" + s.slice(0, 3) + "/" + s.slice(3, 6) + "/" + ref + ".jpg"; } return safeImg(ref) || ""; };
   function buildOcgCards(raw) {
     if (!raw || !Array.isArray(raw.jp) || !Array.isArray(raw.kr) || !Array.isArray(raw.names)) throw new Error("not the Japanese and Korean card data");
     const names = raw.names.map(String), ja = (raw.ja || []).map(String), rar = (raw.rar || []).map(String);
@@ -13595,7 +13659,7 @@
     // total doesn't sit low for the first few seconds (those cards count as $0 until it is here).
     if (collection.some(isOcg)) loadOcgCardsSoft();
     shopPricesReady();   // (the same for the Japanese and Korean sealed products you own: priced from the shops' lists)
-    if (collection.some(isMangaRec)) setTimeout(fillMangaPhotos, 3000);   // (Manga-Style cards: their version's scan as the photo)
+    setTimeout(fillPrintPhotos, 3000);   // (your cards: a photo of their own print, where they have none that loads)
     const linked = autoLink();
     if (linked) save();
     else if (recordValueHistory()) save({quiet: true});  // today's value-history point
@@ -13627,7 +13691,7 @@
     mergeBackup, checkBackupFile, openBatch, parseBatchLine, batchRowFor, addBatch, save, analyzeCSV, commitImport, openImport,
     findByNumber, searchByName, priceInfo, marketValue, unitValue, changeFor, periodChange, historySeries, totals, deleteRecords, exportCSV,
     openDetails, openAdd, openSettings, render, setTab, setsData, extrasMap, wantStatus, addWant, restoreBackup, backupPayload,
-    findYugiImages, rankYugiImages, parseYugiFile, yugiMangaPhoto, fillMangaPhotos, yugiLabel, recordValueHistory, niceTicks, dateTicks, checkForNewData, writeBackup, initBackup,
+    findYugiImages, rankYugiImages, parseYugiFile, yugiMangaPhoto, fillMangaPhotos, fillPrintPhotos, yugiPrintPick, langNumber, printPicOf, scanURL, isScanURL, yugiLabel, recordValueHistory, niceTicks, dateTicks, checkForNewData, writeBackup, initBackup,
     photoCandidates, findPhotosBatch, tradeListText, parseDeckText, parseYdk, parseYdke, checkDeck, cardNamesFor, runDeckCheck,
     openSoldForm, recordSale, saleNumbers, buildReport, openReport, phoneCopyHTML, savePhoneCopy, writePhoneCopy, backupTextFrom,
     matchScanned, numberVariants, openScanner, stopScanner, prepCanvas, openWantForm, resolveLink, chooseBackupFile, linkGoogleDrive, driveToken, openMove, moveCopies,
