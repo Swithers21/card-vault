@@ -48,7 +48,8 @@
     cert: ["certnumber", "cert", "certificationnumber"],
     gradedValue: ["gradedvalueusd", "gradedvalue"],
     sealed: ["sealed", "sealedproduct"],
-    g10: ["psa10valueusd", "psa10value", "psa10"]
+    g10: ["psa10valueusd", "psa10value", "psa10"],
+    shopRef: ["shopproduct", "shopref"], shop: ["shop"], shopLink: ["shoplink"], shopPrice: ["shopprice", "shoppriceusd"]
   };
   function mapHeaders(headers) {
     const norm = headers.map(h => String(h || "").toLowerCase().replace(/[^a-z0-9]/g, ""));
@@ -99,6 +100,7 @@
       location: get("location"),
       grade: get("gradedBy") ? {company: get("gradedBy"), grade: get("grade"), cert: get("cert"), value: get("gradedValue")} : null,
       sealed: /^(yes|true|1|sealed)$/i.test(get("sealed")) || (!!product && product.sealed), g10: num(get("g10")),
+      ref: get("shopRef") || null, shop: get("shop"), link: get("shopLink"), shopPrice: num(get("shopPrice")),   // (a Japanese or Korean box from a shop)
       notes: get("notes"), added: added ? added.toISOString() : importedAt
     })};
   }
@@ -133,6 +135,7 @@
   // TCGplayer product match on card number, name and edition instead.
   function printingKey(r) {
     return r.productId ? "p|" + r.productId + "|" + (r.edition || "")
+      : r.ref ? "s|" + r.ref
       : "n|" + normNumber(r.number) + "|" + r.name.toLowerCase() + "|" + (r.edition || "") + (mangaOf(r.rarity) ? "|" + r.rarity.toLowerCase() : "");   // (a Manga-Style card's two versions are two printings)
   }
   function groupByPrinting(list) {
@@ -316,6 +319,7 @@
       ["Grade", r => r.grade ? r.grade.grade : ""], ["Cert Number", r => r.grade ? r.grade.cert : ""],
       ["Graded Value (USD)", r => r.grade && r.grade.value != null ? r.grade.value : ""],
       ["PSA 10 Value (USD)", r => r.g10 == null ? "" : r.g10], ["Sealed", r => r.sealed ? "yes" : ""],
+      ["Shop Product", r => r.ref || ""], ["Shop", r => r.shop || ""], ["Shop Link", r => r.link || ""], ["Shop Price (USD)", r => r.shopPrice == null ? "" : r.shopPrice],
       ["Notes", r => r.notes], ["Date Added", r => r.added]];
     const cell = v => { const s = String(v == null ? "" : v); return /[",\n\r]/.test(s) ? '"' + s.replace(/"/g, '""') + '"' : s; };
     const lines = [cols.map(c => cell(c[0])).join(",")].concat(collection.map(r => cols.map(c => cell(c[1](r))).join(",")));

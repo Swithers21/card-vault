@@ -442,6 +442,10 @@
       if (yw) { const x = (ymk.list || []).find(y => String(y.id) === yw.dataset.ymWant); if (x) ymWant(x); return; }
       const kw = e.target.closest("[data-krbox-want]");
       if (kw) { const s = ocgFindSet(kw.dataset.krboxWant); if (s) krBoxWant(s); return; }
+      const yh = e.target.closest("[data-ym-have]");
+      if (yh) { const x = (ymk.list || []).find(y => String(y.id) === yh.dataset.ymHave); if (x) openShopSealedForm(ymItem(x)); return; }
+      const kh = e.target.closest("[data-krbox-have]");
+      if (kh) { const s = ocgFindSet(kh.dataset.krboxHave); if (s) openShopSealedForm(krBoxItem(s)); return; }
       if (e.target.closest("[data-ocg-retry]")) { ocgMk.failed = 0; loadOcgMarket(); renderMarketList(); return; }
       if (e.target.closest("[data-ym-retry]")) { ymk.failed = 0; loadYugiMarket(true); renderMarketList(); return; }
       if (e.target.closest("[data-mk-more]")) { mk.limit += 40; renderMarketList(); return; }
@@ -702,6 +706,7 @@
     // Japanese, Korean and Rush Duel cards are priced from a list that has to be fetched: start on it right away, so the
     // total doesn't sit low for the first few seconds (those cards count as $0 until it is here).
     if (collection.some(isOcg)) loadOcgCardsSoft();
+    shopPricesReady();   // (the same for the Japanese and Korean sealed products you own: priced from the shops' lists)
     const linked = autoLink();
     if (linked) save();
     else if (recordValueHistory()) save({quiet: true});  // today's value-history point
@@ -737,7 +742,7 @@
     photoCandidates, findPhotosBatch, tradeListText, parseDeckText, parseYdk, parseYdke, checkDeck, cardNamesFor, runDeckCheck,
     openSoldForm, recordSale, saleNumbers, buildReport, openReport, phoneCopyHTML, savePhoneCopy, writePhoneCopy, backupTextFrom,
     matchScanned, numberVariants, openScanner, stopScanner, prepCanvas, openWantForm, resolveLink, chooseBackupFile, linkGoogleDrive, driveToken, openMove, moveCopies,
-    searchSealed, openSealedSearch, openSealedForm, ocgCard, bigwebFor, bunjangFor, bigwebPick, bunjangPick, ocgPrice, refreshOcgPrices, fxRates, showOcgLookup,
+    searchSealed, openSealedSearch, openSealedForm, openShopSealedForm, searchShopSealed, ymTileHTML, ymItem, krBoxItem, shopKept, keepShopPrices, shopPricesReady, ocgCard, bigwebFor, bunjangFor, bigwebPick, bunjangPick, ocgPrice, refreshOcgPrices, fxRates, showOcgLookup,
     psa10Value, gradedValue, gradedTotals, pcLookup, pcKey, pcMatch, pcWhy, pcMisses, pcRarityNames, refreshGradedPrices, checkPricesNow, loadOcgCardsSoft, ocgListStatus, gradeShare, koRarity, jaRarity, ocgRegion, isRushNo, cleanName, artless, isOverframeRec, isMangaRec, mangaOf, matchRarity, withManga, mangaFree, lookupName, driveDatedCopy, fillDriveCopies, deckPullPlan, deckPullIntoBox, openShare, shareLink, marketData, mkSetLine, mkKind, mkChase, renderMarket, analyzeDeckIdeas, runDeckIdeas, starterList, ideasState: () => ideas,
     imgTag, productPics, recordPics, namePics, imageFor, shareItem, shareWant,
     silentSignInDue, maybeSilentSignIn, pageBusy, viewBusy, loadNewData, applyNewData, readDataText, dataLoad: () => dataLoad,
