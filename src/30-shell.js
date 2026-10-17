@@ -28,9 +28,10 @@
       (filters.show === "extras" && extras.has(r.id)) ||
       (filters.show === "graded" && !!r.grade) ||
       (filters.show === "played" && !r.grade && !r.sealed && r.condition !== "Near Mint") ||
-      (filters.show === "manual" && !r.productId) ||
+      (filters.show === "manual" && !r.productId && !r.ref) ||
       (filters.show === "rush" && !r.sealed && isRushNo(r.number)) ||
       (filters.show === "overframe" && isOverframeRec(r)) ||
+      (filters.show === "manga" && isMangaRec(r)) ||
       (filters.show === "selling" && !!r.sell) ||
       (filters.show === "sealed" && r.sealed) ||
       (filters.show === "cards" && !r.sealed);
@@ -41,7 +42,7 @@
       (!filters.language || r.language === filters.language) &&
       (!filters.location || (filters.location === NO_LOCATION ? !r.location : r.location === filters.location)) &&
       show(r) &&
-      (!q || (r.name + " " + r.productName + " " + r.number + " " + r.setName + " " + r.location + " " + r.notes + " " + r.rarity + (isRushNo(r.number) ? " rush duel" : "") + (isOverframeRec(r) ? " overframe over frame extended art" : "") + (r.sell ? " selling sell list" : "")).toLowerCase().includes(q)));
+      (!q || (r.name + " " + r.productName + " " + r.number + " " + r.setName + " " + r.location + " " + r.notes + " " + r.rarity + (isRushNo(r.number) ? " rush duel" : "") + (isOverframeRec(r) ? " overframe over frame extended art" : "") + (isMangaRec(r) ? " manga style" + (mangaOf(r.rarity) === "Color" ? " colour" : " black and white") : "") + (r.sealed ? " sealed " + r.language : "") + (r.sell ? " selling sell list" : "")).toLowerCase().includes(q)));
     return sortRecords(list);
   }
   function sortRecords(list) {
@@ -538,10 +539,10 @@
       '<button type="button" class="tile-open" data-open="' + esc(r.id) + '"' + (r.location ? ' title="Location: ' + esc(r.location) + '"' : "") + ">" +
       '<span class="tile-name">' + esc(r.name) + "</span>" +
       (r.sealed ? '<span class="tile-meta" title="' + esc(r.setName) + '">' + esc(r.setName || "Sealed product") + "</span>" +
-        '<span class="tile-meta">Sealed product</span></button>'
+        '<span class="tile-meta">Sealed product' + (r.language && r.language !== "English" ? " · " + esc(r.language) : "") + "</span></button>"
       : '<span class="tile-meta">' + esc(r.number || "No card number") + "</span>" +
         '<span class="tile-meta" title="' + esc(r.rarity) + '">' + esc(r.rarity || " ") + "</span></button>") +
-      '<div class="tile-foot"><span class="badges">' + (r.sealed ? '<span class="ed ed-sealed">Sealed</span>' : editionBadge(r.edition) + rushBadge(r.number) + overframeBadge(r)) + gradeBadge(r.grade) +
+      '<div class="tile-foot"><span class="badges">' + (r.sealed ? '<span class="ed ed-sealed">Sealed</span>' : editionBadge(r.edition) + rushBadge(r.number) + overframeBadge(r) + mangaBadge(r)) + gradeBadge(r.grade) +
       (r.grading ? '<span class="ed ed-away' + (expectedBack(r.grading) && expectedBack(r.grading).late ? " ed-late" : "") + '">At ' + esc(r.grading.company) + (expectedBack(r.grading) && expectedBack(r.grading).late ? ", late" : "") + "</span>" : "") +
       (extra ? '<span class="ed ed-extra">' + extra + " extra</span>" : "") + (r.sell ? '<span class="ed ed-sell">Selling</span>' : "") + "</span>" + priceHTML(r, extra) + "</div></article>";
   }
@@ -1013,22 +1014,75 @@
         '<span class="result-price">' + (v == null ? '<span class="small">No recent sales</span>' : esc(usd(v))) + "</span></button>";
     }).join("") + "</div>";
   }
-  // opts.want: for the want list
+  // opts.want: for the want list. opts.lang: "English" (TCGplayer), "Japanese" (Yugi-Market) or "Korean" (Bunjang's boxes)
+  const SEALED_LANGS = ["English", "Japanese", "Korean"];
+  function shopSealedResultsHTML(list) {
+    return '<div class="results">' + list.map((it, i) =>
+      '<button type="button" class="result" data-idx="' + i + '">' +
+        '<span class="sleeve boxed">' + imgTag(it.pics, it.name) + "</span>" +
+        '<span class="result-name">' + esc(it.name) + "</span>" +
+        '<span class="result-meta">' + esc([it.setName, WANT_ONE[it.kind]].filter(Boolean).join(" · ")) + "</span>" +
+        '<span class="result-price">' + (it.price == null ? '<span class="small">No price yet</span>' : esc(usd(it.price)) + (it.soldOut ? ' <span class="small">sold out</span>' : "")) + "</span></button>"
+    ).join("") + "</div>";
+  }
   function openSealedSearch(q, opts) {
     const forWant = !!(opts && opts.want);
-    drawerCtx = {mode: "sealed-search", want: forWant};
+    const lang = SEALED_LANGS.includes(opts && opts.lang) ? opts.lang : "English";
+    drawerCtx = {mode: "sealed-search", want: forWant, lang};
+    const hints = {
+      English: "Booster boxes and packs, tins, structure decks, collections: anything TCGplayer sells sealed. Type a few words of the name or the set.",
+      Japanese: "Japanese booster boxes, packs and decks, priced from Yugi-Market. Type a few words of the name or the set's code (like DBVS or RC04).",
+      Korean: "Korean booster boxes, priced from the unopened boxes listed on Bunjang. Type a few words of the set's name."};
     openDrawer(forWant ? "Add to want list" : "Add a sealed product",
-      '<label class="field"><span>Product name or set</span><input class="input" id="sealedQuery" autofocus autocomplete="off" placeholder="e.g. Rarity Collection booster box" value="' + esc(q || "") + '"></label>' +
-      '<p class="hint">Booster boxes and packs, tins, structure decks, collections: anything TCGplayer sells sealed. Type a few words of the name or the set.' +
-      (forWant ? " Japanese and Korean boxes and packs are in the Market tab." : "") + "</p>" +
-      '<div class="lookup-alt"><button type="button" class="link-btn" id="goCards">Add a card instead</button></div><div id="sealedOut"></div>');
+      '<div class="seg" role="group" aria-label="Language" id="sealedLang" style="margin-bottom:12px">' + SEALED_LANGS.map(l => '<button type="button" data-slang="' + l + '" aria-pressed="' + (l === lang) + '">' + l + "</button>").join("") + "</div>" +
+      '<label class="field"><span>Product name or set</span><input class="input" id="sealedQuery" autofocus autocomplete="off" placeholder="' +
+        (lang === "English" ? "e.g. Rarity Collection booster box" : lang === "Japanese" ? "e.g. Duelist Nexus box" : "e.g. Rage of the Abyss") + '" value="' + esc(q || "") + '"></label>' +
+      '<p class="hint">' + hints[lang] + "</p>" +
+      '<div class="lookup-alt"><button type="button" class="link-btn" id="goCards">Add a card instead</button>' +
+      (forWant ? "" : '<button type="button" class="link-btn" id="goSealedManual">Not sold sealed anywhere here (an OTS pack, a video game pack…)? Add it by hand</button>') + '</div><div id="sealedOut"></div>');
     $("goCards").addEventListener("click", () => openAdd({want: forWant}));
+    if ($("goSealedManual")) $("goSealedManual").addEventListener("click", () => openManual({sealed: true, language: lang, name: $("sealedQuery").value.trim()}));
+    $("sealedLang").querySelectorAll("[data-slang]").forEach(b => b.addEventListener("click", () => openSealedSearch($("sealedQuery").value, {want: forWant, lang: b.dataset.slang})));
     let timer = null;
     const run = () => {
       const out = $("sealedOut");
       if (!out) return;
-      if (!catalog) { out.innerHTML = noCatalogNotice(); return; }
       const text = $("sealedQuery").value;
+      if (lang !== "English") {
+        // the shop's list is read first (a few seconds, the first time)
+        if (lang === "Japanese" && !ymk.list) {
+          if (ymk.failed && Date.now() - ymk.failed < 10 * 60000) { out.innerHTML = '<div class="notice">Couldn\'t reach Yugi-Market for its list right now. Try again in a few minutes.</div>'; return; }
+          out.innerHTML = '<p class="small">Reading Yugi-Market\'s list…</p>';
+          loadYugiMarket().then(() => { if (drawerCtx && drawerCtx.mode === "sealed-search" && drawerCtx.lang === lang) run(); });
+          return;
+        }
+        if (!ocgMk.data) {
+          if (!ocgMk.loading && !ocgMk.failed && ocgMarketURL()) loadOcgMarket();
+          // (the sets' names come with the Market's list: a Japanese search waits for it when it's on its way)
+          if (lang === "Japanese" && ocgMk.loading) { out.innerHTML = '<p class="small">Reading the sets\' names…</p>'; ocgMk.loading.then(() => { if (drawerCtx && drawerCtx.mode === "sealed-search" && drawerCtx.lang === lang) run(); }); return; }
+          if (lang === "Korean") {
+            if (ocgMk.failed || !ocgMarketURL()) { out.innerHTML = '<div class="notice">Couldn\'t load the Korean box prices right now. Try again in a few minutes.</div>'; return; }
+            out.innerHTML = '<p class="small">Reading the Korean box prices…</p>';
+            if (ocgMk.loading) ocgMk.loading.then(() => { if (drawerCtx && drawerCtx.mode === "sealed-search" && drawerCtx.lang === lang) run(); });
+            return;
+          }
+        }
+        if (text.trim().length < 2) { out.innerHTML = ""; return; }
+        const res = searchShopSealed(lang, text, 60);
+        if (!res.items.length) {
+          out.innerHTML = '<div class="notice">No ' + lang + ' sealed product matches "' + esc(text.trim()) + '". Try fewer words, or the set\'s name.' +
+            (lang === "Japanese" ? ' Only products Yugi-Market lists are here; <a target="_blank" rel="noopener" href="https://yugi-market.com/search?q=' + encodeURIComponent(text.trim()) + '">search Yugi-Market</a>.' : "") + "</div>";
+          return;
+        }
+        out.innerHTML = '<p class="results-head">' + (res.more ? "First 60 of " + res.total.toLocaleString() + " products. Add more words to narrow it down." : plural(res.items.length, "product") + " found.") + "</p>" + shopSealedResultsHTML(res.items);
+        out.querySelectorAll(".result").forEach(btn => btn.addEventListener("click", () => {
+          const it = res.items[+btn.dataset.idx], query = $("sealedQuery").value;
+          if (forWant) { (lang === "Japanese" ? ymWant : krBoxWant)(it.src); closeDrawer(); }
+          else openShopSealedForm(it, {query});
+        }));
+        return;
+      }
+      if (!catalog) { out.innerHTML = noCatalogNotice(); return; }
       if (text.trim().length < 2) { out.innerHTML = ""; return; }
       const res = searchSealed(text, 60);
       if (!res.items.length) {
@@ -1043,6 +1097,8 @@
       }));
     };
     $("sealedQuery").addEventListener("input", () => { clearTimeout(timer); timer = setTimeout(run, 220); });
+    if (lang === "Japanese" && !ymk.list) loadYugiMarket();
+    if (lang === "Korean" && !ocgMk.data && !ocgMk.loading && ocgMarketURL()) loadOcgMarket();
     if (q) run();
   }
   // opts.fromWant: the want-list entry this product came from (it's taken off once the product is added)
@@ -1078,41 +1134,53 @@
         {action: "Add another", onAction: () => openSealedSearch()});
     });
   }
-  // "I got it" for a Japanese or Korean sealed product on the want list (from Yugi-Market or Bunjang): it goes in
-  // the collection as a sealed product, valued at the shop's price unless you enter your own.
-  function openShopGotForm(w) {
-    drawerCtx = {mode: "shop-got"};
-    const price = wantPrice(w);
-    const lang = /korean/i.test(w.notes) || String(w.ref || "").startsWith("krbox:") ? "Korean" : "Japanese";
+  // A Japanese or Korean sealed product from a shop (Yugi-Market, Bunjang): chosen in the sealed search, in the Market, or
+  // from the want list ("I got it", opts.fromWant). It goes in the collection valued at the shop's price, which it follows
+  // from then on; a value of your own is only kept if you enter one.
+  function openShopSealedForm(it, opts) {
+    opts = opts || {};
+    const want = opts.fromWant ? wants.find(w => w.id === opts.fromWant) : null;
+    drawerCtx = {mode: "shop-sealed", item: it};
+    const price = it.price, src = it.shop || "the shop";
     openDrawer("Add a sealed product",
-      '<div class="picked"><span class="sleeve boxed">' + imgTag(wantPics(w, "in_400x400"), w.name, true) + "</span><div>" +
-      "<h3>" + esc(w.name) + "</h3><p>" + esc(w.setName) + "</p><p>" + esc(WANT_ONE[wantKind(w)] + ", " + lang) + "</p></div></div>" +
-      fromWantNotice +
-      '<form id="shopGotForm" class="stack">' +
-      '<div class="price-line">' + (price != null ? esc(wantSource(w) || "Price") + ": <b>" + esc(usd(price)) + "</b>" : '<span class="small">No price yet.</span>') + "</div>" +
-      '<div class="grid-2"><label class="field"><span>Quantity</span><input class="input" id="gQty" type="number" min="1" step="1" value="' + (w.qty || 1) + '"></label>' +
+      '<div class="picked"><span class="sleeve boxed">' + imgTag(it.pics, it.name, true) + "</span><div>" +
+      "<h3>" + esc(it.name) + "</h3><p>" + esc(it.setName) + "</p><p>" + esc(WANT_ONE[it.kind] + ", " + it.language) + "</p>" +
+      (want ? "" : '<p style="margin-top:8px"><button type="button" class="link-btn" id="backToSearch">Pick a different product</button></p>') + "</div></div>" +
+      (want ? fromWantNotice : "") +
+      '<form id="shopSealedForm" class="stack">' +
+      '<div class="price-line">' + (price != null ? esc(src) + " price: <b>" + esc(usd(price)) + "</b>" + (it.soldOut ? ' <span class="small">(sold out right now)</span>' : "") : '<span class="small">No price yet.</span>') + "</div>" +
+      '<div class="grid-2"><label class="field"><span>Quantity</span><input class="input" id="gQty" type="number" min="1" step="1" value="' + (want ? want.qty || 1 : 1) + '"></label>' +
       '<label class="field"><span>Price you paid, each (optional)</span><input class="input" id="gPaid" type="number" min="0" step="0.01" placeholder="$"></label></div>' +
-      '<label class="field"><span>Value each in US$ (optional)</span><input class="input" id="gValue" type="number" min="0" step="0.01" placeholder="' +
-      (price != null ? esc(price.toFixed(2)) : "$") + '"></label>' +
-      '<p class="hint" style="margin:-6px 0 0">Left empty, ' + (price != null ? "the " + esc(wantSource(w) || "shop") + " price above is used." : "it has no value until you enter one.") + "</p>" +
-      '<label class="field"><span>Notes (optional)</span><input class="input" id="gNotes" value="' + esc(/^(japanese|korean)$/i.test(w.notes) ? "" : w.notes || "") + '"></label>' +
+      (it.ref ? '<label class="field"><span>Value each in US$ (optional)</span><input class="input" id="gValue" type="number" min="0" step="0.01" placeholder="' +
+        (price != null ? esc(price.toFixed(2)) : "$") + '"></label>' +
+        '<p class="hint" style="margin:-6px 0 0">Left empty, its value follows the ' + esc(src) + " price and moves when that does. Enter a value only to fix it yourself.</p>"
+        : '<label class="field"><span>Value each in US$ (optional)</span><input class="input" id="gValue" type="number" min="0" step="0.01" placeholder="' + (price != null ? esc(price.toFixed(2)) : "$") + '"></label>') +
+      '<label class="field"><span>Notes (optional)</span><input class="input" id="gNotes" value="' + esc(want && !/^(japanese|korean)$/i.test(want.notes) ? want.notes || "" : "") + '"></label>' +
       locationFieldHTML("gLoc", "") +
       '<div class="form-actions"><button class="btn btn-primary" type="submit">Add to collection</button></div></form>');
-    $("shopGotForm").addEventListener("submit", e => {
+    if ($("backToSearch")) $("backToSearch").addEventListener("click", () => openSealedSearch(opts.query || "", {lang: it.language}));
+    $("shopSealedForm").addEventListener("submit", e => {
       e.preventDefault();
-      const cur = wants.find(x => x.id === w.id);
-      if (!cur) { closeDrawer(); toast("That isn't on your want list anymore, so nothing was added.", {kind: "error"}); return; }
+      const cur = want ? wants.find(x => x.id === want.id) : null;
+      if (want && !cur) { closeDrawer(); toast("That isn't on your want list anymore, so nothing was added.", {kind: "error"}); return; }
       const value = num($("gValue").value);
-      const rec = upgradeRecord({id: newId(), productId: null, sealed: true, name: cur.name, productName: cur.name, setName: cur.setName,
-        number: "", rarity: "", edition: "", condition: "Sealed", language: lang, qty: posInt($("gQty").value) || 1,
-        paid: num($("gPaid").value), manualPrice: value != null ? value : price, customImage: cur.image || null,
+      const rec = upgradeRecord({id: newId(), productId: null, sealed: true, name: it.name, productName: it.name, setName: it.setName,
+        number: "", rarity: "", edition: "", condition: "Sealed", language: it.language, qty: posInt($("gQty").value) || 1,
+        paid: num($("gPaid").value), manualPrice: it.ref ? value : value != null ? value : price, customImage: it.image || null,
+        ref: it.ref || null, shop: it.shop, link: it.link, shopPrice: price,
         notes: $("gNotes").value.trim(), location: $("gLoc").value, added: new Date().toISOString()});
-      addOrMerge(rec);
-      const took = tookWant(cur.id, rec.qty);
+      const res = addOrMerge(rec);
+      const took = cur ? tookWant(cur.id, rec.qty) : "";
+      shopPricesReady();
+      keepShopPrices();
       save(); render(); closeDrawer();
-      toast("Added " + rec.name + took);
+      if (cur) { toast("Added " + rec.name + took); return; }
+      toast(res.merged ? "Added. You now have " + res.record.qty + " of " + rec.name + "." : "Added " + rec.name + ".",
+        {action: "Add another", onAction: () => openSealedSearch("", {lang: it.language})});
     });
   }
+  // "I got it" for a Japanese or Korean sealed product on the want list
+  function openShopGotForm(w) { openShopSealedForm(wantItem(w), {fromWant: w.id}); }
 
   /* ----- add manually ----- */
   function manualLinks(name, number) {
@@ -1125,52 +1193,62 @@
       '<a target="_blank" rel="noopener" href="https://www.ebay.com/sch/i.html?_nkw=' + qn + '">eBay</a></div>';
   }
   const isRegionNumber = n => /^(RD\/)?[A-Z0-9]+-(JP|JA|KR|AE|TC|SC)[A-Z]?\d+$/.test(normNumber(n));
+  // pre.sealed: a sealed product (box, pack, tin, deck…) that no shop lists, kept at your own value
   function openManual(pre) {
     drawerCtx = {mode: "manual"};
     const rarities = allRarities();
     openDrawer("Add manually",
       (pre.fromWant ? fromWantNotice : '<p class="small" style="margin:0 0 14px">For Japanese and Korean cards, or anything TCGplayer doesn\'t list. Only the name is required.</p>') +
-      '<form id="manualForm" class="stack">' +
-      '<label class="field"><span>Card name</span><input class="input" id="mName" required autofocus value="' + esc(pre.name || "") + '"></label>' +
-      '<div class="grid-2"><label class="field"><span>Card number</span><input class="input" id="mNumber" value="' + esc(pre.number || "") + '" style="text-transform:uppercase"></label>' +
+      '<form id="manualForm" class="stack' + (pre.sealed ? " m-sealed" : "") + '">' +
+      '<label class="check-row" style="margin:0 0 4px"><input type="checkbox" class="check" id="mSealed"' + (pre.sealed ? " checked" : "") + '> <span>This is a sealed product (a box, pack, tin or deck, not a card)</span></label>' +
+      '<label class="field"><span><span class="m-card-word">Card</span><span class="m-sealed-word">Product</span> name</span><input class="input" id="mName" required autofocus value="' + esc(pre.name || "") + '"></label>' +
+      '<div class="grid-2"><label class="field m-card"><span>Card number</span><input class="input" id="mNumber" value="' + esc(pre.number || "") + '" style="text-transform:uppercase"></label>' +
       '<label class="field"><span>Set</span><input class="input" id="mSet" value="' + esc(pre.setName || "") + '"></label></div>' +
-      '<div class="grid-2"><label class="field"><span>Rarity</span><select class="input" id="mRarity">' + options(rarities, pre.rarity || "", "Choose rarity") + "</select></label>" +
+      '<div class="grid-2 m-card"><label class="field"><span>Rarity</span><select class="input" id="mRarity">' + options(rarities, pre.rarity || "", "Choose rarity") + "</select></label>" +
       '<label class="field"><span>Printing</span><select class="input" id="mEd">' + options(PRINTINGS, pre.edition || (pre.language === "Japanese" ? "No edition mark" : "1st Edition")) + "</select></label></div>" +
-      '<div class="grid-2"><label class="field"><span>Condition</span><select class="input" id="mCond">' + options(CONDITIONS, "Near Mint") + "</select></label>" +
+      '<div class="grid-2"><label class="field m-card"><span>Condition</span><select class="input" id="mCond">' + options(CONDITIONS, "Near Mint") + "</select></label>" +
       '<label class="field"><span>Language</span><select class="input" id="mLang">' + options(LANGUAGES, pre.language || "English") + "</select></label></div>" +
       '<div class="grid-2"><label class="field"><span>Quantity</span><input class="input" id="mQty" type="number" min="1" step="1" value="1"></label>' +
-      '<label class="field"><span>Value per card in US$ (your estimate)</span><input class="input" id="mValue" type="number" min="0" step="0.01"></label></div>' +
-      '<div class="grid-2"><label class="field"><span>Japan price (¥)</span><input class="input" id="mJp" type="number" min="0" step="1"></label>' +
+      '<label class="field"><span>Value <span class="m-card-word">per card</span><span class="m-sealed-word">each</span> in US$ (your estimate)</span><input class="input" id="mValue" type="number" min="0" step="0.01"></label></div>' +
+      '<p class="hint m-sealed-word" style="margin:-6px 0 0">No shop Card Vault reads sells this sealed, so it has no price of its own: the value you enter here is what it counts for (you can change it under Edit anytime).</p>' +
+      '<div class="grid-2 m-card"><label class="field"><span>Japan price (¥)</span><input class="input" id="mJp" type="number" min="0" step="1"></label>' +
       '<label class="field"><span>Korea price (₩)</span><input class="input" id="mKr" type="number" min="0" step="1"></label></div>' +
       '<div id="mLinks"></div>' +
       '<div class="field"><span>Photo (optional)</span>' +
       '<div class="lookup-row"><input class="input" id="mImage" type="url" placeholder="Paste a photo link, or find one" aria-label="Photo link" style="text-transform:none">' +
-      '<button class="btn" type="button" id="mFind">Find photos</button></div>' +
-      '<p class="hint">Find photos looks up the card number on Yugipedia, including Japanese and Korean prints.</p><div id="mYugi" class="yugi"></div></div>' +
+      '<button class="btn m-card" type="button" id="mFind">Find photos</button></div>' +
+      '<p class="hint m-card">Find photos looks up the card number on Yugipedia, including Japanese and Korean prints.</p><div id="mYugi" class="yugi"></div></div>' +
       '<div class="grid-2"><label class="field"><span>Price you paid, each (optional)</span><input class="input" id="mPaid" type="number" min="0" step="0.01"></label>' +
       '<label class="field"><span>Notes (optional)</span><input class="input" id="mNotes"></label></div>' +
-      locationFieldHTML("mLoc", "") + gradeFieldsHTML("m", null) +
+      locationFieldHTML("mLoc", "") + '<div class="m-card">' + gradeFieldsHTML("m", null) + "</div>" +
       '<div class="form-actions"><button class="btn btn-primary" type="submit">Add to collection</button></div></form>');
     const fromWant = pre.fromWant ? wants.find(w => w.id === pre.fromWant) : null;
     if (fromWant) $("mQty").value = String(fromWant.qty || 1);
-    const refreshLinks = () => { $("mLinks").innerHTML = manualLinks($("mName").value, $("mNumber").value); };
+    const isSealed = () => $("mSealed").checked;
+    $("mSealed").addEventListener("change", () => { $("manualForm").classList.toggle("m-sealed", isSealed()); refreshLinks(); });
+    const refreshLinks = () => { $("mLinks").innerHTML = isSealed() ? "" : manualLinks($("mName").value, $("mNumber").value); };
     $("mName").addEventListener("input", refreshLinks);
     $("mNumber").addEventListener("input", refreshLinks);
     refreshLinks();
     const find = () => showYugiPicker($("mYugi"), $("mNumber").value, $("mName").value, $("mRarity").value, url => { $("mImage").value = url; });
     $("mFind").addEventListener("click", find);
-    if (pre.number && isRegionNumber(pre.number)) find();
+    if (pre.number && isRegionNumber(pre.number) && !pre.sealed) find();
     $("manualForm").addEventListener("submit", e => {
       e.preventDefault();
       const name = $("mName").value.trim();
       if (!name) return;
       const image = $("mImage").value.trim();
       if (image && !safeImg(image)) { toast("The image link must start with http:// or https://.", {kind: "error"}); return; }
-      const rec = upgradeRecord({id: newId(), productId: null, name, productName: name, setName: $("mSet").value.trim(),
-        number: normNumber($("mNumber").value), rarity: $("mRarity").value, edition: $("mEd").value, condition: $("mCond").value,
-        language: $("mLang").value, qty: posInt($("mQty").value) || 1, manualPrice: num($("mValue").value),
-        jp: num($("mJp").value), kr: num($("mKr").value), customImage: image, paid: num($("mPaid").value),
-        notes: $("mNotes").value.trim(), location: $("mLoc").value, grade: readGradeFields("m"), added: new Date().toISOString()});
+      const sealed = isSealed();
+      const rec = upgradeRecord(sealed
+        ? {id: newId(), productId: null, sealed: true, name, productName: name, setName: $("mSet").value.trim(), number: "", rarity: "", edition: "", condition: "Sealed",
+          language: $("mLang").value, qty: posInt($("mQty").value) || 1, manualPrice: num($("mValue").value), customImage: image, paid: num($("mPaid").value),
+          notes: $("mNotes").value.trim(), location: $("mLoc").value, added: new Date().toISOString()}
+        : {id: newId(), productId: null, name, productName: name, setName: $("mSet").value.trim(),
+          number: normNumber($("mNumber").value), rarity: $("mRarity").value, edition: $("mEd").value, condition: $("mCond").value,
+          language: $("mLang").value, qty: posInt($("mQty").value) || 1, manualPrice: num($("mValue").value),
+          jp: num($("mJp").value), kr: num($("mKr").value), customImage: image, paid: num($("mPaid").value),
+          notes: $("mNotes").value.trim(), location: $("mLoc").value, grade: readGradeFields("m"), added: new Date().toISOString()});
       const res = addOrMerge(rec);
       const took = pre.fromWant ? tookWant(pre.fromWant, rec.qty) : "";
       save(); render(); closeDrawer();
@@ -1206,6 +1284,10 @@
       html += "<p>" + esc(op.src) + ": <b>" + esc(fmtLocal(op.local, op.cur)) + "</b>" + (op.usd != null ? " ≈ <b>" + esc(usd(op.usd)) + "</b>" : "") +
         ' <span class="small">(' + esc(r.rarity || "") + (r.rarity ? ", " : "") + esc(op.note) + ")</span></p>" +
         (fp && !fp.none ? ocgChangesHTML(fp.row, "Price change") : "");
+    } else if (op && op.none && fp && fp.none && !fp.row && fp.card && fp.card.rows.some(x => mangaOf(x.rarity))) {
+      // (a Manga-Style card entered with no version, or a plain rarity: there is no one price to show for it)
+      html += '<p class="small">This card comes in separate versions, each with its own price. Change its rarity (Edit) to the one you have:</p><ul class="small">' +
+        fp.card.rows.map(x => "<li>" + esc(x.rarity) + ": " + (x.local ? esc(fmtLocal(x.local, OCG_CUR[fp.card.region])) + (ocgUSD(x.local, fp.card.region) != null ? " ≈ " + esc(usd(ocgUSD(x.local, fp.card.region))) : "") : "no price") + "</li>").join("") + "</ul>";
     } else if (op && op.none) {
       html += '<p class="small">' + esc(op.src) + " has no price for " + esc(r.rarity || "this card") + (op.note ? " (" + esc(op.note) + ")" : "") + ".</p>";
     } else if (!ocgLiveOK(g)) {
@@ -1294,6 +1376,16 @@
         "<span>" + esc(periodLabel(k)) + ": " + changeHTML(sub.market - sub[k], sub[k] > 0 ? (sub.market - sub[k]) / sub[k] : null, true) + "</span>") : [];
       if (changes.length) priceSection += '<div class="changes" aria-label="Market price change for your printing">' + changes.join("") + "</div>";
       priceSection += '<p class="small">From TCGplayer, ' + esc(fmtDate(catalog.generated)) + ". Market price is what the card has recently sold for.</p>";
+    } else if (r.sealed && r.ref) {
+      // a Japanese or Korean box from a shop: the shop's price, which it follows
+      const live = shopWantLive(r), shopName = r.shop || "Shop";
+      priceSection = '<div class="section"><h3>' + esc(shopName) + " price</h3>" +
+        (pi.from === "manual" ? "<p>" + esc(usd(pi.unit)) + ' <span class="small">(the value you entered' + (live != null ? "; " + esc(shopName) + "'s price now is " + esc(usd(live)) : "") +
+          "). Clear it below to follow the shop's price.)</span></p>"
+          : pi.unit != null ? "<p>" + esc(usd(pi.unit)) + ' <span class="small">' + (pi.kept ? "(as of last time: " + esc(shopName) + " can't be reached right now, or no longer lists it)"
+            : pi.soldOut ? "(sold out at " + esc(shopName) + " right now)" : "(" + esc(shopName) + "'s price now)") + "</span></p>"
+          : '<p class="small">' + esc(shopName) + " has no price for it yet.</p>") +
+        (r.link ? '<p class="small"><a target="_blank" rel="noopener" href="' + esc(r.link) + '">See it at ' + esc(shopName) + "</a></p>" : "");
     } else if (isOcg(r)) {
       priceSection = '<div class="section"><h3>' + esc(ocgLangOf(ocgRegion(r.number).region, r.number)) + ' price</h3><div id="ocgPrice">' + ocgPriceHTML(r) + "</div>";
     } else if (pi.from === "saved") {
@@ -1339,7 +1431,7 @@
       '<label class="field"><span>Price you paid, each</span><input class="input" id="ePaid" type="number" min="0" step="0.01" value="' + (r.paid == null ? "" : r.paid) + '"></label></div>' +
       '<div class="grid-2"><label class="field"><span>Japan price (¥)</span><input class="input" id="eJp" type="number" min="0" step="1" value="' + (r.jp == null ? "" : r.jp) + '"></label>' +
       '<label class="field"><span>Korea price (₩)</span><input class="input" id="eKr" type="number" min="0" step="1" value="' + (r.kr == null ? "" : r.kr) + '"></label></div>') +
-      (r.productId ? "" : '<label class="field"><span>Value per card in US$ (your estimate)</span><input class="input" id="eValue" type="number" min="0" step="0.01" value="' + (r.manualPrice == null ? "" : r.manualPrice) + '"></label>') +
+      (r.productId ? "" : '<label class="field"><span>' + (r.ref ? "Your own value each in US$ (empty: follows " + esc(r.shop || "the shop") + "'s price)" : "Value per card in US$ (your estimate)") + '</span><input class="input" id="eValue" type="number" min="0" step="0.01" value="' + (r.manualPrice == null ? "" : r.manualPrice) + '"></label>') +
       cardOnly('<label class="field"><span>PSA 10 value, if you know it (US$; shown in the PSA 10 view)</span><input class="input" id="eG10" type="number" min="0" step="0.01" placeholder="' +
         esc((psa10Value(r) && psa10Value(r).from !== "yours") ? "now " + usd(psa10Value(r).unit) + (psa10Value(r).from === "estimate" ? " (estimate)" : "") : "") + '" value="' + (r.g10 == null ? "" : r.g10) + '"></label>') +
       locationFieldHTML("eLoc", r.location) +
@@ -1348,7 +1440,7 @@
       '<details class="more"' + (photoOpen ? " open" : "") + "><summary>" + (r.productId ? "Use my own photo instead" : "Photo") + "</summary>" +
       '<label class="field" style="margin-top:10px"><span>Image link (leave empty to use ' + (r.productId ? "TCGplayer's photo" : "no image") + ")</span>" +
       '<input class="input" id="eImage" type="url" placeholder="https://" value="' + esc(r.customImage || "") + '"></label>' +
-      (!r.productId && (r.number || r.name) ? '<button class="btn btn-small" type="button" id="eFind" style="margin-top:8px">Find photos on Yugipedia</button><div id="eYugi" class="yugi"></div>' : "") +
+      (!r.productId && !r.sealed && (r.number || r.name) ? '<button class="btn btn-small" type="button" id="eFind" style="margin-top:8px">Find photos on Yugipedia</button><div id="eYugi" class="yugi"></div>' : "") +
       "</details>" +
       '<div class="form-actions"><button class="btn btn-primary" type="submit">Save changes</button>' +
       (r.number ? '<button class="btn" type="button" id="changePrinting">Change printing</button>' : "") +

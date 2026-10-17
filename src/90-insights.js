@@ -579,7 +579,7 @@
   }
 
   // ----- Tidy up: entries with no price, the same card in two entries, a missing printing or location, cards not linked to TCGplayer
-  const dupKey = r => [r.productId ? "p" + r.productId : "n" + String(r.name).toLowerCase() + "|" + normNumber(r.number) + "|" + String(r.rarity || "").toLowerCase(), r.edition, r.condition, r.language,
+  const dupKey = r => [r.productId ? "p" + r.productId : r.ref ? "s" + r.ref : "n" + String(r.name).toLowerCase() + "|" + normNumber(r.number) + "|" + String(r.rarity || "").toLowerCase(), r.edition, r.condition, r.language,
     String(r.location || "").trim().toLowerCase(), r.sealed ? 1 : 0].join("|");
   function tidyData() {
     const groups = new Map();

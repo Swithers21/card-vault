@@ -36,6 +36,7 @@
     "Normal Parallel Rare", "Super Parallel Rare", "Ultra Parallel Rare", "Extra Secret Rare", "20th Secret Rare",
     "10000 Secret Rare", "Millennium Rare", "Millennium Secret Rare", "Millennium Ultra Rare", "Millennium Gold Rare",
     "Holographic Rare", "Grand Master Rare", "Ultra Rare (Overframe)", "Prismatic Secret Rare (Overframe)",
+    "Ultra Rare (Manga Monochrome)", "Ultra Rare (Manga Color)", "Secret Rare (Manga Monochrome)", "Secret Rare (Manga Color)",
     "Rush Rare", "Gold Rush Rare", "Over Rush Rare"];
   // Overframe ("extended art" on Yugipedia and TCGplayer): the artwork breaks out of its frame. It isn't a rarity, but an
   // Overframe Ultra Rare is another card to collect (and price) than the usual Ultra Rare with the same number, so
@@ -46,14 +47,27 @@
   // (a Japanese or Korean card of yours with a plain rarity the card has only as Overframe is one too)
   const isOverframeRec = r => !r.sealed && (isOverframe(r) || (!r.productId && !!r.rarity && /\(overframe\)/i.test(rowRarityOf(r.number, r.rarity) || "")));
   const overframeBadge = r => isOverframeRec(r) ? '<span class="ed ed-of" title="Overframe (extended art): the artwork breaks out of the frame">Overframe</span>' : "";
+  // Manga-Style cards (Original Artwork Collection, YAC1-JP071 to 100): the same Ultra Rare or Secret Rare in a black-and-white
+  // manga look and in colour, so a number has up to four printings, at four prices. The version is part of the rarity
+  // ("Ultra Rare (Manga Monochrome)", "Secret Rare (Manga Color)"), as Card Vault's daily list names them.
+  const MANGA_MONO = " (Manga Monochrome)", MANGA_COLOR = " (Manga Color)";
+  const MANGA_SUFFIX = /\s*\(manga (monochrome|color)\)$/i;
+  const mangaOf = rarity => { const m = String(rarity || "").match(MANGA_SUFFIX); return m ? (m[1].toLowerCase() === "color" ? "Color" : "Monochrome") : ""; };
+  const isMangaRec = r => !r.sealed && !r.productId && !!mangaOf(r.rarity);
+  const mangaBadge = r => isMangaRec(r) ? '<span class="ed ed-mg" title="Manga-Style card (Original Artwork Collection): ' + mangaOf(r.rarity).toLowerCase() + ' version">Manga ' + (mangaOf(r.rarity) === "Color" ? "color" : "mono") + "</span>" : "";
   // A rarity as the list names it: the same one, else the Overframe one when the card has only that (shops and older
   // entries say just "Prismatic Secret Rare" for Limit Over Collection's, which are all Overframe)
   // An Overframe rarity of a card the list (or shop) knows no Overframe printing of at all: its plain row, the only
-  // price there is.
+  // price there is. Likewise a Manga-Style version of a card the list knows no versions of. A plain rarity of a card
+  // that has only versions is no match: which version is yours isn't a guess to make.
   function matchRarity(list, rarity, name) {
     name = name || (x => x);
     const hit = list.find(x => sameRarity(name(x), rarity));
     if (hit || !rarity) return hit || null;
+    if (MANGA_SUFFIX.test(rarity)) {
+      if (list.some(x => MANGA_SUFFIX.test(name(x) || ""))) return null;
+      return list.find(x => sameRarity(name(x), rarity.replace(MANGA_SUFFIX, ""))) || null;
+    }
     if (/\(overframe\)$/i.test(rarity)) {
       if (list.some(x => /\(overframe\)$/i.test(name(x) || ""))) return null;
       return list.find(x => sameRarity(name(x), rarity.replace(/\s*\(overframe\)$/i, ""))) || null;

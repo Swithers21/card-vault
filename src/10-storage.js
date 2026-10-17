@@ -2,7 +2,7 @@
   function upgradeRecord(r) {
     if (!r || typeof r !== "object" || !r.name) return null;
     const n = v => (v === "" || v == null) ? null : num(v);
-    return {
+    const out = {
       id: r.id || newId(),
       productId: idOrNull(r.productId),
       sku: r.sku ? String(r.sku) : null,
@@ -30,6 +30,16 @@
       added: r.added || new Date().toISOString(),
       mod: modTime(r.mod)
     };
+    // A Japanese or Korean sealed product bought from a shop in the Market (Yugi-Market, Bunjang) keeps which product it
+    // is (ref), where to see it (link) and the price it had when added: its value follows the shop's price from then on.
+    if (r.sealed && r.ref && !out.productId) {
+      out.ref = String(r.ref).slice(0, 300);
+      out.shop = String(r.shop || "").slice(0, 60);
+      out.link = /^https:\/\/[^\s"'<>]+$/i.test(String(r.link || "")) ? String(r.link) : "";
+      const sp = n(r.shopPrice);
+      out.shopPrice = sp != null && sp > 0 ? sp : null;
+    }
+    return out;
   }
   function normSell(x) {
     if (!x || typeof x !== "object") return null;

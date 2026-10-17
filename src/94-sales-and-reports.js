@@ -208,6 +208,7 @@
       row("Printing", r.edition && r.edition !== "No edition mark" ? r.edition : "");
       if (isRushNo(r.number)) row("Game", "Rush Duel");
       if (isOverframeRec(r)) row("Frame", "Overframe (extended art)");
+      if (isMangaRec(r)) row("Artwork", "Manga-Style, " + (mangaOf(r.rarity) === "Color" ? "color" : "black and white") + " version");
     }
     if (r.grade) row("Graded", gradeLabel(r.grade) + (r.grade.cert ? " (cert " + r.grade.cert + ")" : ""));
     else row("Condition", r.sealed ? "Factory sealed" : r.condition);

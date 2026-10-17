@@ -102,6 +102,15 @@
       return {unit: r.snap.market != null ? r.snap.market : r.snap.low, kind: r.snap.market != null ? "market" : "low",
         from: "saved", date: parseDate(r.snap.date)};
     }
+    // A Japanese or Korean sealed product from a shop (Yugi-Market, Bunjang): the shop's price now, like TCGplayer's for an
+    // English one; the last price seen while the shop can't be reached; your own value if you entered one.
+    if (r.sealed && r.ref) {
+      if (r.manualPrice != null) return {unit: r.manualPrice, kind: "estimate", from: "manual"};
+      const live = shopWantLive(r);
+      if (live != null) return {unit: live, kind: "market", from: "shop", src: r.shop, link: r.link, soldOut: shopWantSoldOut(r)};
+      const kept = shopKept()[r.ref], last = kept && kept.usd > 0 ? kept.usd : r.shopPrice;
+      if (last != null) return {unit: last, kind: "market", from: "shop", src: r.shop, link: r.link, note: "as of last time", kept: true};
+    }
     // Japanese and Korean cards: BIGWEB's or Bunjang's price (in US$) when there is one, like TCGplayer's for English
     // cards; your own estimate or ¥/₩ price only while there isn't.
     const g = isOcg(r) ? ocgRegion(r.number) : null;
@@ -189,6 +198,7 @@
   function recordKey(r) {
     const base = r.productId
       ? ["p", r.productId, r.edition, r.condition, r.language]
+      : r.ref ? ["s", r.ref, r.manualPrice == null ? "" : r.manualPrice, r.condition, r.language]   // (a shop's sealed product: its own value is part of what it is)
       : ["n", normNumber(r.number), r.name.toLowerCase(), r.rarity, r.edition, r.condition, r.language];
     return base.concat([(r.location || "").toLowerCase(),
       r.grade ? [r.grade.company, r.grade.grade, r.grade.cert].join("/").toLowerCase() : "",
@@ -351,6 +361,7 @@
     const own = safeImg(r.customImage);
     const p = r.productId && catalog ? catalog.byId.get(r.productId) : null;
     if (p) { const pp = productPics(p, size); return {list: [own].concat(pp.list), sub: pp.sub, art: pp.art}; }
+    if (r.sealed && r.ref) return shopSealedPics(r, own);
     const list = [own, r.productId ? tcgImg(r.productId, size) : "", ocgImage(r)];
     if (!r.sealed) {
       const key = photoKey(r.name);

@@ -908,6 +908,9 @@
   const ymLink = x => "https://yugi-market.com/products/" + encodeURIComponent(x.handle);
   const ymWanted = x => wants.some(w => w.ref === "ym:" + x.handle);
   const krBoxWanted = s => wants.some(w => w.ref === "krbox:" + s.prefix);
+  const ownedByRef = ref => collection.filter(r => r.sealed && r.ref === ref).reduce((t, r) => t + r.qty, 0);
+  const ymOwned = x => ownedByRef("ym:" + x.handle);
+  const krBoxOwned = s => ownedByRef("krbox:" + s.prefix);
   function addShopWant(fields) {
     const res = addWant(Object.assign({productId: null, number: "", rarity: "", edition: "Any"}, fields));
     save(); renderTabs(); renderMarketList();
@@ -924,6 +927,82 @@
     if (krBoxWanted(s)) return;
     addShopWant({name: s.name + " booster box", productName: s.name + " booster box", setName: s.name, kind: "box",
       ref: "krbox:" + s.prefix, shop: "Bunjang", link: bunjangBoxURL(s), shopPrice: s.box ? ocgUSD(s.box.price, "kr") : null, notes: "Korean"});
+  }
+
+  /* ----- Japanese and Korean sealed products you own ----- */
+  // Yugi-Market's boxes, packs and decks (Japanese) and Bunjang's booster boxes (Korean) as things you can add: ref says
+  // which product it is, so its value follows the shop's price from then on (a fixed price is only kept if you enter one).
+  function ymItem(x) {
+    const set = ymMatch().get(x.id);
+    return {ref: "ym:" + x.handle, name: x.title, setName: set ? set.name : "", kind: x.kind === "box" ? "box" : x.kind === "pack" ? "pack" : "sealed",
+      shop: "Yugi-Market", link: ymLink(x), image: x.img, price: x.price, language: "Japanese", soldOut: !x.available, pics: {list: [x.img].filter(Boolean)}, src: x};
+  }
+  function krBoxItem(s) {
+    return {ref: "krbox:" + s.prefix, name: s.name + " booster box", setName: s.name, kind: "box", shop: "Bunjang", link: bunjangBoxURL(s), image: "",
+      price: s.box ? ocgUSD(s.box.price, "kr") : null, language: "Korean", soldOut: false, pics: {list: [], art: s.top && s.top.img ? s.top.img : ""}, src: s};
+  }
+  // What a want list entry from a shop is, as the same kind of thing (for "I got it")
+  function wantItem(w) {
+    const ref = String(w.ref || "");
+    return {ref, name: w.name, setName: w.setName, kind: wantKind(w), shop: w.shop || "", link: w.link || "", image: w.image || "", price: wantPrice(w),
+      language: /korean/i.test(w.notes) || ref.startsWith("krbox:") ? "Korean" : "Japanese", soldOut: shopWantSoldOut(w), pics: wantPics(w, "in_400x400"), src: w};
+  }
+  // lang: "Japanese" or "Korean". The words must all be in the product's name, its set's name or its code.
+  function searchShopSealed(lang, q, limit) {
+    const words = String(q || "").toLowerCase().split(/\s+/).filter(Boolean);
+    if (!words.length) return {items: [], more: false, total: 0};
+    let hits;
+    if (lang === "Korean") {
+      hits = ocgSetsOf("kr").filter(s => s.box && words.every(w => (s.name + " " + s.prefix + " booster box korean").toLowerCase().includes(w)))
+        .sort((a, b) => b.date.localeCompare(a.date) || a.name.localeCompare(b.name)).map(krBoxItem);
+    } else {
+      const match = ymMatch();
+      hits = ymCached().filter(x => {
+        const set = match.get(x.id);
+        const hay = (x.title + " " + (set ? set.name : "") + " " + x.codes.join(" ") + " " + ymKindName(x.kind)).toLowerCase();
+        return words.every(w => hay.includes(w));
+      }).sort((a, b) => b.date.localeCompare(a.date) || a.title.localeCompare(b.title)).map(ymItem);
+    }
+    return {items: hits.slice(0, limit), more: hits.length > limit, total: hits.length};
+  }
+  // Where a sealed product from a shop is shown from: your photo, the shop's current one, else the set's top card
+  function shopSealedPics(r, own) {
+    const ref = String(r.ref || "");
+    const x = ref.startsWith("ym:") ? ymCached().find(y => y.handle === ref.slice(3)) : null;
+    const s = ref.startsWith("krbox:") ? ocgFindSet("kr:" + ref.slice(6)) : null;
+    return {list: [own, x ? x.img : ""], sub: "Sealed product", art: s && s.top && s.top.img ? s.top.img : ""};
+  }
+  // The last price seen for each shop product you own, kept on this device for when the shop can't be reached
+  const SHOP_KEPT_KEY = "cardvault.v2.shopkept";
+  let shopKeptMem = null;
+  function shopKept() {
+    if (!shopKeptMem) { const c = readJSON(SHOP_KEPT_KEY, null); shopKeptMem = c && typeof c === "object" && !Array.isArray(c) ? c : {}; }
+    return shopKeptMem;
+  }
+  function keepShopPrices() {
+    const next = {};
+    for (const r of collection) {
+      if (!r.sealed || !r.ref) continue;
+      const live = shopWantLive(r), old = shopKept()[r.ref];
+      if (live != null) next[r.ref] = {usd: live}; else if (old) next[r.ref] = old;
+    }
+    if (JSON.stringify(next) === JSON.stringify(shopKept())) return;
+    shopKeptMem = next;
+    try { localStorage.setItem(SHOP_KEPT_KEY, JSON.stringify(next)); } catch (e) { /* optional */ }
+  }
+  // Your shop products are priced from the shops' lists: start on them right away (the last list read is kept, so
+  // they have a price at once), and show the new prices when they're in.
+  function shopPricesReady() {
+    const refs = collection.filter(r => r.sealed && r.ref).map(r => String(r.ref));
+    if (!refs.length) return;
+    if (refs.some(x => x.startsWith("ym:"))) loadYugiMarket();
+    if (refs.some(x => x.startsWith("krbox:")) && !ocgMk.data && !ocgMk.loading && !(ocgMk.failed && Date.now() - ocgMk.failed < 10 * 60000) && ocgMarketURL()) loadOcgMarket();
+    keepShopPrices();   // (a list this device already had gives prices now; a fresh read goes through shopPricesIn)
+  }
+  function shopPricesIn() {
+    if (!collection.some(r => r.sealed && r.ref)) return;
+    keepShopPrices();
+    renderSoon();
   }
 
   /* ======================= Moving cards between locations & trade list ======================= */

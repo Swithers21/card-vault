@@ -326,6 +326,7 @@
       .catch(() => { ocgMk.failed = Date.now(); })
       .then(() => {
         ocgMk.loading = null;
+        shopPricesIn();   // (Korean boxes you own are priced from this list)
         if (settings.tab === "market" && settings.mkRegion !== "en") renderMarket();
         else if (settings.tab === "wants") renderPanel();
         else if (settings.tab === "search") renderSearchResults();
@@ -595,7 +596,7 @@
     if (!card) return null;
     const row = ocgRowFor(card, r.rarity), region = card.region, src = ocgSrc(region, card.number);
     const at = ocgCd.data.generated ? ocgCd.data.generated.getTime() : Date.now();
-    if (!row || !row.local) return {none: true, src, at, file: true, row, card, note: !row ? (card.rows.length > 1 ? "which rarity is yours?" : "no price") : region === "jp" ? "sold out, no price seen yet" : "no listings"};
+    if (!row || !row.local) return {none: true, src, at, file: true, row, card, note: !row ? (card.rows.length > 1 ? (card.rows.some(x => mangaOf(x.rarity)) ? "which version is yours?" : "which rarity is yours?") : "no price") : region === "jp" ? "sold out, no price seen yet" : "no listings"};
     return {local: row.local, cur: OCG_CUR[region], usd: ocgUSD(row.local, region), src, note: rowNote(row), at, file: true, row, card,
       url: ocgShopURL(region, g.code)};
   }
@@ -771,6 +772,7 @@
         ymk.failed = Date.now();
       }
       ymk.loading = null;
+      shopPricesIn();   // (boxes you own are priced from this list)
       if (settings.tab === "market" && settings.mkRegion === "jp") renderMarketList();
       else if (settings.tab === "wants") { renderWants(); renderTabs(); }
       else if (settings.tab === "search" && String(cs.set || "").startsWith("jp:")) renderSearchResults();
@@ -819,8 +821,9 @@
       (x.pre ? '<span class="mk-deal">Pre-order</span>' : !x.available ? '<span class="mk-warn">Sold out at Yugi-Market</span>' : "") +
       '<span class="mk-stores"><a target="_blank" rel="noopener" href="' + esc(ymLink(x)) + '">Yugi-Market</a>' +
       '<a target="_blank" rel="noopener" href="https://www.ebay.com/sch/i.html?_nkw=' + q + '&amp;_sop=15&amp;LH_BIN=1">eBay</a></span>' +
-      '<span class="result-actions">' + (ymWanted(x) ? '<span class="on-list">On want list</span>' : '<button class="btn" type="button" data-ym-want="' + esc(String(x.id)) + '">Want</button>') +
-      "</span></div>";
+      '<span class="result-actions">' + (ymOwned(x) ? '<span class="on-list">You have ' + ymOwned(x) + "</span>" : "") +
+      (ymWanted(x) ? '<span class="on-list">On want list</span>' : '<button class="btn" type="button" data-ym-want="' + esc(String(x.id)) + '">Want</button>') +
+      '<button class="btn" type="button" data-ym-have="' + esc(String(x.id)) + '">I have it</button></span></div>';
   }
 
   /* ----- the lists ----- */
@@ -864,8 +867,10 @@
           : "No unopened boxes listed on Bunjang right now. ") +
         '<span class="mk-stores" style="display:inline-flex"><a target="_blank" rel="noopener" href="' + esc(godOfCardsURL(s)) + '">God of Cards</a>' +
         '<a target="_blank" rel="noopener" href="' + esc(bunjangBoxURL(s)) + '">Bunjang</a></span>' +
+        (krBoxOwned(s) ? ' <span class="on-list">You have ' + krBoxOwned(s) + "</span>" : "") +
         (krBoxWanted(s) ? ' <span class="on-list">Booster box on want list</span>'
-          : ' <button class="btn btn-small" type="button" data-krbox-want="' + esc(s.id) + '">Want a booster box</button>') + "</p>";
+          : ' <button class="btn btn-small" type="button" data-krbox-want="' + esc(s.id) + '">Want a booster box</button>') +
+        (s.box ? ' <button class="btn btn-small" type="button" data-krbox-have="' + esc(s.id) + '">I have a booster box</button>' : "") + "</p>";
     }
     if (s.chase.length) {
       const total = s.chase.reduce((t, c) => t + (ocgUSD(c.local, s.region) || 0), 0);
