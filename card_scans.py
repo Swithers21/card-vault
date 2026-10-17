@@ -206,8 +206,9 @@ def tcg_photo_names(path=TCG_FILE):
 
 
 def targets(market, index, photo_names):
-    """The chase cards to find a scan for, in order: no photo at all first, then the ones showing the English print's
-    photo, newest sets first. [(priority, region, set row, card)]"""
+    """The chase cards to find a scan for, in order: no photo at all first (or only the English print's when that looks
+    different: a Manga-Style or Overframe version, a Rush Duel card), then the ones showing the English print's photo,
+    newest sets first. [(priority, region, set row, card)]"""
     out = []
     for region in ("jp", "kr"):
         for s in market.get(region) or []:
@@ -219,7 +220,10 @@ def targets(market, index, photo_names):
                     continue
                 if key in index["miss"] and days_since(index["miss"][key]) < RETRY_MISSES_DAYS:
                     continue
-                prio = 1 if loose(c[1]) in photo_names else 0
+                # (the English print's photo the website shows instead is the wrong picture for a Manga-Style or
+                # Overframe version, or a Rush Duel card: those count as having none)
+                looks_different = bool(wanted(c[2])[1]) or str(c[0]).upper().startswith("RD/")
+                prio = 1 if loose(c[1]) in photo_names and not looks_different else 0
                 out.append((prio, region, s, c))
     out.sort(key=lambda t: str(t[2][2] or "") if len(t[2]) > 2 else "", reverse=True)   # (newest sets first...)
     out.sort(key=lambda t: t[0])                                                           # (...within each priority)

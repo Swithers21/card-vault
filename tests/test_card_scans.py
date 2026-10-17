@@ -300,6 +300,20 @@ class Job(Base):
         # (and newer sets first within that)
         self.assertLess(names.index("Jinzo"), names.index("Old Card"))
 
+    def test_a_manga_overframe_or_rush_duel_card_counts_as_having_no_photo(self):
+        # TCGplayer has a photo of every name here, but the English print looks different from these
+        names = {"Jinzo", "Exodia the Obliterator", "Old Card", "Dark Magician of Chaos"}
+        with open(self.tcg, "w") as f:
+            f.write("window.TCG_DATA = " + json.dumps({"products": [[i, 0, n, "X-EN%03d" % i, 0, [], 0] for i, n in enumerate(sorted(names))]}) + ";")
+        m = market(jp=market()["jp"] + [["RD/LP01", "Limited Pack Remastered Edition", "2026-10-17", "other", 10,
+                                           [["RD/LP01-JP001", "Dark Magician of Chaos", "Over Rush Rare", 900, 1, "https://shop93-makeshop.akamaized.net/images/common/nonimg90.gif"]], "", None]])
+        todo = cs.targets(m, {"scans": {}, "miss": {}}, cs.tcg_photo_names(self.tcg))
+        prio = {(c[0], c[2]): p for p, _, _, c in todo}
+        self.assertEqual(prio[("YAC1-JP085", "Ultra Rare (Manga Color)")], 0)
+        self.assertEqual(prio[("YAC1-JP001", "Prismatic Secret Rare (Overframe)")], 0)
+        self.assertEqual(prio[("RD/LP01-JP001", "Over Rush Rare")], 0)
+        self.assertEqual(prio[("OLD1-JP001", "Rare")], 1)          # (an ordinary print: the English photo is the same artwork)
+
     def test_yugipedia_being_down_leaves_the_files_as_they_were_and_working(self):
         self.yp.down = True
         self.assertEqual(self.run_job(), 0)
