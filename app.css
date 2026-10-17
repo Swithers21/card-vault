@@ -894,6 +894,13 @@
   .hold-list ul{margin:6px 0 0;padding-left:18px;max-height:180px;overflow:auto;columns:2 220px;font-size:13px}
   .pc-miss ul{margin:8px 0 0;padding-left:18px;max-height:280px;overflow:auto;font-size:13px}
   .pc-miss li{margin:0 0 8px}
+  /* Matching a card with PriceCharting yourself */
+  .pc-results{display:flex;flex-direction:column;gap:8px;margin:0 0 14px}
+  .pc-item{display:flex;align-items:center;gap:10px;justify-content:space-between;border:1px solid var(--line-2);border-radius:10px;padding:10px 12px;background:var(--surface)}
+  .pc-item.same{border-color:var(--gold)}
+  .pc-item > div{min-width:0;display:flex;flex-direction:column;gap:2px}
+  .pc-item b{font-size:14px;overflow-wrap:anywhere}
+  .pc-item .btn{flex:0 0 auto}
   @media (max-width:420px){ .fee-fields{grid-template-columns:1fr 1fr} .fee-fields label:first-child{grid-column:1 / -1} }
   .grade-status{padding:12px 14px;border-radius:10px;background:var(--bg-2);border:1px solid rgba(76,187,165,.4);font-size:13.5px}
   .card-hist .box-head{align-items:center;margin-bottom:6px}

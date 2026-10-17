@@ -318,6 +318,19 @@
       }
     });
 
+    // ----- PriceCharting matching: "Find it" (Settings, a card's graded value) and "Look for them again"
+    document.addEventListener("click", e => {
+      const f = e.target.closest("[data-pc-fix]");
+      if (f) { e.preventDefault(); if (f.dataset.pcBack === "settings") pcMissOpen = true; openPcPick(f.dataset.pcFix, {back: f.dataset.pcBack || ""}); return; }
+      if (e.target.closest("[data-pc-unmark]")) {
+        e.preventDefault();
+        pcUnmark(pcSkipped().marked);
+        const again = () => { if (drawerCtx && drawerCtx.mode === "settings") { pcMissOpen = true; openSettings({section: "graded"}); } };
+        again();
+        refreshGradedPrices().then(again);
+      }
+    });
+
     // ----- set goals (buttons on the Collection tab, the Sets tab and in Card search)
     document.addEventListener("click", e => {
       const g = e.target.closest("[data-goal-toggle], [data-goal-wants], [data-goal-open], [data-goal-add], [data-goal-fold]");
@@ -744,7 +757,7 @@
     openSoldForm, recordSale, saleNumbers, buildReport, openReport, phoneCopyHTML, savePhoneCopy, writePhoneCopy, backupTextFrom,
     matchScanned, numberVariants, openScanner, stopScanner, prepCanvas, openWantForm, resolveLink, chooseBackupFile, linkGoogleDrive, driveToken, openMove, moveCopies,
     searchSealed, openSealedSearch, openSealedForm, openShopSealedForm, searchShopSealed, ymTileHTML, openManual, tidyData, isSealedCard, openPickedForm, openOcgForm, ymItem, krBoxItem, shopKept, keepShopPrices, shopPricesReady, ocgCard, bigwebFor, bunjangFor, bigwebPick, bunjangPick, ocgPrice, refreshOcgPrices, fxRates, showOcgLookup,
-    psa10Value, gradedValue, gradedTotals, pcLookup, pcKey, pcMatch, pcWhy, pcMisses, pcRarityNames, refreshGradedPrices, checkPricesNow, loadOcgCardsSoft, ocgListStatus, gradeShare, koRarity, jaRarity, ocgRegion, isRushNo, cleanName, artless, isOverframeRec, isMangaRec, mangaOf, matchRarity, withManga, mangaFree, lookupName, driveDatedCopy, fillDriveCopies, deckPullPlan, deckPullIntoBox, openShare, shareLink, marketData, mkSetLine, mkKind, mkChase, renderMarket, analyzeDeckIdeas, runDeckIdeas, starterList, ideasState: () => ideas,
+    psa10Value, gradedValue, gradedTotals, pcLookup, pcKey, pcMatch, pcWhy, pcMisses, pcSkipped, pcChoose, pcUnmark, openPcPick, pcSearch, pcCache: () => pcCache(), pcRarityNames, refreshGradedPrices, checkPricesNow, loadOcgCardsSoft, ocgListStatus, gradeShare, koRarity, jaRarity, ocgRegion, isRushNo, cleanName, artless, isOverframeRec, isMangaRec, mangaOf, matchRarity, withManga, mangaFree, lookupName, driveDatedCopy, fillDriveCopies, deckPullPlan, deckPullIntoBox, openShare, shareLink, marketData, mkSetLine, mkKind, mkChase, renderMarket, analyzeDeckIdeas, runDeckIdeas, starterList, ideasState: () => ideas,
     imgTag, productPics, recordPics, namePics, imageFor, shareItem, shareWant,
     silentSignInDue, maybeSilentSignIn, pageBusy, viewBusy, loadNewData, applyNewData, readDataText, dataLoad: () => dataLoad,
     loadOcgMarket, buildOcgMarket, ocgMk: () => ocgMk, loadYugiMarket, ymMatch, ymProduct, ymk: () => ymk, renderMarket, wantPrice,
