@@ -595,5 +595,108 @@ class JapaneseKoreanSealedSeeing(ShopSealedBase):
         self.assertIn('data-ym-want="11"', html)
 
 
+# ---------- sealed products no shop sells (an OTS pack, a video game promo pack): added by hand, at your own value ----------
+class HandAddedSealed(SealedBase):
+    def by_hand(self, page, name, value=None, qty=1, lang=None, paid=None):
+        page.evaluate("window.CardVault.openManual({sealed: true})")
+        page.wait_for_selector("#manualForm.m-sealed")
+        page.fill("#mName", name)
+        page.fill("#mQty", str(qty))
+        if value is not None:
+            page.fill("#mValue", str(value))
+        if paid is not None:
+            page.fill("#mPaid", str(paid))
+        if lang:
+            page.select_option("#mLang", lang)
+        page.click("#manualForm button[type=submit]")
+        page.wait_for_selector("#drawer", state="hidden")
+
+    def test_the_sealed_search_offers_to_add_one_by_hand_with_the_words_typed(self):
+        page = self.open()
+        page.evaluate("window.CardVault.openSealedSearch('')")
+        page.wait_for_selector("#sealedQuery")
+        page.fill("#sealedQuery", "OTS Tournament Pack 30")
+        page.click("#goSealedManual")
+        page.wait_for_selector("#manualForm.m-sealed")
+        self.assertTrue(page.is_checked("#mSealed"))
+        self.assertEqual(page.input_value("#mName"), "OTS Tournament Pack 30")
+        # the card-only fields are out of the way
+        self.assertFalse(page.is_visible("#mNumber"))
+        self.assertFalse(page.is_visible("#mRarity"))
+        self.assertFalse(page.is_visible("#mCond"))
+        self.assertTrue(page.is_visible("#mValue"))
+        self.assertTrue(page.is_visible("#mLang"))
+
+    def test_ticking_the_box_in_add_manually_switches_the_form_and_back(self):
+        page = self.open()
+        page.evaluate("window.CardVault.openManual({})")
+        page.wait_for_selector("#manualForm")
+        self.assertTrue(page.is_visible("#mNumber"))
+        page.check("#mSealed")
+        self.assertFalse(page.is_visible("#mNumber"))
+        page.uncheck("#mSealed")
+        self.assertTrue(page.is_visible("#mNumber"))
+
+    def test_a_pack_added_by_hand_is_a_sealed_product_at_the_value_entered(self):
+        page = self.open()
+        self.by_hand(page, "OTS Tournament Pack 30", value=12.5, qty=4, paid=10)
+        recs = self.records(page)
+        self.assertEqual(recs, [{"name": "OTS Tournament Pack 30", "qty": 4, "sealed": True, "productId": None, "language": "English", "condition": "Sealed",
+                                 "setName": "", "paid": 10, "ref": None}])
+        self.assertEqual(page.evaluate("(() => { const r = window.CardVault.state().collection[0]; return [r.number, r.rarity, r.edition, r.manualPrice, r.grade]; })()"), ["", "", "", 12.5, None])
+        page.wait_for_function("document.getElementById('totalValue').textContent === '$50.00'", timeout=5000)
+
+    def test_without_a_value_it_counts_nothing_and_says_so(self):
+        page = self.open()
+        self.by_hand(page, "Stardust Accelerator promo pack")
+        page.wait_for_selector(".tile")
+        self.assertIsNone(self.unit(page, page.evaluate("window.CardVault.state().collection[0].id")))
+        self.assertIn("No price yet", page.inner_text(".tile .tile-price"))
+
+    def test_it_is_under_the_sealed_filter_with_a_sealed_badge_and_its_language(self):
+        page = self.open()
+        self.by_hand(page, "Over the Nexus promo pack", value=20, lang="Japanese")
+        page.wait_for_selector(".tile")
+        self.assertEqual(page.evaluate("Array.from(document.querySelectorAll('.tile .ed')).map(b => b.textContent)"), ["Sealed"])
+        self.assertIn("Sealed product · Japanese", page.inner_text(".tile"))
+        EnglishSealed.show(self, page, "sealed")
+        page.wait_for_function("document.querySelectorAll('.tile').length === 1")
+        EnglishSealed.show(self, page, "cards")
+        page.wait_for_function("document.querySelectorAll('.tile').length === 0")
+
+    def test_the_same_pack_added_again_adds_up(self):
+        page = self.open()
+        self.by_hand(page, "OTS Tournament Pack 30", value=12.5)
+        self.by_hand(page, "OTS Tournament Pack 30", value=12.5)
+        self.assertEqual([r["qty"] for r in self.records(page)], [2])
+
+    def test_the_value_can_be_changed_under_edit(self):
+        page = self.open()
+        self.by_hand(page, "OTS Tournament Pack 30", value=12.5)
+        rid = page.evaluate("window.CardVault.state().collection[0].id")
+        page.evaluate("(id) => window.CardVault.openDetails(id)", rid)
+        page.wait_for_selector("#editForm")
+        self.assertNotIn("Graded value", page.inner_text("#drawerBody"))
+        page.fill("#eValue", "15")
+        page.click("#editForm button[type=submit]")
+        page.wait_for_selector("#drawer", state="hidden")
+        page.wait_for_function("document.getElementById('totalValue').textContent === '$15.00'", timeout=5000)
+
+    def test_it_is_not_listed_as_a_card_missing_a_tcgplayer_link(self):
+        page = self.open()
+        self.by_hand(page, "OTS Tournament Pack 30", value=12.5)
+        page.wait_for_timeout(300)
+        self.assertEqual(page.evaluate("window.CardVault.tidyData ? window.CardVault.tidyData().unlinked.length : 0"), 0)
+
+    def test_it_comes_back_after_closing_and_opening_again(self):
+        page = self.open()
+        self.by_hand(page, "OTS Tournament Pack 30", value=12.5, qty=2)
+        page.reload()
+        page.wait_for_function("typeof window.CardVault === 'object'")
+        page.wait_for_function("window.CardVault.state().collection.length === 1")
+        self.assertEqual((self.records(page)[0]["qty"], self.records(page)[0]["sealed"]), (2, True))
+        page.wait_for_function("document.getElementById('totalValue').textContent === '$25.00'", timeout=5000)
+
+
 if __name__ == "__main__":
     unittest.main()
