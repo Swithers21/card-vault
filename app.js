@@ -25,6 +25,12 @@
   const YGOPRODECK = "https://db.ygoprodeck.com/api/v7";
   const PRINTINGS = ["1st Edition", "Unlimited", "Limited", "No edition mark"];
   const CONDITIONS = ["Near Mint", "Lightly Played", "Moderately Played", "Heavily Played", "Damaged"];
+  // A single card still in its original pack or sleeve (a promo, a Lost Art card…): its condition is "Sealed". It is
+  // still a card (number, rarity, prices, grading), unlike a sealed product (a box, a pack), which is r.sealed.
+  const SEALED_COND = "Sealed";
+  const CARD_CONDITIONS = CONDITIONS.concat(SEALED_COND);
+  const isSealedCard = r => !!r && !r.sealed && r.condition === SEALED_COND;
+  const sealedCardBadge = r => isSealedCard(r) ? '<span class="ed ed-sealed">Sealed</span>' : "";
   const LANGUAGES = ["English", "Japanese", "Korean", "French", "German", "Italian", "Spanish", "Portuguese",
     "Chinese (Simplified)", "Chinese (Traditional)"];
   const BASE_RARITIES = ["Common / Short Print", "Common", "Short Print", "Super Short Print", "Rare", "Super Rare",
@@ -111,7 +117,7 @@
   const YUGI_FALLBACK = {KR: ["JP", "AE", "JA", "TC", "SC", "EN"], JP: ["JA", "AE", "KR", "TC", "SC", "EN"],
     JA: ["JP", "AE", "KR", "EN"], AE: ["EN", "JP", "KR"], TC: ["SC", "JP", "AE"], SC: ["TC", "JP", "AE"]};
   const PRINTING_RANK = {"1st Edition": 3, "Limited": 2, "Unlimited": 1, "No edition mark": 0};
-  const CONDITION_RANK = {"Near Mint": 5, "Lightly Played": 4, "Moderately Played": 3, "Heavily Played": 2, "Damaged": 1};
+  const CONDITION_RANK = {"Sealed": 6, "Near Mint": 5, "Lightly Played": 4, "Moderately Played": 3, "Heavily Played": 2, "Damaged": 1};
   // Rarity tiers, from common prints up to the rarest foils. Within a tier, rarities sort by name.
   function rarityRank(rarity) {
     const s = String(rarity || "").toLowerCase();
@@ -167,6 +173,20 @@
 
   /* ======================= Helpers ======================= */
   const $ = id => document.getElementById(id);
+  // The "still sealed" box of an add or edit form, and keeping it in step with the condition list: ticking it sets the
+  // condition to Sealed, unticking it goes back to the condition from before.
+  const sealedCardCheckHTML = (id, checked) => '<label class="check-row sealed-check"><input type="checkbox" class="check" id="' + id + '"' + (checked ? " checked" : "") +
+    '> <span>Still sealed (in its original pack or sleeve)</span></label>';
+  function wireSealedCard(checkId, condId) {
+    const box = $(checkId), sel = $(condId);
+    if (!box || !sel) return;
+    let before = sel.value === SEALED_COND ? "Near Mint" : sel.value;
+    box.addEventListener("change", () => {
+      if (box.checked) { if (sel.value !== SEALED_COND) before = sel.value; sel.value = SEALED_COND; } else sel.value = before;
+      sel.dispatchEvent(new Event("change", {bubbles: true}));
+    });
+    sel.addEventListener("change", () => { box.checked = sel.value === SEALED_COND; if (sel.value !== SEALED_COND) before = sel.value; });
+  }
   const esc = v => String(v == null ? "" : v).replace(/[&<>"']/g,
     c => ({"&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;"}[c]));
   const fmtUSD = new Intl.NumberFormat("en-US", {style: "currency", currency: "USD"});
@@ -1254,7 +1274,8 @@
     const show = r => !filters.show ||
       (filters.show === "extras" && extras.has(r.id)) ||
       (filters.show === "graded" && !!r.grade) ||
-      (filters.show === "played" && !r.grade && !r.sealed && r.condition !== "Near Mint") ||
+      (filters.show === "played" && !r.grade && !r.sealed && r.condition !== "Near Mint" && r.condition !== SEALED_COND) ||
+      (filters.show === "sealedcards" && isSealedCard(r)) ||
       (filters.show === "manual" && !r.productId && !r.ref) ||
       (filters.show === "rush" && !r.sealed && isRushNo(r.number)) ||
       (filters.show === "overframe" && isOverframeRec(r)) ||
@@ -1269,7 +1290,7 @@
       (!filters.language || r.language === filters.language) &&
       (!filters.location || (filters.location === NO_LOCATION ? !r.location : r.location === filters.location)) &&
       show(r) &&
-      (!q || (r.name + " " + r.productName + " " + r.number + " " + r.setName + " " + r.location + " " + r.notes + " " + r.rarity + (isRushNo(r.number) ? " rush duel" : "") + (isOverframeRec(r) ? " overframe over frame extended art" : "") + (isMangaRec(r) ? " manga style" + (mangaOf(r.rarity) === "Color" ? " colour" : " black and white") : "") + (r.sealed ? " sealed " + r.language : "") + (r.sell ? " selling sell list" : "")).toLowerCase().includes(q)));
+      (!q || (r.name + " " + r.productName + " " + r.number + " " + r.setName + " " + r.location + " " + r.notes + " " + r.rarity + (isRushNo(r.number) ? " rush duel" : "") + (isOverframeRec(r) ? " overframe over frame extended art" : "") + (isMangaRec(r) ? " manga style" + (mangaOf(r.rarity) === "Color" ? " colour" : " black and white") : "") + (r.sealed ? " sealed " + r.language : isSealedCard(r) ? " sealed still sealed" : "") + (r.sell ? " selling sell list" : "")).toLowerCase().includes(q)));
     return sortRecords(list);
   }
   function sortRecords(list) {
@@ -1769,7 +1790,7 @@
         '<span class="tile-meta">Sealed product' + (r.language && r.language !== "English" ? " · " + esc(r.language) : "") + "</span></button>"
       : '<span class="tile-meta">' + esc(r.number || "No card number") + "</span>" +
         '<span class="tile-meta" title="' + esc(r.rarity) + '">' + esc(r.rarity || " ") + "</span></button>") +
-      '<div class="tile-foot"><span class="badges">' + (r.sealed ? '<span class="ed ed-sealed">Sealed</span>' : editionBadge(r.edition) + rushBadge(r.number) + overframeBadge(r) + mangaBadge(r)) + gradeBadge(r.grade) +
+      '<div class="tile-foot"><span class="badges">' + (r.sealed ? '<span class="ed ed-sealed">Sealed</span>' : editionBadge(r.edition) + sealedCardBadge(r) + rushBadge(r.number) + overframeBadge(r) + mangaBadge(r)) + gradeBadge(r.grade) +
       (r.grading ? '<span class="ed ed-away' + (expectedBack(r.grading) && expectedBack(r.grading).late ? " ed-late" : "") + '">At ' + esc(r.grading.company) + (expectedBack(r.grading) && expectedBack(r.grading).late ? ", late" : "") + "</span>" : "") +
       (extra ? '<span class="ed ed-extra">' + extra + " extra</span>" : "") + (r.sell ? '<span class="ed ed-sell">Selling</span>' : "") + "</span>" + priceHTML(r, extra) + "</div></article>";
   }
@@ -2027,6 +2048,26 @@
   }
 
   /* ----- shared form pieces ----- */
+  // What you already have of the card (or product) being added, by place: "You already have 3: Binder 1 ×2 · No location ×1".
+  // Tapping a place puts it in the form's location field (locId), to keep the new copies with the others. match(r) says
+  // which entries count; graded copies and ones away at a grader count too.
+  function ownedWhereHTML(match, locId) {
+    const mine = collection.filter(match);
+    if (!mine.length) return "";
+    const by = new Map();
+    for (const r of mine) by.set(r.location || "", (by.get(r.location || "") || 0) + r.qty);
+    const total = mine.reduce((t, r) => t + r.qty, 0);
+    const places = Array.from(by.entries()).sort((a, b) => b[1] - a[1] || a[0].localeCompare(b[0]));
+    return '<div class="owned-where" id="' + locId + 'Owned"><span>You already have <b>' + total + "</b>" + (places.length === 1 && !places[0][0] ? ", in no location." : places.length === 1 ? " in" : ":") + "</span>" +
+      (places.length === 1 && !places[0][0] ? "" : places.map(([loc, n]) => '<button type="button" class="chip" data-loc-pick="' + esc(loc) + '" data-loc-field="' + locId + '" title="Put the new ' +
+        (total === 1 ? "copy" : "copies") + ' here too">' + esc(locName(loc)) + " ×" + n + "</button>").join("")) + "</div>";
+  }
+  function wireOwnedWhere(root) {
+    (root || $("drawerBody")).querySelectorAll("[data-loc-pick]").forEach(b => b.addEventListener("click", () => {
+      const f = $(b.dataset.locField);
+      if (f) { f.value = b.dataset.locPick; f.dispatchEvent(new Event("input", {bubbles: true})); }
+    }));
+  }
   function locationFieldHTML(id, value) {
     return '<label class="field"><span>Location (optional): binder, box or deck</span><input class="input" id="' + id +
       '" list="locationList" autocomplete="off" placeholder="e.g. Binder 1" value="' + esc(value || "") + '"></label>';
@@ -2083,9 +2124,11 @@
     openDrawer(replacing ? "Change printing" : "Add a card",
       pickedHeadHTML(p, want ? "" : "Pick a different printing") +
       (want ? '<div class="notice" style="margin:0 0 14px">From your want list. Adding it to your collection takes it off the want list.</div>' : "") +
+      (replacing ? "" : ownedWhereHTML(r => r.productId === p.id, "fLoc")) +
       '<form id="pickedForm" class="stack">' +
       '<div class="grid-2"><label class="field"><span>Printing</span><select class="input" id="fEd">' + options(available.concat(PRINTINGS), defaultEd) + "</select></label>" +
-      '<label class="field"><span>Condition</span><select class="input" id="fCond">' + options(CONDITIONS, v.condition) + "</select></label></div>" +
+      '<label class="field"><span>Condition</span><select class="input" id="fCond">' + options(CARD_CONDITIONS, v.condition) + "</select></label></div>" +
+      sealedCardCheckHTML("fSealedCard", v.condition === SEALED_COND) +
       '<div class="price-line" id="pickedPrice"></div>' +
       '<div class="grid-2"><label class="field"><span>Language</span><select class="input" id="fLanguage">' + options(LANGUAGES, v.language) + "</select></label>" +
       '<label class="field"><span>Quantity</span><input class="input" id="fQty" type="number" min="1" step="1" value="' + (v.qty || 1) + '"></label></div>' +
@@ -2114,6 +2157,8 @@
     };
     $("fEd").addEventListener("change", updatePrice);
     $("fCond").addEventListener("change", updatePrice);
+    wireSealedCard("fSealedCard", "fCond");
+    wireOwnedWhere();
     updatePrice();
     if ($("backToSearch")) $("backToSearch").addEventListener("click", () => openAdd({number: p.number, replaceId: replacing ? replacing.id : null}));
     if ($("toWant")) $("toWant").addEventListener("click", () => openWantForm(p, null, {edition: $("fEd").value, notes: $("fNotes").value.trim()}));
@@ -2338,6 +2383,7 @@
       "<h3>" + esc(p.name) + "</h3><p>" + esc(p.group.name) + "</p>" +
       (want ? "" : '<p style="margin-top:8px"><button type="button" class="link-btn" id="backToSearch">Pick a different product</button></p>') + "</div></div>" +
       (want ? fromWantNotice : "") +
+      ownedWhereHTML(r => r.productId === p.id, "sLocS") +
       '<form id="sealedForm" class="stack">' +
       '<div class="price-line">' + (v == null ? '<span class="small">TCGplayer has no recent sales for this product.</span>'
         : "TCGplayer market price: <b>" + esc(usd(v)) + "</b>" + (catalog && catalog.generated ? ' <span class="small">(' + esc(fmtDate(catalog.generated)) + ")</span>" : "")) + "</div>" +
@@ -2347,6 +2393,7 @@
       locationFieldHTML("sLocS", "") +
       '<div class="form-actions"><button class="btn btn-primary" type="submit">Add to collection</button></div></form>');
     if ($("backToSearch")) $("backToSearch").addEventListener("click", () => openSealedSearch(query));
+    wireOwnedWhere();
     $("sealedForm").addEventListener("submit", e => {
       e.preventDefault();
       const rec = upgradeRecord({id: newId(), productId: p.id, sealed: true, name: p.name, productName: p.name, setName: p.group.name,
@@ -2374,6 +2421,7 @@
       "<h3>" + esc(it.name) + "</h3><p>" + esc(it.setName) + "</p><p>" + esc(WANT_ONE[it.kind] + ", " + it.language) + "</p>" +
       (want ? "" : '<p style="margin-top:8px"><button type="button" class="link-btn" id="backToSearch">Pick a different product</button></p>') + "</div></div>" +
       (want ? fromWantNotice : "") +
+      (it.ref ? ownedWhereHTML(r => r.sealed && r.ref === it.ref, "gLoc") : "") +
       '<form id="shopSealedForm" class="stack">' +
       '<div class="price-line">' + (price != null ? esc(src) + " price: <b>" + esc(usd(price)) + "</b>" + (it.soldOut ? ' <span class="small">(sold out right now)</span>' : "") : '<span class="small">No price yet.</span>') + "</div>" +
       '<div class="grid-2"><label class="field"><span>Quantity</span><input class="input" id="gQty" type="number" min="1" step="1" value="' + (want ? want.qty || 1 : 1) + '"></label>' +
@@ -2386,6 +2434,7 @@
       locationFieldHTML("gLoc", "") +
       '<div class="form-actions"><button class="btn btn-primary" type="submit">Add to collection</button></div></form>');
     if ($("backToSearch")) $("backToSearch").addEventListener("click", () => openSealedSearch(opts.query || "", {lang: it.language}));
+    wireOwnedWhere();
     $("shopSealedForm").addEventListener("submit", e => {
       e.preventDefault();
       const cur = want ? wants.find(x => x.id === want.id) : null;
@@ -2433,14 +2482,15 @@
       '<label class="field"><span>Set</span><input class="input" id="mSet" value="' + esc(pre.setName || "") + '"></label></div>' +
       '<div class="grid-2 m-card"><label class="field"><span>Rarity</span><select class="input" id="mRarity">' + options(rarities, pre.rarity || "", "Choose rarity") + "</select></label>" +
       '<label class="field"><span>Printing</span><select class="input" id="mEd">' + options(PRINTINGS, pre.edition || (pre.language === "Japanese" ? "No edition mark" : "1st Edition")) + "</select></label></div>" +
-      '<div class="grid-2"><label class="field m-card"><span>Condition</span><select class="input" id="mCond">' + options(CONDITIONS, "Near Mint") + "</select></label>" +
+      '<div class="grid-2"><label class="field m-card"><span>Condition</span><select class="input" id="mCond">' + options(CARD_CONDITIONS, "Near Mint") + "</select></label>" +
       '<label class="field"><span>Language</span><select class="input" id="mLang">' + options(LANGUAGES, pre.language || "English") + "</select></label></div>" +
+      '<div class="m-card">' + sealedCardCheckHTML("mSealedCard", false) + "</div>" +
       '<div class="grid-2"><label class="field"><span>Quantity</span><input class="input" id="mQty" type="number" min="1" step="1" value="1"></label>' +
       '<label class="field"><span>Value <span class="m-card-word">per card</span><span class="m-sealed-word">each</span> in US$ (your estimate)</span><input class="input" id="mValue" type="number" min="0" step="0.01"></label></div>' +
       '<p class="hint m-sealed-word" style="margin:-6px 0 0">No shop Card Vault reads sells this sealed, so it has no price of its own: the value you enter here is what it counts for (you can change it under Edit anytime).</p>' +
       '<div class="grid-2 m-card"><label class="field"><span>Japan price (¥)</span><input class="input" id="mJp" type="number" min="0" step="1"></label>' +
       '<label class="field"><span>Korea price (₩)</span><input class="input" id="mKr" type="number" min="0" step="1"></label></div>' +
-      '<div id="mLinks"></div>' +
+      '<div id="mLinks"></div><div id="mOwnedBox"></div>' +
       '<div class="field"><span>Photo (optional)</span>' +
       '<div class="lookup-row"><input class="input" id="mImage" type="url" placeholder="Paste a photo link, or find one" aria-label="Photo link" style="text-transform:none">' +
       '<button class="btn m-card" type="button" id="mFind">Find photos</button></div>' +
@@ -2452,8 +2502,16 @@
     const fromWant = pre.fromWant ? wants.find(w => w.id === pre.fromWant) : null;
     if (fromWant) $("mQty").value = String(fromWant.qty || 1);
     const isSealed = () => $("mSealed").checked;
+    wireSealedCard("mSealedCard", "mCond");
     $("mSealed").addEventListener("change", () => { $("manualForm").classList.toggle("m-sealed", isSealed()); refreshLinks(); });
-    const refreshLinks = () => { $("mLinks").innerHTML = isSealed() ? "" : manualLinks($("mName").value, $("mNumber").value); };
+    const refreshOwned = () => {
+      const number = isSealed() ? "" : normNumber($("mNumber").value), name = $("mName").value.trim().toLowerCase();
+      const box = $("mOwnedBox");
+      if (!box) return;
+      box.innerHTML = !number && !name ? "" : ownedWhereHTML(r => !!r.sealed === isSealed() && (number ? normNumber(r.number) === number : r.name.trim().toLowerCase() === name), "mLoc");
+      wireOwnedWhere(box);
+    };
+    const refreshLinks = () => { $("mLinks").innerHTML = isSealed() ? "" : manualLinks($("mName").value, $("mNumber").value); refreshOwned(); };
     $("mName").addEventListener("input", refreshLinks);
     $("mNumber").addEventListener("input", refreshLinks);
     refreshLinks();
@@ -2650,7 +2708,8 @@
       '<div class="section"><h3>' + (r.sealed ? "Yours" : "Your copy") + '</h3><form id="editForm" class="stack">' +
       cardOnly('<div class="grid-2"><label class="field"><span>Printing</span><select class="input" id="eEd">' +
       options((product ? printingsFor(product).filter(k => k !== "Normal") : []).concat(PRINTINGS), r.edition) + "</select></label>" +
-      '<label class="field"><span>Condition</span><select class="input" id="eCond">' + options(CONDITIONS, r.condition) + "</select></label></div>") +
+      '<label class="field"><span>Condition</span><select class="input" id="eCond">' + options(CARD_CONDITIONS, r.condition) + "</select></label></div>" +
+      sealedCardCheckHTML("eSealedCard", isSealedCard(r))) +
       '<div class="grid-2">' + cardOnly('<label class="field"><span>Language</span><select class="input" id="eLang">' + options(LANGUAGES, r.language) + "</select></label>") +
       '<label class="field"><span>Quantity</span><input class="input" id="eQty" type="number" min="1" step="1" value="' + r.qty + '"></label>' +
       (r.sealed ? '<label class="field"><span>Price you paid, each</span><input class="input" id="ePaid" type="number" min="0" step="0.01" value="' + (r.paid == null ? "" : r.paid) + '"></label>' : "") + "</div>" +
@@ -2715,6 +2774,7 @@
     $("drawerBody").querySelectorAll("[data-other]").forEach(b => b.addEventListener("click", () => openDetails(b.dataset.other)));
     // Only what you change in the form is saved, so a change that arrives from another computer
     // while the form is open (say, a copy sold there) isn't overwritten.
+    wireSealedCard("eSealedCard", "eCond");
     const shown = formValues("editForm");
     $("editForm").addEventListener("submit", e => {
       e.preventDefault();
@@ -3499,17 +3559,21 @@
       esc(choice.rarity || "rarity unknown") + "</p><p>" + esc(lang) + "</p>" +
       (want ? "" : '<p style="margin-top:8px"><button type="button" class="link-btn" id="backToSearch">Pick a different rarity</button></p>') + "</div></div>" +
       (want ? fromWantNotice : "") +
+      ownedWhereHTML(r => !r.productId && !r.sealed && normNumber(r.number) === normNumber(card.code), "oLoc") +
       '<form id="ocgForm" class="stack">' +
       '<div class="price-line">' + (pr ? esc(pr.src) + ": <b>" + esc(fmtLocal(pr.local, pr.cur)) + "</b>" + (toUSD(pr.local, pr.cur) != null ? " ≈ <b>" + esc(usd(toUSD(pr.local, pr.cur))) + "</b>" : "") +
         ' <span class="small">(' + esc(pr.note) + ")</span>" : '<span class="small">No price found yet. Card Vault checks again every day; you can also enter your own estimate later.</span>') + "</div>" +
       '<div class="grid-2"><label class="field"><span>Printing</span><select class="input" id="oEd">' + options(PRINTINGS, "No edition mark") + "</select></label>" +
-      '<label class="field"><span>Condition</span><select class="input" id="oCond">' + options(CONDITIONS, "Near Mint") + "</select></label></div>" +
+      '<label class="field"><span>Condition</span><select class="input" id="oCond">' + options(CARD_CONDITIONS, "Near Mint") + "</select></label></div>" +
+      sealedCardCheckHTML("oSealedCard", false) +
       '<div class="grid-2"><label class="field"><span>Quantity</span><input class="input" id="oQty" type="number" min="1" step="1" value="1"></label>' +
       '<label class="field"><span>Price you paid, each (optional)</span><input class="input" id="oPaid" type="number" min="0" step="0.01" placeholder="$"></label></div>' +
       '<label class="field"><span>Notes (optional)</span><input class="input" id="oNotes"></label>' +
       locationFieldHTML("oLoc", "") + gradeFieldsHTML("o", null) +
       '<div class="form-actions"><button class="btn btn-primary" type="submit">Add to collection</button></div></form>');
     if (want) $("oQty").value = String(want.qty || 1);
+    wireSealedCard("oSealedCard", "oCond");
+    wireOwnedWhere();
     if ($("backToSearch")) $("backToSearch").addEventListener("click", () => openAdd({number: card.code}));
     $("ocgForm").addEventListener("submit", e => {
       e.preventDefault();
@@ -13567,7 +13631,7 @@
     photoCandidates, findPhotosBatch, tradeListText, parseDeckText, parseYdk, parseYdke, checkDeck, cardNamesFor, runDeckCheck,
     openSoldForm, recordSale, saleNumbers, buildReport, openReport, phoneCopyHTML, savePhoneCopy, writePhoneCopy, backupTextFrom,
     matchScanned, numberVariants, openScanner, stopScanner, prepCanvas, openWantForm, resolveLink, chooseBackupFile, linkGoogleDrive, driveToken, openMove, moveCopies,
-    searchSealed, openSealedSearch, openSealedForm, openShopSealedForm, searchShopSealed, ymTileHTML, openManual, tidyData, ymItem, krBoxItem, shopKept, keepShopPrices, shopPricesReady, ocgCard, bigwebFor, bunjangFor, bigwebPick, bunjangPick, ocgPrice, refreshOcgPrices, fxRates, showOcgLookup,
+    searchSealed, openSealedSearch, openSealedForm, openShopSealedForm, searchShopSealed, ymTileHTML, openManual, tidyData, isSealedCard, openPickedForm, openOcgForm, ymItem, krBoxItem, shopKept, keepShopPrices, shopPricesReady, ocgCard, bigwebFor, bunjangFor, bigwebPick, bunjangPick, ocgPrice, refreshOcgPrices, fxRates, showOcgLookup,
     psa10Value, gradedValue, gradedTotals, pcLookup, pcKey, pcMatch, pcWhy, pcMisses, pcRarityNames, refreshGradedPrices, checkPricesNow, loadOcgCardsSoft, ocgListStatus, gradeShare, koRarity, jaRarity, ocgRegion, isRushNo, cleanName, artless, isOverframeRec, isMangaRec, mangaOf, matchRarity, withManga, mangaFree, lookupName, driveDatedCopy, fillDriveCopies, deckPullPlan, deckPullIntoBox, openShare, shareLink, marketData, mkSetLine, mkKind, mkChase, renderMarket, analyzeDeckIdeas, runDeckIdeas, starterList, ideasState: () => ideas,
     imgTag, productPics, recordPics, namePics, imageFor, shareItem, shareWant,
     silentSignInDue, maybeSilentSignIn, pageBusy, viewBusy, loadNewData, applyNewData, readDataText, dataLoad: () => dataLoad,
