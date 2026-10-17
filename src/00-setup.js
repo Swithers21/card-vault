@@ -25,6 +25,12 @@
   const YGOPRODECK = "https://db.ygoprodeck.com/api/v7";
   const PRINTINGS = ["1st Edition", "Unlimited", "Limited", "No edition mark"];
   const CONDITIONS = ["Near Mint", "Lightly Played", "Moderately Played", "Heavily Played", "Damaged"];
+  // A single card still in its original pack or sleeve (a promo, a Lost Art card…): its condition is "Sealed". It is
+  // still a card (number, rarity, prices, grading), unlike a sealed product (a box, a pack), which is r.sealed.
+  const SEALED_COND = "Sealed";
+  const CARD_CONDITIONS = CONDITIONS.concat(SEALED_COND);
+  const isSealedCard = r => !!r && !r.sealed && r.condition === SEALED_COND;
+  const sealedCardBadge = r => isSealedCard(r) ? '<span class="ed ed-sealed">Sealed</span>' : "";
   const LANGUAGES = ["English", "Japanese", "Korean", "French", "German", "Italian", "Spanish", "Portuguese",
     "Chinese (Simplified)", "Chinese (Traditional)"];
   const BASE_RARITIES = ["Common / Short Print", "Common", "Short Print", "Super Short Print", "Rare", "Super Rare",
@@ -111,7 +117,7 @@
   const YUGI_FALLBACK = {KR: ["JP", "AE", "JA", "TC", "SC", "EN"], JP: ["JA", "AE", "KR", "TC", "SC", "EN"],
     JA: ["JP", "AE", "KR", "EN"], AE: ["EN", "JP", "KR"], TC: ["SC", "JP", "AE"], SC: ["TC", "JP", "AE"]};
   const PRINTING_RANK = {"1st Edition": 3, "Limited": 2, "Unlimited": 1, "No edition mark": 0};
-  const CONDITION_RANK = {"Near Mint": 5, "Lightly Played": 4, "Moderately Played": 3, "Heavily Played": 2, "Damaged": 1};
+  const CONDITION_RANK = {"Sealed": 6, "Near Mint": 5, "Lightly Played": 4, "Moderately Played": 3, "Heavily Played": 2, "Damaged": 1};
   // Rarity tiers, from common prints up to the rarest foils. Within a tier, rarities sort by name.
   function rarityRank(rarity) {
     const s = String(rarity || "").toLowerCase();
@@ -167,6 +173,20 @@
 
   /* ======================= Helpers ======================= */
   const $ = id => document.getElementById(id);
+  // The "still sealed" box of an add or edit form, and keeping it in step with the condition list: ticking it sets the
+  // condition to Sealed, unticking it goes back to the condition from before.
+  const sealedCardCheckHTML = (id, checked) => '<label class="check-row sealed-check"><input type="checkbox" class="check" id="' + id + '"' + (checked ? " checked" : "") +
+    '> <span>Still sealed (in its original pack or sleeve)</span></label>';
+  function wireSealedCard(checkId, condId) {
+    const box = $(checkId), sel = $(condId);
+    if (!box || !sel) return;
+    let before = sel.value === SEALED_COND ? "Near Mint" : sel.value;
+    box.addEventListener("change", () => {
+      if (box.checked) { if (sel.value !== SEALED_COND) before = sel.value; sel.value = SEALED_COND; } else sel.value = before;
+      sel.dispatchEvent(new Event("change", {bubbles: true}));
+    });
+    sel.addEventListener("change", () => { box.checked = sel.value === SEALED_COND; if (sel.value !== SEALED_COND) before = sel.value; });
+  }
   const esc = v => String(v == null ? "" : v).replace(/[&<>"']/g,
     c => ({"&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;"}[c]));
   const fmtUSD = new Intl.NumberFormat("en-US", {style: "currency", currency: "USD"});

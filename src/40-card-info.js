@@ -730,13 +730,15 @@
       '<div class="price-line">' + (pr ? esc(pr.src) + ": <b>" + esc(fmtLocal(pr.local, pr.cur)) + "</b>" + (toUSD(pr.local, pr.cur) != null ? " ≈ <b>" + esc(usd(toUSD(pr.local, pr.cur))) + "</b>" : "") +
         ' <span class="small">(' + esc(pr.note) + ")</span>" : '<span class="small">No price found yet. Card Vault checks again every day; you can also enter your own estimate later.</span>') + "</div>" +
       '<div class="grid-2"><label class="field"><span>Printing</span><select class="input" id="oEd">' + options(PRINTINGS, "No edition mark") + "</select></label>" +
-      '<label class="field"><span>Condition</span><select class="input" id="oCond">' + options(CONDITIONS, "Near Mint") + "</select></label></div>" +
+      '<label class="field"><span>Condition</span><select class="input" id="oCond">' + options(CARD_CONDITIONS, "Near Mint") + "</select></label></div>" +
+      sealedCardCheckHTML("oSealedCard", false) +
       '<div class="grid-2"><label class="field"><span>Quantity</span><input class="input" id="oQty" type="number" min="1" step="1" value="1"></label>' +
       '<label class="field"><span>Price you paid, each (optional)</span><input class="input" id="oPaid" type="number" min="0" step="0.01" placeholder="$"></label></div>' +
       '<label class="field"><span>Notes (optional)</span><input class="input" id="oNotes"></label>' +
       locationFieldHTML("oLoc", "") + gradeFieldsHTML("o", null) +
       '<div class="form-actions"><button class="btn btn-primary" type="submit">Add to collection</button></div></form>');
     if (want) $("oQty").value = String(want.qty || 1);
+    wireSealedCard("oSealedCard", "oCond");
     if ($("backToSearch")) $("backToSearch").addEventListener("click", () => openAdd({number: card.code}));
     $("ocgForm").addEventListener("submit", e => {
       e.preventDefault();
