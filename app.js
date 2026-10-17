@@ -388,6 +388,9 @@
       added: r.added || new Date().toISOString(),
       mod: modTime(r.mod)
     };
+    // The PriceCharting item you matched it with yourself (its id), or "none": it isn't on PriceCharting
+    const pcId = String(r.pcId || "");
+    if (/^(none|\d{1,12})$/.test(pcId) && !out.sealed) out.pcId = pcId;
     // A Japanese or Korean sealed product bought from a shop in the Market (Yugi-Market, Bunjang) keeps which product it
     // is (ref), where to see it (link) and the price it had when added: its value follows the shop's price from then on.
     if (r.sealed && r.ref && !out.productId) {
@@ -2610,7 +2613,11 @@
     } else if (ten && ten.from === "estimate") {
       html += "<p>PSA 10, rough estimate: <b>" + esc(usd(ten.unit)) + '</b> <span class="small">(raw ' + esc(usd(ten.raw)) + " × " + esc(num(settings.psa10Mult) == null ? 4 : settings.psa10Mult) + " + " +
         esc(usd(num(settings.psa10Floor) == null ? 25 : settings.psa10Floor)) + ", see Settings)</span></p>" +
-        '<p class="small">' + (pcOn() ? (pcBad() ? "PriceCharting didn't accept your key (Settings)." : "PriceCharting has no match for this card yet.") : "For real graded prices, add a PriceCharting key in Settings.") + "</p>";
+        '<p class="small">' + (!pcOn() ? "For real graded prices, add a PriceCharting key in Settings."
+          : pcBad() ? "PriceCharting didn't accept your key (Settings)."
+          : r.language === "Korean" ? "PriceCharting doesn't list Korean cards."
+          : r.pcId === "none" ? 'You marked it as not on PriceCharting. <button type="button" class="link-btn" data-pc-fix="' + esc(r.id) + '">Look again</button>'
+          : 'PriceCharting has no match for this card yet. <button type="button" class="link-btn" data-pc-fix="' + esc(r.id) + '">Find it on PriceCharting</button>') + "</p>";
     } else if (!ten) {
       html += '<p class="small">No price to estimate from yet.</p>';
     }
@@ -3756,9 +3763,19 @@
     for (const [k, f] of Object.entries(PC_FIELDS)) out[k] = cents(it[f]);
     return out;
   }
+  // Cards PriceCharting is never asked about: Korean ones (it doesn't list Korean cards) and ones you marked as not on
+  // it. The PriceCharting item you picked for a card yourself (r.pcId) is used as it is.
+  const pcSkip = r => r.language === "Korean" || r.pcId === "none";
   async function pcLookup(r, fresh) {
+    if (pcSkip(r)) return null;
     const key = pcKey(r), hit = pcCache()[key];
     if (hit && !fresh && Date.now() - hit.t < (hit.p ? PC_TTL : 3 * 86400000)) return hit.p;
+    if (r.pcId) {
+      const it = await pcFetch("product?id=" + encodeURIComponent(r.pcId));
+      const p = it && it["product-name"] ? pcPrices(it) : null;
+      pcPut(key, p ? {t: Date.now(), p} : {t: Date.now(), p: null, why: "The PriceCharting item you picked for it couldn't be read. Pick it again."});
+      return p;
+    }
     const q = (lookupName(r.name) + " " + (r.number || "")).trim();
     const json = await pcFetch("products?q=" + encodeURIComponent(q));
     let it = pcMatch(json.products, r);
@@ -3770,14 +3787,112 @@
   }
   // The cards PriceCharting was asked about and had no match for, with the reason kept when it was asked.
   function pcMisses() {
-    return collection.filter(r => !r.sealed && normNumber(r.number)).map(r => ({r, h: pcCache()[pcKey(r)]})).filter(x => x.h && !x.h.p).map(x => ({r: x.r, why: x.h.why || ""}));
+    return collection.filter(r => !r.sealed && normNumber(r.number) && !pcSkip(r)).map(r => ({r, h: pcCache()[pcKey(r)]})).filter(x => x.h && !x.h.p).map(x => ({r: x.r, why: x.h.why || ""}));
+  }
+  // The ones PriceCharting isn't asked about, for Settings
+  function pcSkipped() {
+    const cards = collection.filter(r => !r.sealed && normNumber(r.number));
+    return {korean: cards.filter(r => r.language === "Korean"), marked: cards.filter(r => r.language !== "Korean" && r.pcId === "none")};
+  }
+  // PriceCharting's Yu-Gi-Oh! items for some words (the picker's search)
+  async function pcSearch(q) {
+    const json = await pcFetch("products?q=" + encodeURIComponent(String(q || "").trim()));
+    return (json.products || []).filter(it => it && it.id && /yu-?gi-?oh/i.test(String(it["console-name"] || "")));
+  }
+  // The PriceCharting item for a card, picked by you (it = PriceCharting's item), or "none": it isn't on PriceCharting.
+  // Every entry of the same printing gets it (they're priced as one), kept with your cards (so on your other devices
+  // too) and used from then on instead of searching.
+  async function pcChoose(r, it) {
+    const key = pcKey(r), same = collection.filter(x => !x.sealed && pcKey(x) === key);
+    if (it === "none") {
+      for (const x of same) x.pcId = "none";
+      pcPut(key, {t: Date.now(), p: null, why: "none"});
+      save();
+      return null;
+    }
+    let item = it;
+    if (item[PC_FIELDS["10"]] === undefined && item[PC_FIELDS.raw] === undefined) item = await pcFetch("product?id=" + encodeURIComponent(it.id));
+    for (const x of same) x.pcId = String(it.id);
+    const p = pcPrices(item);
+    pcPut(key, {t: Date.now(), p});
+    save();
+    return p;
+  }
+  // "Ask again": cards you marked as not on PriceCharting are looked for again
+  function pcUnmark(list) {
+    for (const r of list) {
+      if (r.pcId !== "none") continue;
+      delete r.pcId;
+      const h = pcCache()[pcKey(r)];
+      if (h && !h.p) pcPut(pcKey(r), {t: 0, p: null});
+    }
+    save();
+  }
+  // Matching a card with PriceCharting yourself: its search results for the card (or words you type), "This is my card"
+  // on the right one, or "It isn't on PriceCharting". opts.back: "settings" or a card's id, where to go afterwards.
+  function openPcPick(id, opts) {
+    opts = opts || {};
+    const r = collection.find(x => x.id === id);
+    if (!r) return;
+    drawerCtx = {mode: "pc-pick", id};
+    const h = pcCache()[pcKey(r)];
+    const why = h && h.why && h.why !== "none" ? h.why : "";
+    const back = () => { if (opts.back === "settings") openSettings({section: "graded"}); else openDetails(r.id); };
+    openDrawer("Match on PriceCharting",
+      '<div class="picked"><span class="sleeve"' + foilAttr(r.rarity) + ">" + imgTag(recordPics(r, "in_400x400"), r.name, true) + "</span><div>" +
+      "<h3>" + esc(r.name) + "</h3><p>" + esc([r.number, r.rarity].filter(Boolean).join(" · ")) + "</p><p>" + esc([r.edition, r.language].filter(Boolean).join(" · ")) + "</p></div></div>" +
+      (why ? '<p class="small" style="margin:0 0 12px">' + esc(why) + "</p>" : "") +
+      '<form id="pcPickForm" class="lookup-row" style="margin:0 0 6px"><input class="input" id="pcQ" aria-label="Search PriceCharting" value="' + esc((lookupName(r.name) + " " + (r.number || "")).trim()) + '">' +
+      '<button class="btn" type="submit">Search</button></form>' +
+      '<p class="hint" style="margin:0 0 12px">Pick the item that is your card: same card number, same rarity (in brackets) and printing (1st Edition, or no mark for Unlimited). Fewer words find more.</p>' +
+      '<div id="pcOut"><p class="small">Asking PriceCharting…</p></div>' +
+      '<div class="form-actions"><button class="btn" type="button" id="pcNone">It isn\'t on PriceCharting</button><span class="spacer"></span>' +
+      '<button class="link-btn" type="button" id="pcBack">' + (opts.back === "settings" ? "Back to Settings" : "Back to the card") + "</button></div>");
+    $("pcBack").addEventListener("click", back);
+    $("pcNone").addEventListener("click", () => {
+      pcChoose(r, "none").then(() => { toast(r.name + " won't be looked for on PriceCharting; it uses your own PSA 10 value or the estimate."); back(); });
+    });
+    let items = [];
+    const run = () => {
+      const out = $("pcOut");
+      if (!out) return;
+      out.innerHTML = '<p class="small">Asking PriceCharting…</p>';
+      pcSearch($("pcQ").value).then(list => {
+        if (!$("pcOut")) return;
+        items = list;
+        const number = normNumber(r.number);
+        // (the ones with your card number first)
+        const sorted = list.map((it, i) => ({it, i, same: normNumber(String(it["product-name"] || "")).includes(number)})).sort((a, b) => b.same - a.same);
+        out.innerHTML = !list.length ? '<div class="notice">PriceCharting found nothing for those words. Try fewer, like just the card number.</div>'
+          : '<div class="pc-results">' + sorted.map(({it, i, same}) => {
+            const raw = cents(it[PC_FIELDS.raw]), ten = cents(it[PC_FIELDS["10"]]);
+            return '<div class="pc-item' + (same ? " same" : "") + '"><div><b>' + esc(it["product-name"]) + "</b>" +
+              '<span class="small">' + esc(String(it["console-name"] || "").replace(/^yu-?gi-?oh!?\s*/i, "")) + (same ? " · your card number" : "") + "</span>" +
+              '<span class="small">' + [raw != null ? "Ungraded " + esc(usd(raw)) : "", ten != null ? "PSA 10 " + esc(usd(ten)) : ""].filter(Boolean).join(" · ") + "</span></div>" +
+              '<button class="btn btn-small" type="button" data-pc-pick="' + i + '">This is my card</button></div>';
+          }).join("") + "</div>";
+        out.querySelectorAll("[data-pc-pick]").forEach(b => b.addEventListener("click", () => {
+          b.disabled = true;
+          const it = items[+b.dataset.pcPick];
+          pcChoose(r, it).then(p => {
+            toast("Matched with PriceCharting: " + String(it["product-name"] || "") + (p && p["10"] != null ? ". PSA 10: " + usd(p["10"]) + "." : "."));
+            if (settings.gradedView) renderSoon();
+            back();
+          }, e => { b.disabled = false; toast(e && e.name === "TokenError" ? "PriceCharting didn't accept your key (Settings)." : "Couldn't reach PriceCharting. Try again.", {kind: "error"}); });
+        }));
+      }, e => {
+        if ($("pcOut")) $("pcOut").innerHTML = '<div class="notice">' + (e && e.name === "TokenError" ? "PriceCharting didn't accept your key (Settings)." : "Couldn't reach PriceCharting right now. Try again in a moment.") + "</div>";
+      });
+    };
+    $("pcPickForm").addEventListener("submit", e => { e.preventDefault(); run(); });
+    run();
   }
   const pcKnown = r => { const h = pcCache()[pcKey(r)]; return h && h.p ? h.p : null; };
   const pcOn = () => !!(settings.pcToken && settings.pcToken.trim());
   const pcBad = () => !!pc.bad && pc.bad === settings.pcToken;   // (a key that was refused; a new key starts over)
   async function refreshGradedPrices(force) {
     if (!pcOn() || pc.refreshing || pcBad()) return 0;
-    const list = collection.filter(r => !r.sealed && normNumber(r.number)).filter(r => { const h = pcCache()[pcKey(r)]; return force || !h || Date.now() - h.t > (h.p ? PC_TTL : 3 * 86400000) || (!h.p && h.why === undefined); });   // (a miss kept before reasons were noted is asked again once)
+    const list = collection.filter(r => !r.sealed && normNumber(r.number) && !pcSkip(r)).filter(r => { const h = pcCache()[pcKey(r)]; return force || !h || Date.now() - h.t > (h.p ? PC_TTL : 3 * 86400000) || (!h.p && h.why === undefined); });   // (a miss kept before reasons were noted is asked again once)
     if (!list.length) return 0;
     pc.refreshing = true;
     let done = 0;
@@ -7574,6 +7689,11 @@
       document.querySelectorAll("#drawerBody [data-gfee-total]").forEach(el => { el.innerHTML = feeTotalText(el.dataset.gfeeTotal); });
       if (settings.tab === "history") renderPanel();
     });
+    if (opts && opts.section === "graded" && $("pcNote")) {
+      const d = $("pcNote").querySelector(".pc-miss");
+      if (d) d.open = true;
+      if ($("pcNote").scrollIntoView) $("pcNote").scrollIntoView({block: "start"});
+    }
     if (opts && opts.section === "updates") {
       loadLive(true);
       const sec = $("updatesSection");
@@ -7685,10 +7805,16 @@
     return '<div class="status-line on" style="margin-top:8px"><span class="dot" aria-hidden="true"></span><span>Graded prices from PriceCharting: ' + known + " of " + plural(total, "card") + " matched so far" +
       (pc.refreshing ? " (checking…)" : "") + '. Prices refresh about once a day. <button type="button" class="link-btn" id="pcRefresh">Check all now</button></span></div>' + pcMissHTML();
   }
+  let pcMissOpen = false;   // (the list stays open coming back from matching a card)
   // "Cards with no match": each card PriceCharting couldn't price and why, cards with the same reason together.
   function pcMissHTML() {
-    const miss = pcMisses();
-    if (!miss.length) return "";
+    const miss = pcMisses(), skipped = pcSkipped();
+    const fix = r => ' <button type="button" class="link-btn" data-pc-fix="' + esc(r.id) + '" data-pc-back="settings">Find it</button>';
+    const extra = (skipped.korean.length ? '<p class="small" style="margin:8px 0 0">' + plural(skipped.korean.length, "Korean card") + (skipped.korean.length === 1 ? " isn't" : " aren't") + " looked for: PriceCharting doesn't list Korean cards, so " +
+        (skipped.korean.length === 1 ? "it uses" : "they use") + " your own PSA 10 value or the estimate.</p>" : "") +
+      (skipped.marked.length ? '<p class="small" style="margin:6px 0 0">' + plural(skipped.marked.length, "card") + " you marked as not on PriceCharting (" +
+        skipped.marked.slice(0, 6).map(r => esc(r.name)).join(", ") + (skipped.marked.length > 6 ? ", …" : "") + '). <button type="button" class="link-btn" data-pc-unmark>Look for them again</button></p>' : "");
+    if (!miss.length) return extra;
     const groups = new Map();
     for (const m of miss) {
       const why = m.why || "No reason kept yet: press Check all now.";
@@ -7696,10 +7822,10 @@
       groups.get(why).push(m.r);
     }
     const rows = [...groups].sort((a, b) => b[1].length - a[1].length).map(([why, list]) => list.length > 1
-      ? "<li><b>" + plural(list.length, "card") + ":</b> " + esc(why) + '<div class="small">' + list.map(r => esc(r.name) + " (" + esc(r.number) + ")").join(", ") + "</div></li>"
-      : "<li><b>" + esc(list[0].name) + "</b> (" + esc(list[0].number) + "): " + esc(why) + "</li>").join("");
-    return '<details class="more pc-miss"><summary>Cards with no match (' + miss.length + ")</summary><ul>" + rows + "</ul>" +
-      '<p class="small" style="margin:6px 0 0">These show your own PSA 10 value (type one on the card) or the estimate below.</p></details>';
+      ? "<li><b>" + plural(list.length, "card") + ":</b> " + esc(why) + '<div class="small">' + list.map(r => esc(r.name) + " (" + esc(r.number) + ")" + fix(r)).join(", ") + "</div></li>"
+      : "<li><b>" + esc(list[0].name) + "</b> (" + esc(list[0].number) + "): " + esc(why) + fix(list[0]) + "</li>").join("");
+    return '<details class="more pc-miss"' + (pcMissOpen ? " open" : "") + '><summary>Cards with no match (' + miss.length + ")</summary><ul>" + rows + "</ul>" +
+      '<p class="small" style="margin:6px 0 0"><b>Find it</b> shows what PriceCharting has for the card, to pick the right one or mark it as not there. Until then these show your own PSA 10 value (type one on the card) or the estimate below.</p></details>' + extra;
   }
   // The daily update reads your want list and cards from the backup file to send notifications.
   // Phone alerts: the same alerts as the Windows notifications, sent to the ntfy app (free, iPhone and Android) under a
@@ -13270,6 +13396,19 @@
       }
     });
 
+    // ----- PriceCharting matching: "Find it" (Settings, a card's graded value) and "Look for them again"
+    document.addEventListener("click", e => {
+      const f = e.target.closest("[data-pc-fix]");
+      if (f) { e.preventDefault(); if (f.dataset.pcBack === "settings") pcMissOpen = true; openPcPick(f.dataset.pcFix, {back: f.dataset.pcBack || ""}); return; }
+      if (e.target.closest("[data-pc-unmark]")) {
+        e.preventDefault();
+        pcUnmark(pcSkipped().marked);
+        const again = () => { if (drawerCtx && drawerCtx.mode === "settings") { pcMissOpen = true; openSettings({section: "graded"}); } };
+        again();
+        refreshGradedPrices().then(again);
+      }
+    });
+
     // ----- set goals (buttons on the Collection tab, the Sets tab and in Card search)
     document.addEventListener("click", e => {
       const g = e.target.closest("[data-goal-toggle], [data-goal-wants], [data-goal-open], [data-goal-add], [data-goal-fold]");
@@ -13696,7 +13835,7 @@
     openSoldForm, recordSale, saleNumbers, buildReport, openReport, phoneCopyHTML, savePhoneCopy, writePhoneCopy, backupTextFrom,
     matchScanned, numberVariants, openScanner, stopScanner, prepCanvas, openWantForm, resolveLink, chooseBackupFile, linkGoogleDrive, driveToken, openMove, moveCopies,
     searchSealed, openSealedSearch, openSealedForm, openShopSealedForm, searchShopSealed, ymTileHTML, openManual, tidyData, isSealedCard, openPickedForm, openOcgForm, ymItem, krBoxItem, shopKept, keepShopPrices, shopPricesReady, ocgCard, bigwebFor, bunjangFor, bigwebPick, bunjangPick, ocgPrice, refreshOcgPrices, fxRates, showOcgLookup,
-    psa10Value, gradedValue, gradedTotals, pcLookup, pcKey, pcMatch, pcWhy, pcMisses, pcRarityNames, refreshGradedPrices, checkPricesNow, loadOcgCardsSoft, ocgListStatus, gradeShare, koRarity, jaRarity, ocgRegion, isRushNo, cleanName, artless, isOverframeRec, isMangaRec, mangaOf, matchRarity, withManga, mangaFree, lookupName, driveDatedCopy, fillDriveCopies, deckPullPlan, deckPullIntoBox, openShare, shareLink, marketData, mkSetLine, mkKind, mkChase, renderMarket, analyzeDeckIdeas, runDeckIdeas, starterList, ideasState: () => ideas,
+    psa10Value, gradedValue, gradedTotals, pcLookup, pcKey, pcMatch, pcWhy, pcMisses, pcSkipped, pcChoose, pcUnmark, openPcPick, pcSearch, pcCache: () => pcCache(), pcRarityNames, refreshGradedPrices, checkPricesNow, loadOcgCardsSoft, ocgListStatus, gradeShare, koRarity, jaRarity, ocgRegion, isRushNo, cleanName, artless, isOverframeRec, isMangaRec, mangaOf, matchRarity, withManga, mangaFree, lookupName, driveDatedCopy, fillDriveCopies, deckPullPlan, deckPullIntoBox, openShare, shareLink, marketData, mkSetLine, mkKind, mkChase, renderMarket, analyzeDeckIdeas, runDeckIdeas, starterList, ideasState: () => ideas,
     imgTag, productPics, recordPics, namePics, imageFor, shareItem, shareWant,
     silentSignInDue, maybeSilentSignIn, pageBusy, viewBusy, loadNewData, applyNewData, readDataText, dataLoad: () => dataLoad,
     loadOcgMarket, buildOcgMarket, ocgMk: () => ocgMk, loadYugiMarket, ymMatch, ymProduct, ymk: () => ymk, renderMarket, wantPrice,

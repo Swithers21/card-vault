@@ -30,6 +30,9 @@
       added: r.added || new Date().toISOString(),
       mod: modTime(r.mod)
     };
+    // The PriceCharting item you matched it with yourself (its id), or "none": it isn't on PriceCharting
+    const pcId = String(r.pcId || "");
+    if (/^(none|\d{1,12})$/.test(pcId) && !out.sealed) out.pcId = pcId;
     // A Japanese or Korean sealed product bought from a shop in the Market (Yugi-Market, Bunjang) keeps which product it
     // is (ref), where to see it (link) and the price it had when added: its value follows the shop's price from then on.
     if (r.sealed && r.ref && !out.productId) {

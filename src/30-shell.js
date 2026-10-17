@@ -1360,7 +1360,11 @@
     } else if (ten && ten.from === "estimate") {
       html += "<p>PSA 10, rough estimate: <b>" + esc(usd(ten.unit)) + '</b> <span class="small">(raw ' + esc(usd(ten.raw)) + " × " + esc(num(settings.psa10Mult) == null ? 4 : settings.psa10Mult) + " + " +
         esc(usd(num(settings.psa10Floor) == null ? 25 : settings.psa10Floor)) + ", see Settings)</span></p>" +
-        '<p class="small">' + (pcOn() ? (pcBad() ? "PriceCharting didn't accept your key (Settings)." : "PriceCharting has no match for this card yet.") : "For real graded prices, add a PriceCharting key in Settings.") + "</p>";
+        '<p class="small">' + (!pcOn() ? "For real graded prices, add a PriceCharting key in Settings."
+          : pcBad() ? "PriceCharting didn't accept your key (Settings)."
+          : r.language === "Korean" ? "PriceCharting doesn't list Korean cards."
+          : r.pcId === "none" ? 'You marked it as not on PriceCharting. <button type="button" class="link-btn" data-pc-fix="' + esc(r.id) + '">Look again</button>'
+          : 'PriceCharting has no match for this card yet. <button type="button" class="link-btn" data-pc-fix="' + esc(r.id) + '">Find it on PriceCharting</button>') + "</p>";
     } else if (!ten) {
       html += '<p class="small">No price to estimate from yet.</p>';
     }

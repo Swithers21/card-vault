@@ -261,6 +261,11 @@
       document.querySelectorAll("#drawerBody [data-gfee-total]").forEach(el => { el.innerHTML = feeTotalText(el.dataset.gfeeTotal); });
       if (settings.tab === "history") renderPanel();
     });
+    if (opts && opts.section === "graded" && $("pcNote")) {
+      const d = $("pcNote").querySelector(".pc-miss");
+      if (d) d.open = true;
+      if ($("pcNote").scrollIntoView) $("pcNote").scrollIntoView({block: "start"});
+    }
     if (opts && opts.section === "updates") {
       loadLive(true);
       const sec = $("updatesSection");
@@ -372,10 +377,16 @@
     return '<div class="status-line on" style="margin-top:8px"><span class="dot" aria-hidden="true"></span><span>Graded prices from PriceCharting: ' + known + " of " + plural(total, "card") + " matched so far" +
       (pc.refreshing ? " (checking…)" : "") + '. Prices refresh about once a day. <button type="button" class="link-btn" id="pcRefresh">Check all now</button></span></div>' + pcMissHTML();
   }
+  let pcMissOpen = false;   // (the list stays open coming back from matching a card)
   // "Cards with no match": each card PriceCharting couldn't price and why, cards with the same reason together.
   function pcMissHTML() {
-    const miss = pcMisses();
-    if (!miss.length) return "";
+    const miss = pcMisses(), skipped = pcSkipped();
+    const fix = r => ' <button type="button" class="link-btn" data-pc-fix="' + esc(r.id) + '" data-pc-back="settings">Find it</button>';
+    const extra = (skipped.korean.length ? '<p class="small" style="margin:8px 0 0">' + plural(skipped.korean.length, "Korean card") + (skipped.korean.length === 1 ? " isn't" : " aren't") + " looked for: PriceCharting doesn't list Korean cards, so " +
+        (skipped.korean.length === 1 ? "it uses" : "they use") + " your own PSA 10 value or the estimate.</p>" : "") +
+      (skipped.marked.length ? '<p class="small" style="margin:6px 0 0">' + plural(skipped.marked.length, "card") + " you marked as not on PriceCharting (" +
+        skipped.marked.slice(0, 6).map(r => esc(r.name)).join(", ") + (skipped.marked.length > 6 ? ", …" : "") + '). <button type="button" class="link-btn" data-pc-unmark>Look for them again</button></p>' : "");
+    if (!miss.length) return extra;
     const groups = new Map();
     for (const m of miss) {
       const why = m.why || "No reason kept yet: press Check all now.";
@@ -383,10 +394,10 @@
       groups.get(why).push(m.r);
     }
     const rows = [...groups].sort((a, b) => b[1].length - a[1].length).map(([why, list]) => list.length > 1
-      ? "<li><b>" + plural(list.length, "card") + ":</b> " + esc(why) + '<div class="small">' + list.map(r => esc(r.name) + " (" + esc(r.number) + ")").join(", ") + "</div></li>"
-      : "<li><b>" + esc(list[0].name) + "</b> (" + esc(list[0].number) + "): " + esc(why) + "</li>").join("");
-    return '<details class="more pc-miss"><summary>Cards with no match (' + miss.length + ")</summary><ul>" + rows + "</ul>" +
-      '<p class="small" style="margin:6px 0 0">These show your own PSA 10 value (type one on the card) or the estimate below.</p></details>';
+      ? "<li><b>" + plural(list.length, "card") + ":</b> " + esc(why) + '<div class="small">' + list.map(r => esc(r.name) + " (" + esc(r.number) + ")" + fix(r)).join(", ") + "</div></li>"
+      : "<li><b>" + esc(list[0].name) + "</b> (" + esc(list[0].number) + "): " + esc(why) + fix(list[0]) + "</li>").join("");
+    return '<details class="more pc-miss"' + (pcMissOpen ? " open" : "") + '><summary>Cards with no match (' + miss.length + ")</summary><ul>" + rows + "</ul>" +
+      '<p class="small" style="margin:6px 0 0"><b>Find it</b> shows what PriceCharting has for the card, to pick the right one or mark it as not there. Until then these show your own PSA 10 value (type one on the card) or the estimate below.</p></details>' + extra;
   }
   // The daily update reads your want list and cards from the backup file to send notifications.
   // Phone alerts: the same alerts as the Windows notifications, sent to the ntfy app (free, iPhone and Android) under a

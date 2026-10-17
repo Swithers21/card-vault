@@ -1,7 +1,7 @@
 // Card Vault works offline once it has been opened: this keeps a copy of the app and of the latest
 // TCGplayer prices. It tries the internet first, so updates and new prices show up right away, but on a
 // slow connection (a card shop, say) it uses the saved copy after a few seconds.
-const CACHE = "cardvault-v14";   // (a new name drops every device's saved copies once, so none can stay behind)
+const CACHE = "cardvault-v15";   // (a new name drops every device's saved copies once, so none can stay behind)
 const KEEP = ["./", "index.html", "app.css", "app.js", "config.js", "manifest.webmanifest", "icons/icon-192.png", "icons/icon-512.png",
   "icons/apple-touch-icon.png", "tcgplayer-data.js"];
 const PATIENCE = 3500;   // ms to wait for the internet before using the saved copy
