@@ -283,6 +283,12 @@
       if (m.changed) { settings.setGoals = m.list; res.goals = true; res.changed = true; }
       if (m.behind) res.behind = true;
     } else if (ds && cleanGoals(settings.setGoals).length) res.behind = true;
+    // (theme goals the same way)
+    if (ds && Array.isArray(ds.themeGoals)) {
+      const m = mergeThemeGoals(settings.themeGoals, ds.themeGoals, fileWins);
+      if (m.changed) { settings.themeGoals = m.list; res.goals = true; res.changed = true; }
+      if (m.behind) res.behind = true;
+    } else if (ds && cleanThemeGoals(settings.themeGoals).length) res.behind = true;
     if (Array.isArray(data.valueHistory)) {
       const merged = mergeHistory(valueHistory, data.valueHistory);
       if (merged.length !== valueHistory.length) { valueHistory = merged; res.touched = true; }
@@ -319,7 +325,7 @@
       if (bits.length) parts.push(names[k] + ": " + bits.join(", "));
     }
     if (res.settings) parts.push("card-value settings");
-    if (res.goals) parts.push("set goals");
+    if (res.goals) parts.push("goals");
     return parts.join("; ");
   }
   // ----- The safety check: changes from another device that would take away many cards (10 or more, after

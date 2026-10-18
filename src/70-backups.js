@@ -34,7 +34,7 @@
       settings: {condAdjust: settings.condAdjust, condPct: settings.condPct,
         alertsOn: settings.alertsOn, alertMinDollar: settings.alertMinDollar, alertMinPct: settings.alertMinPct,
         psa10Mult: settings.psa10Mult, psa10Floor: settings.psa10Floor, gradePct: settings.gradePct, pcToken: settings.pcToken || "",
-        gradingCost: settings.gradingCost, gradingMin: settings.gradingMin, gradingFees: cleanGradingFees(settings.gradingFees), gradingCo: settings.gradingCo || "PSA", ntfyTopic: settings.ntfyTopic || "", siteUrl: settings.siteUrl || "", setGoals: cleanGoals(settings.setGoals),
+        gradingCost: settings.gradingCost, gradingMin: settings.gradingMin, gradingFees: cleanGradingFees(settings.gradingFees), gradingCo: settings.gradingCo || "PSA", ntfyTopic: settings.ntfyTopic || "", siteUrl: settings.siteUrl || "", setGoals: cleanGoals(settings.setGoals), themeGoals: cleanThemeGoals(settings.themeGoals),
         sellFeePct: settings.sellFeePct, sellFeeFlat: settings.sellFeeFlat, cloudAlerts: cleanCloudAlerts(settings.cloudAlerts), sharedMod: settings.sharedMod || 0}};
   }
   const hasUnbackedChanges = () => !!settings.lastChangeAt && (!settings.lastBackupAt || settings.lastChangeAt > settings.lastBackupAt);
@@ -1106,6 +1106,7 @@
     const ds = data.settings;
     if (ds && typeof ds === "object") applySharedSettings(ds);
     if (ds && Array.isArray(ds.setGoals)) settings.setGoals = cleanGoals(ds.setGoals);
+    if (ds && Array.isArray(ds.themeGoals)) settings.themeGoals = cleanThemeGoals(ds.themeGoals);
     selected.clear();
     autoLink();
     save();

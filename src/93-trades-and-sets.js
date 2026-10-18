@@ -392,7 +392,7 @@
     const complete = setsCache.filter(s => !s.missing.length).length;
     const sorts = [["complete", "Most complete first"], ["cost", "Cheapest to finish"], ["name", "Set name"], ["newest", "Newest sets first"]];
     panel.innerHTML = '<div class="panel-head"><div><h2>Sets</h2><p>' + plural(setsCache.length, "set") + " you have cards from" +
-      (complete ? ", " + complete + " complete" : "") + ".</p></div>" +
+      (complete ? ", " + complete + " complete" : "") + '.</p><p class="small">Collecting an archetype or a monster rather than a set? <button type="button" class="link-btn" data-theme-pick>Track every Shaddoll, Dark Magician Girl… card</button></p></div>' +
       '<div class="panel-tools"><input class="search" id="setsQ" type="search" placeholder="Find a set" aria-label="Find a set" value="' + esc(setsQuery) + '" style="flex:1 1 180px">' +
       '<label class="basis">Count <select class="select" id="setsMode"><option value="number"' + (settings.setsMode !== "master" ? " selected" : "") +
       '>Each card number once</option><option value="master"' + (settings.setsMode === "master" ? " selected" : "") + ">Every rarity (master set)</option></select></label>" +
