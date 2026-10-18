@@ -142,13 +142,13 @@
       const region = normNumber(text).match(/^([A-Z0-9]+)-(JA|AE|TC|SC)([A-Z]?\d+)$/);
       const ocgOnly = region ? "" : csOcgOnlyHTML(text);
       out.innerHTML = (ocgOnly || '<div class="notice">' + (region ? "TCGplayer only lists English cards, and " + esc(normNumber(text)) + " isn't one. Search for the card's name, or the English number " + esc(region[1] + "-EN" + region[3]) + "."
-        : "No card matches \"" + esc(text) + "\". Check the spelling, or try fewer words.") + "</div>") + csSetChipsHTML(text) + csMarketHint(text);
+        : "No card matches \"" + esc(text) + "\". Check the spelling, or try fewer words.") + "</div>") + themeHintHTML(text) + csSetChipsHTML(text) + csMarketHint(text);
       return;
     }
     const printings = groups.reduce((t, g) => t + g.rows.length, 0);
     const owned = new Map();
     for (const r of collection) if (r.productId) owned.set(r.productId, (owned.get(r.productId) || 0) + r.qty);
-    out.innerHTML = csSetChipsHTML(text) + '<p class="results-head">' + plural(groups.length, "card") + ", " + plural(printings, "printing") + (groups.length > cs.limit ? ", showing the first " + cs.limit : "") + ".</p>" +
+    out.innerHTML = themeHintHTML(text) + csSetChipsHTML(text) + '<p class="results-head">' + plural(groups.length, "card") + ", " + plural(printings, "printing") + (groups.length > cs.limit ? ", showing the first " + cs.limit : "") + ".</p>" +
       groups.slice(0, cs.limit).map(g => csCardHTML(g, owned, groups.length === 1)).join("") +
       (groups.length > cs.limit ? '<div class="mk-more"><button class="btn" type="button" data-cs-more>Show more</button></div>' : "") +
       csMarketHint(text);
@@ -687,9 +687,10 @@
   function renderGoalsBar() {
     const bar = $("goalsBar");
     if (!bar) return;
-    const ids = catalog ? goalIds() : [];
-    if (!ids.length) { bar.innerHTML = ""; bar.hidden = true; return; }
+    const ids = catalog ? goalIds() : [], themes = themeGoals();
+    if (!ids.length && !themes.length) { bar.innerHTML = ""; bar.hidden = true; return; }
     bar.hidden = false;
+    if (themes.length) themesReady();
     const owned = csOwnedMap();
     const cards = ids.map(g => {
       const s = csFindSet("en:" + g);
@@ -698,8 +699,9 @@
           '<button type="button" class="link-btn goal-remove" data-goal-toggle="' + g + '">Remove this goal</button></div>' : "") + "</article>";
       return goalCardHTML(s, csSetNeeds(s, owned));
     });
-    bar.innerHTML = '<div class="goals-head"><h3 class="sub-h">Set goals</h3><button type="button" class="link-btn" data-goal-add>Add a goal</button></div>' +
-      '<div class="goal-list">' + cards.join("") + "</div>";
+    bar.innerHTML = '<div class="goals-head"><h3 class="sub-h">' + (themes.length ? "Goals" : "Set goals") + '</h3><span><button type="button" class="link-btn" data-goal-add>Add a set</button> · ' +
+      '<button type="button" class="link-btn" data-theme-pick>Add an archetype or card</button></span></div>' +
+      '<div class="goal-list">' + cards.concat(themes.map(themeGoalHTML)).join("") + "</div>";
   }
   // "Add a goal": find the set in Card search
   function openGoalPicker() {

@@ -1460,7 +1460,7 @@
       '<h3 class="detail-title">' + esc(r.name) + "</h3>" +
       '<p class="detail-sub">' + esc(r.setName || "Set unknown") + "<br>" + (r.sealed ? "Sealed product" : esc(r.number || "No card number") + (r.rarity ? ", " + esc(r.rarity) : "")) +
       "<br>" + (r.location ? "Kept in " + esc(r.location) : "No location") + ' · <button type="button" class="link-btn" id="moveTop">Move</button></p>' + otherCopiesHTML(r) +
-      '<div class="links">' + links + "</div>" + priceSection + photoSectionHTML(r) +
+      '<div class="links">' + links + "</div>" + '<div id="themeLinks">' + themeLinksHTML(r) + "</div>" + priceSection + photoSectionHTML(r) +
       '<div class="section" id="sellSec"><h3>Selling</h3><div id="sellBox">' + sellBoxHTML(r) + "</div></div>" +
       '<div class="section"><h3>' + (r.sealed ? "Yours" : "Your copy") + '</h3><form id="editForm" class="stack">' +
       cardOnly('<div class="grid-2"><label class="field"><span>Printing</span><select class="input" id="eEd">' +
@@ -1497,6 +1497,7 @@
     wirePhotos(r.id);
     if (opts.sell && $("sellSec") && $("sellSec").scrollIntoView) $("sellSec").scrollIntoView({block: "start"});
     if (opts.grading && $("gradeItSec") && $("gradeItSec").scrollIntoView) $("gradeItSec").scrollIntoView({block: "start"});
+    if (!r.sealed && !th.data) loadThemes().then(() => { if (drawerCtx && drawerCtx.id === id && $("themeLinks")) $("themeLinks").innerHTML = themeLinksHTML(collection.find(x => x.id === id)); });
     if (product && SITE) loadCardHistory(r, product);
     else if (isOcg(r) && ocgHistoryBase()) loadOcgHistory(r);
     if (!r.sealed && pcOn() && !pcBad() && normNumber(r.number)) {

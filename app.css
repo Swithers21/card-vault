@@ -894,6 +894,17 @@
   .hold-list ul{margin:6px 0 0;padding-left:18px;max-height:180px;overflow:auto;columns:2 220px;font-size:13px}
   .pc-miss ul{margin:8px 0 0;padding-left:18px;max-height:280px;overflow:auto;font-size:13px}
   .pc-miss li{margin:0 0 8px}
+  /* Theme goals: every card of an archetype or a name */
+  .theme-langs{display:flex;flex-wrap:wrap;gap:14px;margin-top:6px}
+  .theme-hint{display:flex;flex-wrap:wrap;align-items:center;gap:10px;justify-content:space-between;border:1px solid var(--gold);border-radius:10px;padding:10px 12px;margin:0 0 12px;background:var(--surface)}
+  .theme-links{margin:6px 0 0}
+  .theme-cards{display:flex;flex-direction:column;gap:6px;margin:0 0 14px}
+  .theme-card{display:grid;grid-template-columns:44px 1fr auto;gap:10px;align-items:center;border:1px solid var(--line-2);border-radius:10px;padding:6px 10px;background:var(--surface)}
+  .theme-card .sleeve{width:44px}
+  .theme-card > div{min-width:0;display:flex;flex-direction:column;gap:2px}
+  .theme-card b{font-size:14px;overflow-wrap:anywhere}
+  .theme-card.have{opacity:.78}
+  .goals-head span .link-btn{font-size:13px}
   /* Matching a card with PriceCharting yourself */
   .pc-results{display:flex;flex-direction:column;gap:8px;margin:0 0 14px}
   .pc-item{display:flex;align-items:center;gap:10px;justify-content:space-between;border:1px solid var(--line-2);border-radius:10px;padding:10px 12px;background:var(--surface)}
