@@ -663,6 +663,7 @@
         (cheaperAway ? ", " + plural(cheaperAway, "card") + " cheaper in another market" : "")
       : "Cards and sealed products you're looking for, with the price you'd pay.") + "</p></div>" +
       '<div class="panel-tools">' + (SITE && wants.length ? '<button class="btn" type="button" data-want-action="share">Share…</button>' : "") +
+      (wants.some(w => w.productId && wantKind(w) === "card") ? '<button class="btn" type="button" data-want-action="tcg-cart">Buy on TCGplayer…</button>' : "") +
       '<button class="btn" type="button" data-want-action="add-sealed">Add sealed</button>' +
       '<button class="btn btn-primary" type="button" data-want-action="add">Add a card</button></div></div>';
     if (!wants.length) {

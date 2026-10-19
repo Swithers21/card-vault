@@ -334,6 +334,7 @@
 
     // ----- PriceCharting matching: "Find it" (Settings, a card's graded value) and "Look for them again"
     document.addEventListener("click", e => {
+      if (e.target.closest("[data-pc-export]")) { e.preventDefault(); openPcExport(); return; }
       const f = e.target.closest("[data-pc-fix]");
       if (f) { e.preventDefault(); if (f.dataset.pcBack === "settings") pcMissOpen = true; openPcPick(f.dataset.pcFix, {back: f.dataset.pcBack || ""}); return; }
       if (e.target.closest("[data-pc-unmark]")) {
@@ -588,6 +589,7 @@
       if (a === "add") { openAdd({want: true}); return; }
       if (a === "add-sealed") { openSealedSearch("", {want: true}); return; }
       if (a === "share") { openShare("wants"); return; }
+      if (a === "tcg-cart") { openTcgCart(); return; }
       if (!w) return;
       if (a === "remove") removeWant(w.id);
       else if (a === "got") gotWant(w.id);
@@ -620,6 +622,7 @@
     });
     $("importBody").addEventListener("change", updateImportButton);
     $("exportBtn").addEventListener("click", exportCSV);
+    $("pcExportBtn").addEventListener("click", openPcExport);
     $("phoneBtn").addEventListener("click", savePhoneCopy);
     $("reportBtn").addEventListener("click", openReport);
     // ----- the Export menu
@@ -765,6 +768,7 @@
   window.CardVault = {state: () => ({collection, settings, selected, catalog, wants, valueHistory, backup, decks, sales, phone, deleted, batch, sync}),
     mergeBackup, checkBackupFile, openBatch, parseBatchLine, batchRowFor, addBatch, save, analyzeCSV, commitImport, openImport,
     findByNumber, searchByName, priceInfo, marketValue, unitValue, changeFor, periodChange, historySeries, totals, deleteRecords, exportCSV,
+      openPcExport, pcExportPlan, pcExportText, pcGrade, pcExportId, openTcgCart, tcgCartPlan, tcgCartURL, pcx: () => pcx,
     openDetails, openAdd, openSettings, render, setTab, setsData, extrasMap, wantStatus, addWant, restoreBackup, backupPayload,
     findYugiImages, rankYugiImages, parseYugiFile, yugiMangaPhoto, fillMangaPhotos, fillPrintPhotos, yugiPrintPick, langNumber, printPicOf, scanURL, isScanURL, yugiLabel, recordValueHistory, niceTicks, dateTicks, checkForNewData, writeBackup, initBackup,
     photoCandidates, findPhotosBatch, tradeListText, parseDeckText, parseYdk, parseYdke, checkDeck, cardNamesFor, runDeckCheck,
