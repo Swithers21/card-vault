@@ -174,7 +174,9 @@ jobs:
       - name: Bring back the card themes list
         uses: actions/cache/restore@v6
         with:
-          path: card-themes.js
+          path: |
+            card-themes.js
+            card-ids.json
           key: card-themes-${{ github.run_id }}
           restore-keys: card-themes-
 
@@ -187,8 +189,40 @@ jobs:
         if: always()
         uses: actions/cache/save@v6
         with:
-          path: card-themes.js
+          path: |
+            card-themes.js
+            card-ids.json
           key: card-themes-${{ github.run_id }}
+
+      # Deck lists for every format (Decks I can build): Format Library's tournament decks (Goat, Edison, HAT and about
+      # 120 more), YGOPRODeck's (today's Advanced, Genesys and OCG, Speed Duel, community formats), Rush Duel archetypes.
+      # Each list is read again weekly; each deck downloaded once and kept, a few hundred requests a night at most.
+      - name: Bring back the format decks kept so far
+        uses: actions/cache/restore@v6
+        with:
+          path: |
+            format-decks-cache.json
+            format-decks.js
+          key: format-decks-${{ github.run_id }}
+          restore-keys: format-decks-
+
+      - name: Format decks (Format Library, YGOPRODeck)
+        continue-on-error: true   # the website then keeps the decks it had
+        timeout-minutes: 12
+        env:
+          CARDVAULT_FORMATS_MINUTES: "9"
+        run: |
+          python format_decks.py | tee formats.log
+          echo "::notice title=Format decks::$(tail -n 1 formats.log)"
+
+      - name: Keep the format decks for tomorrow
+        if: always()
+        uses: actions/cache/save@v6
+        with:
+          path: |
+            format-decks-cache.json
+            format-decks.js
+          key: format-decks-${{ github.run_id }}
 
       # Phone alerts without the PC: only once you've added the CARDVAULT_ALERTS secret (Card Vault's Settings >
       # Phone alerts shows it). It reads the locked alerts file the website keeps in your Google Drive.
@@ -237,7 +271,7 @@ jobs:
           if [ -f ocg-cards.js ]; then cp ocg-cards.js _site/; fi
           if [ ! -f grading-fees.js ]; then python grading_fees.py --from-cache || true; fi
           if [ ! -f banlist.js ]; then python banlist.py --from-cache || true; fi
-          for f in grading-fees.json grading-fees.js banlist.json banlist.js update-status.json update-status.js card-themes.js; do if [ -f "$f" ]; then cp "$f" _site/; fi; done
+          for f in grading-fees.json grading-fees.js banlist.json banlist.js update-status.json update-status.js card-themes.js format-decks.js; do if [ -f "$f" ]; then cp "$f" _site/; fi; done
           if ls ocg-history/*.json >/dev/null 2>&1; then mkdir -p _site/ocg-history && cp ocg-history/*.json _site/ocg-history/; fi
           if ls card-images/*.jpg >/dev/null 2>&1; then cp card-images/*.jpg _site/card-images/; fi
           echo "$(ls _site/card-images | wc -l) card pictures"

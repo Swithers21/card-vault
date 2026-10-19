@@ -16,3 +16,9 @@ update-status.js
 banlist.json
 banlist.js
 Card Vault.html
+card-themes.js
+card-ids.json
+card-scans/
+format-decks.js
+format-decks-cache.json
+*.tmp

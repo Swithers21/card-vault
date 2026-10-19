@@ -37,7 +37,7 @@ CARDS = [
     c("Dark Magic Twin Burst", 'Target 1 "Dark Magician Girl"... "Dark Magician" ... "Not A Card Name"', frame="spell", type_="Spell Card"),
     c("Harpie Lady 1", "", arch="Harpie", treated="Harpie Lady"),
     c("Harpie Lady", "", arch="Harpie"),
-    c("Dark Magician", "", arch="Dark Magician", frame="normal", type_="Normal Monster"),
+    dict(c("Dark Magician", "", arch="Dark Magician", frame="normal", type_="Normal Monster"), card_images=[{"id": 46986414}, {"id": 123456789}]),
     c("Skill Card Thing", "", frame="skill", type_="Skill Card"),
     c("Sheep Token", "", frame="token", type_="Token"),
     c("Rush Only Monster", "", formats=("Rush Duel",)),
@@ -109,6 +109,23 @@ class Running(unittest.TestCase):
         self.assertIn("El Shaddoll Winda", [x[0] for x in data["cards"]])
         with open(self.out, encoding="utf-8") as f:
             self.assertTrue(f.read().startswith("/* Card Vault"))
+
+    def test_it_keeps_every_cards_id_and_its_other_artworks_ids(self):
+        ct.run(out_file=self.out)
+        with open(os.path.join(self.dir, "card-ids.json"), encoding="utf-8") as f:
+            ids = json.load(f)["ids"]
+        winda = next(c for c in CARDS if c["name"] == "El Shaddoll Winda")
+        self.assertEqual(ids[str(winda["id"])], "El Shaddoll Winda")
+        self.assertEqual(ids["123456789"], "Dark Magician")                 # (an alternate artwork's id)
+        self.assertIn("Skill Card Thing", ids.values())                        # (Speed Duel decks list their Skill)
+
+    def test_a_missing_ids_file_is_made_again_even_inside_the_week(self):
+        ct.run(out_file=self.out)
+        os.remove(os.path.join(self.dir, "card-ids.json"))
+        n = len(self.calls)
+        ct.run(out_file=self.out)
+        self.assertGreater(len(self.calls), n)
+        self.assertTrue(os.path.exists(os.path.join(self.dir, "card-ids.json")))
 
     def test_it_reads_again_only_once_a_week(self):
         ct.run(out_file=self.out)

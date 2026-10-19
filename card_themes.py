@@ -23,6 +23,8 @@ from datetime import datetime, timezone
 
 HERE = os.path.dirname(os.path.abspath(__file__))
 OUT_FILE = os.environ.get("CARDVAULT_THEMES_OUT", os.path.join(HERE, "card-themes.js"))
+# (every card's YGOPRODeck id, and its other artworks' ids, to its name: format_decks.py reads deck lists given as ids)
+IDS_FILE = os.environ.get("CARDVAULT_CARD_IDS", os.path.join(HERE, "card-ids.json"))
 API = os.environ.get("YGOPRODECK_API", "https://db.ygoprodeck.com/api/v7").rstrip("/")
 REFRESH_DAYS = 7
 FORMAT = 1
@@ -139,9 +141,26 @@ def write(path, data):
     os.replace(tmp, path)
 
 
-def run(force=False, out_file=OUT_FILE):
+def write_ids(path, cards):
+    """{id: name} for every card YGOPRODeck has (Skills and tokens too), with each artwork's own id."""
+    ids = {}
+    for c in cards:
+        if not isinstance(c, dict) or not c.get("name"):
+            continue
+        for i in [c.get("id")] + [im.get("id") for im in c.get("card_images") or [] if isinstance(im, dict)]:
+            if isinstance(i, int) or str(i or "").isdigit():
+                ids[str(int(i))] = str(c["name"]).strip()
+    tmp = path + ".tmp"
+    with open(tmp, "w", encoding="utf-8") as handle:
+        json.dump({"generated": now_iso(), "ids": ids}, handle, ensure_ascii=False, separators=(",", ":"))
+    os.replace(tmp, path)
+    return len(ids)
+
+
+def run(force=False, out_file=OUT_FILE, ids_file=None):
+    ids_file = ids_file or (IDS_FILE if out_file == OUT_FILE else os.path.join(os.path.dirname(out_file), "card-ids.json"))
     old = read_existing(out_file)
-    if old and not force and old.get("v") == FORMAT and age_days(old) < REFRESH_DAYS:
+    if old and not force and old.get("v") == FORMAT and age_days(old) < REFRESH_DAYS and os.path.exists(ids_file):
         say("Card themes: kept (%d cards, from %s); read again weekly." % (len(old.get("cards") or []), str(old.get("generated"))[:10]))
         return 0
     try:
@@ -160,6 +179,10 @@ def run(force=False, out_file=OUT_FILE):
         say("Card themes: YGOPRODeck couldn't be read (%s); %s." % (str(err)[:120], "the last list stays" if old else "no list yet"))
         return 0
     write(out_file, data)
+    try:
+        write_ids(ids_file, cards)
+    except OSError as err:
+        say("Card themes: the card ids file couldn't be written (%s)." % str(err)[:80])
     say("Card themes: %d cards, %d archetypes and names, read in %.0f s (%.1f MB)." % (len(data["cards"]), len(data["terms"]), time.time() - started,
                                                                                os.path.getsize(out_file) / 1048576))
     return 0
