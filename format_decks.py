@@ -8,8 +8,8 @@ The daily GitHub workflow runs this. It reads:
   - YGOPRODeck (the deck lists its own deck search reads): today's tournament decks (Advanced, Genesys, OCG), Speed
     Duel decks, and community formats (Common Charity, Domain, Trinity). Their cards come as ids, named with
     card-ids.json (card_themes.py keeps it).
-  - YGOPRODeck's Rush Duel cards: nobody publishes Rush Duel deck lists in a form Card Vault can read, so each Rush
-    archetype's cards stand in for a deck.
+Rush Duel isn't here: nobody publishes Rush Duel deck lists in a form Card Vault can read (and YGOPRODeck has no Rush
+Duel cards), so the website makes Rush Duel's from its Japanese list's Starter and Structure Decks.
 It is gentle with both sites: about a request a second, a few hundred a night at most, every list read again once a
 week, and each deck downloaded once and kept (the workflow keeps format-decks-cache.json between runs). The first nights
 fill it in a little at a time, popular formats first. It writes format-decks.js for the website. Anything it can't
@@ -33,7 +33,6 @@ CACHE_FILE = os.environ.get("CARDVAULT_FORMATS_CACHE", os.path.join(HERE, "forma
 IDS_FILE = os.environ.get("CARDVAULT_CARD_IDS", os.path.join(HERE, "card-ids.json"))
 FL_API = os.environ.get("FORMATLIBRARY_API", "https://formatlibrary.com/api").rstrip("/")
 YPD_DECKS = os.environ.get("YGOPRODECK_DECKS", "https://ygoprodeck.com/api/decks/getDecks.php")
-YGO_API = os.environ.get("YGOPRODECK_API", "https://db.ygoprodeck.com/api/v7").rstrip("/")
 MAX_REQUESTS = int(os.environ.get("CARDVAULT_FORMATS_MAX", "450"))
 MAX_MINUTES = float(os.environ.get("CARDVAULT_FORMATS_MINUTES", "9"))
 PAUSE = float(os.environ.get("CARDVAULT_FORMATS_PAUSE", "1.1"))
@@ -55,7 +54,6 @@ YPD_CATEGORIES = [
     ("Domain Format Decks", "Domain", "TCG", 1),
     ("Trinity Format Decks", "Trinity", "TCG", 1),
 ]
-EXTRA_FRAMES = ("fusion", "synchro", "xyz", "link")
 
 
 def say(text):
@@ -297,24 +295,6 @@ def ypd_run(web, cache, stats):
             stats["ypd"] += len(got)
 
 
-def rush_run(web, cache, stats):
-    hit = cache.get("rush") or {}
-    if hit.get("t") and age_days(hit.get("t")) < LIST_DAYS:
-        return
-    if not web.can():
-        return
-    data = web.json(YGO_API + "/cardinfo.php?" + urllib.parse.urlencode({"format": "rush duel"}))
-    arch = {}
-    for c in (data or {}).get("data") or []:
-        a = str(c.get("archetype") or "").strip()
-        if a and c.get("name"):
-            arch.setdefault(a, []).append([str(c["name"]).strip(), 1 if any(x in str(c.get("frameType") or "") for x in EXTRA_FRAMES) else 0])
-    arch = {a: v for a, v in arch.items() if len(v) >= 5}
-    if arch:
-        cache["rush"] = {"t": iso(), "arch": arch}
-        stats["rush"] = len(arch)
-
-
 # ----- the website's file
 def build(cache, ids):
     """{v, generated, names, formats: [[name, kind (TCG/OCG/Speed/Rush), date, popular, era, source]], decks: [[format,
@@ -370,12 +350,6 @@ def build(cache, ids):
         fi = fmt(name, kind, "", name in ("Advanced", "Genesys"), "", "YGOPRODeck")
         for r, main, extra in good:
             decks.append([fi, r["type"] or "Deck", r["event"], r["place"], r["date"], "ypd", r["url"], flat(main), flat(extra)])
-    rush = (cache.get("rush") or {}).get("arch") or {}
-    if rush:
-        fi = fmt("Rush Duel", "Rush", "", False, "", "YGOPRODeck's Rush Duel cards")
-        for a in sorted(rush, key=str.lower):
-            cards = rush[a]
-            decks.append([fi, a, "", "", "", "rush", "", flat([[n, 1] for n, x in cards if not x]), flat([[n, 1] for n, x in cards if x])])
     return {"v": FORMAT, "generated": iso(), "names": names, "formats": formats, "decks": decks}, unknown
 
 
@@ -395,9 +369,9 @@ def run(out_file=OUT_FILE, cache_file=CACHE_FILE, ids_file=IDS_FILE, budget=MAX_
         cache = {"v": FORMAT}
     ids = (read_json(ids_file, {}).get("ids") or {})
     web = Web(time.time() + minutes * 60, budget)
-    stats = {"lists": 0, "decks": 0, "ypd": 0, "rush": 0}
+    stats = {"lists": 0, "decks": 0, "ypd": 0}
     notes = []
-    for label, job, needs_ids in (("YGOPRODeck decks", ypd_run, True), ("Rush Duel cards", rush_run, False), ("Format Library", fl_run, False)):
+    for label, job, needs_ids in (("YGOPRODeck decks", ypd_run, True), ("Format Library", fl_run, False)):
         if needs_ids and not ids:
             notes.append("no card-ids.json yet, so YGOPRODeck's decks wait")
             continue
@@ -411,10 +385,10 @@ def run(out_file=OUT_FILE, cache_file=CACHE_FILE, ids_file=IDS_FILE, budget=MAX_
         write_site_file(out_file, data)
     fl_total = sum(len((e or {}).get("meta") or {}) for e in (cache.get("fl") or {}).values())
     fl_have = sum(1 for d in (cache.get("decks") or {}).values() if d.get("main"))
-    say("Format decks: %d formats, %d decks on the website (Format Library %d of %d downloaded, %d new tonight; YGOPRODeck %d read%s; %d Rush archetypes). %d requests%s."
-        % (len(data["formats"]), len(data["decks"]), fl_have, fl_total, stats["decks"], stats["ypd"],
-           ", %d cards it named that Card Vault doesn't know" % unknown if unknown else "", len((cache.get("rush") or {}).get("arch") or {}),
-           web.requests, ("; " + "; ".join(notes)) if notes else ""))
+    fl_formats_left = sum(1 for f in (cache.get("formats") or {}).get("list") or [] if f["name"] not in (cache.get("fl") or {}))
+    say("Format decks: %d formats, %d decks on the website (Format Library %d of %d downloaded, %d new tonight, %d formats still to read; YGOPRODeck %d read%s). %d requests%s."
+        % (len(data["formats"]), len(data["decks"]), fl_have, fl_total, stats["decks"], fl_formats_left, stats["ypd"],
+           ", %d cards it named that Card Vault doesn't know" % unknown if unknown else "", web.requests, ("; " + "; ".join(notes)) if notes else ""))
     return 0
 
 
