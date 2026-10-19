@@ -501,15 +501,16 @@
     try { ideas.result = await analyzeDeckIdeas(); ideas.last = collection.length; }
     catch (e) { ideas.error = "Couldn't reach YGOPRODeck (it needs an internet connection). Try again in a moment."; }
     ideas.busy = false;
-    if (settings.tab === "decks" && settings.deckView === "ideas") renderDeckIdeas();
+    if (settings.tab === "decks" && settings.deckView === "ideas" && settings.ideasMode === "archetypes") renderDeckIdeas();
   }
   function refreshIdeasStatus() { const el = document.getElementById("ideasStatus"); if (el) el.textContent = ideas.step; }
   const deckViewSeg = () => '<div class="panel-tools"><div class="seg" role="group" aria-label="Deck check" id="deckViewSeg">' +
     '<button type="button" data-deckview="check" aria-pressed="' + (settings.deckView !== "ideas") + '">Check a deck</button>' +
     '<button type="button" data-deckview="ideas" aria-pressed="' + (settings.deckView === "ideas") + '">Decks I can build</button></div></div>';
   function renderDeckIdeas() {
+    if (settings.ideasMode !== "archetypes") { renderFormatDecks(); return; }
     const panel = $("panel-decks");
-    const head = '<div class="panel-head"><div><h2>Decks I can build</h2><p>Every card you own, grouped into the archetypes they belong to or support, with how close each deck is.</p></div>' + deckViewSeg() + "</div>";
+    const head = '<div class="panel-head"><div><h2>Decks I can build</h2><p>Every card you own, grouped into the archetypes they belong to or support, with how close each deck is.</p></div>' + deckViewSeg() + "</div>" + ideasModeHTML();
     if (!collection.some(r => !r.sealed)) { panel.innerHTML = head + emptyPanel("No cards yet", "Add cards to your collection and Card Vault shows which decks they could make."); return; }
     if (ideas.busy) { panel.innerHTML = head + '<div class="box"><p id="ideasStatus" role="status" style="margin:0">' + esc(ideas.step) + "</p></div>"; return; }
     if (!ideas.result) {
@@ -585,8 +586,9 @@
     panel.addEventListener("click", e => {
       if (settings.tab !== "decks") return;
       const v = e.target.closest("[data-deckview]");
-      if (v) { settings.deckView = v.dataset.deckview; saveSettings(); renderDecks(); if (settings.deckView === "ideas" && !ideas.result && !ideas.busy && ideasCached()) runDeckIdeas(); return; }
+      if (v) { settings.deckView = v.dataset.deckview; saveSettings(); renderDecks(); if (settings.deckView === "ideas" && settings.ideasMode === "archetypes" && !ideas.result && !ideas.busy && ideasCached()) runDeckIdeas(); return; }
       if (settings.deckView !== "ideas") return;
+      if (fdkClick(e)) return;
       if (e.target.closest('[data-ideas="run"]')) { runDeckIdeas(); return; }
       const t = e.target.closest("[data-idea]");
       if (t) { const a = t.dataset.idea; if (ideas.open.has(a)) ideas.open.delete(a); else ideas.open.add(a); renderDeckIdeas(); const again = Array.from(document.querySelectorAll("[data-idea]")).find(x => x.dataset.idea === a); if (again) again.focus(); return; }

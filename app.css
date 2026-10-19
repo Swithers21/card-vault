@@ -897,6 +897,12 @@
   /* Theme goals: every card of an archetype or a name */
   .theme-langs{display:flex;flex-wrap:wrap;gap:14px;margin-top:6px}
   .notice.good{border-color:var(--good);color:var(--text)}
+  .fdk-mode{margin:0 0 12px}
+  .fdk-tools{justify-content:flex-start;align-items:center;gap:12px 18px;margin:0 0 12px}
+  .fdk-tools .select{max-width:min(100%,460px)}
+  .fdk-kind{font-family:inherit;font-size:12px;font-weight:600;color:var(--text-dim);letter-spacing:.02em}
+  .fdk-cards tr.have td{color:var(--text-dim)}
+  .fdk-cards th{text-align:left;font-size:12px;color:var(--text-dim);font-weight:600}
   .pcx-sum{border:1px solid var(--line-2);border-radius:10px;padding:10px 14px;margin:12px 0 0;background:var(--surface)}
   .pcx-line{margin:4px 0}
   .pcx-left{margin:6px 0 0;padding-left:18px;font-size:13px;color:var(--text-dim);max-height:220px;overflow:auto}
