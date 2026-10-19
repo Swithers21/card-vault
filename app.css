@@ -896,6 +896,11 @@
   .pc-miss li{margin:0 0 8px}
   /* Theme goals: every card of an archetype or a name */
   .theme-langs{display:flex;flex-wrap:wrap;gap:14px;margin-top:6px}
+  .notice.good{border-color:var(--good);color:var(--text)}
+  .pcx-sum{border:1px solid var(--line-2);border-radius:10px;padding:10px 14px;margin:12px 0 0;background:var(--surface)}
+  .pcx-line{margin:4px 0}
+  .pcx-left{margin:6px 0 0;padding-left:18px;font-size:13px;color:var(--text-dim);max-height:220px;overflow:auto}
+  #tcgxList{font-family:ui-monospace,Consolas,monospace;font-size:13px;white-space:pre;overflow:auto}
   .theme-hint{display:flex;flex-wrap:wrap;align-items:center;gap:10px;justify-content:space-between;border:1px solid var(--gold);border-radius:10px;padding:10px 12px;margin:0 0 12px;background:var(--surface)}
   .theme-links{margin:6px 0 0}
   .theme-cards{display:flex;flex-direction:column;gap:6px;margin:0 0 14px}

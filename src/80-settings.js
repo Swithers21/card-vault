@@ -130,6 +130,7 @@
       "Without one, it's a rough estimate from the raw market price, plus any PSA 10 values you type on a card.</p>" +
       '<label class="field"><span>PriceCharting key (optional; from pricecharting.com, Subscriptions > API)</span><input class="input" id="sPcToken" type="password" autocomplete="off" value="' + esc(settings.pcToken || "") + '"></label>' +
       '<div id="pcNote">' + pcNoteHTML() + "</div>" +
+      '<p class="small" style="margin:10px 0 0">Keep a collection on PriceCharting too? <button type="button" class="link-btn" data-pc-export>Export your cards for PriceCharting\'s importer</button></p>' +
       '<p class="small" style="margin:12px 0 6px">Estimate when there\'s no real price: PSA 10 ≈ raw market price × factor + fee</p>' +
       '<div class="alert-grid"><label class="field"><span>Factor</span><span class="pct">×<input class="input" type="number" min="1" max="100" step="0.5" id="sPsaMult" value="' + esc(settings.psa10Mult) + '"></span></label>' +
       '<label class="field"><span>Fee</span><span class="pct">$<input class="input" type="number" min="0" max="500" step="1" id="sPsaFloor" value="' + esc(settings.psa10Floor) + '"></span></label></div>' +

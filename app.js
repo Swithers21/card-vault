@@ -154,7 +154,7 @@
     condAdjust: true, condPct: Object.assign({}, DEFAULT_COND_PCT), histPeriod: "m7", chartTable: false,
     setsMode: "number", setsSort: "complete", lastBackupAt: null, lastChangeAt: null, backupSnoozeUntil: 0,
     backupRemindDays: 7, wantAlertSeen: "", alertsOn: false, alertMinDollar: 5, alertMinPct: 10, salesYear: "", deckId: null,
-    deckView: "check", mkView: "sets", mkLine: "", mkKind: "", mkSortSets: "newest", mkSortSealed: "deal", mkRegion: "en", mkLineOcg: "", mkKindOcg: "", mkGame: "", wantsView: "", wantsSort: "target", csSort: "best", csMode: "cards", csSetSort: "number", setGoals: [], goalsOpen: [], themeGoals: [], themesOpen: [], moverBy: "usd", moverMin: 1,
+    deckView: "check", mkView: "sets", mkLine: "", mkKind: "", mkSortSets: "newest", mkSortSealed: "deal", mkRegion: "en", mkLineOcg: "", mkKindOcg: "", mkGame: "", wantsView: "", wantsSort: "target", csSort: "best", csMode: "cards", csSetSort: "number", setGoals: [], goalsOpen: [], themeGoals: [], themesOpen: [], pcExportAt: "", moverBy: "usd", moverMin: 1,
     gradedView: false, psa10Mult: 4, psa10Floor: 25, gradePct: Object.assign({}, DEFAULT_GRADE_PCT), pcToken: "",
     insightView: "history", salesView: "trade", gradingCost: 30, gradingMin: 50, gradingFees: {}, gradingCo: "PSA", ntfyTopic: "", siteUrl: "", autoSignIn: true, deviceName: "",
     sellFeePct: 13, sellFeeFlat: 0.3, cloudAlerts: null, openingsOpen: [], watchView: "",
@@ -7923,6 +7923,7 @@
       "Without one, it's a rough estimate from the raw market price, plus any PSA 10 values you type on a card.</p>" +
       '<label class="field"><span>PriceCharting key (optional; from pricecharting.com, Subscriptions > API)</span><input class="input" id="sPcToken" type="password" autocomplete="off" value="' + esc(settings.pcToken || "") + '"></label>' +
       '<div id="pcNote">' + pcNoteHTML() + "</div>" +
+      '<p class="small" style="margin:10px 0 0">Keep a collection on PriceCharting too? <button type="button" class="link-btn" data-pc-export>Export your cards for PriceCharting\'s importer</button></p>' +
       '<p class="small" style="margin:12px 0 6px">Estimate when there\'s no real price: PSA 10 ≈ raw market price × factor + fee</p>' +
       '<div class="alert-grid"><label class="field"><span>Factor</span><span class="pct">×<input class="input" type="number" min="1" max="100" step="0.5" id="sPsaMult" value="' + esc(settings.psa10Mult) + '"></span></label>' +
       '<label class="field"><span>Fee</span><span class="pct">$<input class="input" type="number" min="0" max="500" step="1" id="sPsaFloor" value="' + esc(settings.psa10Floor) + '"></span></label></div>' +
@@ -10816,6 +10817,7 @@
         (cheaperAway ? ", " + plural(cheaperAway, "card") + " cheaper in another market" : "")
       : "Cards and sealed products you're looking for, with the price you'd pay.") + "</p></div>" +
       '<div class="panel-tools">' + (SITE && wants.length ? '<button class="btn" type="button" data-want-action="share">Share…</button>' : "") +
+      (wants.some(w => w.productId && wantKind(w) === "card") ? '<button class="btn" type="button" data-want-action="tcg-cart">Buy on TCGplayer…</button>' : "") +
       '<button class="btn" type="button" data-want-action="add-sealed">Add sealed</button>' +
       '<button class="btn btn-primary" type="button" data-want-action="add">Add a card</button></div></div>';
     if (!wants.length) {
@@ -13441,6 +13443,229 @@
     toast("Exported " + plural(collection.length, "printing") + ". Import this file anytime to restore them.");
   }
 
+  /* ======================= Export for PriceCharting ======================= */
+  // A file for PriceCharting's CSV collection importer (pricecharting.com/collection-import-csv). It matches every row by
+  // PriceCharting's own product id, which Card Vault already has for each card it matched for graded values (or that you
+  // matched yourself), so the cards come across exactly: graded ones at their grade (PriceCharting's condition-id list),
+  // with the grading company and cert number, what you paid per copy (in pennies), your notes, and your locations as
+  // folders. PriceCharting adds every row and never replaces anything, so Card Vault remembers when you exported and can
+  // take only the cards added since. (Its columns, from its importer's own documentation: id is required; product-name
+  // and console-name are only for reading and ignored there.)
+  const PC_IMPORT_URL = "https://www.pricecharting.com/collection-import-csv";
+  const PC_GRADE_IDS = {"9.5": 6, "9": 5, "8": 2, "7": 3, "6": 16, "5": 15, "4": 14, "3": 13, "2": 10, "1": 9};
+  // (csvCell: in 94-sales-and-reports)
+  function pcCompany(company) {
+    const c = String(company || "").trim().toUpperCase();
+    return !c ? "" : c === "BGS" || c.startsWith("BECKETT") ? "Beckett" : ["PSA", "CGC", "SGC", "TAG", "ACE"].includes(c) ? c : "Other";
+  }
+  // A grade as PriceCharting has it: {condition (its condition-id), company, note}. A 10 is the grading company's own 10
+  // (BGS 10, BGS 10 Black, CGC 10, CGC 10 Pristine, SGC 10, TAG 10, ACE 10; PSA's is "Grade 10"); a half grade it doesn't
+  // list for cards (8.5) goes down to the one below, and the notes keep the real one.
+  function pcGrade(g) {
+    if (!g || !g.company) return {condition: 1, company: "", note: ""};
+    const company = pcCompany(g.company), text = String(g.grade || "").trim();
+    const n = num(text.replace(/[^0-9.]/g, ""));
+    if (n == null || n < 1) return {condition: 1, company, note: text ? "Grade " + text : "Graded, grade not entered"};
+    if (n >= 10) {
+      const id = company === "Beckett" ? (/black/i.test(text) ? 20 : 8) : company === "CGC" ? (/pristine/i.test(text) ? 19 : 17)
+        : company === "SGC" ? 18 : company === "TAG" ? 21 : company === "ACE" ? 22 : 7;
+      return {condition: id, company, note: ""};
+    }
+    const step = n >= 9.5 ? 9.5 : Math.floor(n);
+    return {condition: PC_GRADE_IDS[String(step)], company, note: step !== n ? "Grade " + text : ""};
+  }
+  // Which PriceCharting item a card of yours is: {id, p} or {skip: why}
+  function pcExportId(r) {
+    if (r.sealed) return {skip: "sealed"};
+    if (r.pcId === "none") return {skip: "marked"};
+    const h = pcCache()[pcKey(r)];
+    if (/^\d+$/.test(String(r.pcId || ""))) return {id: String(r.pcId), p: h && h.p && String(h.p.id) === String(r.pcId) ? h.p : null};
+    if (r.language === "Korean") return {skip: "korean"};
+    if (!normNumber(r.number)) return {skip: "nonumber"};
+    if (!h || (!h.p && !h.t)) return {skip: "unknown"};          // (never asked, or to be asked again)
+    if (!h.p) return {skip: "nomatch"};
+    if (!/^\d+$/.test(String(h.p.id || ""))) return {skip: "unknown"};
+    return {id: String(h.p.id), p: h.p};
+  }
+  // Your cards for the file (all of them, or the ones added since a time): {rows: [{r, id, p}], copies, skipped: {why: [records]}}
+  function pcExportPlan(since) {
+    const after = since ? parseDate(since) : null;
+    const out = {rows: [], copies: 0, skipped: {unknown: [], nomatch: [], korean: [], marked: [], sealed: [], nonumber: []}};
+    for (const r of collection) {
+      if (after) { const a = parseDate(r.added); if (!a || a <= after) continue; }
+      const x = pcExportId(r);
+      if (x.skip) { out.skipped[x.skip].push(r); continue; }
+      out.rows.push({r, id: x.id, p: x.p});
+      out.copies += r.qty;
+    }
+    return out;
+  }
+  function pcExportText(rows, folders) {
+    const head = ["id", "product-name", "console-name", "condition-id", "quantity", "cost-basis-in-pennies", "notes", "grading-company", "grading-cert-id", "folder"];
+    const lines = rows.map(({r, id, p}) => {
+      const g = pcGrade(r.grade);
+      const cond = !r.grade && r.condition && r.condition !== "Near Mint" ? r.condition : "";
+      const notes = [cond, g.note, String(r.notes || "").replace(/\s+/g, " ")].map(s => String(s).trim()).filter(Boolean).join(" · ").slice(0, 300);
+      return [id, p ? p.name : [r.name, r.number].filter(Boolean).join(" "), p ? p.set : r.setName, g.condition, r.qty,
+        r.paid != null && r.paid > 0 ? Math.round(r.paid * 100) : "", notes, g.company, r.grade ? r.grade.cert : "", folders ? r.location : ""].map(csvCell).join(",");
+    });
+    // (no byte-order mark: the first column's name must read exactly "id")
+    return [head.join(",")].concat(lines).join("\r\n") + "\r\n";
+  }
+
+  const pcx = {busy: false, stop: false, done: 0, total: 0, err: "", onlyNew: null, folders: true, saved: null};
+  const PCX_WHY = {
+    nomatch: n => plural(n, "printing") + " PriceCharting had no match for.",
+    korean: n => plural(n, "Korean card") + ": PriceCharting doesn't list Korean cards.",
+    marked: n => plural(n, "printing") + " you marked as not on PriceCharting.",
+    sealed: n => plural(n, "sealed product") + ": Card Vault doesn't match those with PriceCharting.",
+    nonumber: n => plural(n, "card") + " without a card number."};
+  function openPcExport() {
+    drawerCtx = {mode: "pc-export"};
+    if (pcx.onlyNew === null) pcx.onlyNew = !!settings.pcExportAt;
+    pcx.saved = null;
+    openDrawer("Export for PriceCharting", '<div id="pcxBody"></div>');
+    renderPcExport();
+  }
+  function renderPcExport() {
+    const box = $("pcxBody");
+    if (!box || !drawerCtx || drawerCtx.mode !== "pc-export") return;
+    const last = parseDate(settings.pcExportAt);
+    const onlyNew = !!(last && pcx.onlyNew);
+    const plan = pcExportPlan(onlyNew ? settings.pcExportAt : null);
+    const sk = plan.skipped, unknown = new Set(sk.unknown.map(pcKey)).size;
+    const left = Object.keys(sk).reduce((n, k) => n + sk[k].length, 0);
+    const hasLoc = plan.rows.some(x => x.r.location);
+    const mins = Math.max(1, Math.round(unknown * 1.6 / 60));
+    let look = "";
+    if (pcx.busy) look = '<p class="pcx-line">Looking them up on PriceCharting: ' + pcx.done + " of " + pcx.total + '… <button type="button" class="link-btn" id="pcxStop">Stop</button></p>';
+    else if (unknown) look = '<p class="pcx-line">' + plural(unknown, "printing") + " not looked up on PriceCharting yet" + (pcOn() && !pcBad()
+      ? '. <button type="button" class="btn btn-small" id="pcxLook">Look them up now</button> <span class="small">(about ' + plural(mins, "minute") + ")</span>"
+      : ': Card Vault needs your PriceCharting key for that. <button type="button" class="link-btn" id="pcxKey">Settings &gt; Graded values</button>') + "</p>";
+    box.innerHTML =
+      '<p class="small" style="margin:0 0 12px">A file for PriceCharting\'s collection importer. Each card is matched by its PriceCharting ID, the one Card Vault found when it looked up graded values, ' +
+      "so it comes across exactly: graded cards at their grade with the grading company and cert number, what you paid, and your notes.</p>" +
+      (pcx.saved ? '<div class="notice good" role="status">Saved ' + plural(pcx.saved.copies, "card") + " for PriceCharting at " + esc(fmtDateTime(pcx.saved.at)) +
+        '. Upload that file once on <a target="_blank" rel="noopener" href="' + PC_IMPORT_URL + '">PriceCharting\'s importer</a>.</div>' : "") +
+      (pcx.err ? '<div class="notice" role="alert">' + esc(pcx.err) + "</div>" : "") +
+      (last ? '<div class="field"><span>Which cards</span><div class="theme-langs">' +
+        '<label class="check-row"><input type="radio" name="pcxWhich" value="new"' + (onlyNew ? " checked" : "") + "> <span>Only the ones added since your last export (" + esc(fmtDateTime(last)) + ")</span></label>" +
+        '<label class="check-row"><input type="radio" name="pcxWhich" value="all"' + (onlyNew ? "" : " checked") + "> <span>Everything</span></label></div></div>" : "") +
+      '<div class="pcx-sum">' +
+      '<p class="pcx-line"><b>' + (plan.rows.length ? plural(plan.copies, "card") + " ready" : onlyNew ? "No cards added since then" : "No cards ready yet") + "</b>" +
+      (plan.rows.length ? " (" + plural(plan.rows.length, "printing") + ")" : "") + "</p>" + look +
+      ["nomatch", "korean", "marked", "sealed", "nonumber"].filter(k => sk[k].length).map(k => '<p class="pcx-line small">' + esc(PCX_WHY[k](sk[k].length)) +
+        (k === "nomatch" ? ' <button type="button" class="link-btn" id="pcxFix">Fix the matches</button>' : "") + "</p>").join("") +
+      (left ? '<details class="more"><summary>Which cards are left out</summary><ul class="pcx-left">' +
+        Object.keys(sk).flatMap(k => sk[k]).slice(0, 150).map(r => "<li>" + esc([r.name, r.number, r.language !== "English" ? r.language : ""].filter(Boolean).join(" · ")) + "</li>").join("") +
+        (left > 150 ? "<li>…and " + (left - 150) + " more</li>" : "") + "</ul></details>" : "") +
+      "</div>" +
+      (hasLoc ? '<label class="check-row" style="margin-top:12px"><input type="checkbox" class="check" id="pcxFolders"' + (pcx.folders ? " checked" : "") + "> <span>Put each card in a folder named after its location (Binder 1, Deck box…)</span></label>" +
+        '<p class="hint" style="margin:2px 0 0">Free PriceCharting accounts can only make a few folders.</p>' : "") +
+      '<p class="hint" style="margin:12px 0 0"><b>Upload the file once.</b> PriceCharting adds every row to your collection and never replaces anything, so uploading it twice counts your cards twice. ' +
+      "Card Vault remembers this export, so next time you can take only the cards added since. (Extra copies added to a card you already had aren't counted as new.)</p>" +
+      '<div class="form-actions"><button type="button" class="btn btn-primary" id="pcxGo"' + (plan.rows.length ? "" : " disabled") + '>Download the file</button>' +
+      '<a class="btn" target="_blank" rel="noopener" href="' + PC_IMPORT_URL + '">Open PriceCharting\'s importer</a></div>';
+    box.querySelectorAll("[name=pcxWhich]").forEach(b => b.addEventListener("change", () => { pcx.onlyNew = b.value === "new"; renderPcExport(); }));
+    if ($("pcxFolders")) $("pcxFolders").addEventListener("change", e => { pcx.folders = e.target.checked; });
+    if ($("pcxLook")) $("pcxLook").addEventListener("click", pcExportLookup);
+    if ($("pcxStop")) $("pcxStop").addEventListener("click", () => { pcx.stop = true; });
+    if ($("pcxKey")) $("pcxKey").addEventListener("click", () => openSettings({section: "graded"}));
+    if ($("pcxFix")) $("pcxFix").addEventListener("click", () => openSettings({section: "graded"}));
+    $("pcxGo").addEventListener("click", () => pcExportDownload(plan));
+  }
+  // The cards never looked up on PriceCharting, one printing at a time (its limit: one request a second)
+  async function pcExportLookup() {
+    if (pcx.busy || !pcOn() || pcBad()) return;
+    const plan = pcExportPlan(pcx.onlyNew && settings.pcExportAt ? settings.pcExportAt : null), seen = new Set(), todo = [];
+    for (const r of plan.skipped.unknown) { const k = pcKey(r); if (!seen.has(k)) { seen.add(k); todo.push(r); } }
+    Object.assign(pcx, {busy: true, stop: false, done: 0, total: todo.length, err: ""});
+    renderPcExport();
+    let failed = 0;
+    try {
+      for (const r of todo) {
+        if (pcx.stop) break;
+        try { await pcLookup(r, true); failed = 0; }
+        catch (e) {
+          if (e && e.name === "TokenError") { pcx.err = "PriceCharting didn't accept your key (Settings > Graded values)."; break; }
+          if (++failed >= 5 || (typeof navigator !== "undefined" && navigator.onLine === false)) { pcx.err = "Couldn't reach PriceCharting right now. Try again in a while."; break; }
+        }
+        pcx.done++;
+        renderPcExport();
+      }
+    } finally { pcx.busy = false; renderPcExport(); if (settings.gradedView) renderSoon(); }
+  }
+  function pcExportDownload(plan) {
+    if (!plan.rows.length) return;
+    const folders = pcx.folders && plan.rows.some(x => x.r.location);
+    download(new Blob([pcExportText(plan.rows, folders)], {type: "text/csv;charset=utf-8"}), "card-vault-for-pricecharting-" + localDay(new Date()) + ".csv");
+    const at = new Date();
+    settings.pcExportAt = at.toISOString();
+    saveSettings();
+    pcx.saved = {copies: plan.copies, at};
+    pcx.onlyNew = true;
+    renderPcExport();
+    toast("Saved " + plural(plan.copies, "card") + " for PriceCharting. Upload the file once on PriceCharting's importer.");
+  }
+
+  /* ======================= Want list to a TCGplayer cart ======================= */
+  // TCGplayer's Mass Entry (tcgplayer.com/massentry) makes a cart from a list, one card a line: "2 Dark Magician Girl [MVP1]"
+  // (how many, the card's name, the set's code in brackets, as its own help describes). It opens with the list filled in,
+  // the way TCGplayer's own "Buy Deck" links do (productline, and the lines joined by ||). There you choose the printings
+  // and conditions you'll take and TCGplayer finds the cheapest sellers; nothing is bought until you check out yourself.
+  const TCG_MASS_ENTRY = "https://www.tcgplayer.com/massentry";
+  const tcgx = {onlyHits: false};
+  function tcgCartPlan(onlyHits) {
+    const byLine = new Map(), left = {away: [], sealed: [], unmatched: []};
+    let picky = 0, hits = 0;
+    for (const w of wants) {
+      if (wantKind(w) !== "card") { left.sealed.push(w); continue; }
+      const p = w.productId && catalog ? catalog.byId.get(w.productId) : null;
+      if (!p) { (!w.productId && ocgRegion(w.number) ? left.away : left.unmatched).push(w); continue; }
+      const hit = wantStatus(w).hit;
+      if (hit) hits++;
+      if (onlyHits && !hit) continue;
+      const text = lookupName(p.name) + (p.group && p.group.abbr ? " [" + p.group.abbr + "]" : "");
+      byLine.set(text, (byLine.get(text) || 0) + w.qty);
+      if (w.edition && w.edition !== "Any") picky++;
+    }
+    const lines = Array.from(byLine, ([text, n]) => n + " " + text);
+    return {lines, left, picky, hits};
+  }
+  const tcgCartURL = lines => TCG_MASS_ENTRY + "?productline=yugioh&c=" + encodeURIComponent(lines.join("||"));
+  function openTcgCart() {
+    drawerCtx = {mode: "tcg-cart"};
+    openDrawer("Buy your wants on TCGplayer", '<div id="tcgxBody"></div>');
+    renderTcgCart();
+  }
+  function renderTcgCart() {
+    const box = $("tcgxBody");
+    if (!box || !drawerCtx || drawerCtx.mode !== "tcg-cart") return;
+    if (!catalog) { box.innerHTML = '<div class="notice">This needs TCGplayer\'s card list, which hasn\'t loaded yet. Try again in a moment.</div>'; return; }
+    const plan = tcgCartPlan(tcgx.onlyHits && tcgCartPlan(false).hits > 0);
+    const onlyHits = tcgx.onlyHits && plan.hits > 0;
+    const copies = plan.lines.reduce((n, l) => n + parseInt(l, 10), 0);
+    const lf = plan.left, leftText = [lf.away.length ? plural(lf.away.length, "Japanese or Korean card") + " (TCGplayer doesn't sell them)" : "",
+      lf.sealed.length ? plural(lf.sealed.length, "sealed product") + " (Mass Entry is for single cards)" : "",
+      lf.unmatched.length ? plural(lf.unmatched.length, "card") + " not matched to a TCGplayer card" : ""].filter(Boolean);
+    box.innerHTML =
+      '<p class="small" style="margin:0 0 12px">TCGplayer\'s Mass Entry turns this list into a cart from the cheapest sellers. On TCGplayer, choose the printings (1st Edition, Unlimited…) and conditions you\'ll take, ' +
+      "then Add to Cart. Nothing is bought until you check out yourself.</p>" +
+      (plan.hits ? '<div class="field"><span>Which cards</span><div class="theme-langs">' +
+        '<label class="check-row"><input type="radio" name="tcgxWhich" value="all"' + (onlyHits ? "" : " checked") + "> <span>Every card on your want list</span></label>" +
+        '<label class="check-row"><input type="radio" name="tcgxWhich" value="hits"' + (onlyHits ? " checked" : "") + "> <span>Only the " + plan.hits + " at or below your target</span></label></div></div>" : "") +
+      (plan.lines.length
+        ? '<label class="field" style="margin-top:12px"><span>' + plural(copies, "card") + " for TCGplayer</span>" +
+          '<textarea class="input" id="tcgxList" rows="' + Math.min(12, Math.max(3, plan.lines.length)) + '" readonly>' + esc(plan.lines.join("\n")) + "</textarea></label>" +
+          (plan.picky ? '<p class="hint" style="margin:4px 0 0">' + plural(plan.picky, "card") + " on your list " + (plan.picky === 1 ? "is" : "are") + " for one printing (like 1st Edition): TCGplayer's printing choice is for the whole list.</p>" : "")
+        : '<div class="notice">None of the cards on your want list are TCGplayer cards yet.</div>') +
+      (leftText.length ? '<p class="small" style="margin:10px 0 0">Left out: ' + esc(leftText.join("; ")) + ".</p>" : "") +
+      (plan.lines.length ? '<div class="form-actions"><a class="btn btn-primary" id="tcgxOpen" target="_blank" rel="noopener" href="' + esc(tcgCartURL(plan.lines)) + '">Open the list on TCGplayer</a>' +
+        '<button type="button" class="btn" id="tcgxCopy">Copy the list</button></div>' : "");
+    box.querySelectorAll("[name=tcgxWhich]").forEach(b => b.addEventListener("change", () => { tcgx.onlyHits = b.value === "hits"; renderTcgCart(); }));
+    if ($("tcgxCopy")) $("tcgxCopy").addEventListener("click", () => copyText(plan.lines.join("\n"), () => toast("Copied " + plural(plan.lines.length, "line") + ". On TCGplayer's Mass Entry, pick Yu-Gi-Oh! and paste them.")));
+  }
+
   /* ======================= Events ======================= */
   function readFile(file, done) {
     const reader = new FileReader();
@@ -13777,6 +14002,7 @@
 
     // ----- PriceCharting matching: "Find it" (Settings, a card's graded value) and "Look for them again"
     document.addEventListener("click", e => {
+      if (e.target.closest("[data-pc-export]")) { e.preventDefault(); openPcExport(); return; }
       const f = e.target.closest("[data-pc-fix]");
       if (f) { e.preventDefault(); if (f.dataset.pcBack === "settings") pcMissOpen = true; openPcPick(f.dataset.pcFix, {back: f.dataset.pcBack || ""}); return; }
       if (e.target.closest("[data-pc-unmark]")) {
@@ -14031,6 +14257,7 @@
       if (a === "add") { openAdd({want: true}); return; }
       if (a === "add-sealed") { openSealedSearch("", {want: true}); return; }
       if (a === "share") { openShare("wants"); return; }
+      if (a === "tcg-cart") { openTcgCart(); return; }
       if (!w) return;
       if (a === "remove") removeWant(w.id);
       else if (a === "got") gotWant(w.id);
@@ -14063,6 +14290,7 @@
     });
     $("importBody").addEventListener("change", updateImportButton);
     $("exportBtn").addEventListener("click", exportCSV);
+    $("pcExportBtn").addEventListener("click", openPcExport);
     $("phoneBtn").addEventListener("click", savePhoneCopy);
     $("reportBtn").addEventListener("click", openReport);
     // ----- the Export menu
@@ -14208,6 +14436,7 @@
   window.CardVault = {state: () => ({collection, settings, selected, catalog, wants, valueHistory, backup, decks, sales, phone, deleted, batch, sync}),
     mergeBackup, checkBackupFile, openBatch, parseBatchLine, batchRowFor, addBatch, save, analyzeCSV, commitImport, openImport,
     findByNumber, searchByName, priceInfo, marketValue, unitValue, changeFor, periodChange, historySeries, totals, deleteRecords, exportCSV,
+      openPcExport, pcExportPlan, pcExportText, pcGrade, pcExportId, openTcgCart, tcgCartPlan, tcgCartURL, pcx: () => pcx,
     openDetails, openAdd, openSettings, render, setTab, setsData, extrasMap, wantStatus, addWant, restoreBackup, backupPayload,
     findYugiImages, rankYugiImages, parseYugiFile, yugiMangaPhoto, fillMangaPhotos, fillPrintPhotos, yugiPrintPick, langNumber, printPicOf, scanURL, isScanURL, yugiLabel, recordValueHistory, niceTicks, dateTicks, checkForNewData, writeBackup, initBackup,
     photoCandidates, findPhotosBatch, tradeListText, parseDeckText, parseYdk, parseYdke, checkDeck, cardNamesFor, runDeckCheck,
