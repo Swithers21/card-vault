@@ -54,8 +54,6 @@ YPD = {"Tournament Meta Decks": [{"deck_name": "Branded Ritual", "deckNum": 7393
        "Speed Duel Decks": [{"deck_name": "Elemental Hero | Speed Duel Deck", "deckNum": 737134, "pretty_url": "elemental-hero-737134", "submit_date": "1 week ago",
                              "main_deck": json.dumps(["300302041", "2", "2"])}]}
 IDS = {"1": "Ash Blossom & Joyous Spring", "2": "Branded Fusion", "3": "Mirrorjade the Iceblade Dragon", "300302041": "Elemental HEROes!"}
-RUSH = {"data": [{"name": "Sevens Road Magician", "archetype": "Sevens", "frameType": "effect"}] + [{"name": "Sevens Card %d" % i, "archetype": "Sevens", "frameType": "normal"} for i in range(4)]
-        + [{"name": "Sevens Fusion Dragon", "archetype": "Sevens", "frameType": "fusion"}, {"name": "Lonely", "archetype": "Tiny", "frameType": "effect"}]}
 
 
 class Sites:
@@ -82,8 +80,6 @@ class Sites:
         if u.path.endswith("getDecks.php"):
             rows = YPD.get(q["format"], [])
             return rows[int(q["offset"]): int(q["offset"]) + 20] or {"error": "No decks matching your query were found in the database."}
-        if u.path.endswith("cardinfo.php"):
-            return RUSH
         raise IOError("unknown " + url)
 
 
@@ -132,12 +128,11 @@ class FormatDecks(unittest.TestCase):
     def test_the_formats_and_where_they_come_from(self):
         data = self.run_it()
         got = {f[0]: f[1:] for f in data["formats"]}
-        self.assertEqual(list(got), ["Edison", "OCG Goat", "Advanced", "Speed Duel", "Rush Duel"])       # (popular first; only ones with decks)
+        self.assertEqual(list(got), ["Edison", "OCG Goat", "Advanced", "Speed Duel"])       # (popular first; only ones with decks)
         self.assertEqual(got["Edison"], ["TCG", "2010-04-24", 1, "5D's", "Format Library"])
         self.assertEqual(got["OCG Goat"][0], "OCG")
         self.assertEqual(got["Advanced"][-1], "Format Library and YGOPRODeck")                       # (both sources, one format)
         self.assertEqual(got["Speed Duel"][0], "Speed")
-        self.assertEqual(got["Rush Duel"][0], "Rush")
         self.assertNotIn("Some Speed Thing", got)                                                     # (not TCG or OCG)
 
     def test_a_spread_of_deck_types_best_placings_first(self):
@@ -169,13 +164,6 @@ class FormatDecks(unittest.TestCase):
         self.assertRegex(b["date"], r"^\d{4}-\d\d-\d\d$")
         speed = self.decks(data, "Speed Duel")[0]
         self.assertEqual(speed["main"], {"Elemental HEROes!": 1, "Branded Fusion": 2})       # (its Skill counts as a card)
-
-    def test_rush_duel_archetypes_stand_in_for_decks(self):
-        data = self.run_it()
-        rush = self.decks(data, "Rush Duel")
-        self.assertEqual([d["type"] for d in rush], ["Sevens"])               # (an archetype of 5 cards or more)
-        self.assertEqual(rush[0]["extra"], {"Sevens Fusion Dragon": 1})
-        self.assertEqual(len(rush[0]["main"]), 5)
 
     def test_decks_are_downloaded_once_and_lists_read_weekly(self):
         self.run_it()

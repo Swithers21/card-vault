@@ -6565,8 +6565,8 @@
   }
   /* ======================= Decks I can build, by format ======================= */
   // Real deck lists for every format, from format-decks.js (made each night by format_decks.py): Format Library's
-  // tournament decks (Goat, Edison, HAT and about 120 more, TCG and OCG), YGOPRODeck's (Advanced, Genesys and OCG
-  // tournaments, Speed Duel, community formats) and Rush Duel's archetypes. Each is held against your cards, the way
+  // tournament decks (Goat, Edison, HAT and about 120 more, TCG and OCG) and YGOPRODeck's (Advanced, Genesys and OCG
+  // tournaments, Speed Duel, community formats); and Rush Duel's Starter and Structure Decks, from the Japanese list. Each is held against your cards, the way
   // tournaments allow: TCG formats count your English cards, OCG formats your Japanese and Korean ones, Rush Duel your
   // Rush Duel cards. Closest first, with what's missing and what it costs.
   const fdk = {data: null, loading: null, failed: 0, memo: null, open: new Set(), shown: 30};
@@ -6615,6 +6615,36 @@
         return fdk.data;
       });
     return fdk.loading;
+  }
+
+  // Rush Duel: nobody publishes its deck lists in a form Card Vault can read, so its Starter and Structure Decks from the
+  // Japanese list stand in (each card once). Added once both Japanese lists have loaded.
+  function fdkAddRush() {
+    if (!fdk.data || fdk.data.rush || !ocgMk.data || !ocgCd.data) return false;
+    const f = {i: fdk.data.formats.length, name: "Rush Duel", kind: "Rush", date: "", popular: false, era: "", src: "Card Vault's Japanese list", decks: []};
+    const bySet = new Map();
+    for (const c of ocgCd.data.cards) if (c.region === "jp" && isRushNo(c.number)) pushMap(bySet, c.set.id, c);
+    for (const set of ocgSetsOf("jp").filter(x => x.rush && x.line === "structure")) {
+      const seen = new Set(), main = [];
+      for (const c of bySet.get(set.id) || []) { const key = normCardName(c.name); if (key && !seen.has(key)) { seen.add(key); main.push({name: c.name, key, n: 1}); } }
+      if (main.length < 5) continue;
+      const deck = {id: fdk.data.decks.length, f, type: set.name, event: "", place: "", date: set.date, src: "rush", ref: set.prefix, main, extra: []};
+      fdk.data.decks.push(deck);
+      f.decks.push(deck);
+    }
+    fdk.data.rush = true;
+    if (f.decks.length) fdk.data.formats.push(f);
+    fdk.memo = null;
+    return true;
+  }
+  function fdkRushSoon() {
+    if (!fdk.data || fdk.data.rush || fdkAddRush() || fdk.rushWait) return;
+    fdk.rushWait = true;
+    const cards = ocgCardsReady() ? null : ocgCd.loading;
+    Promise.all([loadOcgMarket(), cards]).then(() => {
+      fdk.rushWait = false;
+      if (fdkAddRush() && settings.tab === "decks" && settings.deckView === "ideas" && settings.ideasMode !== "archetypes") renderFormatDecks();
+    });
   }
 
   /* ----- your cards against a deck ----- */
@@ -6711,13 +6741,14 @@
         : '<p role="status" style="margin:0">Loading the deck lists…</p>') + "</div>";
       return;
     }
-    if (fdk.data.formats.some(f => f.kind !== "TCG" && f.kind !== "Speed")) ocgCardsReady();
+    ocgCardsReady();
+    fdkRushSoon();
     const f = fdk.data.formats.find(x => x.name === settings.fdkFormat) || null;
     const only = !!settings.fdkOnlyDone;
     const groups = fdkGroups(fdk.data.formats.slice());
     let html = head + '<div class="panel-tools fdk-tools"><label class="basis">Format <select class="select" id="fdkFormat"><option value="">Every format: your closest deck in each</option>' +
       groups.map(([label, list]) => '<optgroup label="' + esc(label) + '">' + list.map(x => '<option value="' + esc(x.name) + '"' + (f === x ? " selected" : "") + ">" +
-        esc(x.name + (fdkYear(x) && !FDK_TODAY.includes(x.name) ? " (" + fdkYear(x) + ")" : "") + " · " + plural(x.decks.length, x.kind === "Rush" ? "archetype" : "deck")) + "</option>").join("") + "</optgroup>").join("") +
+        esc(x.name + (fdkYear(x) && !FDK_TODAY.includes(x.name) ? " (" + fdkYear(x) + ")" : "") + " · " + plural(x.decks.length, "deck")) + "</option>").join("") + "</optgroup>").join("") +
       '</select></label><label class="check-row"><input type="checkbox" class="check" id="fdkOnlyDone"' + (only ? " checked" : "") + "> <span>Only decks I can build now</span></label></div>";
     html += f ? fdkFormatHTML(f, only) : fdkOverviewHTML(only);
     html += '<p class="small" style="margin-top:14px">Deck lists from Format Library (formatlibrary.com: tournament decks of each format, with their event and placing) and YGOPRODeck (today\'s tournament decks, Speed Duel and community formats), ' +
@@ -6736,7 +6767,7 @@
     return '<p class="small" style="margin:0 0 10px">' + plural(rows.length, "format") + ", the ones your cards are closest to first. TCG formats count your English cards, OCG formats your Japanese and Korean ones.</p>" +
       shown.map(({f, best}) => '<article class="idea fdk-row"><button type="button" class="idea-toggle" data-fdk-format="' + esc(f.name) + '">' +
         '<span style="min-width:0"><span class="idea-name">' + esc(f.name) + ' <span class="fdk-kind">' + esc([f.kind === "TCG" || f.kind === "OCG" ? f.kind : "", fdkYear(f) && !FDK_TODAY.includes(f.name) ? fdkYear(f) : ""].filter(Boolean).join(" · ")) + "</span></span>" +
-        '<span class="idea-sub">Closest: ' + esc(best.d.type) + (best.d.event ? " (" + esc([fdkPlace(best.d.place), best.d.event].filter(Boolean).join(" at ")) + ")" : "") + " · " + plural(f.decks.length, f.kind === "Rush" ? "archetype" : "deck") + "</span></span>" +
+        '<span class="idea-sub">Closest: ' + esc(best.d.type) + (best.d.event ? " (" + esc([fdkPlace(best.d.place), best.d.event].filter(Boolean).join(" at ")) + ")" : "") + " · " + plural(f.decks.length, "deck") + "</span></span>" +
         fdkMeter(best.st) + fdkCost(best.st) + '<span class="caret" aria-hidden="true"></span></button></article>').join("") +
       (rows.length > shown.length ? '<div class="btn-row" style="margin-top:10px"><button class="btn" type="button" data-fdk-more>Show all ' + rows.length + " formats</button></div>" : "");
   }
@@ -6744,7 +6775,7 @@
     const list = fdkDecksOf(f, only);
     const rush = f.kind === "Rush";
     let html = '<p class="small" style="margin:0 0 10px">' + esc(f.name) + (f.era ? " · " + esc(f.era) + " era" : "") + (f.date && !FDK_TODAY.includes(f.name) ? " · " + esc(fmtDate(parseDay(f.date))) : "") +
-      ". Counts " + esc(FDK_WHO[f.kind] || FDK_WHO.TCG) + "." + (rush ? " Nobody publishes Rush Duel deck lists in a form Card Vault can read, so these are each archetype's cards, one of each." : "") +
+      ". Counts " + esc(FDK_WHO[f.kind] || FDK_WHO.TCG) + "." + (rush ? " Nobody publishes Rush Duel deck lists in a form Card Vault can read, so these are its Starter and Structure Decks, each card once." : "") +
       ' <button type="button" class="link-btn" data-fdk-format="">Every format</button></p>';
     if (!list.length) return html + '<div class="notice">' + (only ? "None of these decks can be built with your cards alone yet." : "No decks for this format yet.") + "</div>";
     return html + list.map(x => fdkDeckHTML(x.d, x.st)).join("");
@@ -6752,7 +6783,7 @@
   function fdkDeckHTML(d, st) {
     const open = fdk.open.has(d.id), rush = d.f.kind === "Rush";
     const when = d.date ? fmtDate(parseDay(d.date)) : "";
-    const sub = rush ? "Rush Duel archetype" : [d.event ? [fdkPlace(d.place), d.event].filter(Boolean).join(" at ") : fdkSite(d), when].filter(Boolean).join(" · ");
+    const sub = rush ? ["Starter or Structure Deck", when].filter(Boolean).join(" · ") : [d.event ? [fdkPlace(d.place), d.event].filter(Boolean).join(" at ") : fdkSite(d), when].filter(Boolean).join(" · ");
     const link = fdkLink(d);
     const row = x => {
       const lack = x.n - x.have;

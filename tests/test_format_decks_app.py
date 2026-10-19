@@ -13,16 +13,13 @@ from test_themes_app import eng, jpn
 NAMES = ["Blackwing - Gale the Whirlwind", "Pot of Greed", "Black-Winged Dragon", "Ash Blossom & Joyous Spring", "Branded Fusion",
          "Sevens Road Magician", "Sevens Fusion", "Elemental HEROes!", "Monster Reborn", "Sangan", "Dark Magician"]
 FORMATS = [["Edison", "TCG", "2010-04-24", 1, "5D's", "Format Library"], ["OCG Goat", "OCG", "2005-04-09", 1, "GX", "Format Library"],
-           ["Advanced", "TCG", "", 1, "", "Format Library and YGOPRODeck"], ["Rush Duel", "Rush", "", 0, "", "YGOPRODeck's Rush Duel cards"],
-           ["Speed Duel", "Speed", "", 0, "", "YGOPRODeck"]]
+           ["Advanced", "TCG", "", 1, "", "Format Library and YGOPRODeck"], ["Speed Duel", "Speed", "", 0, "", "YGOPRODeck"]]
 DECKS = [[0, "Blackwing", "Patron Battle Royale 58", 1, "2026-09-21", "fl", "85616", [0, 3, 1, 1], [2, 1]],
          [0, "Frog OTK", "Edison Cup", 2, "2026-08-31", "fl", "85700", [8, 2], []],
          [1, "Chaos Return", "OMS01", 1, "2025-12-14", "fl", "90001", [1, 1, 8, 1], []],
          [2, "Branded Ritual", "YCS Houston", "Top 16", "2026-10-15", "ypd", "branded-ritual-739347", [3, 3, 4, 1], []],
-         [3, "Sevens", "", "", "", "rush", "", [5, 1], [6, 1]],
          [1, "Sangan Test", "Some OCG Cup", 3, "2025-11-01", "fl", "90002", [9, 1], []],
-         [3, "Dark Magician", "", "", "", "rush", "", [10, 1], []],
-         [4, "Elemental Hero", "", "", "2026-10-10", "ypd", "elemental-hero-737134", [7, 1, 1, 2], []]]
+         [3, "Elemental Hero", "", "", "2026-10-10", "ypd", "elemental-hero-737134", [7, 1, 1, 2], []]]
 DECKS_JS = data.js("FORMAT_DECKS", {"v": 1, "generated": "2026-10-19T04:00:00+00:00", "names": NAMES, "formats": FORMATS, "decks": DECKS})
 
 P = lambda pid, name, number, market: [pid, 0, name, number, 0, [0, market, market, market, market, market], 0]
@@ -36,11 +33,24 @@ def tcg():
                                 "subtypes": ["Normal"], "products": PRODUCTS, "history": {"d1": "2026-10-13", "d7": "2026-10-07", "d30": "2026-09-14"}})
 
 
+RUSH_NAMES = ["Sevens Road Magician", "Sevens Fusion", "Rush A", "Rush B", "Rush C", "Dark Magician", "Dark 2", "Dark 3", "Dark 4", "Dark 5"]
+row = lambda num, name, yen: [num, RUSH_NAMES.index(name), [[0, yen, 1, 0, 0, 0, 0, 0]]]
+
+
 def ocg():
-    # a Rush Duel "Sevens Fusion" at ¥300 (150 yen to the dollar: $2.00)
-    return data.js("OCG_CARDS", {"generated": BUILT, "fx": {"JPY": 150, "KRW": 1400}, "names": ["Sevens Fusion", "Dark Magician"], "rar": ["Common"], "ja": [""],
-                                 "jp": [["RD/KP02", ["", "", ""], [["050", 0, [[0, 300, 1, 0, 0, 0, 0, 0]]]]],
-                                        ["LOB", ["", "", ""], [["005", 1, [[0, 1500, 1, 0, 0, 0, 0, 0]]]]]], "kr": []})
+    """Two Rush Duel Starter Decks and a booster (150 yen to the dollar), and a (non-Rush) Dark Magician at ¥1500."""
+    sevens = [row("001", "Sevens Road Magician", 100), row("002", "Sevens Fusion", 300), row("003", "Rush A", 0), row("004", "Rush B", 50), row("005", "Rush C", 50)]
+    dark = [row("001", "Dark Magician", 0)] + [row("%03d" % i, "Dark %d" % i, 0) for i in range(2, 6)]
+    return data.js("OCG_CARDS", {"generated": BUILT, "fx": {"JPY": 150, "KRW": 1400}, "names": RUSH_NAMES, "rar": ["Common"], "ja": [""],
+                                 "jp": [["RD/SD01", ["", "", ""], sevens], ["RD/SD02", ["", "", ""], dark], ["RD/KP02", ["", "", ""], [row("050", "Sevens Fusion", 300), row("051", "Rush A", 0), row("052", "Rush B", 0), row("053", "Rush C", 0), row("054", "Dark 2", 0)]],
+                                        ["LOB", ["", "", ""], [row("005", "Dark Magician", 1500)]]], "kr": []})
+
+
+def market():
+    s = lambda prefix, name, line: [prefix, name, "2020-04-04", line, 5, [], ""]
+    return data.js("OCG_MARKET", {"generated": BUILT, "fx": {"JPY": 150, "KRW": 1400}, "kr": [],
+                                  "jp": [s("RD/SD01", "Starter Deck: Sevens", "structure"), s("RD/SD02", "Starter Deck: Dark", "structure"),
+                                         s("RD/KP02", "Rush Booster 2", "booster"), s("LOB", "Legend of Blue Eyes", "booster")]})
 
 
 def kor(rid, name, number):
@@ -56,7 +66,7 @@ RECORDS = [eng("g", 11, "Blackwing - Gale the Whirlwind", "LC5D-EN066", 3), eng(
 
 class FormatDecksApp(SealedBase):
     def go(self, records=RECORDS, decks=DECKS_JS):
-        page = self.open(records, files={"tcgplayer-data.js": tcg(), "ocg-cards.js": ocg(), "format-decks.js": decks})
+        page = self.open(records, files={"tcgplayer-data.js": tcg(), "ocg-cards.js": ocg(), "ocg-market.js": market(), "format-decks.js": decks})
         page.evaluate("window.CardVault.loadOcgCards && window.CardVault.loadOcgCards()")
         page.wait_for_function("!!window.CardVault.ocgCd().data", timeout=10000)
         return page
@@ -65,6 +75,8 @@ class FormatDecksApp(SealedBase):
         page.evaluate("window.CardVault.setTab('decks')")
         page.click("[data-deckview=ideas]")
         page.wait_for_selector(".fdk-tools", timeout=10000)
+        page.wait_for_function("(() => { const f = window.CardVault.fdk(); return f.data && f.data.rush && !f.rushWait; })()", timeout=10000)
+        page.wait_for_timeout(100)
 
     def status(self, page):
         return page.evaluate("""(() => { const v = window.CardVault; const out = {};
@@ -78,16 +90,17 @@ class FormatDecksApp(SealedBase):
         self.assertEqual(got["Edison/Frog OTK"], [1, 2, 1.5])
         self.assertEqual(got["OCG Goat/Chaos Return"], [2, 2, 0])        # (the Japanese Pot of Greed and the Korean Monster Reborn do)
         self.assertEqual(got["Advanced/Branded Ritual"], [0, 4, 65.0])
-        self.assertEqual(got["Rush Duel/Sevens"], [1, 2, 2.0])           # (the Rush card counts for Rush Duel; the missing one at ¥300)
+        self.assertEqual(got["Rush Duel/Starter Deck: Sevens"], [1, 5, 2.66])   # (the Rush card counts for Rush Duel; ¥300 + ¥50 + ¥50, one unpriced)
         self.assertEqual(got["Speed Duel/Elemental Hero"], [1, 3, 2.5])
         self.assertEqual(got["OCG Goat/Sangan Test"], [0, 1, 0])           # (an English Sangan isn't an OCG card)
-        self.assertEqual(got["Rush Duel/Dark Magician"], [0, 1, 0])       # (nor is a TCG Dark Magician a Rush Duel one, priced or owned)
+        self.assertEqual(got["Rush Duel/Starter Deck: Dark"], [0, 5, 0])   # (nor is a TCG Dark Magician a Rush Duel one, owned or priced)
+        self.assertNotIn("Rush Duel/Rush Booster 2", got)                 # (a booster isn't a deck)
 
     def test_every_format_closest_first(self):
         page = self.go()
         self.ideas(page)
         names = page.locator(".fdk-row .idea-name").all_inner_texts()
-        self.assertEqual([n.split(" ")[0] for n in names], ["OCG", "Edison", "Rush", "Speed", "Advanced"])
+        self.assertEqual([n.split(" ")[0] for n in names], ["OCG", "Edison", "Speed", "Rush", "Advanced"])
         first = page.locator(".fdk-row").first.inner_text()
         self.assertIn("You can build it", first)
         self.assertIn("Closest: Chaos Return (1st at OMS01)", first)
@@ -133,8 +146,9 @@ class FormatDecksApp(SealedBase):
         self.assertIn("Nobody publishes Rush Duel deck lists", page.inner_text("#panel-decks"))
         page.locator("[data-fdk-deck]").first.click()
         page.click("[data-fdk-wants]")
-        page.wait_for_function("window.CardVault.state().wants.length === 1")
-        self.assertEqual(page.evaluate("(() => { const w = window.CardVault.state().wants[0]; return [w.productId, w.number]; })()"), [None, "RD/KP02-JP050"])
+        page.wait_for_function("window.CardVault.state().wants.length === 3")
+        self.assertEqual(sorted(page.evaluate("window.CardVault.state().wants.map(w => [w.productId, w.number])")),
+                         [[None, "RD/SD01-JP002"], [None, "RD/SD01-JP004"], [None, "RD/SD01-JP005"]])
         self.assertEqual(page.locator("[data-fdk-check]").count(), 0)          # (an archetype's cards aren't a deck to check)
 
     def test_open_a_deck_in_check_a_deck(self):
