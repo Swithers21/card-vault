@@ -738,6 +738,7 @@
     if (collection.some(isOcg)) loadOcgCardsSoft();
     shopPricesReady();   // (the same for the Japanese and Korean sealed products you own: priced from the shops' lists)
     setTimeout(fillPrintPhotos, 3000);   // (your cards: a photo of their own print, where they have none that loads)
+    pcSentFromLastExport();   // (a PriceCharting file made before cards remembered which copies went: they remember it now)
     const linked = autoLink();
     if (linked) save();
     else if (recordValueHistory()) save({quiet: true});  // today's value-history point
@@ -768,7 +769,7 @@
   window.CardVault = {state: () => ({collection, settings, selected, catalog, wants, valueHistory, backup, decks, sales, phone, deleted, batch, sync}),
     mergeBackup, checkBackupFile, openBatch, parseBatchLine, batchRowFor, addBatch, save, analyzeCSV, commitImport, openImport,
     findByNumber, searchByName, priceInfo, marketValue, unitValue, changeFor, periodChange, historySeries, totals, deleteRecords, exportCSV,
-      openPcExport, pcExportPlan, pcExportText, pcGrade, pcExportId, openTcgCart, tcgCartPlan, tcgCartURL, pcx: () => pcx,
+      openPcExport, pcExportPlan, pcExportText, pcGrade, pcExportId, pcSentFromLastExport, mergeDuplicates, openTcgCart, tcgCartPlan, tcgCartURL, pcx: () => pcx,
     openDetails, openAdd, openSettings, render, setTab, setsData, extrasMap, wantStatus, addWant, restoreBackup, backupPayload,
     findYugiImages, rankYugiImages, parseYugiFile, yugiMangaPhoto, fillMangaPhotos, fillPrintPhotos, yugiPrintPick, langNumber, printPicOf, scanURL, isScanURL, yugiLabel, recordValueHistory, niceTicks, dateTicks, checkForNewData, writeBackup, initBackup,
     photoCandidates, findPhotosBatch, tradeListText, parseDeckText, parseYdk, parseYdke, checkDeck, cardNamesFor, runDeckCheck,

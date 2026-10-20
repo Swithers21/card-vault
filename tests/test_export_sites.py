@@ -61,8 +61,8 @@ class PriceChartingFile(SealedBase):
                     : {t: Date.now(), p: {id: String(m), name: r.name + ' [1st Edition] ' + r.number, set: 'YuGiOh Some Set', vol: 3}}; } }""", seed)
         return page
 
-    def rows(self, page, since=None, folders=True):
-        text = page.evaluate("([since, folders]) => { const v = window.CardVault; return v.pcExportText(v.pcExportPlan(since).rows, folders); }", [since, folders])
+    def rows(self, page, only_new=False, folders=True):
+        text = page.evaluate("([onlyNew, folders]) => { const v = window.CardVault; return v.pcExportText(v.pcExportPlan(onlyNew).rows, folders); }", [only_new, folders])
         self.assertTrue(text.startswith("id,"), "no byte-order mark before the id column")
         got = list(csv.DictReader(io.StringIO(text)))
         return {r["id"]: r for r in got}, text
@@ -106,7 +106,7 @@ class PriceChartingFile(SealedBase):
 
     def test_the_rest_are_said_apart_with_why(self):
         page = self.go()
-        skipped = page.evaluate("(() => { const s = window.CardVault.pcExportPlan(null).skipped; const o = {}; for (const k in s) o[k] = s[k].map(r => r.id); return o; })()")
+        skipped = page.evaluate("(() => { const s = window.CardVault.pcExportPlan(false).skipped; const o = {}; for (const k in s) o[k] = s[k].map(r => r.id); return o; })()")
         self.assertEqual(skipped, {"unknown": ["never"], "nomatch": ["miss"], "korean": ["korean"], "marked": ["marked"], "sealed": ["box"], "nonumber": []})
 
     def open_drawer(self, page):
@@ -133,22 +133,73 @@ class PriceChartingFile(SealedBase):
             body = f.read()
         self.assertTrue(dl.value.suggested_filename.startswith("card-vault-for-pricecharting-"))
         self.assertEqual(len(list(csv.DictReader(io.StringIO(body)))), 8)
-        # remembered: next time, only the cards added since
+        # remembered on each card: next time, only what PriceCharting doesn't have yet
         page.wait_for_selector("#pcxBody .notice.good")
         text = page.inner_text("#pcxBody")
         self.assertIn("Saved 9 cards for PriceCharting", text)
-        self.assertIn("No cards added since then", text)
+        self.assertIn("Nothing new for PriceCharting", text)
+        self.assertIn("9 cards already went to PriceCharting", text)
         self.assertTrue(page.is_checked("[name=pcxWhich][value=new]"))
         self.assertTrue(page.is_disabled("#pcxGo"))
-        # a card added afterwards is the only one
-        page.evaluate("""(() => { const v = window.CardVault, r = {id: 'new1', productId: null, name: 'Jinzo', productName: 'Jinzo', setName: 'Some Set', number: 'AAA-EN020',
-            rarity: 'Common', edition: '1st Edition', language: 'English', qty: 1, condition: 'Near Mint', added: new Date(Date.now() + 1000).toISOString()};
-            v.state().collection.push(r); v.pcCache()[v.pcKey(r)] = {t: Date.now(), p: {id: '2020', name: 'Jinzo', set: 'YuGiOh Some Set'}}; })()""")
+        self.assertEqual(page.evaluate("window.CardVault.state().collection.filter(r => r.pcSent).map(r => [r.id, r.pcSent])"),
+                         [["raw", 2], ["psa", 1], ["black", 1], ["pristine", 1], ["bgs95", 1], ["half", 1], ["lp", 1], ["picked", 1]])
+        # "Everything, again" warns
+        page.check("[name=pcxWhich][value=all]")
+        self.assertIn("Uploading them again counts them twice", page.inner_text("#pcxBody"))
+        page.check("[name=pcxWhich][value=new]")
+        # a new card, an extra copy, and the card never looked up (now matched): those and only those
+        page.evaluate("""(() => { const v = window.CardVault, c = v.state().collection, r = {id: 'new1', productId: null, name: 'Jinzo', productName: 'Jinzo', setName: 'Some Set',
+            number: 'AAA-EN020', rarity: 'Common', edition: '1st Edition', language: 'English', qty: 1, condition: 'Near Mint', added: '2026-01-01T00:00:00Z'};
+            c.push(r); v.pcCache()[v.pcKey(r)] = {t: Date.now(), p: {id: '2020', name: 'Jinzo', set: 'YuGiOh Some Set'}};
+            c.find(x => x.id === 'raw').qty = 5;
+            const never = c.find(x => x.id === 'never'); v.pcCache()[v.pcKey(never)] = {t: Date.now(), p: {id: '3030', name: 'Graceful Charity', set: 'YuGiOh Some Set'}}; })()""")
         page.check("[name=pcxWhich][value=all]")
         page.check("[name=pcxWhich][value=new]")
-        self.assertIn("1 card ready (1 printing)", page.inner_text("#pcxBody"))
-        # (and it stays remembered)
-        self.assertTrue(page.evaluate("!!window.CardVault.state().settings.pcExportAt"))
+        self.assertIn("5 cards ready (3 printings)", page.inner_text("#pcxBody"))
+        rows, _ = self.rows(page, only_new=True)
+        self.assertEqual({k: r["quantity"] for k, r in rows.items()}, {"1001": "3", "2020": "1", "3030": "1"})
+        # downloaded, then taken back (it wasn't uploaded): offered again
+        with page.expect_download():
+            page.click("#pcxGo")
+        page.wait_for_selector("#pcxUndo")
+        self.assertIn("Nothing new for PriceCharting", page.inner_text("#pcxBody"))
+        page.click("#pcxUndo")
+        page.wait_for_function("document.querySelector('#pcxBody').innerText.includes('5 cards ready')")
+        self.assertEqual(page.evaluate("window.CardVault.state().collection.find(r => r.id === 'raw').pcSent"), 2)
+
+    def test_sent_copies_follow_moves_grading_and_joins(self):
+        recs = [(card("a", "AAA-EN030", "Dark Hole", qty=3, pcSent=3, location="Binder 1"), 3001), (card("b", "AAA-EN031", "Raigeki", qty=2, pcSent=1), 3002)]
+        page = self.go(records=recs)
+        self.assertEqual(page.evaluate("window.CardVault.state().collection.map(r => r.pcSent)"), [3, 1])    # (kept with the card: synced and backed up)
+        # 2 of the 3 sent copies moved to another binder: they're still sent
+        page.evaluate("window.CardVault.moveCopies([{id: 'a', qty: 2}], 'Binder 2')")
+        got = page.evaluate("window.CardVault.state().collection.filter(r => r.name === 'Dark Hole').map(r => [r.location, r.qty, r.pcSent || 0])")
+        self.assertEqual(sorted(got), [["Binder 1", 1, 1], ["Binder 2", 2, 2]])
+        self.assertEqual(page.evaluate("window.CardVault.pcExportPlan(true).copies"), 1)                   # (Raigeki's unsent copy only)
+        # the last one joins them in Binder 2: 3 there, all sent
+        page.evaluate("window.CardVault.moveCopies([{id: 'a', qty: 1}], 'Binder 2')")
+        self.assertEqual(page.evaluate("window.CardVault.state().collection.filter(r => r.name === 'Dark Hole').map(r => [r.location, r.qty, r.pcSent || 0])"), [["Binder 2", 3, 3]])
+        # moving the one not-yet-sent Raigeki and the sent one apart keeps the count
+        page.evaluate("window.CardVault.moveCopies([{id: 'b', qty: 1}], 'Box')")
+        self.assertEqual(page.evaluate("window.CardVault.pcExportPlan(true).copies"), 1)
+
+    def test_duplicates_joined_keep_their_sent_copies(self):
+        recs = [(card("d1", "AAA-EN050", "Sangan", qty=2, pcSent=1), 5001), (card("d2", "AAA-EN050", "Sangan", qty=1, pcSent=1), 5001)]
+        page = self.go(records=recs)
+        page.evaluate("window.CardVault.mergeDuplicates()")
+        self.assertEqual(page.evaluate("window.CardVault.state().collection.map(r => [r.qty, r.pcSent || 0])"), [[3, 2]])
+        self.assertEqual(page.evaluate("window.CardVault.pcExportPlan(true).copies"), 1)
+
+    def test_an_export_made_before_cards_remembered_it_counts_as_sent(self):
+        recs = [(card("old", "AAA-EN040", "Swords", added="2026-10-01T00:00:00Z", qty=2), 4001),
+                (card("later", "AAA-EN041", "Fissure", added="2026-10-25T00:00:00Z"), 4002),
+                (card("unmatched", "AAA-EN042", "Sangan", added="2026-10-01T00:00:00Z"), None)]       # (not matched then: not in that file)
+        page = self.go(records=recs)
+        self.assertTrue(page.evaluate("window.CardVault.state().settings.pcSentKept !== true"))
+        page.evaluate("(() => { const s = window.CardVault.state().settings; s.pcExportAt = '2026-10-20T22:00:49.383Z'; return window.CardVault.pcSentFromLastExport(); })()")
+        self.assertTrue(page.evaluate("window.CardVault.state().settings.pcSentKept"))
+        self.assertEqual(page.evaluate("window.CardVault.pcSentFromLastExport()"), 0)                  # (once)
+        self.assertEqual(page.evaluate("window.CardVault.state().collection.map(r => [r.id, r.pcSent || 0])"), [["old", 2], ["later", 0], ["unmatched", 0]])
 
     def test_cards_never_looked_up_can_be_looked_up_from_here(self):
         api = PriceChartingAPI()
