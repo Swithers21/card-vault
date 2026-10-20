@@ -332,8 +332,9 @@
   // PriceCharting's own product id, which Card Vault already has for each card it matched for graded values (or that you
   // matched yourself), so the cards come across exactly: graded ones at their grade (PriceCharting's condition-id list),
   // with the grading company and cert number, what you paid per copy (in pennies), your notes, and your locations as
-  // folders. PriceCharting adds every row and never replaces anything, so Card Vault remembers when you exported and can
-  // take only the cards added since. (Its columns, from its importer's own documentation: id is required; product-name
+  // folders. PriceCharting adds every row and never replaces anything, so each card remembers how many of its copies
+  // went to PriceCharting (r.pcSent, kept with the card, so on every device), and the next file has only the rest: new
+  // cards, extra copies, cards looked up since. (Its columns, from its importer's own documentation: id is required; product-name
   // and console-name are only for reading and ignored there.)
   const PC_IMPORT_URL = "https://www.pricecharting.com/collection-import-csv";
   const PC_GRADE_IDS = {"9.5": 6, "9": 5, "8": 2, "7": 3, "6": 16, "5": 15, "4": 14, "3": 13, "2": 10, "1": 9};
@@ -371,26 +372,50 @@
     if (!/^\d+$/.test(String(h.p.id || ""))) return {skip: "unknown"};
     return {id: String(h.p.id), p: h.p};
   }
-  // Your cards for the file (all of them, or the ones added since a time): {rows: [{r, id, p}], copies, skipped: {why: [records]}}
-  function pcExportPlan(since) {
-    const after = since ? parseDate(since) : null;
-    const out = {rows: [], copies: 0, skipped: {unknown: [], nomatch: [], korean: [], marked: [], sealed: [], nonumber: []}};
+  // Your cards for the file (every copy, or only the copies not sent to PriceCharting yet): {rows: [{r, id, p, qty}],
+  // copies, sent (copies already sent), skipped: {why: [records]}}
+  const pcUnsent = r => Math.max(0, r.qty - (r.pcSent || 0));
+  function pcExportPlan(onlyNew) {
+    const out = {rows: [], copies: 0, sent: 0, skipped: {unknown: [], nomatch: [], korean: [], marked: [], sealed: [], nonumber: []}};
     for (const r of collection) {
-      if (after) { const a = parseDate(r.added); if (!a || a <= after) continue; }
       const x = pcExportId(r);
       if (x.skip) { out.skipped[x.skip].push(r); continue; }
-      out.rows.push({r, id: x.id, p: x.p});
-      out.copies += r.qty;
+      out.sent += Math.min(r.qty, r.pcSent || 0);
+      const qty = onlyNew ? pcUnsent(r) : r.qty;
+      if (!qty) continue;
+      out.rows.push({r, id: x.id, p: x.p, qty});
+      out.copies += qty;
     }
     return out;
   }
+  // Copies moving from one entry to another (moved to a location, one sent for grading, duplicates joined): the ones
+  // already sent to PriceCharting go first, so the count of sent copies stays right.
+  function pcSentShift(from, to, n) {
+    const moved = Math.min(n, from.pcSent || 0);
+    if (!moved) return;
+    from.pcSent -= moved;
+    if (!from.pcSent) delete from.pcSent;
+    to.pcSent = (to.pcSent || 0) + moved;
+  }
+  // From before cards remembered it: an export made then sent every card it could (each one added before it, matched then)
+  function pcSentFromLastExport() {
+    if (settings.pcSentKept || !settings.pcExportAt) return 0;
+    settings.pcSentKept = true;
+    saveSettings();
+    if (collection.some(r => r.pcSent)) return 0;
+    const at = parseDate(settings.pcExportAt);
+    let n = 0;
+    for (const r of collection) { const a = parseDate(r.added); if (at && a && a <= at && pcExportId(r).id) { r.pcSent = r.qty; n++; } }
+    if (n) save({quiet: true});
+    return n;
+  }
   function pcExportText(rows, folders) {
     const head = ["id", "product-name", "console-name", "condition-id", "quantity", "cost-basis-in-pennies", "notes", "grading-company", "grading-cert-id", "folder"];
-    const lines = rows.map(({r, id, p}) => {
+    const lines = rows.map(({r, id, p, qty}) => {
       const g = pcGrade(r.grade);
       const cond = !r.grade && r.condition && r.condition !== "Near Mint" ? r.condition : "";
       const notes = [cond, g.note, String(r.notes || "").replace(/\s+/g, " ")].map(s => String(s).trim()).filter(Boolean).join(" · ").slice(0, 300);
-      return [id, p ? p.name : [r.name, r.number].filter(Boolean).join(" "), p ? p.set : r.setName, g.condition, r.qty,
+      return [id, p ? p.name : [r.name, r.number].filter(Boolean).join(" "), p ? p.set : r.setName, g.condition, qty == null ? r.qty : qty,
         r.paid != null && r.paid > 0 ? Math.round(r.paid * 100) : "", notes, g.company, r.grade ? r.grade.cert : "", folders ? r.location : ""].map(csvCell).join(",");
     });
     // (no byte-order mark: the first column's name must read exactly "id")
@@ -406,7 +431,8 @@
     nonumber: n => plural(n, "card") + " without a card number."};
   function openPcExport() {
     drawerCtx = {mode: "pc-export"};
-    if (pcx.onlyNew === null) pcx.onlyNew = !!settings.pcExportAt;
+    pcSentFromLastExport();
+    pcx.onlyNew = true;
     pcx.saved = null;
     openDrawer("Export for PriceCharting", '<div id="pcxBody"></div>');
     renderPcExport();
@@ -415,8 +441,9 @@
     const box = $("pcxBody");
     if (!box || !drawerCtx || drawerCtx.mode !== "pc-export") return;
     const last = parseDate(settings.pcExportAt);
-    const onlyNew = !!(last && pcx.onlyNew);
-    const plan = pcExportPlan(onlyNew ? settings.pcExportAt : null);
+    const all = pcExportPlan(false), sentAny = all.sent > 0;
+    const onlyNew = sentAny && pcx.onlyNew;
+    const plan = onlyNew ? pcExportPlan(true) : all;
     const sk = plan.skipped, unknown = new Set(sk.unknown.map(pcKey)).size;
     const left = Object.keys(sk).reduce((n, k) => n + sk[k].length, 0);
     const hasLoc = plan.rows.some(x => x.r.location);
@@ -430,13 +457,16 @@
       '<p class="small" style="margin:0 0 12px">A file for PriceCharting\'s collection importer. Each card is matched by its PriceCharting ID, the one Card Vault found when it looked up graded values, ' +
       "so it comes across exactly: graded cards at their grade with the grading company and cert number, what you paid, and your notes.</p>" +
       (pcx.saved ? '<div class="notice good" role="status">Saved ' + plural(pcx.saved.copies, "card") + " for PriceCharting at " + esc(fmtDateTime(pcx.saved.at)) +
-        '. Upload that file once on <a target="_blank" rel="noopener" href="' + PC_IMPORT_URL + '">PriceCharting\'s importer</a>.</div>' : "") +
+        '. Upload that file once on <a target="_blank" rel="noopener" href="' + PC_IMPORT_URL + '">PriceCharting\'s importer</a>. ' +
+        'Didn\'t upload it? <button type="button" class="link-btn" id="pcxUndo">Take it back</button> and Card Vault offers those cards again next time.</div>' : "") +
       (pcx.err ? '<div class="notice" role="alert">' + esc(pcx.err) + "</div>" : "") +
-      (last ? '<div class="field"><span>Which cards</span><div class="theme-langs">' +
-        '<label class="check-row"><input type="radio" name="pcxWhich" value="new"' + (onlyNew ? " checked" : "") + "> <span>Only the ones added since your last export (" + esc(fmtDateTime(last)) + ")</span></label>" +
-        '<label class="check-row"><input type="radio" name="pcxWhich" value="all"' + (onlyNew ? "" : " checked") + "> <span>Everything</span></label></div></div>" : "") +
+      (sentAny ? '<div class="field"><span>Which cards</span><div class="theme-langs">' +
+        '<label class="check-row"><input type="radio" name="pcxWhich" value="new"' + (onlyNew ? " checked" : "") + "> <span>Only what PriceCharting doesn't have yet</span></label>" +
+        '<label class="check-row"><input type="radio" name="pcxWhich" value="all"' + (onlyNew ? "" : " checked") + "> <span>Everything, again</span></label></div>" +
+        '<p class="hint" style="margin:4px 0 0">' + plural(all.sent, "card") + " already went to PriceCharting" + (last ? " (last file " + esc(fmtDateTime(last)) + ")" : "") + "." +
+        (onlyNew ? "" : " <b>Uploading them again counts them twice.</b>") + "</p></div>" : "") +
       '<div class="pcx-sum">' +
-      '<p class="pcx-line"><b>' + (plan.rows.length ? plural(plan.copies, "card") + " ready" : onlyNew ? "No cards added since then" : "No cards ready yet") + "</b>" +
+      '<p class="pcx-line"><b>' + (plan.rows.length ? plural(plan.copies, "card") + " ready" : onlyNew ? "Nothing new for PriceCharting" : "No cards ready yet") + "</b>" +
       (plan.rows.length ? " (" + plural(plan.rows.length, "printing") + ")" : "") + "</p>" + look +
       ["nomatch", "korean", "marked", "sealed", "nonumber"].filter(k => sk[k].length).map(k => '<p class="pcx-line small">' + esc(PCX_WHY[k](sk[k].length)) +
         (k === "nomatch" ? ' <button type="button" class="link-btn" id="pcxFix">Fix the matches</button>' : "") + "</p>").join("") +
@@ -447,7 +477,7 @@
       (hasLoc ? '<label class="check-row" style="margin-top:12px"><input type="checkbox" class="check" id="pcxFolders"' + (pcx.folders ? " checked" : "") + "> <span>Put each card in a folder named after its location (Binder 1, Deck box…)</span></label>" +
         '<p class="hint" style="margin:2px 0 0">Free PriceCharting accounts can only make a few folders.</p>' : "") +
       '<p class="hint" style="margin:12px 0 0"><b>Upload the file once.</b> PriceCharting adds every row to your collection and never replaces anything, so uploading it twice counts your cards twice. ' +
-      "Card Vault remembers this export, so next time you can take only the cards added since. (Extra copies added to a card you already had aren't counted as new.)</p>" +
+      "Each card remembers how many of its copies went (on every device you use), so next time the file has only what PriceCharting doesn't have yet: new cards, extra copies, and cards looked up since.</p>" +
       '<div class="form-actions"><button type="button" class="btn btn-primary" id="pcxGo"' + (plan.rows.length ? "" : " disabled") + '>Download the file</button>' +
       '<a class="btn" target="_blank" rel="noopener" href="' + PC_IMPORT_URL + '">Open PriceCharting\'s importer</a></div>';
     box.querySelectorAll("[name=pcxWhich]").forEach(b => b.addEventListener("change", () => { pcx.onlyNew = b.value === "new"; renderPcExport(); }));
@@ -456,12 +486,13 @@
     if ($("pcxStop")) $("pcxStop").addEventListener("click", () => { pcx.stop = true; });
     if ($("pcxKey")) $("pcxKey").addEventListener("click", () => openSettings({section: "graded"}));
     if ($("pcxFix")) $("pcxFix").addEventListener("click", () => openSettings({section: "graded"}));
+    if ($("pcxUndo")) $("pcxUndo").addEventListener("click", pcExportUndo);
     $("pcxGo").addEventListener("click", () => pcExportDownload(plan));
   }
   // The cards never looked up on PriceCharting, one printing at a time (its limit: one request a second)
   async function pcExportLookup() {
     if (pcx.busy || !pcOn() || pcBad()) return;
-    const plan = pcExportPlan(pcx.onlyNew && settings.pcExportAt ? settings.pcExportAt : null), seen = new Set(), todo = [];
+    const plan = pcExportPlan(false), seen = new Set(), todo = [];
     for (const r of plan.skipped.unknown) { const k = pcKey(r); if (!seen.has(k)) { seen.add(k); todo.push(r); } }
     Object.assign(pcx, {busy: true, stop: false, done: 0, total: todo.length, err: ""});
     renderPcExport();
@@ -483,13 +514,25 @@
     if (!plan.rows.length) return;
     const folders = pcx.folders && plan.rows.some(x => x.r.location);
     download(new Blob([pcExportText(plan.rows, folders)], {type: "text/csv;charset=utf-8"}), "card-vault-for-pricecharting-" + localDay(new Date()) + ".csv");
-    const at = new Date();
+    const at = new Date(), was = new Map();
+    for (const {r} of plan.rows) { was.set(r.id, r.pcSent || 0); r.pcSent = r.qty; }
     settings.pcExportAt = at.toISOString();
+    settings.pcSentKept = true;
     saveSettings();
-    pcx.saved = {copies: plan.copies, at};
+    save();
+    pcx.saved = {copies: plan.copies, at, was};
     pcx.onlyNew = true;
     renderPcExport();
     toast("Saved " + plural(plan.copies, "card") + " for PriceCharting. Upload the file once on PriceCharting's importer.");
+  }
+  // The file wasn't uploaded after all: those copies count as not sent again
+  function pcExportUndo() {
+    if (!pcx.saved || !pcx.saved.was) return;
+    for (const r of collection) if (pcx.saved.was.has(r.id)) { const v = pcx.saved.was.get(r.id); if (v) r.pcSent = v; else delete r.pcSent; }
+    save();
+    pcx.saved = null;
+    renderPcExport();
+    toast("Taken back: Card Vault offers those cards again next time.");
   }
 
   /* ======================= Want list to a TCGplayer cart ======================= */

@@ -1030,6 +1030,7 @@
       if (target) {
         keep(target);
         target.qty += n;
+        pcSentShift(r, target, n);
         for (const f of ["paid", "manualPrice", "jp", "kr", "customImage", "snap"]) if (target[f] == null && r[f] != null) target[f] = JSON.parse(JSON.stringify(r[f]));
         if (!target.notes && r.notes) target.notes = r.notes;
         r.qty -= n;
@@ -1040,6 +1041,8 @@
       } else {
         r.qty -= n;
         const copy = Object.assign(JSON.parse(JSON.stringify(r)), {id: newId(), qty: n, location: dest, mod: 0});
+        delete copy.pcSent;
+        pcSentShift(r, copy, n);
         collection.splice(collection.indexOf(r) + 1, 0, copy);
         created.push(copy.id);
       }

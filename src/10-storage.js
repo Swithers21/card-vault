@@ -33,6 +33,9 @@
     // The PriceCharting item you matched it with yourself (its id), or "none": it isn't on PriceCharting
     const pcId = String(r.pcId || "");
     if (/^(none|\d{1,12})$/.test(pcId) && !out.sealed) out.pcId = pcId;
+    // How many of its copies went to PriceCharting in a file (Export > For PriceCharting), so the next file has only the rest
+    const pcSent = Math.floor(Number(r.pcSent));
+    if (pcSent > 0 && !out.sealed) out.pcSent = Math.min(pcSent, 999999);
     // A Japanese or Korean sealed product bought from a shop in the Market (Yugi-Market, Bunjang) keeps which product it
     // is (ref), where to see it (link) and the price it had when added: its value follows the shop's price from then on.
     if (r.sealed && r.ref && !out.productId) {
