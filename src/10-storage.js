@@ -122,6 +122,81 @@
   function readJSON(key, fallback) {
     try { const v = JSON.parse(localStorage.getItem(key) || "null"); return v == null ? fallback : v; } catch (e) { return fallback; }
   }
+  /* ----- Room for lookups: the browser's database ----- */
+  // Card Vault's saved lookups (PriceCharting matches, Yugipedia photo searches, Japanese and Korean card lookups,
+  // YGOPRODeck card details and archetypes, deck file card ids) used to share the browser's small local storage (about
+  // 5 MB) with your collection, and a big collection could fill it, so they were dropped to make room. They're kept in
+  // the browser's database (IndexedDB) now, which has far more room: read into memory once while Card Vault opens (ones
+  // still in local storage move over and are cleared from it), written back a moment after they change. Without a
+  // database (a private window, say) they stay in local storage, as before.
+  const BIG_KEYS = ["cardvault.v2.pricecharting", "cardvault.v2.yugipedia", "cardvault.v2.ocg", "cardvault.v2.ygocards", "cardvault.v2.ygoarch", "cardvault.v2.cardids"];
+  const big = {mem: new Map(), db: null, settled: false, dirty: new Set(), sending: new Set(), timer: 0};
+  function bigGet(key, fallback) {
+    if (big.mem.has(key)) return big.mem.get(key);
+    return readJSON(key, fallback);   // (while the database opens, or without one)
+  }
+  function bigSet(key, value) {
+    if (!big.db) { try { localStorage.setItem(key, JSON.stringify(value)); } catch (e) { /* only a convenience */ } return; }
+    big.mem.set(key, value);
+    big.dirty.add(key);
+    clearTimeout(big.timer);
+    big.timer = setTimeout(bigFlush, 30);   // (straight after: several lookups in a row go together)
+  }
+  function bigFlush() {
+    clearTimeout(big.timer);
+    if (!big.db || !big.dirty.size) return;
+    const keys = Array.from(big.dirty);
+    big.dirty.clear();
+    let tx;
+    try { tx = big.db.transaction("kv", "readwrite"); } catch (e) { keys.forEach(k => big.dirty.add(k)); return; }
+    const store = tx.objectStore("kv");
+    keys.forEach(k => big.sending.add(k));
+    for (const k of keys) { try { store.put(big.mem.get(k), k); } catch (e) { /* one it couldn't keep: looked up again */ } }
+    // (once it's in the database, a copy left in local storage on the way out isn't needed)
+    tx.oncomplete = () => { for (const k of keys) { big.sending.delete(k); if (!big.dirty.has(k)) { try { localStorage.removeItem(k); } catch (e) { /* ignore */ } } } };
+    tx.onabort = tx.onerror = () => { keys.forEach(k => { big.sending.delete(k); big.dirty.add(k); }); };
+  }
+  // The page going away (closed, reloaded, or the phone switching apps): the database may not finish writing in time,
+  // so whatever hasn't been written yet is copied to local storage too, which is written at once; the next opening moves
+  // it over. (A copy too big for local storage is just looked up again.)
+  function bigLeave() {
+    if (!big.db) return;
+    for (const k of new Set([...big.dirty, ...big.sending])) { try { localStorage.setItem(k, JSON.stringify(big.mem.get(k))); } catch (e) { /* no room */ } }
+    bigFlush();
+  }
+  function bigOpen(done) {
+    const settle = () => { if (!big.settled) { big.settled = true; done(); } };
+    let req;
+    try { req = window.indexedDB ? indexedDB.open("cardvault", 1) : null; } catch (e) { req = null; }
+    if (!req) { settle(); return; }
+    req.onupgradeneeded = () => { try { req.result.createObjectStore("kv"); } catch (e) { /* there already */ } };
+    req.onerror = () => settle();
+    req.onblocked = () => settle();
+    req.onsuccess = () => {
+      const db = req.result, got = new Map();
+      let tx;
+      try { tx = db.transaction("kv", "readonly"); } catch (e) { settle(); return; }
+      const store = tx.objectStore("kv");
+      for (const k of BIG_KEYS) { const g = store.get(k); g.onsuccess = () => { if (g.result !== undefined) got.set(k, g.result); }; }
+      tx.onerror = () => settle();
+      tx.oncomplete = () => {
+        big.db = db;
+        for (const k of BIG_KEYS) {
+          // (still in local storage: from before, left on the way out, or looked up while the database was opening; its
+          // lookups are the newer ones, added to the database's)
+          let local = null;
+          try { const t = localStorage.getItem(k); local = t ? JSON.parse(t) : null; } catch (e) { local = null; }
+          const kept = got.get(k), plain = v => v && typeof v === "object" && !Array.isArray(v);
+          if (local != null) { big.mem.set(k, plain(local) && plain(kept) ? Object.assign(kept, local) : local); big.dirty.add(k); } else if (got.has(k)) big.mem.set(k, kept);
+        }
+        bigFlush();
+        settle();
+      };
+    };
+    // (whatever changed is written before the page goes away)
+    window.addEventListener("pagehide", bigLeave);
+    document.addEventListener("visibilitychange", () => { if (document.visibilityState === "hidden") bigLeave(); });
+  }
   let loadProblem = false;  // the saved collection couldn't be read; a copy was kept aside
   function loadState() {
     let raw = null;

@@ -49,7 +49,7 @@
   function sortRecords(list) {
     const field = SORT_FIELDS[settings.sortField] ? settings.sortField : "price";
     const dir = settings.sortDir === "asc" ? 1 : -1;
-    const byStr = (a, b) => String(a || "").localeCompare(String(b || ""), undefined, {numeric: true, sensitivity: "base"});
+    const byStr = (a, b) => NATURAL.compare(String(a || ""), String(b || ""));
     const tie = (a, b) => byStr(a.name, b.name) || byStr(a.number, b.number);
     // Cards with no value for the chosen category (no price, no set...) always go last.
     const blanksLast = (va, vb) => (va == null) - (vb == null);
@@ -254,9 +254,7 @@
   function readDataText(text) {
     const at = text.indexOf("window.TCG_DATA");
     if (at < 0) return null;
-    let body = text.slice(text.indexOf("=", at) + 1).trim();
-    if (body.endsWith(";")) body = body.slice(0, -1);
-    return JSON.parse(body);
+    return windowValue(text.slice(text.indexOf("=", at) + 1));
   }
   function fetchData() {
     // (on the website: without the browser's saved copy; the offline copy, sw.js, is replaced along the way)
@@ -423,8 +421,7 @@
     setHeroArt(top[0]);
   }
   function renderFilterOptions() {
-    const distinct = key => Array.from(new Set(collection.map(r => r[key]).filter(Boolean)))
-      .sort((a, b) => a.localeCompare(b, undefined, {numeric: true}));
+    const distinct = key => Array.from(new Set(collection.map(r => r[key]).filter(Boolean))).sort(NATURAL.compare);
     const fill = (el, list, blank, value) => {
       if (value && !list.includes(value)) value = "";
       el.innerHTML = options(list, value, blank);
@@ -468,6 +465,8 @@
     renderCollection();
   }
 
+  const DRAW_FIRST = 60, DRAW_STEP = 120;
+  let collectionDraw = 0, drawAllNow = false;
   function renderCollection() {
     const main = $("collection");
     syncFiltersButton();
@@ -495,7 +494,22 @@
       return;
     }
     const extras = filters.show === "extras" ? extrasMap() : null;
-    main.innerHTML = photoNotice + (settings.view === "list" ? listHTML(list, extras) : '<div class="binder">' + list.map(r => tileHTML(r, extras)).join("") + "</div>");
+    const token = ++collectionDraw;
+    // (a big binder: the first screens of cards now, the rest straight after, so the page appears sooner)
+    if (settings.view !== "list" && list.length > DRAW_FIRST * 1.5 && !drawAllNow) {
+      main.innerHTML = photoNotice + '<div class="binder">' + list.slice(0, DRAW_FIRST).map(r => tileHTML(r, extras)).join("") + "</div>";
+      const binder = main.querySelector(".binder");
+      let at = DRAW_FIRST;
+      const more = () => {
+        if (token !== collectionDraw || !binder.isConnected) return;
+        binder.insertAdjacentHTML("beforeend", list.slice(at, at + DRAW_STEP).map(r => tileHTML(r, extras)).join(""));
+        at += DRAW_STEP;
+        if (at < list.length) setTimeout(more, 0);
+      };
+      setTimeout(more, 0);
+    } else {
+      main.innerHTML = photoNotice + (settings.view === "list" ? listHTML(list, extras) : '<div class="binder">' + list.map(r => tileHTML(r, extras)).join("") + "</div>");
+    }
     const all = $("selectAllShown");
     if (all) {
       const n = list.filter(r => selected.has(r.id)).length;

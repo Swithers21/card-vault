@@ -61,6 +61,16 @@ MANGA = re.compile(r"\s*\(manga (monochrome|color)\)\s*$", re.I)
 OVERFRAME = re.compile(r"\s*\(overframe\)\s*$", re.I)
 
 
+
+def window_value(body):
+    """The value after "window.NAME =": the data itself, or JSON.parse("...") around it (tcgplayer-data.js, read faster that way)."""
+    body = body.strip()
+    if body.endswith(";"):
+        body = body[:-1].rstrip()
+    if body.startswith("JSON.parse(") and body.endswith(")"):
+        return json.loads(json.loads(body[len("JSON.parse("):-1]))
+    return json.loads(body)
+
 def say(text):
     print(text, flush=True)
 
@@ -167,8 +177,7 @@ def read_js(path, name):
         text = handle.read()
     at = text.index("window." + name)
     head = text[:at]
-    body = text[text.index("=", at) + 1:].strip()
-    return head, json.loads(body[:-1] if body.endswith(";") else body)
+    return head, window_value(text[text.index("=", at) + 1:])
 
 
 def write_js(path, head, name, data):

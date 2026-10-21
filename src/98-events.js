@@ -719,6 +719,12 @@
     }, true);
   }
 
+  // The saved lookups, from the browser's database: read again from there once it's open (anything that read them
+  // before then had the local storage copy); the PriceCharting reminder waits for them.
+  bigOpen(() => {
+    yugi.cache = null; ocg.cache = null; pc.cache = null;
+    if (opening.started) { pcSentFromLastExport(); render(); }
+  });
   function init() {
     // The website works offline once opened (sw.js), and asks the browser to keep its data.
     if (SITE && "serviceWorker" in navigator && window.isSecureContext && /^https?:$/.test(location.protocol)) navigator.serviceWorker.register("sw.js").catch(() => {});
@@ -733,23 +739,23 @@
   function retryOcgList() {
     if (!ocgCd.data && collection.some(isOcg)) loadOcgCardsSoft();
   }
+  // (after what's on screen, when the browser is free; at the latest after a while)
+  const whenIdle = (fn, wait) => setTimeout(() => (window.requestIdleCallback ? requestIdleCallback(fn, {timeout: 2000}) : fn()), wait || 400);
   function startApp() {
     try { catalog = buildCatalog(window.TCG_DATA); } catch (e) { catalog = null; }
     window.TCG_DATA = null; // free the raw copy; the catalog keeps what it needs
     loadState();
-    // Japanese, Korean and Rush Duel cards are priced from a list that has to be fetched: start on it right away, so the
-    // total doesn't sit low for the first few seconds (those cards count as $0 until it is here).
-    if (collection.some(isOcg)) loadOcgCardsSoft();
     shopPricesReady();   // (the same for the Japanese and Korean sealed products you own: priced from the shops' lists)
     setTimeout(fillPrintPhotos, 3000);   // (your cards: a photo of their own print, where they have none that loads)
-    pcSentFromLastExport();   // (a PriceCharting file made before cards remembered which copies went: they remember it now)
-    const linked = autoLink();
-    if (linked) save();
-    else if (recordValueHistory()) save({quiet: true});  // today's value-history point
+    if (recordValueHistory()) save({quiet: true});  // today's value-history point
+    if (big.settled) pcSentFromLastExport();   // (else once the saved lookups are read: bigOpen above)
     wire();
     const linkedTab = tabFromHash();   // (a link to a tab, like …/#wants)
     if (linkedTab) settings.tab = linkedTab;
+    // (back from signing in to Google: every card drawn at once, so the page can scroll back to where you were)
+    try { drawAllNow = !!sessionStorage.getItem(RETURN_KEY); } catch (e) { drawAllNow = false; }
     render();
+    drawAllNow = false;
     initBack();
     syncTabHash();
     // back from signing in to Google while Card Vault was open: where you'd scrolled to
@@ -763,17 +769,25 @@
     // how last night's update went, and today's grading fees; cards back late from the grader
     setTimeout(() => loadLive(), 1200);
     renderGradingBanner();
+    // Once Card Vault is on screen and the phone has a moment (not while it opens): the Japanese, Korean and Rush Duel
+    // list (about 5 MB; until it's in, those cards show the price it gave last time), English cards entered by number
+    // linked to their TCGplayer printing, and Card search's list made ready, so the first search is as quick as the next.
+    whenIdle(() => { if (collection.some(isOcg)) loadOcgCardsSoft(); });
+    whenIdle(() => {
+      const linked = autoLink();
+      if (linked) { save(); render(); toast("Linked " + plural(linked, "card") + " to TCGplayer printings by card number."); }
+    });
+    whenIdle(warmSearch, 2500);
     window.addEventListener("online", () => { refreshOcgPrices(); if (settings.gradedView) refreshGradedPrices(); });
     if (loadProblem) toast("Card Vault couldn't read your saved collection, so it started empty. Your backup file wasn't changed: restore it from Settings.", {kind: "error", sticky: true});
     if (!storageOK) toast("This browser is blocking storage, so changes won't be kept after you close the page. Use Export CSV to keep a copy.", {kind: "error", sticky: true});
-    if (linked) toast("Linked " + plural(linked, "card") + " to TCGplayer printings by card number.");
   }
 
   // Exposed for automated tests only.
   window.CardVault = {state: () => ({collection, settings, selected, catalog, wants, valueHistory, backup, decks, sales, phone, deleted, batch, sync}),
     mergeBackup, checkBackupFile, openBatch, parseBatchLine, batchRowFor, addBatch, save, analyzeCSV, commitImport, openImport,
     findByNumber, searchByName, priceInfo, marketValue, unitValue, changeFor, periodChange, historySeries, totals, deleteRecords, exportCSV,
-      openPcExport, pcExportPlan, pcExportText, pcGrade, pcExportId, pcSentFromLastExport, pcWaiting, renderPcBanner, mergeDuplicates, openPaidTool, paidPlan, pp: () => pp, openTcgCart, tcgCartPlan, tcgCartURL, pcx: () => pcx,
+      openPcExport, pcExportPlan, pcExportText, pcGrade, pcExportId, pcSentFromLastExport, pcWaiting, renderPcBanner, big: () => big, bigGet, bigSet, yugiCache, readDataText, mergeDuplicates, openPaidTool, paidPlan, pp: () => pp, openTcgCart, tcgCartPlan, tcgCartURL, pcx: () => pcx,
     openDetails, openAdd, openSettings, render, setTab, setsData, extrasMap, wantStatus, addWant, restoreBackup, backupPayload,
     findYugiImages, rankYugiImages, parseYugiFile, yugiMangaPhoto, fillMangaPhotos, fillPrintPhotos, yugiPrintPick, langNumber, printPicOf, scanURL, isScanURL, yugiLabel, recordValueHistory, niceTicks, dateTicks, checkForNewData, writeBackup, initBackup,
     photoCandidates, findPhotosBatch, tradeListText, parseDeckText, parseYdk, parseYdke, checkDeck, cardNamesFor, runDeckCheck,

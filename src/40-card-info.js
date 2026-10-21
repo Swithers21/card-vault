@@ -5,7 +5,7 @@
   const yugiKey = (number, name) => normNumber(number) + "|" + String(name || "").trim().toLowerCase() + "|2";
   function yugiCache() {
     if (!yugi.cache) {
-      const c = readJSON(YUGI_CACHE_KEY, {});
+      const c = bigGet(YUGI_CACHE_KEY, {});
       yugi.cache = c && typeof c === "object" && !Array.isArray(c) ? c : {};
     }
     return yugi.cache;
@@ -23,7 +23,7 @@
     c[key] = value;
     const keys = Object.keys(c);
     if (keys.length > 300) keys.sort((a, b) => c[a].t - c[b].t).slice(0, keys.length - 300).forEach(k => delete c[k]);
-    try { localStorage.setItem(YUGI_CACHE_KEY, JSON.stringify(c)); } catch (e) { /* the cache is optional */ }
+    bigSet(YUGI_CACHE_KEY, c);
   }
   // Yugipedia asks API users for at most one request per second, so requests wait their turn.
   function yugiFetch(params) {
@@ -366,7 +366,7 @@
     : "Bunjang is a Korean marketplace; this is what the card sold for there lately, or the middle of what sellers ask, so treat it as a rough guide.";
   const rushBadge = number =>isRushNo(number) ? '<span class="ed ed-rush" title="Rush Duel card">Rush Duel</span>' : "";
   function ocgCache() {
-    if (!ocg.cache) { const c = readJSON(OCG_CACHE_KEY, {}); ocg.cache = c && typeof c === "object" && !Array.isArray(c) ? c : {}; }
+    if (!ocg.cache) { const c = bigGet(OCG_CACHE_KEY, {}); ocg.cache = c && typeof c === "object" && !Array.isArray(c) ? c : {}; }
     return ocg.cache;
   }
   // The prices the daily list gave last time, kept on this device (US$ before any condition adjustment, by card number
@@ -401,7 +401,7 @@
     c[key] = value;
     const keys = Object.keys(c);
     if (keys.length > 1500) keys.sort((a, b) => (c[a].t || 0) - (c[b].t || 0)).slice(0, keys.length - 1500).forEach(k => delete c[k]);
-    try { localStorage.setItem(OCG_CACHE_KEY, JSON.stringify(c)); } catch (e) { /* the cache is optional */ }
+    bigSet(OCG_CACHE_KEY, c);
   }
   // One request at a time, at most one every 1.2 seconds: these shops aren't ours to load up.
   function politeJSON(url, gap) {
@@ -821,7 +821,7 @@
   const PC_TTL = 24 * 3600000;
   const pc = {cache: null, queue: Promise.resolve(), last: 0, refreshing: false, bad: false};
   function pcCache() {
-    if (!pc.cache) { const c = readJSON(PC_CACHE_KEY, {}); pc.cache = c && typeof c === "object" && !Array.isArray(c) ? c : {}; }
+    if (!pc.cache) { const c = bigGet(PC_CACHE_KEY, {}); pc.cache = c && typeof c === "object" && !Array.isArray(c) ? c : {}; }
     return pc.cache;
   }
   function pcPut(key, value) {
@@ -829,7 +829,7 @@
     c[key] = value;
     const keys = Object.keys(c);
     if (keys.length > 3000) keys.sort((a, b) => (c[a].t || 0) - (c[b].t || 0)).slice(0, keys.length - 3000).forEach(k => delete c[k]);
-    try { localStorage.setItem(PC_CACHE_KEY, JSON.stringify(c)); } catch (e) { /* optional */ }
+    bigSet(PC_CACHE_KEY, c);
   }
   const pcKey = r => r.productId ? "p|" + r.productId + "|" + (r.edition || "") : "n|" + normNumber(r.number) + "|" + lookupName(r.name).toLowerCase() + "|" + (r.edition || "") + (mangaOf(r.rarity) ? "|" + r.rarity.toLowerCase() : "");
   const cents = v => { const n = num(v); return n != null && n > 0 ? round2(n / 100) : null; };

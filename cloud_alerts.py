@@ -43,6 +43,16 @@ class Problem(Exception):
     """Something to say in the status (never a card name or the topic)."""
 
 
+
+def window_value(body):
+    """The value after "window.NAME =": the data itself, or JSON.parse("...") around it (tcgplayer-data.js, read faster that way)."""
+    body = body.strip()
+    if body.endswith(";"):
+        body = body[:-1].rstrip()
+    if body.startswith("JSON.parse(") and body.endswith(")"):
+        return json.loads(json.loads(body[len("JSON.parse("):-1]))
+    return json.loads(body)
+
 def now():
     t = os.environ.get("CARDVAULT_NOW")
     return datetime.fromisoformat(t) if t else datetime.now(timezone.utc)
@@ -113,7 +123,7 @@ def read_prices():
     try:
         with open(DATA_FILE, "r", encoding="ascii") as handle:
             text = handle.read()
-        data = json.loads(text[text.index("=") + 1:].strip().rstrip(";"))
+        data = window_value(text[text.index("=") + 1:])
     except (OSError, ValueError):
         raise Problem("there were no TCGplayer prices to compare")
     subtypes = data.get("subtypes") or []

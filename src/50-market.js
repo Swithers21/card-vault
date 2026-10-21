@@ -282,8 +282,13 @@
   function readWindowJSON(text, name) {
     const at = text.indexOf("window." + name);
     if (at < 0) return null;
-    let body = text.slice(text.indexOf("=", at) + 1).trim();
-    if (body.endsWith(";")) body = body.slice(0, -1);
+    return windowValue(text.slice(text.indexOf("=", at) + 1));
+  }
+  // The value after "window.NAME =": the data, or JSON.parse("...") around it (tcgplayer-data.js: faster for a phone to read)
+  function windowValue(body) {
+    body = String(body).trim();
+    if (body.endsWith(";")) body = body.slice(0, -1).trimEnd();
+    if (body.startsWith("JSON.parse(") && body.endsWith(")")) return JSON.parse(JSON.parse(body.slice(11, -1)));
     return JSON.parse(body);
   }
   // On the website, the file next to this page; Card Vault.html on a computer loads it from the website.

@@ -75,7 +75,7 @@
     String(text).split(/\r?\n/).every(line => /^\s*(#.*|!.*|\d{3,10})?\s*$/.test(line)));
   // Deck files list Konami card IDs; YGOPRODeck turns them into names (remembered in this browser).
   async function cardNamesFor(ids) {
-    const cache = readJSON(CARD_IDS_KEY, {}) || {};
+    const cache = bigGet(CARD_IDS_KEY, {}) || {};
     const need = ids.filter(id => !cache[id]);
     for (let i = 0; i < need.length; i += 50) {
       const chunk = need.slice(i, i + 50);
@@ -88,7 +88,7 @@
         for (const im of c.card_images || []) if (im && im.id) cache[im.id] = c.name;
       }
     }
-    try { localStorage.setItem(CARD_IDS_KEY, JSON.stringify(cache)); } catch (e) { /* optional */ }
+    bigSet(CARD_IDS_KEY, cache);
     return cache;
   }
   async function idsToDeckText(sections) {
@@ -345,11 +345,11 @@
   // The plain card name: TCGplayer adds "(Starlight Rare)", "(Alternate Art)" and the like, sometimes two of them.
   const ygoName = plainName;
   const cardKey = n => ygoName(n).toLowerCase();
-  function ygoStore(key) { const c = readJSON(key, {}); return c && typeof c === "object" && !Array.isArray(c) ? c : {}; }
+  function ygoStore(key) { const c = bigGet(key, {}); return c && typeof c === "object" && !Array.isArray(c) ? c : {}; }
   function ygoSave(key, c, max) {
     const keys = Object.keys(c);
     if (keys.length > max) keys.sort((a, b) => (c[a].t || 0) - (c[b].t || 0)).slice(0, keys.length - max).forEach(k => delete c[k]);
-    try { localStorage.setItem(key, JSON.stringify(c)); } catch (e) { /* optional: looked up again next time */ }
+    bigSet(key, c);
   }
   // What we keep of a YGOPRODeck card: the names quoted in its text say which archetypes it supports.
   function ygoSlim(x) {
