@@ -54,6 +54,34 @@ class PSA(unittest.TestCase):
         self.assertEqual(len(names), len(set(n.lower() for n in names)))
 
 
+# Premier Card Grading's page as read on Oct 21 2026: a card per level for TCG's, then the same for Sports
+PCG_CARD = ('<div class="card"><h3>{name}</h3><p class="price">${fee}/per card</p><ul><li>Turnaround: {days} Business Days</li>{cap}'
+            '<li>Sub grades</li></ul><a href="/products/x">Submit</a></div>')
+PCG_PAGE = ("<html><body><nav>Standard shipping · Express returns</nav><h2>TCG's</h2>" +
+            PCG_CARD.format(name="Bulk 50+", fee="14.95", days="40 to 60", cap="<li>Insurance Cap: $250 Per Card</li>") +
+            PCG_CARD.format(name="Standard", fee="19.95", days="20 to 30", cap="") +
+            PCG_CARD.format(name="Express", fee="49.95", days="7-10", cap="<li>Insurance Cap: $10,000 Per Card</li>") +
+            "<h2>Sports</h2>" + PCG_CARD.format(name="Express", fee="99.00", days="7-10", cap="") + "</body></html>")
+
+
+class PCG(unittest.TestCase):
+    def test_its_three_levels(self):
+        got = g.parse_pcg(PCG_PAGE)
+        self.assertEqual(summary(got), {"Bulk 50+": (14.95, 250, "40–60", False), "Standard": (19.95, None, "20–30", False),
+                                        "Express": (49.95, 10000, "7–10", False)})                 # (the TCG card, not Sports')
+        self.assertEqual(got["levels"][0]["min"], 50)
+        self.assertTrue(got["complete"])
+
+    def test_a_changed_page_reads_as_nothing(self):
+        got = g.parse_pcg(PCG_PAGE.replace("Express</h3>", "Rush</h3>").replace(">Express<", ">Rush<"))
+        self.assertEqual(got["levels"], [])
+        self.assertIn("TCG", got["sample"])
+
+    def test_it_is_one_of_the_companies_read(self):
+        self.assertIn("PCG", g.COMPANIES)
+        self.assertIn("PCG", g.URLS)
+
+
 class OtherCompanies(unittest.TestCase):
     def test_bgs_options(self):
         page = ('<select><option value="1">EXPRESS: $79.95/card (15 Business Days)</option>'

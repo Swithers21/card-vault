@@ -676,7 +676,7 @@ def notify_about_changes(today_prices, previous, state=None):
 
 
 # ---- Alerts besides prices: the website's nightly update going wrong, grading fees changing, cards late back
-USUAL_WAIT = {"PSA": 100, "BGS": 15, "Beckett (BGS)": 15, "CGC": 90, "CGC Cards": 90, "SGC": 40, "TAG": 5}   # business days, each company's usual level
+USUAL_WAIT = {"PSA": 100, "BGS": 15, "Beckett (BGS)": 15, "CGC": 90, "CGC Cards": 90, "SGC": 40, "TAG": 5, "PCG": 30, "PCG (Premier Card Grading)": 30}   # business days, each company's usual level
 
 
 def wait_days(text):

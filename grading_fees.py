@@ -38,11 +38,13 @@ URLS = {
     "CGC": "https://www.cgcgrading.com/submit/services/",
     "SGC": "https://gosgc.com/card-grading/services-pricing",
     "TAG": "https://taggrading.com/pages/pricing",
+    "PCG": "https://premiercardgrading.com/pages/pricing-services",
     "TAG_BOOT": "https://core.service.elfsight.com/p/boot/",
     "WAYBACK": "https://archive.org/wayback/available",
     "WAYBACK_WEB": "https://web.archive.org/web/",
     "WAYBACK_SAVE": "https://web.archive.org/save/",
 }
+COMPANIES = ("PSA", "BGS", "CGC", "SGC", "TAG", "PCG")
 ASK_ARCHIVE_DAYS = 7       # with no recent copy, the Internet Archive is asked to save one this often
 ARCHIVE_DAYS = 30          # an Internet Archive copy this recent stands in for a page that turns GitHub away (PSA's)
 URLS.update(json.loads(os.environ.get("CARDVAULT_FEES_URLS", "{}")))   # (stand-ins, for the tests)
@@ -340,6 +342,28 @@ def parse_tag(boot):
     return {"levels": out, "complete": False}
 
 
+PCG_LEVELS = ("Bulk 50+", "Standard", "Express")
+
+
+def parse_pcg(page):
+    """Premier Card Grading's page: a card per level, TCG first (Sports repeats them): "Bulk 50+ $14.95/per card
+    Turnaround: 40 to 60 Business Days Insurance Cap: $250 Per Card". All three or nothing (a changed page keeps the
+    last list)."""
+    text = text_of(page)
+    names = "|".join(re.escape(n) for n in PCG_LEVELS)
+    out = []
+    for name in PCG_LEVELS:
+        m = re.search(re.escape(name) + r"\s*\$\s*([\d,]+(?:\.\d+)?)\s*(?:USD)?\s*/\s*per\s*card(.{0,240}?)(?=(?:" + names + r")\s*\$|$)", text, re.I | re.S)
+        if not m:
+            return {"levels": [], "sample": text[:200]}
+        rest = m.group(2)
+        days = re.search(r"Turnaround:?\s*(\d+\s*(?:to|[-–])\s*\d+|\d+\+?)\s*Business Days", rest, re.I)
+        cap = re.search(r"Insurance Cap:?\s*(\$[\d,]+)", rest, re.I)
+        out.append(level(name, money("$" + m.group(1)), money(cap.group(1)) if cap else None,
+                         days_text(re.sub(r"\s*to\s*", "-", days.group(1))) if days else "", False, min=50 if name.startswith("Bulk") else None))
+    return {"levels": out, "complete": True}
+
+
 # ------------------------------------------------------------------ reading them
 def archived_copy(url):
     """The Internet Archive's latest copy of a page (its own HTML), when it's from the last ARCHIVE_DAYS days."""
@@ -412,6 +436,8 @@ def read_company(co):
             raise ValueError("TAG's page has no pricing table")
         boot = json.loads(fetch(URLS["TAG_BOOT"] + "?" + urllib.parse.urlencode({"page": URLS["TAG"], "w": ",".join(ids)})))
         return parse_tag(boot)
+    if co == "PCG":
+        return parse_pcg(fetch(URLS["PCG"]))
     raise ValueError(co)
 
 
@@ -478,7 +504,7 @@ def run():
     pcos = prev.get("companies") or {}
     day = today()
     companies, changes, problems = {}, [], []
-    for co in ("PSA", "BGS", "CGC", "SGC", "TAG"):
+    for co in COMPANIES:
         last = pcos.get(co) or {}
         try:
             got = read_company(co)
@@ -516,7 +542,7 @@ def run():
     write_json(os.path.join(CACHE, "grading-fees.json"), data)
     write_outputs(data)
     ok = sum(1 for c in companies.values() if c.get("ok"))
-    say("  Grading fees: %d of 5 price lists read.%s%s" % (ok, " Changes: %s." % "; ".join(change_text(c) for c in changes) if changes else "",
+    say("  Grading fees: %d of %d price lists read.%s%s" % (ok, len(COMPANIES), " Changes: %s." % "; ".join(change_text(c) for c in changes) if changes else "",
                                                          " Couldn't read: %s." % ", ".join("%s (%s)" % (p["co"], p["error"]) for p in problems) if problems else ""))
     return 0
 
