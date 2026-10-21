@@ -6,7 +6,8 @@
     {id: "BGS", name: "Beckett (BGS)", start: "https://beckett.jotform.com/form/beckett-card-grading-submission", prices: "https://www.beckett.com/grading"},
     {id: "CGC", name: "CGC Cards", start: "https://www.cgcgrading.com/submit/services/", prices: "https://www.cgcgrading.com/submit/services/"},
     {id: "SGC", name: "SGC", start: "https://gosgc.com/card-grading", prices: "https://gosgc.com/card-grading/services-pricing"},
-    {id: "TAG", name: "TAG", start: "https://my.taggrading.com/", prices: "https://taggrading.com/pages/pricing"}
+    {id: "TAG", name: "TAG", start: "https://my.taggrading.com/", prices: "https://taggrading.com/pages/pricing"},
+    {id: "PCG", name: "PCG (Premier Card Grading)", start: "https://premiercardgrading.com/pages/pricing-services", prices: "https://premiercardgrading.com/pages/pricing-services"}
   ];
   // Each company's public price list for standard-size cards, as read on their own site on the "checked" day. The
   // nightly update reads their pages again (grading_fees.py) and feeTable() puts that on top of this list.
@@ -62,7 +63,13 @@
         {name: "Standard", fee: null, max: 500, days: "45", paused: true},
         {name: "Express", fee: null, max: 1500, days: "25", paused: true},
         {name: "Priority", fee: 149, max: 2500, days: "5", usual: true},
-        {name: "Walkthrough", fee: 299, max: 5000, days: "2–3"}]}
+        {name: "Walkthrough", fee: 299, max: 5000, days: "2–3"}]},
+    PCG: {checked: "2026-10-21", source: "https://premiercardgrading.com/pages/pricing-services",
+      note: "Premier Card Grading is registered in New Zealand, with offices in other countries, the US among them. The same prices for TCG and sports cards; Standard includes subgrades and a metal label.",
+      levels: [
+        {name: "Bulk 50+", fee: 14.95, max: 250, days: "40–60", min: 50},
+        {name: "Standard", fee: 19.95, max: null, days: "20–30", usual: true},
+        {name: "Express", fee: 49.95, max: 10000, days: "7–10"}]}
   };
   // A company's price list as Card Vault uses it: the built-in one, with what the nightly update read from the
   // company's own page on top (newer fees, levels pausing or reopening, new levels). auto: from the nightly read;

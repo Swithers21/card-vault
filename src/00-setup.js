@@ -19,7 +19,7 @@
   const CARD_IDS_KEY = "cardvault.v2.cardids";   // Konami card IDs (from deck files) -> card names
   const HISTORY_KEY = "cardvault.v2.valueHistory";
   const YUGI_CACHE_KEY = "cardvault.v2.yugipedia";
-  const GRADERS = ["PSA", "BGS", "CGC", "SGC", "TAG", "Other"];
+  const GRADERS = ["PSA", "BGS", "CGC", "SGC", "TAG", "PCG", "Other"];
   // Rough starting points for what a played copy sells for, as a share of TCGplayer's market price.
   const DEFAULT_COND_PCT = {"Near Mint": 100, "Lightly Played": 85, "Moderately Played": 70, "Heavily Played": 50, "Damaged": 30};
   const YGOPRODECK = "https://db.ygoprodeck.com/api/v7";

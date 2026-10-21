@@ -30,7 +30,7 @@ OUT = os.environ.get("CARDVAULT_STATUS_OUT", os.path.join(HERE, "update-status.j
 TCG_VERSION = os.environ.get("CARDVAULT_TCG_VERSION", os.path.join(HERE, "tcgplayer-data-version.js"))
 SITE_NAMES = {"yugipedia": "Yugipedia (Japanese and Korean card lists)", "bigweb": "BIGWEB (Japanese prices)", "bunjang": "Bunjang (Korean prices)",
               "fullahead": "Fullahead (Japanese Rush Duel prices)", "frankfurter": "the exchange-rate service"}
-COMPANY = {"PSA": "PSA", "BGS": "Beckett", "CGC": "CGC", "SGC": "SGC", "TAG": "TAG"}
+COMPANY = {"PSA": "PSA", "BGS": "Beckett", "CGC": "CGC", "SGC": "SGC", "TAG": "TAG", "PCG": "PCG"}
 HISTORY_RUNS = 60
 
 
