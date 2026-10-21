@@ -529,6 +529,7 @@
   // Once you keep a collection on PriceCharting (you've exported to it): the cards it doesn't have yet, those ready to go
   // and those not looked up there yet, for a reminder on the Collection tab and a count on the Export menu.
   function pcWaiting() {
+    if (!big.settled) return {copies: 0, ready: 0, unknown: 0};   // (until the saved PriceCharting matches are read)
     if (!settings.pcExportAt && !collection.some(r => r.pcSent)) return {copies: 0, ready: 0, unknown: 0};
     // (cards not looked up on this device count only where they can be looked up: with your PriceCharting key here; and
     // not the copies already sent, from a device that had them looked up)

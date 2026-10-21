@@ -826,6 +826,15 @@ def notify_extras(state, backup=None, today=None):
     return sent
 
 
+def data_file_text(data):
+    """tcgplayer-data.js: the data as JSON text in a string, read with JSON.parse. A phone reads that two to three times
+    faster than the same data written as code, and it's still a plain script, so Card Vault.html on a computer (which
+    loads it with a script tag) reads it the same way."""
+    text = json.dumps(data, ensure_ascii=True, separators=(",", ":"))
+    return ("/* Card Vault: TCGplayer Yu-Gi-Oh! data from TCGCSV. Rebuilt by update_tcgplayer_data.py */\n"
+            "window.TCG_DATA = JSON.parse(" + json.dumps(text, ensure_ascii=True) + ");\n")
+
+
 def main():
     force = "--force" in sys.argv
     if "--test-notification" in sys.argv:
@@ -1023,10 +1032,7 @@ def main():
     }
     tmp_path = OUT_FILE + ".tmp"
     with open(tmp_path, "w", encoding="ascii") as handle:
-        handle.write("/* Card Vault: TCGplayer Yu-Gi-Oh! data from TCGCSV. Rebuilt by update_tcgplayer_data.py */\n")
-        handle.write("window.TCG_DATA = ")
-        json.dump(data, handle, ensure_ascii=True, separators=(",", ":"))
-        handle.write(";\n")
+        handle.write(data_file_text(data))
     os.replace(tmp_path, OUT_FILE)
     with open(VERSION_FILE + ".tmp", "w", encoding="ascii") as handle:
         handle.write("window.TCG_DATA_VERSION = ")

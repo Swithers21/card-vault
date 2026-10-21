@@ -9,7 +9,7 @@
     const groups = (raw.groups || []).map(g => ({id: g[0], name: g[1] || "", abbr: g[2] || "", published: g[3] || ""}));
     const rarities = raw.rarities || [];
     const subtypes = raw.subtypes || [];
-    const byId = new Map(), byNumber = new Map(), byLoose = new Map();
+    const byId = new Map();
     const products = new Array(raw.products.length);
     // Format 2 adds the market price on three earlier days to each price entry: [subtype, market, low, m1, m7, m30].
     const stride = raw.format >= 2 ? 6 : 3;
@@ -31,18 +31,28 @@
       p.nameLower = p.name.toLowerCase();
       products[i] = p;
       byId.set(p.id, p);
-      pushMap(byNumber, normNumber(p.number), p);
-      pushMap(byLoose, looseNumber(p.number), p);
     }
     rarities.forEach(r => r && rarityLookup.add(r.toLowerCase()));
     const generated = parseDate(raw.generated);
     const h = raw.history || {};
     const day = s => parseDay(s) ? s : null;
-    return {generated, builtAt: raw.builtAt || raw.generated || "", groups, products, byId, byNumber, byLoose,
+    const cat = {generated, builtAt: raw.builtAt || raw.generated || "", groups, products, byId,
       rarities: rarities.filter(Boolean),
       // The TCGplayer price day (UTC, like the updater's snapshot names) and the days the older prices are from.
       priceDay: generated ? utcDay(generated) : null,
       refDays: {m1: day(h.d1), m7: day(h.d7), m30: day(h.d30)}};
+    // (by card number, and by number loosely: worked out the first time something looks a number up, not while opening)
+    let numbers = null;
+    const byNumbers = () => {
+      if (!numbers) {
+        numbers = {byNumber: new Map(), byLoose: new Map()};
+        for (const p of products) { pushMap(numbers.byNumber, normNumber(p.number), p); pushMap(numbers.byLoose, looseNumber(p.number), p); }
+      }
+      return numbers;
+    };
+    Object.defineProperty(cat, "byNumber", {get: () => byNumbers().byNumber, enumerable: true});
+    Object.defineProperty(cat, "byLoose", {get: () => byNumbers().byLoose, enumerable: true});
+    return cat;
   }
   function productsByGroup() {
     if (!catalog.byGroup) {
@@ -204,8 +214,9 @@
       r.grade ? [r.grade.company, r.grade.grade, r.grade.cert].join("/").toLowerCase() : "",
       r.grading ? "away:" + r.id : ""]).join("|");   // (a copy at the grader stays on its own line)
   }
-  const allLocations = () => Array.from(new Set(collection.map(r => r.location).filter(Boolean)))
-    .sort((a, b) => a.localeCompare(b, undefined, {numeric: true, sensitivity: "base"}));
+  // (one collator for every sort of names: "Binder 2" before "Binder 10")
+  const NATURAL = new Intl.Collator(undefined, {numeric: true, sensitivity: "base"});
+  const allLocations = () => Array.from(new Set(collection.map(r => r.location).filter(Boolean))).sort(NATURAL.compare);
 
   /* ======================= Value history ======================= */
   // One point per TCGplayer price day: the collection's market value (condition-adjusted) and card count.

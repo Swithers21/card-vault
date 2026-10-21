@@ -36,6 +36,16 @@ MAX_KEY = 150           # longest name key the website accepts
 USER_AGENT = "CardVault/1.0 (personal collection tracker; daily, once per picture)"
 
 
+
+def window_value(body):
+    """The value after "window.NAME =": the data itself, or JSON.parse("...") around it (tcgplayer-data.js, read faster that way)."""
+    body = body.strip()
+    if body.endswith(";"):
+        body = body[:-1].rstrip()
+    if body.startswith("JSON.parse(") and body.endswith(")"):
+        return json.loads(json.loads(body[len("JSON.parse("):-1]))
+    return json.loads(body)
+
 def say(text):
     print(text, flush=True)
 
@@ -69,8 +79,7 @@ def read_data(path=DATA_FILE):
     """The data in tcgplayer-data.js ("window.TCG_DATA = {...};")."""
     with open(path, "r", encoding="utf-8") as handle:
         text = handle.read()
-    body = text[text.index("=", text.index("window.TCG_DATA")) + 1:].strip()
-    return json.loads(body[:-1] if body.endswith(";") else body)
+    return window_value(text[text.index("=", text.index("window.TCG_DATA")) + 1:])
 
 
 def cards_needing_pictures(data):

@@ -582,7 +582,7 @@
   const WANT_SORTS = [["target", "At target first"], ["close", "Closest to target"], ["high", "Price: highest first"], ["low", "Price: lowest first"],
     ["drop", "Biggest price drop (7 days)"], ["name", "Name (A to Z)"], ["set", "Set and card number"], ["added", "Recently added"]];
   function wantSorter(by) {
-    const byStr = (a, b) => String(a || "").localeCompare(String(b || ""), undefined, {numeric: true, sensitivity: "base"});
+    const byStr = (a, b) => NATURAL.compare(String(a || ""), String(b || ""));
     const byName = (a, b) => byStr(a.w.name, b.w.name) || byStr(a.w.setName, b.w.setName) || byStr(a.w.number, b.w.number) || byStr(a.w.rarity, b.w.rarity);
     const none = (x, y) => (x == null) - (y == null);   // (no price, no target... at the end)
     // how far above the target, as a share of it (at or below the target: 0 or less)

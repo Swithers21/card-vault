@@ -19,11 +19,19 @@ DATA_FILE = os.path.join(HERE, "tcgplayer-data.js")
 SNAPSHOT_DIR = os.path.join(HERE, "tcgplayer-cache", "history")
 
 
+def window_value(body):
+    """The value after "window.NAME =": the data itself, or JSON.parse("...") around it (tcgplayer-data.js, read faster that way)."""
+    body = body.strip()
+    if body.endswith(";"):
+        body = body[:-1].rstrip()
+    if body.startswith("JSON.parse(") and body.endswith(")"):
+        return json.loads(json.loads(body[len("JSON.parse("):-1]))
+    return json.loads(body)
+
 def read_data(path):
     with open(path, "r", encoding="utf-8") as handle:
         text = handle.read()
-    body = text[text.index("=", text.index("window.TCG_DATA")) + 1:].strip()
-    return json.loads(body[:-1] if body.endswith(";") else body)
+    return window_value(text[text.index("=", text.index("window.TCG_DATA")) + 1:])
 
 
 def snapshot_days(folder):

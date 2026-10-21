@@ -14,6 +14,23 @@
     if (h == null) { h = csNorm(p.name + " " + p.number + " " + p.group.name + " " + (p.group.abbr || "") + " " + p.rarity); catalog.csHay.set(p.id, h); }
     return h;
   }
+  // Made ready in the background after Card Vault opens, a slice at a time so the screen stays responsive: the search
+  // text of every printing, the sets list (for the set chips) and the cards by name. The first search is then quick.
+  function warmSearch() {
+    if (!catalog || catalog.csWarm) return;
+    catalog.csWarm = true;
+    const list = catalog.products;
+    let i = 0;
+    const step = deadline => {
+      if (!catalog || catalog.products !== list) return;
+      const room = deadline && deadline.timeRemaining ? Math.min(12, Math.max(4, deadline.timeRemaining())) : 12;
+      const until = performance.now() + room;
+      do csHay(list[i++]); while (i < list.length && performance.now() < until);
+      if (i < list.length) { window.requestIdleCallback ? requestIdleCallback(step, {timeout: 1000}) : setTimeout(step, 16); return; }
+      try { marketData(); csByName(""); } catch (e) { /* (made when first searched instead) */ }
+    };
+    step();
+  }
   // Every English printing of a card, by its name
   function csByName(key) {
     if (!catalog.csNames) {

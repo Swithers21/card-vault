@@ -480,6 +480,81 @@
   function readJSON(key, fallback) {
     try { const v = JSON.parse(localStorage.getItem(key) || "null"); return v == null ? fallback : v; } catch (e) { return fallback; }
   }
+  /* ----- Room for lookups: the browser's database ----- */
+  // Card Vault's saved lookups (PriceCharting matches, Yugipedia photo searches, Japanese and Korean card lookups,
+  // YGOPRODeck card details and archetypes, deck file card ids) used to share the browser's small local storage (about
+  // 5 MB) with your collection, and a big collection could fill it, so they were dropped to make room. They're kept in
+  // the browser's database (IndexedDB) now, which has far more room: read into memory once while Card Vault opens (ones
+  // still in local storage move over and are cleared from it), written back a moment after they change. Without a
+  // database (a private window, say) they stay in local storage, as before.
+  const BIG_KEYS = ["cardvault.v2.pricecharting", "cardvault.v2.yugipedia", "cardvault.v2.ocg", "cardvault.v2.ygocards", "cardvault.v2.ygoarch", "cardvault.v2.cardids"];
+  const big = {mem: new Map(), db: null, settled: false, dirty: new Set(), sending: new Set(), timer: 0};
+  function bigGet(key, fallback) {
+    if (big.mem.has(key)) return big.mem.get(key);
+    return readJSON(key, fallback);   // (while the database opens, or without one)
+  }
+  function bigSet(key, value) {
+    if (!big.db) { try { localStorage.setItem(key, JSON.stringify(value)); } catch (e) { /* only a convenience */ } return; }
+    big.mem.set(key, value);
+    big.dirty.add(key);
+    clearTimeout(big.timer);
+    big.timer = setTimeout(bigFlush, 30);   // (straight after: several lookups in a row go together)
+  }
+  function bigFlush() {
+    clearTimeout(big.timer);
+    if (!big.db || !big.dirty.size) return;
+    const keys = Array.from(big.dirty);
+    big.dirty.clear();
+    let tx;
+    try { tx = big.db.transaction("kv", "readwrite"); } catch (e) { keys.forEach(k => big.dirty.add(k)); return; }
+    const store = tx.objectStore("kv");
+    keys.forEach(k => big.sending.add(k));
+    for (const k of keys) { try { store.put(big.mem.get(k), k); } catch (e) { /* one it couldn't keep: looked up again */ } }
+    // (once it's in the database, a copy left in local storage on the way out isn't needed)
+    tx.oncomplete = () => { for (const k of keys) { big.sending.delete(k); if (!big.dirty.has(k)) { try { localStorage.removeItem(k); } catch (e) { /* ignore */ } } } };
+    tx.onabort = tx.onerror = () => { keys.forEach(k => { big.sending.delete(k); big.dirty.add(k); }); };
+  }
+  // The page going away (closed, reloaded, or the phone switching apps): the database may not finish writing in time,
+  // so whatever hasn't been written yet is copied to local storage too, which is written at once; the next opening moves
+  // it over. (A copy too big for local storage is just looked up again.)
+  function bigLeave() {
+    if (!big.db) return;
+    for (const k of new Set([...big.dirty, ...big.sending])) { try { localStorage.setItem(k, JSON.stringify(big.mem.get(k))); } catch (e) { /* no room */ } }
+    bigFlush();
+  }
+  function bigOpen(done) {
+    const settle = () => { if (!big.settled) { big.settled = true; done(); } };
+    let req;
+    try { req = window.indexedDB ? indexedDB.open("cardvault", 1) : null; } catch (e) { req = null; }
+    if (!req) { settle(); return; }
+    req.onupgradeneeded = () => { try { req.result.createObjectStore("kv"); } catch (e) { /* there already */ } };
+    req.onerror = () => settle();
+    req.onblocked = () => settle();
+    req.onsuccess = () => {
+      const db = req.result, got = new Map();
+      let tx;
+      try { tx = db.transaction("kv", "readonly"); } catch (e) { settle(); return; }
+      const store = tx.objectStore("kv");
+      for (const k of BIG_KEYS) { const g = store.get(k); g.onsuccess = () => { if (g.result !== undefined) got.set(k, g.result); }; }
+      tx.onerror = () => settle();
+      tx.oncomplete = () => {
+        big.db = db;
+        for (const k of BIG_KEYS) {
+          // (still in local storage: from before, left on the way out, or looked up while the database was opening; its
+          // lookups are the newer ones, added to the database's)
+          let local = null;
+          try { const t = localStorage.getItem(k); local = t ? JSON.parse(t) : null; } catch (e) { local = null; }
+          const kept = got.get(k), plain = v => v && typeof v === "object" && !Array.isArray(v);
+          if (local != null) { big.mem.set(k, plain(local) && plain(kept) ? Object.assign(kept, local) : local); big.dirty.add(k); } else if (got.has(k)) big.mem.set(k, kept);
+        }
+        bigFlush();
+        settle();
+      };
+    };
+    // (whatever changed is written before the page goes away)
+    window.addEventListener("pagehide", bigLeave);
+    document.addEventListener("visibilitychange", () => { if (document.visibilityState === "hidden") bigLeave(); });
+  }
   let loadProblem = false;  // the saved collection couldn't be read; a copy was kept aside
   function loadState() {
     let raw = null;
@@ -840,7 +915,7 @@
     const groups = (raw.groups || []).map(g => ({id: g[0], name: g[1] || "", abbr: g[2] || "", published: g[3] || ""}));
     const rarities = raw.rarities || [];
     const subtypes = raw.subtypes || [];
-    const byId = new Map(), byNumber = new Map(), byLoose = new Map();
+    const byId = new Map();
     const products = new Array(raw.products.length);
     // Format 2 adds the market price on three earlier days to each price entry: [subtype, market, low, m1, m7, m30].
     const stride = raw.format >= 2 ? 6 : 3;
@@ -862,18 +937,28 @@
       p.nameLower = p.name.toLowerCase();
       products[i] = p;
       byId.set(p.id, p);
-      pushMap(byNumber, normNumber(p.number), p);
-      pushMap(byLoose, looseNumber(p.number), p);
     }
     rarities.forEach(r => r && rarityLookup.add(r.toLowerCase()));
     const generated = parseDate(raw.generated);
     const h = raw.history || {};
     const day = s => parseDay(s) ? s : null;
-    return {generated, builtAt: raw.builtAt || raw.generated || "", groups, products, byId, byNumber, byLoose,
+    const cat = {generated, builtAt: raw.builtAt || raw.generated || "", groups, products, byId,
       rarities: rarities.filter(Boolean),
       // The TCGplayer price day (UTC, like the updater's snapshot names) and the days the older prices are from.
       priceDay: generated ? utcDay(generated) : null,
       refDays: {m1: day(h.d1), m7: day(h.d7), m30: day(h.d30)}};
+    // (by card number, and by number loosely: worked out the first time something looks a number up, not while opening)
+    let numbers = null;
+    const byNumbers = () => {
+      if (!numbers) {
+        numbers = {byNumber: new Map(), byLoose: new Map()};
+        for (const p of products) { pushMap(numbers.byNumber, normNumber(p.number), p); pushMap(numbers.byLoose, looseNumber(p.number), p); }
+      }
+      return numbers;
+    };
+    Object.defineProperty(cat, "byNumber", {get: () => byNumbers().byNumber, enumerable: true});
+    Object.defineProperty(cat, "byLoose", {get: () => byNumbers().byLoose, enumerable: true});
+    return cat;
   }
   function productsByGroup() {
     if (!catalog.byGroup) {
@@ -1035,8 +1120,9 @@
       r.grade ? [r.grade.company, r.grade.grade, r.grade.cert].join("/").toLowerCase() : "",
       r.grading ? "away:" + r.id : ""]).join("|");   // (a copy at the grader stays on its own line)
   }
-  const allLocations = () => Array.from(new Set(collection.map(r => r.location).filter(Boolean)))
-    .sort((a, b) => a.localeCompare(b, undefined, {numeric: true, sensitivity: "base"}));
+  // (one collator for every sort of names: "Binder 2" before "Binder 10")
+  const NATURAL = new Intl.Collator(undefined, {numeric: true, sensitivity: "base"});
+  const allLocations = () => Array.from(new Set(collection.map(r => r.location).filter(Boolean))).sort(NATURAL.compare);
 
   /* ======================= Value history ======================= */
   // One point per TCGplayer price day: the collection's market value (condition-adjusted) and card count.
@@ -1311,7 +1397,7 @@
   function sortRecords(list) {
     const field = SORT_FIELDS[settings.sortField] ? settings.sortField : "price";
     const dir = settings.sortDir === "asc" ? 1 : -1;
-    const byStr = (a, b) => String(a || "").localeCompare(String(b || ""), undefined, {numeric: true, sensitivity: "base"});
+    const byStr = (a, b) => NATURAL.compare(String(a || ""), String(b || ""));
     const tie = (a, b) => byStr(a.name, b.name) || byStr(a.number, b.number);
     // Cards with no value for the chosen category (no price, no set...) always go last.
     const blanksLast = (va, vb) => (va == null) - (vb == null);
@@ -1516,9 +1602,7 @@
   function readDataText(text) {
     const at = text.indexOf("window.TCG_DATA");
     if (at < 0) return null;
-    let body = text.slice(text.indexOf("=", at) + 1).trim();
-    if (body.endsWith(";")) body = body.slice(0, -1);
-    return JSON.parse(body);
+    return windowValue(text.slice(text.indexOf("=", at) + 1));
   }
   function fetchData() {
     // (on the website: without the browser's saved copy; the offline copy, sw.js, is replaced along the way)
@@ -1685,8 +1769,7 @@
     setHeroArt(top[0]);
   }
   function renderFilterOptions() {
-    const distinct = key => Array.from(new Set(collection.map(r => r[key]).filter(Boolean)))
-      .sort((a, b) => a.localeCompare(b, undefined, {numeric: true}));
+    const distinct = key => Array.from(new Set(collection.map(r => r[key]).filter(Boolean))).sort(NATURAL.compare);
     const fill = (el, list, blank, value) => {
       if (value && !list.includes(value)) value = "";
       el.innerHTML = options(list, value, blank);
@@ -1730,6 +1813,8 @@
     renderCollection();
   }
 
+  const DRAW_FIRST = 60, DRAW_STEP = 120;
+  let collectionDraw = 0, drawAllNow = false;
   function renderCollection() {
     const main = $("collection");
     syncFiltersButton();
@@ -1757,7 +1842,22 @@
       return;
     }
     const extras = filters.show === "extras" ? extrasMap() : null;
-    main.innerHTML = photoNotice + (settings.view === "list" ? listHTML(list, extras) : '<div class="binder">' + list.map(r => tileHTML(r, extras)).join("") + "</div>");
+    const token = ++collectionDraw;
+    // (a big binder: the first screens of cards now, the rest straight after, so the page appears sooner)
+    if (settings.view !== "list" && list.length > DRAW_FIRST * 1.5 && !drawAllNow) {
+      main.innerHTML = photoNotice + '<div class="binder">' + list.slice(0, DRAW_FIRST).map(r => tileHTML(r, extras)).join("") + "</div>";
+      const binder = main.querySelector(".binder");
+      let at = DRAW_FIRST;
+      const more = () => {
+        if (token !== collectionDraw || !binder.isConnected) return;
+        binder.insertAdjacentHTML("beforeend", list.slice(at, at + DRAW_STEP).map(r => tileHTML(r, extras)).join(""));
+        at += DRAW_STEP;
+        if (at < list.length) setTimeout(more, 0);
+      };
+      setTimeout(more, 0);
+    } else {
+      main.innerHTML = photoNotice + (settings.view === "list" ? listHTML(list, extras) : '<div class="binder">' + list.map(r => tileHTML(r, extras)).join("") + "</div>");
+    }
     const all = $("selectAllShown");
     if (all) {
       const n = list.filter(r => selected.has(r.id)).length;
@@ -2958,7 +3058,7 @@
   const yugiKey = (number, name) => normNumber(number) + "|" + String(name || "").trim().toLowerCase() + "|2";
   function yugiCache() {
     if (!yugi.cache) {
-      const c = readJSON(YUGI_CACHE_KEY, {});
+      const c = bigGet(YUGI_CACHE_KEY, {});
       yugi.cache = c && typeof c === "object" && !Array.isArray(c) ? c : {};
     }
     return yugi.cache;
@@ -2976,7 +3076,7 @@
     c[key] = value;
     const keys = Object.keys(c);
     if (keys.length > 300) keys.sort((a, b) => c[a].t - c[b].t).slice(0, keys.length - 300).forEach(k => delete c[k]);
-    try { localStorage.setItem(YUGI_CACHE_KEY, JSON.stringify(c)); } catch (e) { /* the cache is optional */ }
+    bigSet(YUGI_CACHE_KEY, c);
   }
   // Yugipedia asks API users for at most one request per second, so requests wait their turn.
   function yugiFetch(params) {
@@ -3319,7 +3419,7 @@
     : "Bunjang is a Korean marketplace; this is what the card sold for there lately, or the middle of what sellers ask, so treat it as a rough guide.";
   const rushBadge = number =>isRushNo(number) ? '<span class="ed ed-rush" title="Rush Duel card">Rush Duel</span>' : "";
   function ocgCache() {
-    if (!ocg.cache) { const c = readJSON(OCG_CACHE_KEY, {}); ocg.cache = c && typeof c === "object" && !Array.isArray(c) ? c : {}; }
+    if (!ocg.cache) { const c = bigGet(OCG_CACHE_KEY, {}); ocg.cache = c && typeof c === "object" && !Array.isArray(c) ? c : {}; }
     return ocg.cache;
   }
   // The prices the daily list gave last time, kept on this device (US$ before any condition adjustment, by card number
@@ -3354,7 +3454,7 @@
     c[key] = value;
     const keys = Object.keys(c);
     if (keys.length > 1500) keys.sort((a, b) => (c[a].t || 0) - (c[b].t || 0)).slice(0, keys.length - 1500).forEach(k => delete c[k]);
-    try { localStorage.setItem(OCG_CACHE_KEY, JSON.stringify(c)); } catch (e) { /* the cache is optional */ }
+    bigSet(OCG_CACHE_KEY, c);
   }
   // One request at a time, at most one every 1.2 seconds: these shops aren't ours to load up.
   function politeJSON(url, gap) {
@@ -3774,7 +3874,7 @@
   const PC_TTL = 24 * 3600000;
   const pc = {cache: null, queue: Promise.resolve(), last: 0, refreshing: false, bad: false};
   function pcCache() {
-    if (!pc.cache) { const c = readJSON(PC_CACHE_KEY, {}); pc.cache = c && typeof c === "object" && !Array.isArray(c) ? c : {}; }
+    if (!pc.cache) { const c = bigGet(PC_CACHE_KEY, {}); pc.cache = c && typeof c === "object" && !Array.isArray(c) ? c : {}; }
     return pc.cache;
   }
   function pcPut(key, value) {
@@ -3782,7 +3882,7 @@
     c[key] = value;
     const keys = Object.keys(c);
     if (keys.length > 3000) keys.sort((a, b) => (c[a].t || 0) - (c[b].t || 0)).slice(0, keys.length - 3000).forEach(k => delete c[k]);
-    try { localStorage.setItem(PC_CACHE_KEY, JSON.stringify(c)); } catch (e) { /* optional */ }
+    bigSet(PC_CACHE_KEY, c);
   }
   const pcKey = r => r.productId ? "p|" + r.productId + "|" + (r.edition || "") : "n|" + normNumber(r.number) + "|" + lookupName(r.name).toLowerCase() + "|" + (r.edition || "") + (mangaOf(r.rarity) ? "|" + r.rarity.toLowerCase() : "");
   const cents = v => { const n = num(v); return n != null && n > 0 ? round2(n / 100) : null; };
@@ -4359,8 +4459,13 @@
   function readWindowJSON(text, name) {
     const at = text.indexOf("window." + name);
     if (at < 0) return null;
-    let body = text.slice(text.indexOf("=", at) + 1).trim();
-    if (body.endsWith(";")) body = body.slice(0, -1);
+    return windowValue(text.slice(text.indexOf("=", at) + 1));
+  }
+  // The value after "window.NAME =": the data, or JSON.parse("...") around it (tcgplayer-data.js: faster for a phone to read)
+  function windowValue(body) {
+    body = String(body).trim();
+    if (body.endsWith(";")) body = body.slice(0, -1).trimEnd();
+    if (body.startsWith("JSON.parse(") && body.endsWith(")")) return JSON.parse(JSON.parse(body.slice(11, -1)));
     return JSON.parse(body);
   }
   // On the website, the file next to this page; Card Vault.html on a computer loads it from the website.
@@ -5088,6 +5193,23 @@
     let h = catalog.csHay.get(p.id);
     if (h == null) { h = csNorm(p.name + " " + p.number + " " + p.group.name + " " + (p.group.abbr || "") + " " + p.rarity); catalog.csHay.set(p.id, h); }
     return h;
+  }
+  // Made ready in the background after Card Vault opens, a slice at a time so the screen stays responsive: the search
+  // text of every printing, the sets list (for the set chips) and the cards by name. The first search is then quick.
+  function warmSearch() {
+    if (!catalog || catalog.csWarm) return;
+    catalog.csWarm = true;
+    const list = catalog.products;
+    let i = 0;
+    const step = deadline => {
+      if (!catalog || catalog.products !== list) return;
+      const room = deadline && deadline.timeRemaining ? Math.min(12, Math.max(4, deadline.timeRemaining())) : 12;
+      const until = performance.now() + room;
+      do csHay(list[i++]); while (i < list.length && performance.now() < until);
+      if (i < list.length) { window.requestIdleCallback ? requestIdleCallback(step, {timeout: 1000}) : setTimeout(step, 16); return; }
+      try { marketData(); csByName(""); } catch (e) { /* (made when first searched instead) */ }
+    };
+    step();
   }
   // Every English printing of a card, by its name
   function csByName(key) {
@@ -11258,7 +11380,7 @@
   const WANT_SORTS = [["target", "At target first"], ["close", "Closest to target"], ["high", "Price: highest first"], ["low", "Price: lowest first"],
     ["drop", "Biggest price drop (7 days)"], ["name", "Name (A to Z)"], ["set", "Set and card number"], ["added", "Recently added"]];
   function wantSorter(by) {
-    const byStr = (a, b) => String(a || "").localeCompare(String(b || ""), undefined, {numeric: true, sensitivity: "base"});
+    const byStr = (a, b) => NATURAL.compare(String(a || ""), String(b || ""));
     const byName = (a, b) => byStr(a.w.name, b.w.name) || byStr(a.w.setName, b.w.setName) || byStr(a.w.number, b.w.number) || byStr(a.w.rarity, b.w.rarity);
     const none = (x, y) => (x == null) - (y == null);   // (no price, no target... at the end)
     // how far above the target, as a share of it (at or below the target: 0 or less)
@@ -12214,7 +12336,7 @@
     String(text).split(/\r?\n/).every(line => /^\s*(#.*|!.*|\d{3,10})?\s*$/.test(line)));
   // Deck files list Konami card IDs; YGOPRODeck turns them into names (remembered in this browser).
   async function cardNamesFor(ids) {
-    const cache = readJSON(CARD_IDS_KEY, {}) || {};
+    const cache = bigGet(CARD_IDS_KEY, {}) || {};
     const need = ids.filter(id => !cache[id]);
     for (let i = 0; i < need.length; i += 50) {
       const chunk = need.slice(i, i + 50);
@@ -12227,7 +12349,7 @@
         for (const im of c.card_images || []) if (im && im.id) cache[im.id] = c.name;
       }
     }
-    try { localStorage.setItem(CARD_IDS_KEY, JSON.stringify(cache)); } catch (e) { /* optional */ }
+    bigSet(CARD_IDS_KEY, cache);
     return cache;
   }
   async function idsToDeckText(sections) {
@@ -12484,11 +12606,11 @@
   // The plain card name: TCGplayer adds "(Starlight Rare)", "(Alternate Art)" and the like, sometimes two of them.
   const ygoName = plainName;
   const cardKey = n => ygoName(n).toLowerCase();
-  function ygoStore(key) { const c = readJSON(key, {}); return c && typeof c === "object" && !Array.isArray(c) ? c : {}; }
+  function ygoStore(key) { const c = bigGet(key, {}); return c && typeof c === "object" && !Array.isArray(c) ? c : {}; }
   function ygoSave(key, c, max) {
     const keys = Object.keys(c);
     if (keys.length > max) keys.sort((a, b) => (c[a].t || 0) - (c[b].t || 0)).slice(0, keys.length - max).forEach(k => delete c[k]);
-    try { localStorage.setItem(key, JSON.stringify(c)); } catch (e) { /* optional: looked up again next time */ }
+    bigSet(key, c);
   }
   // What we keep of a YGOPRODeck card: the names quoted in its text say which archetypes it supports.
   function ygoSlim(x) {
@@ -14169,6 +14291,7 @@
   // Once you keep a collection on PriceCharting (you've exported to it): the cards it doesn't have yet, those ready to go
   // and those not looked up there yet, for a reminder on the Collection tab and a count on the Export menu.
   function pcWaiting() {
+    if (!big.settled) return {copies: 0, ready: 0, unknown: 0};   // (until the saved PriceCharting matches are read)
     if (!settings.pcExportAt && !collection.some(r => r.pcSent)) return {copies: 0, ready: 0, unknown: 0};
     // (cards not looked up on this device count only where they can be looked up: with your PriceCharting key here; and
     // not the copies already sent, from a device that had them looked up)
@@ -14982,6 +15105,12 @@
     }, true);
   }
 
+  // The saved lookups, from the browser's database: read again from there once it's open (anything that read them
+  // before then had the local storage copy); the PriceCharting reminder waits for them.
+  bigOpen(() => {
+    yugi.cache = null; ocg.cache = null; pc.cache = null;
+    if (opening.started) { pcSentFromLastExport(); render(); }
+  });
   function init() {
     // The website works offline once opened (sw.js), and asks the browser to keep its data.
     if (SITE && "serviceWorker" in navigator && window.isSecureContext && /^https?:$/.test(location.protocol)) navigator.serviceWorker.register("sw.js").catch(() => {});
@@ -14996,23 +15125,23 @@
   function retryOcgList() {
     if (!ocgCd.data && collection.some(isOcg)) loadOcgCardsSoft();
   }
+  // (after what's on screen, when the browser is free; at the latest after a while)
+  const whenIdle = (fn, wait) => setTimeout(() => (window.requestIdleCallback ? requestIdleCallback(fn, {timeout: 2000}) : fn()), wait || 400);
   function startApp() {
     try { catalog = buildCatalog(window.TCG_DATA); } catch (e) { catalog = null; }
     window.TCG_DATA = null; // free the raw copy; the catalog keeps what it needs
     loadState();
-    // Japanese, Korean and Rush Duel cards are priced from a list that has to be fetched: start on it right away, so the
-    // total doesn't sit low for the first few seconds (those cards count as $0 until it is here).
-    if (collection.some(isOcg)) loadOcgCardsSoft();
     shopPricesReady();   // (the same for the Japanese and Korean sealed products you own: priced from the shops' lists)
     setTimeout(fillPrintPhotos, 3000);   // (your cards: a photo of their own print, where they have none that loads)
-    pcSentFromLastExport();   // (a PriceCharting file made before cards remembered which copies went: they remember it now)
-    const linked = autoLink();
-    if (linked) save();
-    else if (recordValueHistory()) save({quiet: true});  // today's value-history point
+    if (recordValueHistory()) save({quiet: true});  // today's value-history point
+    if (big.settled) pcSentFromLastExport();   // (else once the saved lookups are read: bigOpen above)
     wire();
     const linkedTab = tabFromHash();   // (a link to a tab, like …/#wants)
     if (linkedTab) settings.tab = linkedTab;
+    // (back from signing in to Google: every card drawn at once, so the page can scroll back to where you were)
+    try { drawAllNow = !!sessionStorage.getItem(RETURN_KEY); } catch (e) { drawAllNow = false; }
     render();
+    drawAllNow = false;
     initBack();
     syncTabHash();
     // back from signing in to Google while Card Vault was open: where you'd scrolled to
@@ -15026,17 +15155,25 @@
     // how last night's update went, and today's grading fees; cards back late from the grader
     setTimeout(() => loadLive(), 1200);
     renderGradingBanner();
+    // Once Card Vault is on screen and the phone has a moment (not while it opens): the Japanese, Korean and Rush Duel
+    // list (about 5 MB; until it's in, those cards show the price it gave last time), English cards entered by number
+    // linked to their TCGplayer printing, and Card search's list made ready, so the first search is as quick as the next.
+    whenIdle(() => { if (collection.some(isOcg)) loadOcgCardsSoft(); });
+    whenIdle(() => {
+      const linked = autoLink();
+      if (linked) { save(); render(); toast("Linked " + plural(linked, "card") + " to TCGplayer printings by card number."); }
+    });
+    whenIdle(warmSearch, 2500);
     window.addEventListener("online", () => { refreshOcgPrices(); if (settings.gradedView) refreshGradedPrices(); });
     if (loadProblem) toast("Card Vault couldn't read your saved collection, so it started empty. Your backup file wasn't changed: restore it from Settings.", {kind: "error", sticky: true});
     if (!storageOK) toast("This browser is blocking storage, so changes won't be kept after you close the page. Use Export CSV to keep a copy.", {kind: "error", sticky: true});
-    if (linked) toast("Linked " + plural(linked, "card") + " to TCGplayer printings by card number.");
   }
 
   // Exposed for automated tests only.
   window.CardVault = {state: () => ({collection, settings, selected, catalog, wants, valueHistory, backup, decks, sales, phone, deleted, batch, sync}),
     mergeBackup, checkBackupFile, openBatch, parseBatchLine, batchRowFor, addBatch, save, analyzeCSV, commitImport, openImport,
     findByNumber, searchByName, priceInfo, marketValue, unitValue, changeFor, periodChange, historySeries, totals, deleteRecords, exportCSV,
-      openPcExport, pcExportPlan, pcExportText, pcGrade, pcExportId, pcSentFromLastExport, pcWaiting, renderPcBanner, mergeDuplicates, openPaidTool, paidPlan, pp: () => pp, openTcgCart, tcgCartPlan, tcgCartURL, pcx: () => pcx,
+      openPcExport, pcExportPlan, pcExportText, pcGrade, pcExportId, pcSentFromLastExport, pcWaiting, renderPcBanner, big: () => big, bigGet, bigSet, yugiCache, readDataText, mergeDuplicates, openPaidTool, paidPlan, pp: () => pp, openTcgCart, tcgCartPlan, tcgCartURL, pcx: () => pcx,
     openDetails, openAdd, openSettings, render, setTab, setsData, extrasMap, wantStatus, addWant, restoreBackup, backupPayload,
     findYugiImages, rankYugiImages, parseYugiFile, yugiMangaPhoto, fillMangaPhotos, fillPrintPhotos, yugiPrintPick, langNumber, printPicOf, scanURL, isScanURL, yugiLabel, recordValueHistory, niceTicks, dateTicks, checkForNewData, writeBackup, initBackup,
     photoCandidates, findPhotosBatch, tradeListText, parseDeckText, parseYdk, parseYdke, checkDeck, cardNamesFor, runDeckCheck,

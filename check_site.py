@@ -34,6 +34,16 @@ MAX_DROP = 0.25            # more than this share of products gone since the las
 STALE_DAYS = 3             # TCGplayer prices older than this are a warning (the website shows its own notice too)
 
 
+
+def window_value(body):
+    """The value after "window.NAME =": the data itself, or JSON.parse("...") around it (tcgplayer-data.js, read faster that way)."""
+    body = body.strip()
+    if body.endswith(";"):
+        body = body[:-1].rstrip()
+    if body.startswith("JSON.parse(") and body.endswith(")"):
+        return json.loads(json.loads(body[len("JSON.parse("):-1]))
+    return json.loads(body)
+
 def read_text(path):
     with open(path, encoding="utf-8") as f:
         return f.read()
@@ -45,7 +55,7 @@ def read_window_json(path):
     m = re.search(r"window\.[A-Za-z_]+\s*=\s*", text)
     if not m:
         raise ValueError("no window.NAME = ... in the file")
-    return json.loads(text[m.end():].strip().rstrip(";").strip())
+    return window_value(text[m.end():])
 
 
 def check_files(site, fails):
