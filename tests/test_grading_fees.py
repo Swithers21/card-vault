@@ -54,14 +54,19 @@ class PSA(unittest.TestCase):
         self.assertEqual(len(names), len(set(n.lower() for n in names)))
 
 
-# Premier Card Grading's page as read on Oct 21 2026: a card per level for TCG's, then the same for Sports
-PCG_CARD = ('<div class="card"><h3>{name}</h3><p class="price">${fee}/per card</p><ul><li>Turnaround: {days} Business Days</li>{cap}'
-            '<li>Sub grades</li></ul><a href="/products/x">Submit</a></div>')
-PCG_PAGE = ("<html><body><nav>Standard shipping · Express returns</nav><h2>TCG's</h2>" +
-            PCG_CARD.format(name="Bulk 50+", fee="14.95", days="40 to 60", cap="<li>Insurance Cap: $250 Per Card</li>") +
-            PCG_CARD.format(name="Standard", fee="19.95", days="20 to 30", cap="") +
-            PCG_CARD.format(name="Express", fee="49.95", days="7-10", cap="<li>Insurance Cap: $10,000 Per Card</li>") +
-            "<h2>Sports</h2>" + PCG_CARD.format(name="Express", fee="99.00", days="7-10", cap="") + "</body></html>")
+# Premier Card Grading's page as read on Oct 21 2026: a card per level for TCG's (its name, a line about it, the price, its
+# details, "See ... Labels", "Choose ..."), then the same for Sports. (The first night's reader expected the price right
+# after the name and read nothing; this is the page's real order.)
+PCG_CARD = ('<div class="card"><h3>{name}</h3><p>{about}</p><p class="price">${fee}/per card</p><p>One-off payment, price not including shipping</p>'
+            '<ul>{cap}<li>Turnaround: {days} Business Days</li>{more}</ul><a href="#">See {short} Labels</a><a class="btn">Choose {short}</a></div>')
+PCG_PAGE = ("<html><head><title>Pricing &amp; Services – Premier Card Grading US</title></head><body><a>Skip to content</a>"
+            "<nav>Standard shipping · Express returns · Bulk orders</nav><h2>TCG's</h2>" +
+            PCG_CARD.format(name="Bulk 50+", about="This service is ideal for middlemen submitters and/or group submissions.", fee="14.95", days="40 to 60",
+                            cap="<li>Insurance Cap: $250 Per Card</li>", more="<li>Minimum 50+ card submission</li><li>Cheapest PCG Grading Service</li>", short="Bulk") +
+            PCG_CARD.format(name="Standard", about="This service is our most commonly selected service for grading cards.", fee="19.95", days="20 to 30", cap="",
+                            more="<li>Most Popular Service</li><li>Sub Grades &amp; Metal Label Included</li>", short="Standard") +
+            PCG_CARD.format(name="Express", about="Our fastest service.", fee="49.95", days="7-10", cap="<li>Insurance Cap: $10,000 Per Card</li>", more="", short="Express") +
+            "<h2>Sports</h2>" + PCG_CARD.format(name="Express", about="Fast.", fee="99.00", days="7-10", cap="", more="", short="Express") + "</body></html>")
 
 
 class PCG(unittest.TestCase):
@@ -73,9 +78,10 @@ class PCG(unittest.TestCase):
         self.assertTrue(got["complete"])
 
     def test_a_changed_page_reads_as_nothing(self):
-        got = g.parse_pcg(PCG_PAGE.replace("Express</h3>", "Rush</h3>").replace(">Express<", ">Rush<"))
+        got = g.parse_pcg(PCG_PAGE.replace("Express", "Rush"))                       # (a level renamed)
         self.assertEqual(got["levels"], [])
-        self.assertIn("TCG", got["sample"])
+        self.assertIn("Premier Card Grading", got["sample"])
+        self.assertEqual(g.parse_pcg(PCG_PAGE.replace("/per card", " each"))["levels"], [])          # (prices written another way)
 
     def test_it_is_one_of_the_companies_read(self):
         self.assertIn("PCG", g.COMPANIES)
