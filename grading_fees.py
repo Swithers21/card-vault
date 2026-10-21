@@ -346,17 +346,20 @@ PCG_LEVELS = ("Bulk 50+", "Standard", "Express")
 
 
 def parse_pcg(page):
-    """Premier Card Grading's page: a card per level, TCG first (Sports repeats them): "Bulk 50+ $14.95/per card
-    Turnaround: 40 to 60 Business Days Insurance Cap: $250 Per Card". All three or nothing (a changed page keeps the
-    last list)."""
+    """Premier Card Grading's page: a card per level, TCG first (Sports repeats them): its name, a line about it, the
+    price ("$14.95/per card"), then "Insurance Cap: $250 Per Card", "Turnaround: 40 to 60 Business Days" and the like,
+    and a "Choose ..." button. All three levels or nothing (a changed page keeps the last list)."""
     text = text_of(page)
     names = "|".join(re.escape(n) for n in PCG_LEVELS)
     out = []
     for name in PCG_LEVELS:
-        m = re.search(re.escape(name) + r"\s*\$\s*([\d,]+(?:\.\d+)?)\s*(?:USD)?\s*/\s*per\s*card(.{0,240}?)(?=(?:" + names + r")\s*\$|$)", text, re.I | re.S)
+        # (its name, then up to a line of words with no price and no other level's name in it, then its price)
+        m = re.search(re.escape(name) + r"(?:(?!" + names + r")[^$]){0,200}?\$\s*([\d,]+(?:\.\d+)?)\s*(?:USD)?\s*/?\s*per\s*card", text, re.I)
         if not m:
             return {"levels": [], "sample": text[:200]}
-        rest = m.group(2)
+        rest = text[m.end(): m.end() + 320]
+        stop = re.search(r"\bChoose\b|(?:" + names + r")(?:(?!" + names + r")[^$]){0,200}?\$\s*[\d,]", rest, re.I)
+        rest = rest[:stop.start()] if stop else rest
         days = re.search(r"Turnaround:?\s*(\d+\s*(?:to|[-–])\s*\d+|\d+\+?)\s*Business Days", rest, re.I)
         cap = re.search(r"Insurance Cap:?\s*(\$[\d,]+)", rest, re.I)
         out.append(level(name, money("$" + m.group(1)), money(cap.group(1)) if cap else None,
