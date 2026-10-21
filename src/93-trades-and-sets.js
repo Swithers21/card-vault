@@ -106,7 +106,7 @@
       '<div class="trade-extra"><label class="basis">Cash <select class="select" id="tradeCashDir"><option value="get"' + (t.cashDir === "get" ? " selected" : "") + '>they pay me</option>' +
       '<option value="give"' + (t.cashDir === "give" ? " selected" : "") + '>I pay them</option></select>' +
       '<input class="input" id="tradeCash" type="number" min="0" step="0.01" placeholder="$0" value="' + (t.cash || "") + '"></label>' +
-      '<label class="basis">Put the cards I get in <input class="input" id="tradeLoc" list="locationList" autocomplete="off" placeholder="No location" value="' + esc(t.loc) + '"></label></div>' +
+      '<label class="basis">Put the cards I get in <input class="input" id="tradeLoc" data-loc="1" autocomplete="off" placeholder="No location" value="' + esc(t.loc) + '"></label></div>' +
       '<div class="btn-row"><button class="btn btn-primary" type="button" id="tradeDo"' + (t.give.length || t.get.length ? "" : " disabled") + ">Complete trade</button>" +
       '<button class="btn" type="button" id="tradeClear"' + (t.give.length || t.get.length || t.cash ? "" : " disabled") + ">Clear</button></div>" +
       '<p class="small" style="margin:10px 0 0">Complete trade takes the cards you give out of your collection (they show in the sales log as traded, at their market value) and adds the cards you get, with their market value as what you paid.</p></div>';

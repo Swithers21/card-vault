@@ -91,6 +91,7 @@
     renderWantBanner();
     renderChangeBanner();
     renderGradingBanner();
+    renderPcBanner();
     renderSummary();
     renderTabs();
     renderFilterOptions();
@@ -800,6 +801,105 @@
     $("nameQuery").addEventListener("input", () => { clearTimeout(timer); timer = setTimeout(run, 220); });
   }
 
+  /* ----- the location picker ----- */
+  // Location fields (binder, box or deck): the last one you used stays filled in, and tapping the field lists every
+  // location you have, not only the ones matching what's in it (the browser's own suggestions did that, so a filled-in
+  // field offered just itself until you erased it). Tapping selects the text, so typing replaces it and narrows the
+  // list; a tap, or the arrow keys and Enter, picks one.
+  const lp = {input: null, box: null, typed: false, i: -1, items: []};
+  function locPickItems() {
+    const cur = lp.input ? lp.input.value.trim() : "";
+    let list = allLocations();
+    if (lp.typed && cur) list = list.filter(l => l.toLowerCase().includes(cur.toLowerCase()));
+    else if (cur) list = [cur].concat(list.filter(l => l.toLowerCase() !== cur.toLowerCase()));
+    return list.map(l => ({value: l, label: l})).concat(cur && !lp.typed ? [{value: "", label: "No location"}] : []);
+  }
+  function renderLocPick() {
+    if (!lp.input || !lp.box) return;
+    lp.items = locPickItems();
+    if (lp.i >= lp.items.length) lp.i = lp.items.length - 1;
+    const cur = lp.input.value.trim().toLowerCase();
+    lp.box.hidden = !lp.items.length;
+    lp.input.setAttribute("aria-expanded", String(!!lp.items.length));
+    lp.box.innerHTML = lp.items.map((x, i) => '<button type="button" role="option" tabindex="-1" id="lpOpt' + i + '" class="lp-opt' + (i === lp.i ? " on" : "") +
+      (x.value && x.value.toLowerCase() === cur ? " now" : "") + (x.value ? "" : " none") + '" aria-selected="' + (i === lp.i) + '" data-lp="' + i + '">' + esc(x.label) + "</button>").join("");
+    if (lp.i >= 0) lp.input.setAttribute("aria-activedescendant", "lpOpt" + lp.i); else lp.input.removeAttribute("aria-activedescendant");
+  }
+  function openLocPick(input) {
+    // (each time the field is tapped into: every location again, whatever was typed last time)
+    if (lp.input === input && lp.box && lp.box.isConnected) { lp.typed = false; lp.i = -1; renderLocPick(); return; }
+    closeLocPick();
+    if (!allLocations().length) return;
+    lp.input = input; lp.typed = false; lp.i = -1;
+    lp.box = document.createElement("div");
+    lp.box.className = "loc-pick";
+    lp.box.id = "locPick";
+    lp.box.setAttribute("role", "listbox");
+    lp.box.setAttribute("aria-label", "Your locations");
+    input.setAttribute("role", "combobox");
+    input.setAttribute("aria-autocomplete", "list");
+    input.setAttribute("aria-controls", "locPick");
+    input.insertAdjacentElement("afterend", lp.box);
+    (input.parentElement || input).classList.add("lp-host");
+    renderLocPick();
+  }
+  function closeLocPick() {
+    if (lp.box) lp.box.remove();
+    if (lp.input) { lp.input.setAttribute("aria-expanded", "false"); lp.input.removeAttribute("aria-activedescendant"); }
+    lp.input = null; lp.box = null; lp.items = []; lp.i = -1;
+  }
+  function pickLoc(i) {
+    const x = lp.items[i], input = lp.input;
+    if (!x || !input) return;
+    input.value = x.value;
+    closeLocPick();
+    input.dispatchEvent(new Event("input", {bubbles: true}));
+    input.dispatchEvent(new Event("change", {bubbles: true}));
+  }
+  function wireLocPick() {
+    document.addEventListener("focusin", e => {
+      const t = e.target;
+      if (!(t instanceof HTMLInputElement) || !t.dataset.loc) { if (lp.box && !(lp.box.contains(t))) closeLocPick(); return; }
+      openLocPick(t);
+      // (selected, so typing replaces it: now, and again after the tap or click that focused it places the cursor)
+      lp.fresh = t;
+      t.select();
+      setTimeout(() => { if (document.activeElement === t && !(lp.input === t && lp.typed)) t.select(); }, 0);
+    });
+    document.addEventListener("click", e => {
+      const t = e.target;
+      if (t instanceof HTMLInputElement && t.dataset.loc) {
+        if (!lp.box) openLocPick(t);
+        if (lp.fresh === t && !lp.typed) t.select();
+        lp.fresh = null;
+        return;
+      }
+      if (lp.box && !lp.box.contains(t)) closeLocPick();
+    });
+    // (a tap on an option mustn't take the focus from the field first)
+    document.addEventListener("pointerdown", e => { if (e.target.closest && e.target.closest(".lp-opt")) e.preventDefault(); });
+    document.addEventListener("mousedown", e => { if (e.target.closest && e.target.closest(".lp-opt")) e.preventDefault(); });
+    document.addEventListener("click", e => { const o = e.target.closest && e.target.closest("[data-lp]"); if (o) { e.preventDefault(); pickLoc(+o.dataset.lp); } }, true);
+    document.addEventListener("input", e => {
+      const t = e.target;
+      if (!(t instanceof HTMLInputElement) || !t.dataset.loc || lp.input !== t || !e.isTrusted) return;
+      lp.typed = true; lp.i = -1;
+      renderLocPick();
+    });
+    document.addEventListener("keydown", e => {
+      if (!lp.input || e.target !== lp.input) return;
+      const n = lp.items.length;
+      if (e.key === "ArrowDown" && n) { e.preventDefault(); lp.i = (lp.i + 1) % n; renderLocPick(); }
+      else if (e.key === "ArrowUp" && n) { e.preventDefault(); lp.i = (lp.i - 1 + n) % n; renderLocPick(); }
+      else if (e.key === "Enter" && lp.i >= 0) { e.preventDefault(); pickLoc(lp.i); }
+      else if (e.key === "Escape") { e.preventDefault(); e.stopPropagation(); closeLocPick(); }
+      else if (e.key === "Tab") closeLocPick();
+    }, true);
+    document.addEventListener("focusout", e => {
+      if (lp.input && e.target === lp.input) setTimeout(() => { if (lp.input && document.activeElement !== lp.input) closeLocPick(); }, 150);
+    });
+  }
+
   /* ----- shared form pieces ----- */
   // What you already have of the card (or product) being added, by place: "You already have 3: Binder 1 ×2 · No location ×1".
   // Tapping a place puts it in the form's location field (locId), to keep the new copies with the others. match(r) says
@@ -823,7 +923,7 @@
   }
   function locationFieldHTML(id, value) {
     return '<label class="field"><span>Location (optional): binder, box or deck</span><input class="input" id="' + id +
-      '" list="locationList" autocomplete="off" placeholder="e.g. Binder 1" value="' + esc(value || "") + '"></label>';
+      '" data-loc="1" autocomplete="off" placeholder="e.g. Binder 1" value="' + esc(value || "") + '"></label>';
   }
   function gradeFieldsHTML(prefix, g) {
     g = g || {};

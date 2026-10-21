@@ -1080,7 +1080,7 @@
       '<button type="button" class="icon-btn" data-step="1" aria-label="One more">+</button><small>of ' + r.qty + "</small></div></div>";
     openDrawer("Move cards",
       '<form id="moveForm" class="stack" novalidate>' +
-      '<label class="field"><span>Move to</span><input class="input" id="mvTo" list="locationList" autocomplete="off" placeholder="Binder, box or deck, e.g. Deck box"></label>' +
+      '<label class="field"><span>Move to</span><input class="input" id="mvTo" data-loc="1" autocomplete="off" placeholder="Binder, box or deck, e.g. Deck box"></label>' +
       (chips.length ? '<div class="loc-chips" id="mvChips">' + chips.map(([v, label]) =>
         '<button type="button" class="loc-chip" data-loc="' + esc(v) + '">' + esc(label) + "</button>").join("") + "</div>" : "") +
       '<div class="mv-list">' + recs.map(row).join("") + "</div>" +

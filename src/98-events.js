@@ -116,6 +116,8 @@
       else if (a === "status-dismiss") dismissStatusBanner();
       else if (a === "grading-show") { settings.insightView = "grading"; saveSettings(); setTab("history"); }
       else if (a === "grading-dismiss") dismissGradingBanner();
+      else if (a === "pc-send") openPcExport();
+      else if (a === "pc-later") { settings.pcNudgeSeen = pcWaiting().copies; saveSettings(); renderPcBanner(); }
       else if (a === "choose") chooseBackupFile();
       else if (a === "download") downloadBackup();
       else if (a === "settings") openSettings();
@@ -228,6 +230,7 @@
     });
     $("bulkDelete").addEventListener("click", () => deleteRecords(Array.from(selected)));
     $("bulkSell").addEventListener("click", () => bulkSell(Array.from(selected)));
+    $("bulkPaid").addEventListener("click", () => openPaidTool(Array.from(selected)));
 
     // ----- a Japanese or Korean card from the daily list, wherever it's shown
     document.addEventListener("click", e => {
@@ -504,6 +507,7 @@
     // ----- deck check
     const decksPanel = $("panel-decks");
     wireDeckIdeas(decksPanel);
+    wireLocPick();
     wireInsights($("panel-history"));
     wireTrade($("panel-sales"));
     decksPanel.addEventListener("input", e => {
@@ -769,7 +773,7 @@
   window.CardVault = {state: () => ({collection, settings, selected, catalog, wants, valueHistory, backup, decks, sales, phone, deleted, batch, sync}),
     mergeBackup, checkBackupFile, openBatch, parseBatchLine, batchRowFor, addBatch, save, analyzeCSV, commitImport, openImport,
     findByNumber, searchByName, priceInfo, marketValue, unitValue, changeFor, periodChange, historySeries, totals, deleteRecords, exportCSV,
-      openPcExport, pcExportPlan, pcExportText, pcGrade, pcExportId, pcSentFromLastExport, mergeDuplicates, openTcgCart, tcgCartPlan, tcgCartURL, pcx: () => pcx,
+      openPcExport, pcExportPlan, pcExportText, pcGrade, pcExportId, pcSentFromLastExport, pcWaiting, renderPcBanner, mergeDuplicates, openPaidTool, paidPlan, pp: () => pp, openTcgCart, tcgCartPlan, tcgCartURL, pcx: () => pcx,
     openDetails, openAdd, openSettings, render, setTab, setsData, extrasMap, wantStatus, addWant, restoreBackup, backupPayload,
     findYugiImages, rankYugiImages, parseYugiFile, yugiMangaPhoto, fillMangaPhotos, fillPrintPhotos, yugiPrintPick, langNumber, printPicOf, scanURL, isScanURL, yugiLabel, recordValueHistory, niceTicks, dateTicks, checkForNewData, writeBackup, initBackup,
     photoCandidates, findPhotosBatch, tradeListText, parseDeckText, parseYdk, parseYdke, checkDeck, cardNamesFor, runDeckCheck,
