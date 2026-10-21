@@ -523,7 +523,34 @@
     pcx.saved = {copies: plan.copies, at, was};
     pcx.onlyNew = true;
     renderPcExport();
+    renderPcBanner();
     toast("Saved " + plural(plan.copies, "card") + " for PriceCharting. Upload the file once on PriceCharting's importer.");
+  }
+  // Once you keep a collection on PriceCharting (you've exported to it): the cards it doesn't have yet, those ready to go
+  // and those not looked up there yet, for a reminder on the Collection tab and a count on the Export menu.
+  function pcWaiting() {
+    if (!settings.pcExportAt && !collection.some(r => r.pcSent)) return {copies: 0, ready: 0, unknown: 0};
+    // (cards not looked up on this device count only where they can be looked up: with your PriceCharting key here; and
+    // not the copies already sent, from a device that had them looked up)
+    const plan = pcExportPlan(true), unknown = pcOn() && !pcBad() ? plan.skipped.unknown.reduce((t, r) => t + pcUnsent(r), 0) : 0;
+    return {copies: plan.copies + unknown, ready: plan.copies, unknown};
+  }
+  function renderPcBanner() {
+    const b = $("pcBanner");
+    if (!b) return;
+    const w = pcWaiting();
+    // ("Not now" until more cards wait than when you said it; fewer since, say after sending them, starts the count again)
+    if (w.copies < (num(settings.pcNudgeSeen) || 0)) { settings.pcNudgeSeen = w.copies; saveSettings(); }
+    const show = w.copies > 0 && w.copies > (num(settings.pcNudgeSeen) || 0);
+    b.hidden = !show;
+    b.innerHTML = show ? "<strong>" + plural(w.copies, "card") + (w.copies === 1 ? " isn't" : " aren't") + " on PriceCharting yet.</strong> " +
+      (w.unknown ? (w.unknown === w.copies ? (w.copies === 1 ? "It needs" : "They need") + " looking up there first; Card Vault does that for you. " : w.unknown + " of them need looking up there first. ") : "") +
+      "Card Vault makes a file with just these, to upload once." +
+      '<div class="banner-actions"><button class="btn btn-small btn-primary" type="button" data-banner="pc-send">Send them to PriceCharting</button>' +
+      '<button class="btn btn-small" type="button" data-banner="pc-later">Not now</button></div>' : "";
+    const item = $("pcExportBtn");
+    if (item) item.dataset.waiting = w.copies ? String(w.copies) : "";
+    syncBanners();
   }
   // The file wasn't uploaded after all: those copies count as not sent again
   function pcExportUndo() {
@@ -532,6 +559,7 @@
     save();
     pcx.saved = null;
     renderPcExport();
+    renderPcBanner();
     toast("Taken back: Card Vault offers those cards again next time.");
   }
 

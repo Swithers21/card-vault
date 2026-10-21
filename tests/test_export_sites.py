@@ -183,6 +183,37 @@ class PriceChartingFile(SealedBase):
         page.evaluate("window.CardVault.moveCopies([{id: 'b', qty: 1}], 'Box')")
         self.assertEqual(page.evaluate("window.CardVault.pcExportPlan(true).copies"), 1)
 
+    def test_a_reminder_when_cards_arent_on_pricecharting_yet(self):
+        # never exported: no reminder
+        page = self.go(records=[(card("x", "AAA-EN060", "Jinzo"), 6001)])
+        self.assertTrue(page.is_hidden("#pcBanner"))
+        # once you keep a collection there: the cards it doesn't have, ready or not looked up yet
+        recs = [(card("s", "AAA-EN061", "Sent One", pcSent=1), 6002), (card("n", "AAA-EN062", "New One"), 6003), (card("u", "AAA-EN063", "Not Looked Up"), None),
+                (card("k", "AAA-K064", "Korean One", language="Korean"), None)]
+        page = self.go(records=recs, settings={"pcExportAt": "2026-10-20T22:00:49.383Z", "pcSentKept": True})
+        page.evaluate("window.CardVault.render()")
+        page.wait_for_selector("#pcBanner:not([hidden])")
+        text = page.inner_text("#pcBanner")
+        self.assertIn("2 cards aren't on PriceCharting yet", text)                 # (not the sent one, nor the Korean one)
+        self.assertIn("1 of them need looking up there first", text)
+        self.assertEqual(page.get_attribute("#pcExportBtn", "data-waiting"), "2")
+        page.click("[data-banner=pc-send]")
+        page.wait_for_selector("#pcxBody .pcx-sum")
+        page.keyboard.press("Escape")
+        # "Not now": hidden until more cards wait
+        page.click("[data-banner=pc-later]")
+        self.assertTrue(page.is_hidden("#pcBanner"))
+        page.evaluate("""(() => { const v = window.CardVault, r = {id: 'm', productId: null, name: 'More', productName: 'More', setName: 'Some Set', number: 'AAA-EN065',
+            rarity: 'Common', edition: '1st Edition', language: 'English', qty: 1, condition: 'Near Mint', added: '2026-10-22T00:00:00Z'};
+            v.state().collection.push(r); v.pcCache()[v.pcKey(r)] = {t: Date.now(), p: {id: '6005', name: 'More', set: 'YuGiOh Some Set'}}; v.render(); })()""")
+        page.wait_for_selector("#pcBanner:not([hidden])")
+        self.assertIn("3 cards aren't on PriceCharting yet", page.inner_text("#pcBanner"))
+        # a device without your PriceCharting key: only the cards matched there count (nothing to look up from here)
+        page.evaluate("(() => { window.CardVault.state().settings.pcToken = ''; window.CardVault.render(); })()")
+        self.assertEqual(page.evaluate("window.CardVault.pcWaiting()"), {"copies": 2, "ready": 2, "unknown": 0})
+        # a card sent from another device, not looked up on this one, isn't counted again
+        self.assertEqual(page.evaluate("(() => { window.CardVault.state().settings.pcToken = 'k'; delete window.CardVault.pcCache()[window.CardVault.pcKey(window.CardVault.state().collection[0])]; return window.CardVault.pcWaiting().copies; })()"), 3)
+
     def test_duplicates_joined_keep_their_sent_copies(self):
         recs = [(card("d1", "AAA-EN050", "Sangan", qty=2, pcSent=1), 5001), (card("d2", "AAA-EN050", "Sangan", qty=1, pcSent=1), 5001)]
         page = self.go(records=recs)

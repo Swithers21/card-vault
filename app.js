@@ -1353,6 +1353,7 @@
     renderWantBanner();
     renderChangeBanner();
     renderGradingBanner();
+    renderPcBanner();
     renderSummary();
     renderTabs();
     renderFilterOptions();
@@ -2062,6 +2063,105 @@
     $("nameQuery").addEventListener("input", () => { clearTimeout(timer); timer = setTimeout(run, 220); });
   }
 
+  /* ----- the location picker ----- */
+  // Location fields (binder, box or deck): the last one you used stays filled in, and tapping the field lists every
+  // location you have, not only the ones matching what's in it (the browser's own suggestions did that, so a filled-in
+  // field offered just itself until you erased it). Tapping selects the text, so typing replaces it and narrows the
+  // list; a tap, or the arrow keys and Enter, picks one.
+  const lp = {input: null, box: null, typed: false, i: -1, items: []};
+  function locPickItems() {
+    const cur = lp.input ? lp.input.value.trim() : "";
+    let list = allLocations();
+    if (lp.typed && cur) list = list.filter(l => l.toLowerCase().includes(cur.toLowerCase()));
+    else if (cur) list = [cur].concat(list.filter(l => l.toLowerCase() !== cur.toLowerCase()));
+    return list.map(l => ({value: l, label: l})).concat(cur && !lp.typed ? [{value: "", label: "No location"}] : []);
+  }
+  function renderLocPick() {
+    if (!lp.input || !lp.box) return;
+    lp.items = locPickItems();
+    if (lp.i >= lp.items.length) lp.i = lp.items.length - 1;
+    const cur = lp.input.value.trim().toLowerCase();
+    lp.box.hidden = !lp.items.length;
+    lp.input.setAttribute("aria-expanded", String(!!lp.items.length));
+    lp.box.innerHTML = lp.items.map((x, i) => '<button type="button" role="option" tabindex="-1" id="lpOpt' + i + '" class="lp-opt' + (i === lp.i ? " on" : "") +
+      (x.value && x.value.toLowerCase() === cur ? " now" : "") + (x.value ? "" : " none") + '" aria-selected="' + (i === lp.i) + '" data-lp="' + i + '">' + esc(x.label) + "</button>").join("");
+    if (lp.i >= 0) lp.input.setAttribute("aria-activedescendant", "lpOpt" + lp.i); else lp.input.removeAttribute("aria-activedescendant");
+  }
+  function openLocPick(input) {
+    // (each time the field is tapped into: every location again, whatever was typed last time)
+    if (lp.input === input && lp.box && lp.box.isConnected) { lp.typed = false; lp.i = -1; renderLocPick(); return; }
+    closeLocPick();
+    if (!allLocations().length) return;
+    lp.input = input; lp.typed = false; lp.i = -1;
+    lp.box = document.createElement("div");
+    lp.box.className = "loc-pick";
+    lp.box.id = "locPick";
+    lp.box.setAttribute("role", "listbox");
+    lp.box.setAttribute("aria-label", "Your locations");
+    input.setAttribute("role", "combobox");
+    input.setAttribute("aria-autocomplete", "list");
+    input.setAttribute("aria-controls", "locPick");
+    input.insertAdjacentElement("afterend", lp.box);
+    (input.parentElement || input).classList.add("lp-host");
+    renderLocPick();
+  }
+  function closeLocPick() {
+    if (lp.box) lp.box.remove();
+    if (lp.input) { lp.input.setAttribute("aria-expanded", "false"); lp.input.removeAttribute("aria-activedescendant"); }
+    lp.input = null; lp.box = null; lp.items = []; lp.i = -1;
+  }
+  function pickLoc(i) {
+    const x = lp.items[i], input = lp.input;
+    if (!x || !input) return;
+    input.value = x.value;
+    closeLocPick();
+    input.dispatchEvent(new Event("input", {bubbles: true}));
+    input.dispatchEvent(new Event("change", {bubbles: true}));
+  }
+  function wireLocPick() {
+    document.addEventListener("focusin", e => {
+      const t = e.target;
+      if (!(t instanceof HTMLInputElement) || !t.dataset.loc) { if (lp.box && !(lp.box.contains(t))) closeLocPick(); return; }
+      openLocPick(t);
+      // (selected, so typing replaces it: now, and again after the tap or click that focused it places the cursor)
+      lp.fresh = t;
+      t.select();
+      setTimeout(() => { if (document.activeElement === t && !(lp.input === t && lp.typed)) t.select(); }, 0);
+    });
+    document.addEventListener("click", e => {
+      const t = e.target;
+      if (t instanceof HTMLInputElement && t.dataset.loc) {
+        if (!lp.box) openLocPick(t);
+        if (lp.fresh === t && !lp.typed) t.select();
+        lp.fresh = null;
+        return;
+      }
+      if (lp.box && !lp.box.contains(t)) closeLocPick();
+    });
+    // (a tap on an option mustn't take the focus from the field first)
+    document.addEventListener("pointerdown", e => { if (e.target.closest && e.target.closest(".lp-opt")) e.preventDefault(); });
+    document.addEventListener("mousedown", e => { if (e.target.closest && e.target.closest(".lp-opt")) e.preventDefault(); });
+    document.addEventListener("click", e => { const o = e.target.closest && e.target.closest("[data-lp]"); if (o) { e.preventDefault(); pickLoc(+o.dataset.lp); } }, true);
+    document.addEventListener("input", e => {
+      const t = e.target;
+      if (!(t instanceof HTMLInputElement) || !t.dataset.loc || lp.input !== t || !e.isTrusted) return;
+      lp.typed = true; lp.i = -1;
+      renderLocPick();
+    });
+    document.addEventListener("keydown", e => {
+      if (!lp.input || e.target !== lp.input) return;
+      const n = lp.items.length;
+      if (e.key === "ArrowDown" && n) { e.preventDefault(); lp.i = (lp.i + 1) % n; renderLocPick(); }
+      else if (e.key === "ArrowUp" && n) { e.preventDefault(); lp.i = (lp.i - 1 + n) % n; renderLocPick(); }
+      else if (e.key === "Enter" && lp.i >= 0) { e.preventDefault(); pickLoc(lp.i); }
+      else if (e.key === "Escape") { e.preventDefault(); e.stopPropagation(); closeLocPick(); }
+      else if (e.key === "Tab") closeLocPick();
+    }, true);
+    document.addEventListener("focusout", e => {
+      if (lp.input && e.target === lp.input) setTimeout(() => { if (lp.input && document.activeElement !== lp.input) closeLocPick(); }, 150);
+    });
+  }
+
   /* ----- shared form pieces ----- */
   // What you already have of the card (or product) being added, by place: "You already have 3: Binder 1 ×2 · No location ×1".
   // Tapping a place puts it in the form's location field (locId), to keep the new copies with the others. match(r) says
@@ -2085,7 +2185,7 @@
   }
   function locationFieldHTML(id, value) {
     return '<label class="field"><span>Location (optional): binder, box or deck</span><input class="input" id="' + id +
-      '" list="locationList" autocomplete="off" placeholder="e.g. Binder 1" value="' + esc(value || "") + '"></label>';
+      '" data-loc="1" autocomplete="off" placeholder="e.g. Binder 1" value="' + esc(value || "") + '"></label>';
   }
   function gradeFieldsHTML(prefix, g) {
     g = g || {};
@@ -6055,7 +6155,7 @@
       '<button type="button" class="icon-btn" data-step="1" aria-label="One more">+</button><small>of ' + r.qty + "</small></div></div>";
     openDrawer("Move cards",
       '<form id="moveForm" class="stack" novalidate>' +
-      '<label class="field"><span>Move to</span><input class="input" id="mvTo" list="locationList" autocomplete="off" placeholder="Binder, box or deck, e.g. Deck box"></label>' +
+      '<label class="field"><span>Move to</span><input class="input" id="mvTo" data-loc="1" autocomplete="off" placeholder="Binder, box or deck, e.g. Deck box"></label>' +
       (chips.length ? '<div class="loc-chips" id="mvChips">' + chips.map(([v, label]) =>
         '<button type="button" class="loc-chip" data-loc="' + esc(v) + '">' + esc(label) + "</button>").join("") + "</div>" : "") +
       '<div class="mv-list">' + recs.map(row).join("") + "</div>" +
@@ -6878,6 +6978,103 @@
     const c = e.target.closest("[data-fdk-check]");
     if (c) { const d = byId(c.dataset.fdkCheck); if (d) fdkOpenInCheck(d); return true; }
     return false;
+  }
+  /* ======================= Price paid, for many cards at once ======================= */
+  // "Price paid…" on the bar of selected cards: fills in what you paid for every selected card at once (filter the
+  // collection by set or location, "Select all shown", then this). Four ways: what each was worth the day you added it
+  // (the price kept with the card then; today's for one added without it), today's value, the same price for each, or
+  // one total split across them by what each is worth (a box's cost over the cards it gave you). Only the ones with no
+  // price paid yet, unless you say otherwise; Undo puts back what was there.
+  const pp = {ids: [], how: "added", each: "", total: "", onlyEmpty: true};
+  const PP_HOW = [["added", "What each was worth when I added it"], ["today", "What each is worth today"], ["each", "The same price for each card"],
+    ["total", "One total for all of them, split by what each is worth"]];
+  function openPaidTool(ids) {
+    pp.ids = Array.from(ids || []);
+    pp.onlyEmpty = true;
+    drawerCtx = {mode: "price-paid"};
+    openDrawer("Price paid", '<div id="ppBody"></div>');
+    renderPaidTool();
+  }
+  const ppToday = r => { const v = marketValue(r).unit; return v != null && v > 0 ? round2(v) : null; };
+  const ppAdded = r => { const s = r.snap && (r.snap.market != null ? r.snap.market : r.snap.low); return s != null && s > 0 ? {v: round2(s), when: true} : (ppToday(r) != null ? {v: ppToday(r), when: false} : null); };
+  // What each selected card would get: {rows: [{r, unit}], kept (already have one), unpriced, today (worth today, not when added), copies, sum}
+  function paidPlan() {
+    const recs = collection.filter(r => pp.ids.includes(r.id));
+    const out = {rows: [], kept: 0, unpriced: 0, today: 0, copies: 0, sum: 0, entries: recs.length};
+    const todo = [];
+    for (const r of recs) { if (pp.onlyEmpty && r.paid != null) out.kept += r.qty; else todo.push(r); }
+    if (pp.how === "total") {
+      const total = num(pp.total);
+      if (total == null || total < 0) return out;
+      const w = todo.map(r => ppToday(r));
+      const known = w.filter(x => x != null);
+      // (a card with no value yet weighs as much as the average one; with none valued, it's an even split)
+      const avg = known.length ? known.reduce((t, x) => t + x, 0) / known.length : 1;
+      const weight = w.map(x => (x != null ? x : avg) || 1);
+      const all = todo.reduce((t, r, i) => t + weight[i] * r.qty, 0);
+      todo.forEach((r, i) => out.rows.push({r, unit: all > 0 ? round2(total * weight[i] / all) : 0}));
+      // (the cents lost or gained rounding go to the biggest single card, so it adds up to what you paid)
+      const off = round2(total - out.rows.reduce((t, x) => t + x.unit * x.r.qty, 0));
+      const one = out.rows.filter(x => x.r.qty === 1).sort((a, b) => b.unit - a.unit)[0];
+      if (off && one && one.unit + off >= 0) one.unit = round2(one.unit + off);
+    } else {
+      for (const r of todo) {
+        let unit = null;
+        if (pp.how === "each") unit = num(pp.each);
+        else if (pp.how === "today") unit = ppToday(r);
+        else { const a = ppAdded(r); if (a) { unit = a.v; if (!a.when) out.today += r.qty; } }
+        if (unit == null || unit < 0) { out.unpriced += r.qty; continue; }
+        out.rows.push({r, unit: round2(unit)});
+      }
+    }
+    for (const x of out.rows) { out.copies += x.r.qty; out.sum += x.unit * x.r.qty; }
+    out.sum = round2(out.sum);
+    return out;
+  }
+  function renderPaidTool() {
+    const box = $("ppBody");
+    if (!box || !drawerCtx || drawerCtx.mode !== "price-paid") return;
+    const recs = collection.filter(r => pp.ids.includes(r.id));
+    const copies = recs.reduce((t, r) => t + r.qty, 0), withPaid = recs.filter(r => r.paid != null).length;
+    const plan = paidPlan();
+    const field = (id, label, value, hint) => '<label class="field pp-amount"><span>' + label + '</span><span class="pct">$<input class="input" type="number" min="0" step="0.01" inputmode="decimal" id="' + id +
+      '" value="' + esc(value) + '"></span>' + (hint ? '<span class="hint">' + hint + "</span>" : "") + "</label>";
+    box.innerHTML = '<p class="small" style="margin:0 0 12px">Fills in the price you paid for the ' + plural(copies, "card") + " you selected" + (recs.length !== copies ? " (" + plural(recs.length, "entry", "entries") + ")" : "") +
+      ". Tip: filter your collection by set or location, tap <b>Select all shown</b>, then come here.</p>" +
+      '<div class="field"><span>Use</span><div class="pp-how">' + PP_HOW.map(([k, l]) => '<label class="check-row"><input type="radio" name="ppHow" value="' + k + '"' + (pp.how === k ? " checked" : "") + "> <span>" + l + "</span></label>").join("") + "</div></div>" +
+      (pp.how === "each" ? field("ppEach", "Price paid, each", pp.each) : "") +
+      (pp.how === "total" ? field("ppTotal", "What you paid for all of them", pp.total, "A booster box, a lot or a bundle: the cards worth more get more of it.") : "") +
+      (withPaid ? '<label class="check-row" style="margin-top:12px"><input type="checkbox" class="check" id="ppOnlyEmpty"' + (pp.onlyEmpty ? " checked" : "") + "> <span>Only the ones without a price paid (" +
+        plural(withPaid, "entry", "entries") + " already " + (withPaid === 1 ? "has" : "have") + " one)</span></label>" : "") +
+      '<div class="pcx-sum" id="ppSum">' + (plan.rows.length
+        ? '<p class="pcx-line"><b>' + plural(plan.copies, "card") + " get a price paid, " + esc(usd(plan.sum)) + " in all.</b></p>" +
+          '<ul class="pcx-left pp-rows">' + plan.rows.slice(0, 8).map(x => "<li>" + esc(x.r.name) + (x.r.number ? " · " + esc(x.r.number) : "") + ": " + esc(usd(x.unit)) + " each" +
+            (x.r.qty > 1 ? " ×" + x.r.qty : "") + (x.r.paid != null ? ' <span class="small">(was ' + esc(usd(x.r.paid)) + ")</span>" : "") + "</li>").join("") +
+          (plan.rows.length > 8 ? "<li>…and " + (plan.rows.length - 8) + " more</li>" : "") + "</ul>"
+        : '<p class="pcx-line">' + (pp.how === "each" || pp.how === "total" ? "Type the amount above." : "Nothing to fill in.") + "</p>") +
+      (plan.today ? '<p class="pcx-line small">' + (plan.today === 1 ? "1 card was added before Card Vault kept its price, so it gets today's." :
+        plan.today + " cards were added before Card Vault kept their prices, so they get today's.") + "</p>" : "") +
+      (plan.unpriced ? '<p class="pcx-line small">' + plural(plan.unpriced, "card has", "cards have") + " no price to go by, so " + (plan.unpriced === 1 ? "it stays" : "they stay") + " empty.</p>" : "") +
+      (plan.kept && pp.onlyEmpty ? '<p class="pcx-line small">' + plural(plan.kept, "card keeps its", "cards keep their") + " price paid.</p>" : "") + "</div>" +
+      '<div class="form-actions"><button type="button" class="btn btn-primary" id="ppGo"' + (plan.rows.length ? "" : " disabled") + ">Fill in " + (plan.rows.length ? plural(plan.copies, "card") : "") + "</button></div>";
+    box.querySelectorAll("[name=ppHow]").forEach(b => b.addEventListener("change", () => { pp.how = b.value; renderPaidTool(); const f = $(pp.how === "each" ? "ppEach" : "ppTotal"); if (f) f.focus(); }));
+    const typed = (id, key) => { const f = $(id); if (f) f.addEventListener("input", () => { pp[key] = f.value; const at = f.selectionStart; renderPaidTool(); const g = $(id); if (g) { g.focus(); try { g.setSelectionRange(at, at); } catch (e) { /* number fields */ } } }); };
+    typed("ppEach", "each"); typed("ppTotal", "total");
+    if ($("ppOnlyEmpty")) $("ppOnlyEmpty").addEventListener("change", e => { pp.onlyEmpty = e.target.checked; renderPaidTool(); });
+    $("ppGo").addEventListener("click", applyPaid);
+  }
+  function applyPaid() {
+    const plan = paidPlan();
+    if (!plan.rows.length) return;
+    const was = new Map(plan.rows.map(x => [x.r.id, x.r.paid]));
+    for (const x of plan.rows) x.r.paid = x.unit;
+    save();
+    closeDrawer();
+    render();
+    toast("Filled in the price paid of " + plural(plan.copies, "card") + " (" + usd(plan.sum) + ").", {action: "Undo", onAction: () => {
+      for (const r of collection) if (was.has(r.id)) { const v = was.get(r.id); if (v == null) r.paid = null; else r.paid = v; }
+      save(); render(); toast("Put back.");
+    }});
   }
   /* ======================= Backups ======================= */
   // With Chrome or Edge, Card Vault keeps a backup file you choose up to date after every change.
@@ -10585,7 +10782,7 @@
       '<div class="trade-extra"><label class="basis">Cash <select class="select" id="tradeCashDir"><option value="get"' + (t.cashDir === "get" ? " selected" : "") + '>they pay me</option>' +
       '<option value="give"' + (t.cashDir === "give" ? " selected" : "") + '>I pay them</option></select>' +
       '<input class="input" id="tradeCash" type="number" min="0" step="0.01" placeholder="$0" value="' + (t.cash || "") + '"></label>' +
-      '<label class="basis">Put the cards I get in <input class="input" id="tradeLoc" list="locationList" autocomplete="off" placeholder="No location" value="' + esc(t.loc) + '"></label></div>' +
+      '<label class="basis">Put the cards I get in <input class="input" id="tradeLoc" data-loc="1" autocomplete="off" placeholder="No location" value="' + esc(t.loc) + '"></label></div>' +
       '<div class="btn-row"><button class="btn btn-primary" type="button" id="tradeDo"' + (t.give.length || t.get.length ? "" : " disabled") + ">Complete trade</button>" +
       '<button class="btn" type="button" id="tradeClear"' + (t.give.length || t.get.length || t.cash ? "" : " disabled") + ">Clear</button></div>" +
       '<p class="small" style="margin:10px 0 0">Complete trade takes the cards you give out of your collection (they show in the sales log as traded, at their market value) and adds the cards you get, with their market value as what you paid.</p></div>';
@@ -12782,7 +12979,7 @@
       '<div class="batch-common"><h3>For every card in the list</h3><div class="grid-3">' +
       '<label class="field"><span>Condition</span><select class="input" id="batchCond">' + options(CONDITIONS, batch.condition) + "</select></label>" +
       '<label class="field"><span>Language (English cards)</span><select class="input" id="batchLang">' + options(LANGUAGES, batch.language) + "</select></label>" +
-      '<label class="field"><span>Location (optional)</span><input class="input" id="batchLoc" list="locationList" autocomplete="off" placeholder="e.g. Binder 1" value="' + esc(batch.location) + '"></label></div>' +
+      '<label class="field"><span>Location (optional)</span><input class="input" id="batchLoc" data-loc="1" autocomplete="off" placeholder="e.g. Binder 1" value="' + esc(batch.location) + '"></label></div>' +
       '<p class="hint" style="margin:0">Changing the condition here sets it for every card in the list; you can still change single cards above. Japanese and Korean cards keep their own language.</p></div>' +
       '<div class="form-actions"><button class="btn btn-primary" type="button" id="batchGo">Add to your collection</button>' +
       '<button class="btn" type="button" id="batchClear">Clear the list</button></div>');
@@ -13966,7 +14163,34 @@
     pcx.saved = {copies: plan.copies, at, was};
     pcx.onlyNew = true;
     renderPcExport();
+    renderPcBanner();
     toast("Saved " + plural(plan.copies, "card") + " for PriceCharting. Upload the file once on PriceCharting's importer.");
+  }
+  // Once you keep a collection on PriceCharting (you've exported to it): the cards it doesn't have yet, those ready to go
+  // and those not looked up there yet, for a reminder on the Collection tab and a count on the Export menu.
+  function pcWaiting() {
+    if (!settings.pcExportAt && !collection.some(r => r.pcSent)) return {copies: 0, ready: 0, unknown: 0};
+    // (cards not looked up on this device count only where they can be looked up: with your PriceCharting key here; and
+    // not the copies already sent, from a device that had them looked up)
+    const plan = pcExportPlan(true), unknown = pcOn() && !pcBad() ? plan.skipped.unknown.reduce((t, r) => t + pcUnsent(r), 0) : 0;
+    return {copies: plan.copies + unknown, ready: plan.copies, unknown};
+  }
+  function renderPcBanner() {
+    const b = $("pcBanner");
+    if (!b) return;
+    const w = pcWaiting();
+    // ("Not now" until more cards wait than when you said it; fewer since, say after sending them, starts the count again)
+    if (w.copies < (num(settings.pcNudgeSeen) || 0)) { settings.pcNudgeSeen = w.copies; saveSettings(); }
+    const show = w.copies > 0 && w.copies > (num(settings.pcNudgeSeen) || 0);
+    b.hidden = !show;
+    b.innerHTML = show ? "<strong>" + plural(w.copies, "card") + (w.copies === 1 ? " isn't" : " aren't") + " on PriceCharting yet.</strong> " +
+      (w.unknown ? (w.unknown === w.copies ? (w.copies === 1 ? "It needs" : "They need") + " looking up there first; Card Vault does that for you. " : w.unknown + " of them need looking up there first. ") : "") +
+      "Card Vault makes a file with just these, to upload once." +
+      '<div class="banner-actions"><button class="btn btn-small btn-primary" type="button" data-banner="pc-send">Send them to PriceCharting</button>' +
+      '<button class="btn btn-small" type="button" data-banner="pc-later">Not now</button></div>' : "";
+    const item = $("pcExportBtn");
+    if (item) item.dataset.waiting = w.copies ? String(w.copies) : "";
+    syncBanners();
   }
   // The file wasn't uploaded after all: those copies count as not sent again
   function pcExportUndo() {
@@ -13975,6 +14199,7 @@
     save();
     pcx.saved = null;
     renderPcExport();
+    renderPcBanner();
     toast("Taken back: Card Vault offers those cards again next time.");
   }
 
@@ -14154,6 +14379,8 @@
       else if (a === "status-dismiss") dismissStatusBanner();
       else if (a === "grading-show") { settings.insightView = "grading"; saveSettings(); setTab("history"); }
       else if (a === "grading-dismiss") dismissGradingBanner();
+      else if (a === "pc-send") openPcExport();
+      else if (a === "pc-later") { settings.pcNudgeSeen = pcWaiting().copies; saveSettings(); renderPcBanner(); }
       else if (a === "choose") chooseBackupFile();
       else if (a === "download") downloadBackup();
       else if (a === "settings") openSettings();
@@ -14266,6 +14493,7 @@
     });
     $("bulkDelete").addEventListener("click", () => deleteRecords(Array.from(selected)));
     $("bulkSell").addEventListener("click", () => bulkSell(Array.from(selected)));
+    $("bulkPaid").addEventListener("click", () => openPaidTool(Array.from(selected)));
 
     // ----- a Japanese or Korean card from the daily list, wherever it's shown
     document.addEventListener("click", e => {
@@ -14542,6 +14770,7 @@
     // ----- deck check
     const decksPanel = $("panel-decks");
     wireDeckIdeas(decksPanel);
+    wireLocPick();
     wireInsights($("panel-history"));
     wireTrade($("panel-sales"));
     decksPanel.addEventListener("input", e => {
@@ -14807,7 +15036,7 @@
   window.CardVault = {state: () => ({collection, settings, selected, catalog, wants, valueHistory, backup, decks, sales, phone, deleted, batch, sync}),
     mergeBackup, checkBackupFile, openBatch, parseBatchLine, batchRowFor, addBatch, save, analyzeCSV, commitImport, openImport,
     findByNumber, searchByName, priceInfo, marketValue, unitValue, changeFor, periodChange, historySeries, totals, deleteRecords, exportCSV,
-      openPcExport, pcExportPlan, pcExportText, pcGrade, pcExportId, pcSentFromLastExport, mergeDuplicates, openTcgCart, tcgCartPlan, tcgCartURL, pcx: () => pcx,
+      openPcExport, pcExportPlan, pcExportText, pcGrade, pcExportId, pcSentFromLastExport, pcWaiting, renderPcBanner, mergeDuplicates, openPaidTool, paidPlan, pp: () => pp, openTcgCart, tcgCartPlan, tcgCartURL, pcx: () => pcx,
     openDetails, openAdd, openSettings, render, setTab, setsData, extrasMap, wantStatus, addWant, restoreBackup, backupPayload,
     findYugiImages, rankYugiImages, parseYugiFile, yugiMangaPhoto, fillMangaPhotos, fillPrintPhotos, yugiPrintPick, langNumber, printPicOf, scanURL, isScanURL, yugiLabel, recordValueHistory, niceTicks, dateTicks, checkForNewData, writeBackup, initBackup,
     photoCandidates, findPhotosBatch, tradeListText, parseDeckText, parseYdk, parseYdke, checkDeck, cardNamesFor, runDeckCheck,

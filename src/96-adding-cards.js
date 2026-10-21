@@ -208,7 +208,7 @@
       '<div class="batch-common"><h3>For every card in the list</h3><div class="grid-3">' +
       '<label class="field"><span>Condition</span><select class="input" id="batchCond">' + options(CONDITIONS, batch.condition) + "</select></label>" +
       '<label class="field"><span>Language (English cards)</span><select class="input" id="batchLang">' + options(LANGUAGES, batch.language) + "</select></label>" +
-      '<label class="field"><span>Location (optional)</span><input class="input" id="batchLoc" list="locationList" autocomplete="off" placeholder="e.g. Binder 1" value="' + esc(batch.location) + '"></label></div>' +
+      '<label class="field"><span>Location (optional)</span><input class="input" id="batchLoc" data-loc="1" autocomplete="off" placeholder="e.g. Binder 1" value="' + esc(batch.location) + '"></label></div>' +
       '<p class="hint" style="margin:0">Changing the condition here sets it for every card in the list; you can still change single cards above. Japanese and Korean cards keep their own language.</p></div>' +
       '<div class="form-actions"><button class="btn btn-primary" type="button" id="batchGo">Add to your collection</button>' +
       '<button class="btn" type="button" id="batchClear">Clear the list</button></div>');
