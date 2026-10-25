@@ -1059,6 +1059,7 @@
         r.qty -= n;
         const copy = Object.assign(JSON.parse(JSON.stringify(r)), {id: newId(), qty: n, location: dest, mod: 0});
         delete copy.pcSent;
+        delete copy.ssSent;
         pcSentShift(r, copy, n);
         collection.splice(collection.indexOf(r) + 1, 0, copy);
         created.push(copy.id);
