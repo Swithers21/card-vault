@@ -47,15 +47,17 @@
     const sale = upgradeSale({id: newId(), date: parseDay(f.date) ? f.date : localDay(new Date()), qty, price: f.price, fees: f.fees, notes: f.notes,
       name: r.name, productId: r.productId, number: r.number, setName: r.setName, rarity: r.rarity, edition: r.edition, condition: r.condition,
       language: r.language, grade: r.grade, paid: r.paid, market: marketValue(r).unit, image: imageFor(r, "200w"),
-      record: JSON.parse(JSON.stringify(Object.assign({}, r, {qty, sell: null})))});
-    const beforeCollection = collection.slice(), beforeQty = r.qty, beforeSales = sales.slice(), beforeSell = r.sell ? Object.assign({}, r.sell) : null;
+      record: JSON.parse(JSON.stringify(Object.assign({}, r, {qty, sell: null, ssSent: Math.min(qty, r.ssSent || 0)})))});
+    const beforeCollection = collection.slice(), beforeQty = r.qty, beforeSales = sales.slice(), beforeSell = r.sell ? Object.assign({}, r.sell) : null, beforeSs = r.ssSent;
     r.qty -= qty;
+    // (the copies sold were the ones sent to SortSwift first: that's where your shop sells them)
+    if (r.ssSent) { r.ssSent = Math.max(0, r.ssSent - qty); if (!r.ssSent) delete r.ssSent; }
     if (r.qty <= 0) { collection = collection.filter(x => x !== r); selected.delete(r.id); }
     else if (r.sell && r.sell.qty) { r.sell.qty -= qty; if (r.sell.qty <= 0) r.sell = null; else if (r.sell.qty >= r.qty) r.sell.qty = null; }
     sales.push(sale);
     save(); closeDrawer(); render();
     toast("Recorded the sale of " + (qty > 1 ? qty + " × " : "") + r.name + " for " + usd(f.price * qty) + ".", {action: "Undo", onAction: () => {
-      r.qty = beforeQty; r.sell = beforeSell; collection = beforeCollection; sales = beforeSales; save(); render();
+      r.qty = beforeQty; r.sell = beforeSell; if (beforeSs) r.ssSent = beforeSs; collection = beforeCollection; sales = beforeSales; save(); render();
     }});
   }
   function saleNumbers(x) {
@@ -303,7 +305,8 @@
       ? "Your sell list: your asking prices next to today's market, and what you'd keep after fees (" + esc(feeWords()) + ', <button type="button" class="link-btn" data-sell-act="fees">change</button>).'
       : "Cards you mean to sell, with your asking prices.") + "</p></div>" +
       (list.length ? '<div class="panel-tools"><button class="btn btn-small" type="button" data-sell-act="copy-all">Copy all listings</button>' +
-        '<button class="btn btn-small" type="button" data-sell-act="export">Export CSV</button></div>' : "") + "</div>";
+        '<button class="btn btn-small" type="button" data-sell-act="export">Export CSV</button>' +
+        '<button class="btn btn-small" type="button" data-sell-act="sortswift">Send to SortSwift</button></div>' : "") + "</div>";
     if (!list.length) {
       panel.innerHTML = head + emptyPanel("Nothing on your sell list", "Open a card in your collection and pick a price under <b>Selling</b>, or select several cards and choose <b>Sell list</b>. " +
         "Card Vault suggests a price from today's market, works out what you'd keep after fees and writes the listing for you.");
@@ -347,6 +350,7 @@
       const list = sellingList();
       copyText(list.map(listingText).join("\n\n----------\n\n"), () => toast("Copied " + plural(list.length, "listing") + "."));
     } else if (act === "export") exportSellCSV();
+    else if (act === "sortswift") openSsExport({from: "sell", ids: []});
     else if (act === "fees") openSettings({section: "selling"});
     else {
       const r = collection.find(x => x.id === id);

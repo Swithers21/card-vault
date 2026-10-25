@@ -654,6 +654,7 @@
         for (const f of MERGE_FIELDS.concat(["snap", "sku"])) if ((keep[f] == null || keep[f] === "") && r[f] != null && r[f] !== "") keep[f] = r[f];
         keep.qty += r.qty;
         if (r.pcSent) keep.pcSent = (keep.pcSent || 0) + r.pcSent;
+        if (r.ssSent) keep.ssSent = (keep.ssSent || 0) + r.ssSent;
         if (r.notes && !keep.notes.includes(r.notes)) keep.notes = (keep.notes ? keep.notes + " " : "") + r.notes;
         if (r.added < keep.added) keep.added = r.added;
         gone.add(r.id);

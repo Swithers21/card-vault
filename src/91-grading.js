@@ -309,7 +309,7 @@
         let target = r;
         if (r.qty > 1) {   // one copy goes; the rest stay on their own line
           r.qty -= 1;
-          target = upgradeRecord(Object.assign({}, r, {id: newId(), qty: 1, mod: 0, pcSent: 0}));
+          target = upgradeRecord(Object.assign({}, r, {id: newId(), qty: 1, mod: 0, pcSent: 0, ssSent: 0}));
           pcSentShift(r, target, 1);
           collection.push(target);
         }
