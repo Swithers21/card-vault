@@ -1088,7 +1088,10 @@
     .filters-btn{display:inline-flex;flex:none;padding:9px 12px}
     .filters-btn.on{border-color:var(--gold)}
     .filter-panel{display:none;grid-column:1 / -1;grid-row:2}
-    .filter-panel.open{display:grid;gap:10px;padding:12px;border:1px solid var(--line-2);border-radius:14px;background:var(--surface)}
+    /* (one column that never grows past the panel: otherwise the longest name in any of its dropdowns, a set like
+       "Battles of Legend: Glorious Gallery", stretched it and the second dropdown of each row ran off the screen) */
+    .filter-panel.open{display:grid;grid-template-columns:minmax(0,1fr);gap:10px;padding:12px;border:1px solid var(--line-2);border-radius:14px;background:var(--surface)}
+    .filter-panel .select{text-overflow:ellipsis}
     .filter-panel .spacer{display:none}
   }
   @media (max-width:900px){
