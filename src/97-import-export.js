@@ -25,10 +25,11 @@
     name: ["cardname", "name", "simplename"],
     productName: ["productname"],
     setName: ["setname", "set", "expansion"],
-    number: ["number", "cardnumber", "collectornumber", "setcode"],
+    number: ["number", "cardnumber", "collectornumber"],
+    setCode: ["setcode"],   // (SortSwift's scans: a card number like LOB-EN001, or the set's code, LOB)
     rarity: ["rarity"],
     condition: ["condition"],
-    edition: ["printing", "edition", "variant"],
+    edition: ["printing", "edition", "variant", "printingtype", "foilprinting"],
     language: ["language", "lang"],
     qtyAdd: ["addtoquantity"],
     qtyTotal: ["totalquantity", "quantity", "qty", "count"],
@@ -40,7 +41,7 @@
     kr: ["koreapricekrw", "koreaprice"],
     image: ["imageurl"],
     photo: ["photourl"],
-    notes: ["notes", "note"],
+    notes: ["notes", "note", "remarks"],
     added: ["dateadded", "createdat"],
     location: ["location", "storagelocation", "storage", "binder"],
     gradedBy: ["gradedby", "gradingcompany", "grader"],
@@ -69,13 +70,19 @@
     if (line && !/yu\W*gi\W*oh/i.test(line)) return {skip: "not Yu-Gi-Oh! (" + line + ")"};
     let productId = idOrNull(get("productId"));
     let product = productId && catalog ? catalog.byId.get(productId) : null;
-    let rarity = get("rarity"), number = get("number");
-    const setName = get("setName");
+    const code = get("setCode"), codeIsNumber = csLooksLikeNumber(code);
+    let rarity = get("rarity"), number = get("number") || (codeIsNumber ? code : "");
+    const setName = get("setName"), setCode = codeIsNumber ? "" : code;
     if (!productId && catalog && number) {
       let cands = catalog.byNumber.get(normNumber(number)) || [];
       if (cands.length > 1 && rarity) cands = cands.filter(p => p.rarity.toLowerCase() === rarity.toLowerCase());
       if (cands.length > 1 && setName) cands = cands.filter(p => p.group.name.toLowerCase() === setName.toLowerCase());
       if (cands.length === 1) { product = cands[0]; productId = product.id; }
+    }
+    // (no product and no card number that found one, a scan list say: by the card's name in its set)
+    if (!productId && catalog && !/^(japanese|korean)$/i.test(normLanguage(get("language")))) {
+      const p = matchByName(get("name") || cleanName(get("productName"), rarity), setName, setCode, rarity);
+      if (p) { product = p; productId = p.id; }
     }
     if (product) { rarity = rarity || product.rarity; number = number || product.number; }
     const fullName = get("productName") || (product ? product.name : "") || get("name");
@@ -83,6 +90,12 @@
     if (!name) return {skip: productId ? "needs TCGplayer data to find the card's name" : "no card name"};
     const cond = parseCondition(get("condition"));
     let edition = normEdition(get("edition")) || cond.edition;
+    // (a printing the card doesn't have, like SortSwift's "Foil", or "Normal" for a card with 1st Edition and Unlimited
+    // printings: the card's own printing instead, when it has only one)
+    if (edition && product && !/^no edition mark$/i.test(get("edition"))) {
+      const eds = printingsFor(product).map(k => k === "Normal" ? "No edition mark" : k);
+      if (eds.length && !eds.includes(edition) && !["1st Edition", "Unlimited", "Limited"].includes(edition)) edition = "";
+    }
     if (!edition && product) {
       const eds = printingsFor(product).filter(k => k !== "Normal");
       if (eds.length === 1) edition = eds[0];
@@ -104,12 +117,23 @@
       notes: get("notes"), added: added ? added.toISOString() : importedAt
     })};
   }
+  // A card named in a file without its TCGplayer product or a card number (SortSwift's scans, say): the one English
+  // printing with that name, narrowed by its set (name or code) and rarity where the file has them
+  function matchByName(name, setName, setCode, rarity) {
+    if (!catalog || !String(name || "").trim()) return null;
+    let cands = csByName(csNorm(artless(cleanName(String(name).trim(), rarity))));
+    const narrow = test => { const c = cands.filter(test); if (c.length) cands = c; };
+    if (setName) narrow(p => p.group.name.toLowerCase() === setName.toLowerCase());
+    if (setCode) narrow(p => String(p.group.abbr || "").toLowerCase() === setCode.toLowerCase());
+    if (rarity) narrow(p => p.rarity.toLowerCase() === rarity.toLowerCase());
+    return cands.length === 1 ? cands[0] : null;
+  }
   function analyzeCSV(text, fileName) {
     const rows = parseCSV(text);
     if (rows.length < 2) return {error: "That file has no card rows."};
     const headers = rows[0];
     const idx = mapHeaders(headers);
-    if (idx.productId < 0 && idx.name < 0 && idx.productName < 0 && idx.number < 0) {
+    if (idx.productId < 0 && idx.name < 0 && idx.productName < 0 && idx.number < 0 && idx.setCode < 0) {
       return {error: "Card Vault couldn't find a card name, card number or Product ID column. The columns in this file are: " +
         headers.map(h => '"' + String(h).trim() + '"').join(", ") + "."};
     }
@@ -126,8 +150,10 @@
       if (dup) dup.qty += res.rec.qty; else byKey.set(key, res.rec);
     }
     const records = Array.from(byKey.values());
-    const isTCG = idx.productId >= 0 && (idx.sku >= 0 || idx.productLine >= 0 || idx.market >= 0);
-    return {records, skipped, rowCount, isTCG, fileName, headers, idx};
+    const norm = headers.map(h => String(h || "").toLowerCase().replace(/[^a-z0-9]/g, ""));
+    const isSortSwift = ["printingtype", "foilprinting"].some(h => norm.includes(h)) || (norm.includes("skuid") && norm.includes("productid"));
+    const isTCG = !isSortSwift && idx.productId >= 0 && (idx.sku >= 0 || idx.productLine >= 0 || idx.market >= 0);
+    return {records, skipped, rowCount, isTCG, isSortSwift, fileName, headers, idx};
   }
 
   // "Already in my collection" means the same printing: the same TCGplayer product and
@@ -187,7 +213,7 @@
 
   function openImport(analysis) {
     pendingImport = analysis;
-    $("importTitle").textContent = analysis.isTCG ? "Import from TCGplayer" : "Import CSV";
+    $("importTitle").textContent = analysis.isSortSwift ? "Import from SortSwift" : analysis.isTCG ? "Import from TCGplayer" : "Import CSV";
     const body = $("importBody"), foot = $("importFoot");
     if (analysis.error) {
       body.innerHTML = '<div class="notice" style="margin:0"><strong>This file can\'t be imported.</strong> ' + esc(analysis.error) + "</div>";
@@ -389,13 +415,15 @@
     return out;
   }
   // Copies moving from one entry to another (moved to a location, one sent for grading, duplicates joined): the ones
-  // already sent to PriceCharting go first, so the count of sent copies stays right.
+  // already sent to PriceCharting (and to SortSwift) go first, so the counts of sent copies stay right.
   function pcSentShift(from, to, n) {
-    const moved = Math.min(n, from.pcSent || 0);
-    if (!moved) return;
-    from.pcSent -= moved;
-    if (!from.pcSent) delete from.pcSent;
-    to.pcSent = (to.pcSent || 0) + moved;
+    for (const f of ["pcSent", "ssSent"]) {
+      const moved = Math.min(n, from[f] || 0);
+      if (!moved) continue;
+      from[f] -= moved;
+      if (!from[f]) delete from[f];
+      to[f] = (to[f] || 0) + moved;
+    }
   }
   // From before cards remembered it: an export made then sent every card it could (each one added before it, matched then)
   function pcSentFromLastExport() {

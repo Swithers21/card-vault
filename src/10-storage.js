@@ -36,6 +36,9 @@
     // How many of its copies went to PriceCharting in a file (Export > For PriceCharting), so the next file has only the rest
     const pcSent = Math.floor(Number(r.pcSent));
     if (pcSent > 0 && !out.sealed) out.pcSent = Math.min(pcSent, 999999);
+    // And to SortSwift (Export > For SortSwift)
+    const ssSent = Math.floor(Number(r.ssSent));
+    if (ssSent > 0 && !out.sealed) out.ssSent = Math.min(ssSent, 999999);
     // A Japanese or Korean sealed product bought from a shop in the Market (Yugi-Market, Bunjang) keeps which product it
     // is (ref), where to see it (link) and the price it had when added: its value follows the shop's price from then on.
     if (r.sealed && r.ref && !out.productId) {

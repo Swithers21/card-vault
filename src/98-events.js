@@ -627,6 +627,7 @@
     $("importBody").addEventListener("change", updateImportButton);
     $("exportBtn").addEventListener("click", exportCSV);
     $("pcExportBtn").addEventListener("click", openPcExport);
+    $("ssExportBtn").addEventListener("click", () => openSsExport());
     $("phoneBtn").addEventListener("click", savePhoneCopy);
     $("reportBtn").addEventListener("click", openReport);
     // ----- the Export menu
@@ -787,7 +788,7 @@
   window.CardVault = {state: () => ({collection, settings, selected, catalog, wants, valueHistory, backup, decks, sales, phone, deleted, batch, sync}),
     mergeBackup, checkBackupFile, openBatch, parseBatchLine, batchRowFor, addBatch, save, analyzeCSV, commitImport, openImport,
     findByNumber, searchByName, priceInfo, marketValue, unitValue, changeFor, periodChange, historySeries, totals, deleteRecords, exportCSV,
-      openPcExport, pcExportPlan, pcExportText, pcGrade, pcExportId, pcSentFromLastExport, pcWaiting, renderPcBanner, big: () => big, bigGet, bigSet, yugiCache, readDataText, mergeDuplicates, openPaidTool, paidPlan, pp: () => pp, openTcgCart, tcgCartPlan, tcgCartURL, pcx: () => pcx,
+      openPcExport, pcExportPlan, pcExportText, pcGrade, pcExportId, pcSentFromLastExport, pcWaiting, renderPcBanner, openSsExport, ssExportPlan, ssExportText, ssPrinting, ssx: () => ssx, big: () => big, bigGet, bigSet, yugiCache, readDataText, mergeDuplicates, openPaidTool, paidPlan, pp: () => pp, openTcgCart, tcgCartPlan, tcgCartURL, pcx: () => pcx,
     openDetails, openAdd, openSettings, render, setTab, setsData, extrasMap, wantStatus, addWant, restoreBackup, backupPayload,
     findYugiImages, rankYugiImages, parseYugiFile, yugiMangaPhoto, fillMangaPhotos, fillPrintPhotos, yugiPrintPick, langNumber, printPicOf, scanURL, isScanURL, yugiLabel, recordValueHistory, niceTicks, dateTicks, checkForNewData, writeBackup, initBackup,
     photoCandidates, findPhotosBatch, tradeListText, parseDeckText, parseYdk, parseYdke, checkDeck, cardNamesFor, runDeckCheck,
