@@ -8545,7 +8545,8 @@
 
       '<div class="section"><h3>On a phone or tablet</h3>' +
       '<label class="check-row"><input type="checkbox" class="check" id="sSwipe"' + (settings.swipeCopies !== false ? " checked" : "") +
-      "><span>Swipe a card to change how many copies you have: right adds one, left takes one away (you can Undo it)</span></label></div>" +
+      "><span>Swipe a card to change how many copies you have: right adds one, left takes one away (you can Undo it)</span></label>" +
+      '<p class="small" id="screenInfo" style="margin:10px 0 0">' + esc(screenInfoText()) + "</p></div>" +
 
       '<div class="section"><h3>Played cards</h3>' +
       '<label class="check-row"><input type="checkbox" class="check" id="sCondAdjust"' + (settings.condAdjust ? " checked" : "") +
@@ -8637,10 +8638,22 @@
     }
     return parts.join(" ");
   }
+  // "This screen", under On a phone or tablet: the size of the screen and how much of it the phone gives Card Vault, so
+  // a new screen (a foldable's two) can be fitted from a screenshot of it. (screen.* is the whole screen, in its upright
+  // way round on an iPhone; the window is what Card Vault is laid out in.)
+  function screenInfoText() {
+    const vv = window.visualViewport, dpr = Math.round((window.devicePixelRatio || 1) * 100) / 100;
+    const app = (window.matchMedia && matchMedia("(display-mode: standalone)").matches) || navigator.standalone ? "the app on your home screen" : "the browser";
+    return "This screen: " + screen.width + " × " + screen.height + ". Card Vault gets " + document.documentElement.clientWidth + " × " + window.innerHeight +
+      (vv && Math.abs(vv.scale - 1) > 0.01 ? ", zoomed to " + Math.round(vv.scale * 100) + "%" : "") + " of it (×" + dpr + ", in " + app + ").";
+  }
   // opts.section: scroll to that part (gradingFees)
   function openSettings(opts) {
     drawerCtx = {mode: "settings"};
     openDrawer("Settings", settingsHTML());
+    // (turning the phone or unfolding it while Settings is open: the sizes follow)
+    const sizes = () => { const el = $("screenInfo"); if (el) el.textContent = screenInfoText(); else window.removeEventListener("resize", sizes); };
+    window.addEventListener("resize", sizes);
     const feeSaved = () => {
       save({quiet: true});   // (shared: your other devices get them through the backup)
       document.querySelectorAll("#drawerBody [data-gfee-total]").forEach(el => { el.innerHTML = feeTotalText(el.dataset.gfeeTotal); });

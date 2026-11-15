@@ -60,6 +60,32 @@ class ScreenSizes(base.FeelBase):
                     page.wait_for_timeout(200)
                     self.assertEqual(page.evaluate(STRAY), [])
 
+    def test_the_filters_fit_with_long_names_in_them(self):
+        # (on the iPhone Duo's outside screen, Nov 2026: a long set name in the sets dropdown stretched the filters, and
+        # the second dropdown of every row, the sort button and "Value cards by" ran off the screen)
+        sets = ["Battles of Legend: Glorious Gallery", "Legendary Collection 4: Joey's World Mega Pack", "Chaos Origins"]
+        many = base.collection([base.record(3000 + i, "Long %d" % i, "LNG-EN%03d" % i, setName=sets[i % 3], rarity=["Quarter Century Secret Rare", "Platinum Secret Rare"][i % 2],
+                                            location=["Binder of the really good cards", "Shelf 1"][i % 2]) for i in range(6)])
+        for width in (313, 360, 373, 390, 430, 457, 466, 560, 626, 700, 890, 1099):
+            with self.subTest(width=width):
+                page = self.sized(width, records=many)
+                if page.is_visible("#filtersBtn"):
+                    page.click("#filtersBtn")
+                page.wait_for_timeout(150)
+                self.assertTrue(page.is_visible("#fSet"))
+                self.assertEqual(page.evaluate(STRAY), [])
+                self.assertLessEqual(page.evaluate("document.querySelector('#filterPanel .controls-row').getBoundingClientRect().right"),
+                                     page.evaluate("document.getElementById('filterPanel').getBoundingClientRect().right"))
+
+    def test_settings_says_how_big_the_screen_is(self):
+        page = self.sized(457, 678)
+        page.evaluate("window.CardVault.openSettings()")
+        page.wait_for_selector("#screenInfo")
+        text = page.inner_text("#screenInfo")
+        self.assertRegex(text, r"^This screen: \d+ × \d+\. Card Vault gets 457 × 678 of it \(×1, in the browser\)\.$")
+        page.set_viewport_size({"width": 700, "height": 500})            # (unfolded, say)
+        page.wait_for_function("document.getElementById('screenInfo').textContent.includes('gets 700 × 500')")
+
     def test_the_cards_use_the_room_they_have(self):
         want = {313: 2, 390: 2, 466: 2, 560: 2, 561: 3, 626: 3, 640: 3, 700: 3, 890: 4, 1280: 6}
         for width, columns in want.items():
