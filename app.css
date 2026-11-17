@@ -714,6 +714,27 @@
   .goal-nums b{color:var(--text)}
   .goal-nums b.gold{color:var(--gold-hi)}
   .goal-actions{display:flex;flex-wrap:wrap;gap:6px;align-items:center}
+  /* ---------- master set binder (Sets tab) ---------- */
+  .bx-sum{margin:8px 0 10px}
+  .bx-prog{display:grid;gap:6px;margin:4px 0 8px}
+  .bx-sum .small{margin:0 0 4px}
+  .bx-print{margin:12px 0}
+  .bx-show{display:flex;flex-wrap:wrap;margin:14px 0 6px}
+  .bx-show small{color:var(--text-faint);font-weight:400;margin-left:2px}
+  .bx-list{list-style:none;margin:0;padding:0}
+  .bx-page{font:600 11.5px/1.4 "Archivo",system-ui,sans-serif;letter-spacing:.08em;text-transform:uppercase;color:var(--text-dim);padding:14px 0 4px;border-bottom:1px solid var(--line-2)}
+  .bx-row{display:grid;grid-template-columns:22px 16px minmax(0,1fr) minmax(0,auto);gap:10px;align-items:center;padding:8px 0;border-bottom:1px solid var(--line)}
+  .bx-slot{font-size:12px;color:var(--text-faint);text-align:right;font-variant-numeric:tabular-nums}
+  .bx-mark{width:16px;height:16px;border-radius:50%;border:1.5px solid var(--line-2);box-sizing:border-box;position:relative}
+  .bx-in .bx-mark{background:var(--good);border-color:var(--good)}
+  .bx-in .bx-mark::after{content:"";position:absolute;left:4.5px;top:1.5px;width:4px;height:8px;border:solid var(--bg);border-width:0 2px 2px 0;transform:rotate(45deg)}
+  .bx-move .bx-mark{border-color:var(--gold);border-style:dashed}
+  .bx-kept .bx-mark{border-color:var(--text-dim);background:linear-gradient(90deg,var(--text-dim) 50%,transparent 50%)}
+  .bx-name{min-width:0;overflow-wrap:anywhere}
+  .bx-name small{display:block;color:var(--text-dim);font-size:12px;margin-top:1px}
+  .bx-where{font-size:12.5px;color:var(--text-dim);text-align:right;max-width:13em;overflow-wrap:anywhere}
+  .bx-need .bx-where{color:var(--gold-hi)}
+  .bx-in .bx-name{color:var(--text-dim)}
   .goal-tag{display:inline-block;vertical-align:2px;margin-left:6px;font:600 10.5px/1.6 "Archivo",system-ui,sans-serif;letter-spacing:.02em;padding:0 6px;border-radius:5px;border:1px solid rgba(216,173,87,.5);color:var(--gold-hi)}
   .cs-set-actions{display:flex;flex-wrap:wrap;gap:8px;align-items:center;margin:10px 0 0}
   .cs-set-actions .btn.is-goal{border-color:rgba(216,173,87,.6);color:var(--gold-hi)}
@@ -1028,6 +1049,21 @@
     .rep-big{display:grid;grid-template-columns:1fr 1fr;gap:8pt 14pt;margin:0 0 6pt}
     .rep-item{display:grid;grid-template-columns:62pt 1fr;gap:8pt;break-inside:avoid;border:.5pt solid #bbb;border-radius:3pt;padding:5pt}
     .report .rep-item img{width:62pt}
+    /* placeholders for a master set binder: card-sized slips (2.5 by 3.5 inches), nine to a sheet, dashed lines to cut along */
+    .slip-sheet{display:grid;grid-template-columns:repeat(3,2.5in);grid-auto-rows:3.5in;justify-content:center;break-after:page;page-break-after:always}
+    .slip-sheet:last-child{break-after:auto;page-break-after:auto}
+    .slip{box-sizing:border-box;border:.75pt dashed #888;margin:-.375pt;padding:.1in .1in .08in;display:flex;flex-direction:column;align-items:center;text-align:center;overflow:hidden;break-inside:avoid}
+    .slip-pic{flex:1 1 auto;min-height:0;width:100%;display:flex;align-items:center;justify-content:center}
+    .report .slip-pic img{width:auto;max-width:100%;max-height:2.5in;height:auto;display:block}
+    /* (a card with no picture: an outlined card shape with its name, not the dark stand-in drawn on screen) */
+    .slip .card-ph{position:static;inset:auto;width:1.75in;height:2.45in;max-width:100%;box-sizing:border-box;justify-content:center;padding:8pt;
+      border:.75pt solid #999;border-radius:4pt;background:#fff !important;color:#555;font:600 9pt/1.25 system-ui,-apple-system,"Segoe UI",Roboto,Arial,sans-serif}
+    .slip .card-ph .ph-name{background:none;border:0;padding:0;-webkit-line-clamp:4}
+    .slip .card-ph .ph-mark,.slip .card-ph .ph-sub{display:none}
+    .slips-bw .slip-pic img{filter:grayscale(1)}
+    .slip-name{display:block;font:700 9.5pt/1.15 system-ui,-apple-system,"Segoe UI",Roboto,Arial,sans-serif;margin-top:4pt;max-height:2.3em;overflow:hidden}
+    .slip-meta{display:block;font-size:8pt;color:#222;margin-top:1pt}
+    .slip-where{display:block;font-size:6.5pt;color:#666;margin-top:2pt}
     .rep-noimg{width:62pt;height:88pt;background:#eee}
     .rep-sign{display:flex;gap:40pt;margin-top:28pt}
     .rep-sign div{flex:1;border-top:.75pt solid #000;padding-top:3pt;font-size:8.5pt;color:#333}

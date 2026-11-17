@@ -425,7 +425,7 @@
     const shown = done ? 100 : Math.floor(s.have / s.total * 100);
     const year = s.group.published ? String(s.group.published).slice(0, 4) : "";
     return '<article class="set-row" data-gid="' + gid + '"><button type="button" class="set-toggle" aria-expanded="' + open + '" data-set="' + gid + '">' +
-      '<span style="min-width:0"><span class="set-name">' + esc(s.group.name) + (isGoal(gid) ? ' <span class="goal-tag">Goal</span>' : "") + '</span><span class="set-sub">' + esc([s.group.abbr, year, s.ocg ? ocgLangOf(s.ocg.region, s.ocg.prefix) : ""].filter(Boolean).join(", ")) + "</span></span>" +
+      '<span style="min-width:0"><span class="set-name">' + esc(s.group.name) + (isGoal(gid) ? ' <span class="goal-tag">Goal</span>' : "") + (!s.ocg && binderOf(gid) ? ' <span class="goal-tag">Binder</span>' : "") + '</span><span class="set-sub">' + esc([s.group.abbr, year, s.ocg ? ocgLangOf(s.ocg.region, s.ocg.prefix) : ""].filter(Boolean).join(", ")) + "</span></span>" +
       '<span class="set-prog"><span class="progress" aria-hidden="true"><span style="width:' + (s.have / s.total * 100).toFixed(1) + '%"></span></span>' +
       '<span class="set-count"><b>' + s.have + " of " + s.total + "</b> (" + shown + "%)</span></span>" +
       '<span class="set-cost">' + (done ? "<b>Complete</b>" : "<b>" + esc(usd(s.cost)) + "</b><small>to finish" + (s.unpriced ? ", " + s.unpriced + " unpriced" : "") + "</small>") + "</span>" +
@@ -436,7 +436,8 @@
     if (s.ocg) return ocgSetMissingHTML(s);
     const goal = isGoal(s.group.id);
     const every = '<p class="small sets-links" style="margin:12px 0 0"><button type="button" class="link-btn" data-cs-browse="en:' + s.group.id + '">See every card in this set, with prices</button>' +
-      '<button type="button" class="link-btn" data-goal-toggle="' + s.group.id + '">' + (goal ? "Remove it from your goals" : "Make this set a goal") + "</button></p>";
+      '<button type="button" class="link-btn" data-goal-toggle="' + s.group.id + '">' + (goal ? "Remove it from your goals" : "Make this set a goal") + "</button>" +
+      '<button type="button" class="link-btn" data-binder="' + s.group.id + '">' + (binderOf(s.group.id) ? "Its master set binder" : "Make a master set binder") + "</button></p>";
     if (!s.missing.length) return '<p class="small" style="margin:12px 0 0">You have every card in this set.</p>' + every;
     const wanted = new Set(wants.map(w => w.productId));
     const shown = s.missing.slice(0, 150);
