@@ -337,7 +337,12 @@ jobs:
           git add .github/last-price-update.txt
           if git diff --cached --quiet; then echo "Already noted today."; exit 0; fi
           git commit -m "Daily prices are running ($(date -u +%F))"
-          git push
+          # (something merged while the night ran, as on 15 Nov 2026: take it and try again)
+          for try in 1 2 3; do
+            if git push; then exit 0; fi
+            git pull --rebase --quiet
+          done
+          exit 1
 
   # If a scheduled night breaks, say so where it is noticed: an issue in this repository (GitHub emails you about it),
   # and close that issue again when a night goes through. (Needs Issues switched on for the repository.)
