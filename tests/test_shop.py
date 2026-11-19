@@ -127,9 +127,84 @@ class SortSwiftSales(SealedBase):
         page.wait_for_function("document.getElementById('drawerTitle').textContent === 'Sales from SortSwift'")
 
 
+def sale(sid, pid, date, qty, price, fees, paid, added=None, **more):
+    s = {"id": sid, "productId": pid, "name": "Card " + str(pid), "date": date, "qty": qty, "price": price, "fees": fees, "paid": paid,
+         "record": {"id": "r" + sid, "name": "Card " + str(pid), "productId": pid, "qty": qty, "paid": paid, "added": added} if added else None}
+    s.update(more)
+    return s
+
+
+MONEY_RECORDS = [R("a", 13, "Chaos Dragon", "CORI-EN001", qty=2, paid=0.05, added="2026-09-10T15:00:00"),
+                 R("b", 13, "Chaos Dragon", "CORI-EN001", "Common", "Unlimited", qty=3, paid=0.10, added="2026-10-01T15:00:00"),
+                 R("c", 15, "Dark Spell", "CORI-EN002", added="2026-10-02T15:00:00"),                                   # (no price paid)
+                 R("t", 21, "Other Card", "SOME-EN001", paid=1.0, notes="From a trade on Oct 3, 2026", added="2026-10-03T15:00:00")]
+MONEY_SALES = [sale("s1", 13, "2026-10-14", 3, 0.5, 0.3, 0.10, "2026-08-20T15:00:00"),
+               sale("s2", 11, "2026-10-15", 1, 12, 1.8, None),                                                           # (from SortSwift: not in Card Vault)
+               sale("s3", 21, "2026-10-16", 1, 2, 0, 0.5, "2026-07-01T15:00:00", traded=True),
+               sale("s4", 15, "2025-12-05", 1, 5, 0.5, 2, "2025-11-01T15:00:00")]
+MONEY_OPENINGS = [{"id": "o1", "name": "Chaos Origins Booster Box", "date": "2026-10-20", "cost": 90, "pulls": []}]
+
+
+class ShopMoney(SealedBase):
+    def go(self, width=1100, year=None):
+        s = {"tab": "sales", "salesView": "money"}
+        if year is not None:
+            s["moneyYear"] = year
+        local = {"cardvault.v2.sales": json.dumps(MONEY_SALES), "cardvault.v2.openings": json.dumps(MONEY_OPENINGS), "cardvault.v2.settings": json.dumps(s)}
+        page = self.open(MONEY_RECORDS, files={"tcgplayer-data.js": tb.tcg()}, local=local, width=width)
+        page.wait_for_function("!!window.CardVault.state().catalog", timeout=10000)
+        return page
+
+    def test_month_by_month(self):
+        page = self.go()
+        d = page.evaluate("window.CardVault.moneyByMonth('2026')")
+        rows = [(x["m"], x["bought"], x["sold"], x["fees"], x["cost"], x["profit"], x["cash"]) for x in d["list"]]
+        self.assertEqual(rows, [("2026-10", 90.3, 13.5, 2.1, 0.3, 11.1, -78.9),      # (the box opened in October; the trade not at all)
+                                ("2026-09", 0.1, 0, 0, 0, 0, -0.1),
+                                ("2026-08", 0.3, 0, 0, 0, 0, -0.3),                 # (a card bought in August, sold since)
+                                ("2026-07", 0.5, 0, 0, 0, 0, -0.5)])                # (and one traded away since: it was bought)
+        t = d["total"]
+        self.assertEqual((t["bought"], t["sold"], t["fees"], t["cost"], t["profit"], t["cash"], t["noCost"], t["boughtN"]), (91.2, 13.5, 2.1, 0.3, 11.1, -79.8, 1, 9))
+        self.assertEqual((d["unpriced"], d["years"]), (1, ["2026", "2025"]))
+        t = page.evaluate("window.CardVault.moneyByMonth('')")["total"]
+        self.assertEqual((t["bought"], t["sold"], t["fees"], t["cost"], t["profit"], t["cash"]), (93.2, 18.5, 2.6, 2.3, 13.6, -77.3))
+
+    def test_on_the_page_and_as_a_file(self):
+        page = self.go(year="2026")
+        page.wait_for_selector(".money-table")
+        self.assertEqual(page.get_attribute('[data-salesview="money"]', "aria-pressed"), "true")
+        facts = page.inner_text(".money-facts")
+        for words in ("$13.50", "sold, 4 cards", "$2.10", "$11.10", "$91.20"):
+            self.assertIn(words, facts)
+        self.assertEqual(page.locator(".money-table tbody tr").count(), 4)
+        self.assertIn("Oct 2026", page.inner_text(".money-table tbody tr:first-child"))
+        self.assertIn("2026", page.inner_text(".money-table tfoot"))
+        text = page.inner_text("#salesBody")
+        self.assertIn("1 card has no price paid", text)
+        self.assertIn("1 card sold has no price paid, so it counts as costing nothing", text)
+        with page.expect_download() as dl:
+            page.click("#moneyExport")
+        lines = open(dl.value.path(), encoding="utf-8-sig").read().splitlines()
+        self.assertEqual(lines[0], "Month,Spent on cards (USD),Sold (USD),Fees (USD),Cost of cards sold (USD),Profit (USD),Money in less out (USD),Cards Bought,Cards Sold")
+        self.assertEqual(lines[1], "2026-07,0.50,0.00,0.00,0.00,0.00,-0.50,1,0")
+        self.assertEqual(lines[-1], "2026 total,91.20,13.50,2.10,0.30,11.10,-79.80,9,4")
+        # another year, kept
+        page.select_option("#moneyYear", "2025")
+        self.assertEqual(page.locator(".money-table tbody tr").count(), 2)
+        self.assertEqual(page.evaluate("window.CardVault.state().settings.moneyYear"), "2025")
+
+    def test_on_a_phone(self):
+        page = self.go(width=375, year="2026")
+        page.set_viewport_size({"width": 375, "height": 800})
+        page.wait_for_selector(".money-table")
+        self.assertLessEqual(page.evaluate("document.documentElement.scrollWidth"), 375)
+        self.assertLessEqual(page.evaluate("Math.max(...[...document.querySelectorAll('.money-table tr')].map(r => r.getBoundingClientRect().right))"), 375)
+        self.assertLessEqual(page.evaluate("document.getElementById('salesSeg').getBoundingClientRect().right"), 375)
+
+
 def load_tests(loader, tests, pattern):
     suite = unittest.TestSuite()
-    for c in (SortSwiftSales,):
+    for c in (SortSwiftSales, ShopMoney):
         suite.addTests(loader.loadTestsFromTestCase(c))
     return suite
 

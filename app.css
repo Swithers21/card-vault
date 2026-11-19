@@ -1638,3 +1638,12 @@
   .sso-line > div:first-child{min-width:0}
   .sso-amt{text-align:right;white-space:nowrap;font-variant-numeric:tabular-nums}
   .sso-done,.sso-off,.sso-bad{opacity:.62}
+  /* Shop money (94a) */
+  .money-table{min-width:760px}
+  .money-table .money-month{text-align:left;font-weight:600;white-space:nowrap}
+  .money-table tfoot th,.money-table tfoot td{border-top:2px solid var(--line-2);font-weight:700}
+  @media (max-width:700px){
+    .stack-table.money-table tr{grid-template-columns:minmax(0,1fr)}
+    .money-table tfoot{display:block}
+    .money-table .money-month{font-size:calc(15px*var(--ts))}
+  }
