@@ -388,7 +388,8 @@
   }
   function handHTML(top, label) {
     if (!top.length) return "";
-    return '<div class="top-cards-label">' + esc(label) + '</div><div class="fan">' + top.map((r, i) => {
+    // (an even number of cards has one more on the right: the hand moves half a step left to sit in the middle)
+    return '<div class="top-cards-label">' + esc(label) + '</div><div class="fan"' + (top.length % 2 ? "" : ' style="--shift:-.5"') + ">" + top.map((r, i) => {
       const slot = i % 2 ? Math.ceil(i / 2) : -Math.ceil(i / 2);
       return '<button type="button" class="mini" data-open="' + esc(r.id) + '" style="--slot:' + slot + ";--rank:" + i + '" title="' + esc(r.name) + '">' +
         '<span class="sleeve' + (r.sealed ? " boxed" : "") + '"' + foilAttr(r.rarity, r.sealed) + ">" + imgTag(recordPics(r, "in_400x400"), r.name) + "</span><em>" + esc(usd(unitValue(r))) + "</em></button>";
