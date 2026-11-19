@@ -490,7 +490,7 @@
   // the browser's database (IndexedDB) now, which has far more room: read into memory once while Card Vault opens (ones
   // still in local storage move over and are cleared from it), written back a moment after they change. Without a
   // database (a private window, say) they stay in local storage, as before.
-  const BIG_KEYS = ["cardvault.v2.pricecharting", "cardvault.v2.yugipedia", "cardvault.v2.ocg", "cardvault.v2.ygocards", "cardvault.v2.ygoarch", "cardvault.v2.cardids"];
+  const BIG_KEYS = ["cardvault.v2.pricecharting", "cardvault.v2.yugipedia", "cardvault.v2.ocg", "cardvault.v2.ygocards", "cardvault.v2.ygoarch", "cardvault.v2.cardids", "cardvault.v2.changes"];
   const big = {mem: new Map(), db: null, settled: false, dirty: new Set(), sending: new Set(), timer: 0};
   function bigGet(key, fallback) {
     if (big.mem.has(key)) return big.mem.get(key);
@@ -548,7 +548,9 @@
           let local = null;
           try { const t = localStorage.getItem(k); local = t ? JSON.parse(t) : null; } catch (e) { local = null; }
           const kept = got.get(k), plain = v => v && typeof v === "object" && !Array.isArray(v);
-          if (local != null) { big.mem.set(k, plain(local) && plain(kept) ? Object.assign(kept, local) : local); big.dirty.add(k); } else if (got.has(k)) big.mem.set(k, kept);
+          // (a list, Recent changes: the ones logged while the database opened go in front of the ones kept)
+          const both = Array.isArray(local) && Array.isArray(kept) ? local.concat(kept.filter(x => !local.some(y => y && x && y.id === x.id))) : null;
+          if (local != null) { big.mem.set(k, both || (plain(local) && plain(kept) ? Object.assign(kept, local) : local)); big.dirty.add(k); } else if (got.has(k)) big.mem.set(k, kept);
         }
         bigFlush();
         settle();
@@ -632,20 +634,23 @@
     for (const k of SYNC_KINDS) prints[k] = new Map(listOf(k).map(x => [x.id, {p: printOf(x), mod: x.mod || 0}]));
   }
   // At every save: entries that are new or changed get the time; ones that disappeared are noted as deleted.
-  function stampChanges() {
+  // log: a change you made (not a quiet save), to go in Recent changes (66-changes) with what each card was before
+  function stampChanges(log) {
     if (!prints) { rebuildPrints(); return; }
-    const now = Date.now();
+    const now = Date.now(), changed = [];
     for (const k of SYNC_KINDS) {
       const old = prints[k], next = new Map(), gone = deleted[k];
       for (const x of listOf(k)) {
         const p = printOf(x), was = old.get(x.id);
         // (a change here always counts as newer than the version it started from, even if clocks disagree)
-        if (!was || was.p !== p) { x.mod = Math.max(now, (x.mod || 0) + 1, was ? was.mod + 1 : 0, (gone[x.id] || 0) + 1); delete gone[x.id]; }
+        if (!was || was.p !== p) { x.mod = Math.max(now, (x.mod || 0) + 1, was ? was.mod + 1 : 0, (gone[x.id] || 0) + 1); delete gone[x.id]; if (k === "collection") changed.push({id: x.id, b: was ? was.p : null, a: p}); }
         next.set(x.id, {p, mod: x.mod || 0});
       }
-      for (const [id, was] of old) if (!next.has(id)) gone[id] = Math.max(now, (was.mod || 0) + 1, gone[id] || 0);
+      for (const [id, was] of old) if (!next.has(id)) { gone[id] = Math.max(now, (was.mod || 0) + 1, gone[id] || 0); if (k === "collection") changed.push({id, b: was.p, a: null}); }
       prints[k] = next;
     }
+    if (log && changed.length) { try { logChanges(changed); } catch (e) { /* the log is only a convenience */ } }
+    else if (!log) noteChange("");
     const sp = sharedPrint();
     if (sp !== prints.shared) { settings.sharedMod = Math.max(now, (settings.sharedMod || 0) + 1); prints.shared = sp; }
   }
@@ -879,7 +884,7 @@
       // An older Undo would also roll back this newer change, so it stops being offered.
       document.querySelectorAll("#toasts .toast.has-action").forEach(t => t.remove());
     }
-    stampChanges();
+    stampChanges(!(opts && opts.quiet));
     recordValueHistory();
     const write = () => {
       try {
@@ -2014,7 +2019,20 @@
   // screen reader as if it were reachable): Tab stays inside the open window.
   function syncBackdrop() {
     const app = document.querySelector(".app");
-    if (app) app.inert = !$("drawer").hidden || !$("importModal").hidden;
+    if (app) app.inert = (!$("drawer").hidden && !document.body.classList.contains("docked")) || !$("importModal").hidden;
+  }
+  // Side by side: on a wide screen (the iPhone Duo's inside screen turned sideways, a computer) a card's details sit
+  // beside your cards instead of over them: no dimmed backdrop, the cards still scroll and can be tapped (another card
+  // opens in the same place), and the page makes room for the panel. Narrower, it's the usual panel over the page.
+  const DOCK_MIN = 900, DOCK_MODES = new Set(["details", "price"]);
+  const shouldDock = () => !$("drawer").hidden && !!drawerCtx && DOCK_MODES.has(drawerCtx.mode) && !$("drawer").classList.contains("wide") &&
+    window.innerWidth >= DOCK_MIN && $("importModal").hidden;
+  function applyDock() {
+    const dock = shouldDock();
+    document.body.classList.toggle("docked", dock);
+    $("drawer").setAttribute("aria-modal", dock ? "false" : "true");
+    if (!$("drawer").hidden && $("importModal").hidden) { $("scrim").hidden = dock; document.body.classList.toggle("no-scroll", !dock); }
+    syncBackdrop();
   }
   function openDrawer(title, html) {
     stopScanner();
@@ -2026,14 +2044,16 @@
     $("drawerBody").scrollTop = 0;
     $("drawer").hidden = false;
     $("scrim").hidden = false;
-    syncBackdrop();
     document.body.classList.add("no-scroll");
+    applyDock();
     const first = $("drawerBody").querySelector("[autofocus]") || $("drawerClose");
     setTimeout(() => first.focus(), 20);
   }
   function closeDrawer() {
     stopScanner();
     $("drawer").hidden = true;
+    document.body.classList.remove("docked");
+    $("drawer").setAttribute("aria-modal", "true");
     syncBackdrop();
     if ($("importModal").hidden) { $("scrim").hidden = true; document.body.classList.remove("no-scroll"); }
     drawerCtx = null;
@@ -7209,6 +7229,128 @@
       for (const r of collection) if (was.has(r.id)) { const v = was.get(r.id); if (v == null) r.paid = null; else r.paid = v; }
       save(); render(); toast("Put back.");
     }});
+  }
+  /* ======================= Recent changes, with Undo ======================= */
+  // Every save that changes your cards (not the quiet ones: photos found in the background, changes arriving from your
+  // other devices) is kept here as one change: what each card was before and after, and a few words saying what
+  // happened (added, moved, edited, removed). Any of the last 100 can be undone, card by card: a card that has changed
+  // again since is left as it is, and said so. Kept on this device, in its database (10-storage's big store).
+  // The cards only: the want list, decks and sales have their own Undo when you change them.
+  const CHANGES_KEY = "cardvault.v2.changes", CHANGES_MAX = 100, CHANGE_CARDS_MAX = 3000;
+  // (fields that change without you changing the card: when sent to PriceCharting or SortSwift, the price kept with it)
+  const CHANGE_QUIET = new Set(["mod", "pcSent", "ssSent", "snap"]);
+  const CHANGE_FIELDS = {qty: "how many", condition: "condition", edition: "printing", language: "language", paid: "price paid", location: "location", notes: "notes",
+    grade: "grade", grading: "grading", sell: "sell list", customImage: "photo", rarity: "rarity", number: "card number", name: "name", productId: "TCGplayer printing", tags: "tags"};
+  const locKey = l => String(l || "").trim().toLowerCase();
+  let changeNote = "";   // (a change that can say what it was in its own words: a sale, an Undo)
+  const noteChange = words => { changeNote = String(words || ""); };
+  const changesList = () => { const l = bigGet(CHANGES_KEY, []); return Array.isArray(l) ? l : []; };
+  // From stampChanges (10-storage), with [{id, b: the card before (its print) or null, a: after or null}]
+  function logChanges(items) {
+    const note = changeNote;
+    changeNote = "";
+    const real = items.filter(it => !(it.b && it.a && sameBut(it.b, it.a)));
+    if (!real.length) return;
+    const entry = {id: newId(), at: new Date().toISOString(), label: note || changeLabel(real), n: real.length};
+    if (real.length <= CHANGE_CARDS_MAX) entry.items = real; else entry.tooBig = true;
+    const list = changesList().slice(0, CHANGES_MAX - 1);
+    list.unshift(entry);
+    bigSet(CHANGES_KEY, list);
+    if (drawerCtx && drawerCtx.mode === "changes") renderChanges();
+  }
+  // (the same card apart from the fields that change by themselves)
+  function sameBut(b, a) {
+    const x = JSON.parse(b), y = JSON.parse(a);
+    for (const k of new Set(Object.keys(x).concat(Object.keys(y)))) if (!CHANGE_QUIET.has(k) && JSON.stringify(x[k]) !== JSON.stringify(y[k])) return false;
+    return true;
+  }
+  const changeName = r => r.name + (r.number ? " (" + r.number + ")" : "");
+  // A few words for a change: "Added Time Wizard ×2", "Moved 12 cards to Binder 3", "Edited Dark Magician (condition)"
+  function changeLabel(items) {
+    const B = items.map(it => it.b ? JSON.parse(it.b) : null), A = items.map(it => it.a ? JSON.parse(it.a) : null);
+    const qty = list => list.reduce((t, r) => t + (r ? num(r.qty) || 0 : 0), 0);
+    const before = qty(B), after = qty(A);
+    const names = new Set(A.concat(B).filter(Boolean).map(changeName));
+    const one = names.size === 1 ? Array.from(names)[0] : "";
+    const cards = n => one ? one + (n > 1 ? " ×" + n : "") : plural(n, "card");
+    // where copies went: the places that gained more than they lost
+    const by = new Map();
+    B.forEach(r => { if (r) by.set(locKey(r.location), (by.get(locKey(r.location)) || 0) - (num(r.qty) || 0)); });
+    A.forEach(r => { if (r) by.set(locKey(r.location), (by.get(locKey(r.location)) || 0) + (num(r.qty) || 0)); });
+    const gained = Array.from(by.entries()).filter(([, n]) => n > 0);
+    const placeName = k => { const r = A.find(x => x && locKey(x.location) === k); return r && String(r.location || "").trim() ? String(r.location).trim() : "no location"; };
+    if (after === before && gained.length) {
+      const n = gained.reduce((t, [, x]) => t + x, 0);
+      return "Moved " + cards(n) + " to " + (gained.length === 1 ? placeName(gained[0][0]) : gained.length + " places");
+    }
+    if (after > before && !B.some(Boolean)) return "Added " + cards(after - before);
+    if (after < before && !A.some(Boolean)) return "Removed " + cards(before - after);
+    if (after !== before && items.length === 1) return (after > before ? "Added " : "Took away ") + cards(Math.abs(after - before));
+    // edits: which fields
+    const fields = new Set();
+    items.forEach((it, i) => {
+      if (!B[i] || !A[i]) return;
+      for (const k of new Set(Object.keys(B[i]).concat(Object.keys(A[i])))) if (!CHANGE_QUIET.has(k) && JSON.stringify(B[i][k]) !== JSON.stringify(A[i][k])) fields.add(CHANGE_FIELDS[k] || "details");
+    });
+    const what = Array.from(fields).slice(0, 3).join(", ");
+    if (after !== before) return (after > before ? "Added " + (after - before) : "Took away " + (before - after)) + " and edited " + plural(items.length, "card") + (what ? " (" + what + ")" : "");
+    return "Edited " + (one || plural(items.length, "card")) + (what ? " (" + what + ")" : "");
+  }
+  // Puts back how the cards were before a change. Ones changed again since are left alone.
+  function undoChange(id) {
+    const list = changesList(), e = list.find(x => x.id === id);
+    if (!e || !e.items || e.undone) return {done: 0, skipped: 0};
+    let done = 0, skipped = 0;
+    for (const it of e.items) {
+      const i = collection.findIndex(r => r.id === it.id), cur = i >= 0 ? printOf(collection[i]) : null;
+      if (cur !== it.a) { skipped++; continue; }
+      if (it.b == null) collection.splice(i, 1);
+      else if (i >= 0) collection[i] = upgradeRecord(JSON.parse(it.b));
+      else collection.push(upgradeRecord(JSON.parse(it.b)));
+      done++;
+    }
+    for (const sid of Array.from(selected)) if (!collection.some(r => r.id === sid)) selected.delete(sid);
+    e.undone = new Date().toISOString();
+    bigSet(CHANGES_KEY, list);
+    if (done) { noteChange("Undid: " + e.label); save(); render(); }
+    return {done, skipped};
+  }
+  function openChanges() {
+    drawerCtx = {mode: "changes"};
+    openDrawer("Recent changes", '<div id="chBody"></div>');
+    renderChanges();
+  }
+  function renderChanges() {
+    const box = $("chBody");
+    if (!box || !drawerCtx || drawerCtx.mode !== "changes") return;
+    const list = changesList();
+    const dayOf = iso => { const d = new Date(iso), t = new Date(), y = new Date(Date.now() - 864e5);
+      return d.toDateString() === t.toDateString() ? "Today" : d.toDateString() === y.toDateString() ? "Yesterday" : fmtDate(d); };
+    const detail = it => {
+      const b = it.b ? JSON.parse(it.b) : null, a = it.a ? JSON.parse(it.a) : null, r = a || b;
+      const loc = x => String((x && x.location) || "").trim() || "no location";
+      const what = !b ? "added, " + (a.qty || 1) + " in " + loc(a) : !a ? "removed, " + (b.qty || 1) + " from " + loc(b)
+        : [b.qty !== a.qty ? "how many " + b.qty + " → " + a.qty : "", loc(b) !== loc(a) ? loc(b) + " → " + loc(a) : "",
+           b.condition !== a.condition ? b.condition + " → " + a.condition : "", b.paid !== a.paid ? "paid " + (b.paid == null ? "none" : usd(b.paid)) + " → " + (a.paid == null ? "none" : usd(a.paid)) : ""].filter(Boolean).join("; ") || "edited";
+      return "<li>" + esc(changeName(r)) + ' <span class="small">' + esc(what) + "</span></li>";
+    };
+    let day = "";
+    box.innerHTML = '<p class="small" style="margin:0 0 10px">Your last ' + CHANGES_MAX + " changes to your cards on this device. Undo puts the cards back as they were; a card that has changed again since stays as it is.</p>" +
+      (list.length ? '<ol class="ch-list">' + list.map(e => {
+        const d = dayOf(e.at), head = d !== day ? '<li class="ch-day">' + esc(d) + "</li>" : "";
+        day = d;
+        return head + '<li class="ch-row' + (e.undone ? " ch-undone" : "") + '"><div class="ch-main"><span class="ch-time">' + esc(new Date(e.at).toLocaleTimeString([], {hour: "numeric", minute: "2-digit"})) + "</span>" +
+          '<span class="ch-label">' + esc(e.label) + "</span>" +
+          (e.undone ? '<span class="small">Undone</span>' : e.items ? '<button type="button" class="btn btn-small" data-ch-undo="' + esc(e.id) + '">Undo</button>' : '<span class="small">Too big to undo</span>') + "</div>" +
+          (e.items && e.items.length ? '<details class="more"><summary>What changed</summary><ul class="ch-cards">' + e.items.slice(0, 30).map(detail).join("") +
+            (e.items.length > 30 ? "<li>…and " + (e.items.length - 30) + " more</li>" : "") + "</ul></details>" : "") + "</li>";
+      }).join("") + "</ol>" : '<p class="small">No changes yet. Each change to your cards shows here, with an Undo.</p>');
+    box.querySelectorAll("[data-ch-undo]").forEach(b => b.addEventListener("click", () => {
+      const res = undoChange(b.dataset.chUndo);
+      renderChanges();
+      toast(res.done ? "Undone" + (res.skipped ? ": " + plural(res.skipped, "card has", "cards have") + " changed since, so " + (res.skipped === 1 ? "it stays" : "they stay") + " as " + (res.skipped === 1 ? "it is" : "they are") : "") + "."
+        : "Nothing to undo: those cards have all changed since.");
+    }));
   }
   /* ======================= Backups ======================= */
   // With Chrome or Edge, Card Vault keeps a backup file you choose up to date after every change.
@@ -15025,12 +15167,53 @@
     setTab("search");
     setTimeout(() => { if ($("csQ")) $("csQ").focus(); }, 0);
   }
+  // Shortcuts: "Add card" pressed and held (or right-clicked, or the down arrow) opens a menu of the ways to add and
+  // look up cards; the same ones are the app icon's shortcuts where the phone or computer offers them (manifest:
+  // Chrome and Edge on a computer or Android, Safari on a Mac; an iPhone doesn't), as ?go= links.
+  function goTo(where) {
+    if (where === "add") openAdd();
+    else if (where === "scan") openScanner();
+    else if (where === "several") openBatch();
+    else if (where === "show") openScanner({show: true});
+    else if (where === "search") { setTab("search", true); focusSearch(); }
+    else if (where === "wants") setTab("wants", true);
+    else if (where === "changes") openChanges();
+  }
+  const GO = ["add", "scan", "several", "show", "search", "wants", "changes"];
+  function runGo() {
+    let go = "";
+    try { go = new URLSearchParams(location.search).get("go") || ""; } catch (e) { return; }
+    if (!GO.includes(go)) return;
+    // (taken out of the address, so a reload doesn't do it again)
+    try { history.replaceState(history.state, "", location.pathname + location.hash); } catch (e) { /* file: pages */ }
+    goTo(go);
+  }
+  function wireAddMenu() {
+    const btn = $("addBtn"), menu = $("addMenu");
+    const items = () => Array.from(menu.querySelectorAll("[role=menuitem]"));
+    const show = open => { menu.hidden = !open; btn.setAttribute("aria-expanded", String(open)); if (open) items()[0].focus(); };
+    let timer = 0, held = false;
+    btn.addEventListener("pointerdown", e => { if (e.button) return; held = false; clearTimeout(timer); timer = setTimeout(() => { held = true; show(true); }, 480); });
+    ["pointerup", "pointerleave", "pointercancel"].forEach(t => btn.addEventListener(t, () => clearTimeout(timer)));
+    btn.addEventListener("click", e => { if (held) { held = false; e.preventDefault(); return; } if (!menu.hidden) { show(false); return; } openAdd(); });
+    btn.addEventListener("contextmenu", e => { e.preventDefault(); clearTimeout(timer); held = false; show(true); });
+    btn.addEventListener("keydown", e => { if (e.key === "ArrowDown") { e.preventDefault(); show(true); } });
+    menu.addEventListener("keydown", e => {
+      const list = items(), i = list.indexOf(document.activeElement);
+      if (e.key === "ArrowDown") { e.preventDefault(); list[(i + 1) % list.length].focus(); }
+      else if (e.key === "ArrowUp") { e.preventDefault(); list[(i + list.length - 1) % list.length].focus(); }
+      else if (e.key === "Escape") { e.preventDefault(); e.stopPropagation(); show(false); btn.focus(); }
+      else if (e.key === "Tab") show(false);
+    });
+    menu.addEventListener("click", e => { const it = e.target.closest("[data-go]"); if (!it) return; show(false); goTo(it.dataset.go); });
+    document.addEventListener("click", e => { if (!menu.hidden && !e.target.closest(".add-wrap")) show(false); });
+  }
   function wireShortcuts() {
     document.addEventListener("keydown", e => {
       if (e.defaultPrevented || e.isComposing || e.ctrlKey || e.metaKey || e.altKey) return;
       const t = e.target;
       if (t && (t.isContentEditable || /^(INPUT|TEXTAREA|SELECT)$/.test(t.tagName))) return;   // (typing)
-      if (document.querySelector("[role=dialog]:not([hidden])")) return;                          // (a window is open)
+      if (document.querySelector("[role=dialog]:not([hidden]):not([aria-modal=false])")) return;   // (a window is open; not a card docked beside the list)
       const k = e.key;
       if (k === "/") { e.preventDefault(); focusSearch(); }
       else if (k === "n" || k === "N") { e.preventDefault(); openAdd(); }
@@ -15041,7 +15224,7 @@
   }
 
   function wire() {
-    $("addBtn").addEventListener("click", () => openAdd());
+    wireAddMenu();
     $("settingsBtn").addEventListener("click", openSettings);
     $("drawerClose").addEventListener("click", closeDrawer);
     $("importClose").addEventListener("click", closeImport);
@@ -15051,6 +15234,7 @@
       if (!$("importModal").hidden) closeImport(); else if (!$("drawer").hidden) closeDrawer();
     });
     wireShortcuts();
+    window.addEventListener("resize", () => { if (!$("drawer").hidden) applyDock(); });   // (turned or unfolded with a card open)
     // ----- back to top (the button at the bottom of the page)
     $("toTop").addEventListener("click", backToTop);
     initValueBar();
@@ -15609,6 +15793,7 @@
     $("exportBtn").addEventListener("click", exportCSV);
     $("pcExportBtn").addEventListener("click", openPcExport);
     $("ssExportBtn").addEventListener("click", () => openSsExport());
+    $("changesBtn").addEventListener("click", openChanges);
     $("phoneBtn").addEventListener("click", savePhoneCopy);
     $("reportBtn").addEventListener("click", openReport);
     // ----- the Export menu
@@ -15760,6 +15945,7 @@
       if (linked) { save(); render(); toast("Linked " + plural(linked, "card") + " to TCGplayer printings by card number."); }
     });
     whenIdle(warmSearch, 2500);
+    runGo();
     window.addEventListener("online", () => { refreshOcgPrices(); if (settings.gradedView) refreshGradedPrices(); });
     if (loadProblem) toast("Card Vault couldn't read your saved collection, so it started empty. Your backup file wasn't changed: restore it from Settings.", {kind: "error", sticky: true});
     if (!storageOK) toast("This browser is blocking storage, so changes won't be kept after you close the page. Use Export CSV to keep a copy.", {kind: "error", sticky: true});
@@ -15769,7 +15955,7 @@
   window.CardVault = {state: () => ({collection, settings, selected, catalog, wants, valueHistory, backup, decks, sales, phone, deleted, batch, sync}),
     mergeBackup, checkBackupFile, openBatch, parseBatchLine, batchRowFor, addBatch, save, analyzeCSV, commitImport, openImport,
     findByNumber, searchByName, priceInfo, marketValue, unitValue, changeFor, periodChange, historySeries, totals, deleteRecords, exportCSV,
-      openPcExport, pcExportPlan, pcExportText, pcGrade, pcExportId, pcSentFromLastExport, pcWaiting, renderPcBanner, openScanner, showScanPrice, dealVerdict, showFacts, showBuy, cleanBinders, mergeBinders, openBinder, binderPlan, binderSlipsHTML, binderOf, bx: () => bx, openSsExport, ssExportPlan, ssExportText, ssPrinting, ssx: () => ssx, big: () => big, bigGet, bigSet, yugiCache, readDataText, mergeDuplicates, openPaidTool, paidPlan, pp: () => pp, openTcgCart, tcgCartPlan, tcgCartURL, pcx: () => pcx,
+      openPcExport, pcExportPlan, pcExportText, pcGrade, pcExportId, pcSentFromLastExport, pcWaiting, renderPcBanner, goTo, runGo, applyDock, openChanges, undoChange, changesList, noteChange, openScanner, showScanPrice, dealVerdict, showFacts, showBuy, cleanBinders, mergeBinders, openBinder, binderPlan, binderSlipsHTML, binderOf, bx: () => bx, openSsExport, ssExportPlan, ssExportText, ssPrinting, ssx: () => ssx, big: () => big, bigGet, bigSet, yugiCache, readDataText, mergeDuplicates, openPaidTool, paidPlan, pp: () => pp, openTcgCart, tcgCartPlan, tcgCartURL, pcx: () => pcx,
     openDetails, openAdd, openSettings, render, setTab, setsData, extrasMap, wantStatus, addWant, restoreBackup, backupPayload,
     findYugiImages, rankYugiImages, parseYugiFile, yugiMangaPhoto, fillMangaPhotos, fillPrintPhotos, yugiPrintPick, langNumber, printPicOf, scanURL, isScanURL, yugiLabel, recordValueHistory, niceTicks, dateTicks, checkForNewData, writeBackup, initBackup,
     photoCandidates, findPhotosBatch, tradeListText, parseDeckText, parseYdk, parseYdke, checkDeck, cardNamesFor, runDeckCheck,
