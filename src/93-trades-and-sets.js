@@ -2,7 +2,7 @@
   // Put a trade together: the cards you'd give (from your collection) and the cards you'd get (any TCGplayer printing),
   // each at TCGplayer's market price, plus any cash. "Complete trade" takes your cards out (into the sales log, marked
   // as traded) and adds the ones you get. The trade in progress is kept on this device until you finish or clear it.
-  const SALES_VIEWS = [["trade", "Trade checker"], ["selling", "Selling"], ["log", "Sales log"]];
+  const SALES_VIEWS = [["trade", "Trade checker"], ["selling", "Selling"], ["log", "Sales log"], ["money", "Shop money"]];
   const salesViewNow = () => SALES_VIEWS.some(v => v[0] === settings.salesView) ? settings.salesView : "trade";
   const TRADE_KEY = "cardvault.v2.trade";
   let trade = null;
@@ -44,7 +44,7 @@
     panel.innerHTML = '<div class="panel-head"><div><h2>Trades &amp; sales</h2></div><div class="panel-tools"><div class="seg" role="group" aria-label="Trades and sales" id="salesSeg">' +
       SALES_VIEWS.map(([k, l]) => '<button type="button" data-salesview="' + k + '" aria-pressed="' + (k === view) + '">' + l + (k === "log" && sales.length ? ' <span class="tab-count">' + sales.length + "</span>" : k === "selling" && selling ? ' <span class="tab-count">' + selling + "</span>" : "") + "</button>").join("") +
       '</div></div></div><div id="salesBody"></div>';
-    if (view === "log") renderSales(); else if (view === "selling") renderSelling(); else renderTrade();
+    if (view === "log") renderSales(); else if (view === "selling") renderSelling(); else if (view === "money") renderMoney(); else renderTrade();
   }
   const tradeThumb = (pics, name) => '<span class="sleeve">' + imgTag(pics, name) + "</span>";
   function tradeRowsHTML(side) {

@@ -478,7 +478,8 @@
       fees: n(x.fees) || 0, notes: String(x.notes || ""), name: String(x.name), productId: idOrNull(x.productId), number: String(x.number || ""),
       setName: String(x.setName || ""), rarity: String(x.rarity || ""), edition: String(x.edition || ""), condition: String(x.condition || ""),
       language: String(x.language || ""), grade: normalizeGrade(x.grade), paid: n(x.paid), market: n(x.market), image: safeImg(x.image),
-      record: x.record && typeof x.record === "object" ? x.record : null, traded: !!x.traded, mod: modTime(x.mod)};
+      record: x.record && typeof x.record === "object" ? x.record : null, traded: !!x.traded, mod: modTime(x.mod),
+      ref: x.ref ? String(x.ref).slice(0, 300) : undefined};   // (a sale brought in from a shop's orders: which line, so it's never brought in twice)
   }
   function readJSON(key, fallback) {
     try { const v = JSON.parse(localStorage.getItem(key) || "null"); return v == null ? fallback : v; } catch (e) { return fallback; }
@@ -8661,7 +8662,7 @@
         "it waits if you're in the middle of something.</span></label>" : "") +
       '<div class="btn-row"><button class="btn btn-small" type="button" data-bk="download">Download a backup file</button>' +
       '<button class="btn btn-small" type="button" data-bk="restore">Restore from a backup…</button></div>' +
-      '<h3 style="margin:16px 0 6px;font-size:13.5px">Earlier versions kept in this browser</h3>' +
+      '<h3 style="margin:16px 0 6px;font-size:calc(13.5px*var(--ts))">Earlier versions kept in this browser</h3>' +
       '<p class="small" style="margin:0 0 8px">Your collection as it was when you first opened Card Vault on each of the last 7 days you used it.</p>' +
       '<div id="snapList"><p class="small" style="margin:0">Loading…</p></div>' +
       (backup.drive ? '<div id="driveCopiesWrap"' + (backup.handle && backup.handle.kind === "gdrive" ? "" : " hidden") + '><h3 style="margin:16px 0 6px;font-size:13.5px">Dated copies in your Google Drive</h3>' +
@@ -8693,6 +8694,8 @@
       "For cards on eBay and TCGplayer it has been around 13% plus 30 to 40 cents; fees change, so check the site you sell on.</p>" +
       '<div class="alert-grid"><label class="field"><span>Share of the price</span><span class="pct"><input class="input" type="number" min="0" max="60" step="0.1" id="sSellPct" value="' + esc(sellPct()) + '">%</span></label>' +
       '<label class="field"><span>Plus, per card</span><span class="pct">$<input class="input" type="number" min="0" max="50" step="0.01" id="sSellFlat" value="' + esc(sellFlat()) + '"></span></label></div></div>' +
+
+      lookHTML() +
 
       '<div class="section"><h3>On a phone or tablet</h3>' +
       '<label class="check-row"><input type="checkbox" class="check" id="sSwipe"' + (settings.swipeCopies !== false ? " checked" : "") +
@@ -8899,6 +8902,7 @@
     });
     const pctInputs = () => document.querySelectorAll("#drawerBody [data-cond]");
     $("sSwipe").addEventListener("change", () => { settings.swipeCopies = $("sSwipe").checked; saveSettings(); });
+    wireLook();
     $("sCondAdjust").addEventListener("change", () => {
       settings.condAdjust = $("sCondAdjust").checked;
       pctInputs().forEach(i => { i.disabled = !settings.condAdjust; });
@@ -9498,6 +9502,64 @@
     main.addEventListener("pointercancel", end);
   }
   const justSwiped = () => Date.now() - swipe.at < 400;
+  /* ======================= Look: light or dark, and the size of the words ======================= */
+  // Settings, Look. Kept on this device only (a phone and a computer can differ), in its settings. The little script at
+  // the top of index.html reads the same two settings before the page is drawn, so it never flashes the other colours.
+  const LOOK_THEMES = [["dark", "Dark"], ["light", "Light"], ["auto", "Match my phone"]];
+  const LOOK_TEXT = [["smaller", "Smaller"], ["normal", "Normal"], ["larger", "Larger"], ["largest", "Largest"]];
+  const LOOK_BAR = {dark: "#0f0b1c", light: "#f4eee2"};   // (the phone's bar above the page)
+  const lightQuery = () => { try { return window.matchMedia ? matchMedia("(prefers-color-scheme: light)") : null; } catch (e) { return null; } };
+  const lookTheme = () => LOOK_THEMES.some(([k]) => k === settings.theme) ? settings.theme : "dark";
+  const lookText = () => LOOK_TEXT.some(([k]) => k === settings.textSize) ? settings.textSize : "normal";
+  // the colours actually showing: Match my phone follows the phone's own light or dark setting
+  function shownTheme() {
+    const t = lookTheme();
+    if (t !== "auto") return t;
+    const q = lightQuery();
+    return q && q.matches ? "light" : "dark";
+  }
+  function applyLook() {
+    const d = document.documentElement, t = shownTheme(), x = lookText();
+    if (t === "light") d.dataset.theme = "light"; else delete d.dataset.theme;
+    if (x === "normal") delete d.dataset.text; else d.dataset.text = x;
+    const bar = document.querySelector('meta[name="theme-color"]');
+    if (bar) bar.setAttribute("content", LOOK_BAR[t]);
+  }
+  let lookWired = false;
+  function initLook() {
+    applyLook();
+    if (lookWired) return;
+    lookWired = true;
+    // (the phone switching to light or dark by itself, at sunset say, while Card Vault is open)
+    const q = lightQuery(), follow = () => { if (lookTheme() === "auto") applyLook(); };
+    if (q && q.addEventListener) q.addEventListener("change", follow);
+    else if (q && q.addListener) q.addListener(follow);
+  }
+  function lookHTML() {
+    const seg = (id, label, list, cur) => '<div class="seg look-seg" role="group" aria-label="' + label + '" id="' + id + '">' +
+      list.map(([k, l]) => '<button type="button" data-look="' + k + '" aria-pressed="' + (k === cur) + '">' + esc(l) + "</button>").join("") + "</div>";
+    return '<div class="section" id="lookSection"><h3>Look</h3>' +
+      '<p class="small look-label">Colours</p>' + seg("sTheme", "Colours", LOOK_THEMES, lookTheme()) +
+      '<p class="small look-label">Text size</p>' + seg("sTextSize", "Text size", LOOK_TEXT, lookText()) +
+      '<p class="small" style="margin:10px 0 0">Just on this ' + (/iPhone|iPad|Android/i.test(navigator.userAgent || "") ? "phone" : "device") +
+      ". Match my phone switches between light and dark when your phone does.</p></div>";
+  }
+  function wireLook() {
+    const pick = (id, key) => {
+      const box = $(id);
+      if (!box) return;
+      box.addEventListener("click", e => {
+        const b = e.target.closest("[data-look]");
+        if (!b) return;
+        settings[key] = b.dataset.look;
+        box.querySelectorAll("[data-look]").forEach(x => x.setAttribute("aria-pressed", String(x === b)));
+        saveSettings();
+        applyLook();
+      });
+    };
+    pick("sTheme", "theme");
+    pick("sTextSize", "textSize");
+  }
   /* ======================= Price history tab ======================= */
   const emptyPanel = (title, text, actions) => '<div class="empty"><h2>' + esc(title) + "</h2><p>" + text + "</p>" +
     (actions ? '<div class="actions">' + actions + "</div>" : "") + "</div>";
@@ -10969,7 +11031,7 @@
   // Put a trade together: the cards you'd give (from your collection) and the cards you'd get (any TCGplayer printing),
   // each at TCGplayer's market price, plus any cash. "Complete trade" takes your cards out (into the sales log, marked
   // as traded) and adds the ones you get. The trade in progress is kept on this device until you finish or clear it.
-  const SALES_VIEWS = [["trade", "Trade checker"], ["selling", "Selling"], ["log", "Sales log"]];
+  const SALES_VIEWS = [["trade", "Trade checker"], ["selling", "Selling"], ["log", "Sales log"], ["money", "Shop money"]];
   const salesViewNow = () => SALES_VIEWS.some(v => v[0] === settings.salesView) ? settings.salesView : "trade";
   const TRADE_KEY = "cardvault.v2.trade";
   let trade = null;
@@ -11011,7 +11073,7 @@
     panel.innerHTML = '<div class="panel-head"><div><h2>Trades &amp; sales</h2></div><div class="panel-tools"><div class="seg" role="group" aria-label="Trades and sales" id="salesSeg">' +
       SALES_VIEWS.map(([k, l]) => '<button type="button" data-salesview="' + k + '" aria-pressed="' + (k === view) + '">' + l + (k === "log" && sales.length ? ' <span class="tab-count">' + sales.length + "</span>" : k === "selling" && selling ? ' <span class="tab-count">' + selling + "</span>" : "") + "</button>").join("") +
       '</div></div></div><div id="salesBody"></div>';
-    if (view === "log") renderSales(); else if (view === "selling") renderSelling(); else renderTrade();
+    if (view === "log") renderSales(); else if (view === "selling") renderSelling(); else if (view === "money") renderMoney(); else renderTrade();
   }
   const tradeThumb = (pics, name) => '<span class="sleeve">' + imgTag(pics, name) + "</span>";
   function tradeRowsHTML(side) {
@@ -12006,20 +12068,29 @@
       recordSale(r, {qty: posInt($("sQty").value) || 1, price, fees: num($("sFees").value) || 0, date: $("sDate").value, notes: $("sNotes").value.trim()});
     });
   }
-  function recordSale(r, f) {
-    if (!collection.includes(r)) r = collection.find(x => x.id === r.id);
-    if (!r) return;
-    const qty = Math.min(Math.max(1, f.qty), r.qty);
-    const sale = upgradeSale({id: newId(), date: parseDay(f.date) ? f.date : localDay(new Date()), qty, price: f.price, fees: f.fees, notes: f.notes,
+  // A sale's entry in the log: qty copies of a card of yours, at f.price each, f.fees in all (also the SortSwift sales
+  // import, 97b, with f.ref: which line of which order it was)
+  function saleEntry(r, qty, f) {
+    return upgradeSale({id: newId(), date: parseDay(f.date) ? f.date : localDay(new Date()), qty, price: f.price, fees: f.fees, notes: f.notes, ref: f.ref,
       name: r.name, productId: r.productId, number: r.number, setName: r.setName, rarity: r.rarity, edition: r.edition, condition: r.condition,
       language: r.language, grade: r.grade, paid: r.paid, market: marketValue(r).unit, image: imageFor(r, "200w"),
       record: JSON.parse(JSON.stringify(Object.assign({}, r, {qty, sell: null, ssSent: Math.min(qty, r.ssSent || 0)})))});
-    const beforeCollection = collection.slice(), beforeQty = r.qty, beforeSales = sales.slice(), beforeSell = r.sell ? Object.assign({}, r.sell) : null, beforeSs = r.ssSent;
+  }
+  // Sold copies leave the collection
+  function takeSold(r, qty) {
     r.qty -= qty;
     // (the copies sold were the ones sent to SortSwift first: that's where your shop sells them)
     if (r.ssSent) { r.ssSent = Math.max(0, r.ssSent - qty); if (!r.ssSent) delete r.ssSent; }
     if (r.qty <= 0) { collection = collection.filter(x => x !== r); selected.delete(r.id); }
     else if (r.sell && r.sell.qty) { r.sell.qty -= qty; if (r.sell.qty <= 0) r.sell = null; else if (r.sell.qty >= r.qty) r.sell.qty = null; }
+  }
+  function recordSale(r, f) {
+    if (!collection.includes(r)) r = collection.find(x => x.id === r.id);
+    if (!r) return;
+    const qty = Math.min(Math.max(1, f.qty), r.qty);
+    const sale = saleEntry(r, qty, f);
+    const beforeCollection = collection.slice(), beforeQty = r.qty, beforeSales = sales.slice(), beforeSell = r.sell ? Object.assign({}, r.sell) : null, beforeSs = r.ssSent;
+    takeSold(r, qty);
     sales.push(sale);
     save(); closeDrawer(); render();
     toast("Recorded the sale of " + (qty > 1 ? qty + " × " : "") + r.name + " for " + usd(f.price * qty) + ".", {action: "Undo", onAction: () => {
@@ -12049,9 +12120,10 @@
     const head = '<div class="panel-head sub-head"><div><h3 class="sub-h">Sales log</h3><p>' + (sales.length
       ? "Cards you've sold or traded away" + (settings.salesYear ? " in " + esc(settings.salesYear) : "") + "."
       : "Cards you've sold or traded away, and what you made on them.") + "</p></div>" +
-      (sales.length ? '<div class="panel-tools"><label class="basis">Year <select class="select" id="salesYear"><option value="">All years</option>' +
-        years.map(y => '<option value="' + y + '"' + (y === settings.salesYear ? " selected" : "") + ">" + y + "</option>").join("") + "</select></label>" +
-        '<button class="btn btn-small" type="button" id="salesExport">Export sales CSV</button></div>' : "") + "</div>";
+      '<div class="panel-tools">' + (sales.length ? '<label class="basis">Year <select class="select" id="salesYear"><option value="">All years</option>' +
+        years.map(y => '<option value="' + y + '"' + (y === settings.salesYear ? " selected" : "") + ">" + y + "</option>").join("") + "</select></label>" : "") +
+        '<button class="btn btn-small" type="button" id="salesImportSs">Bring in SortSwift sales</button>' +
+        (sales.length ? '<button class="btn btn-small" type="button" id="salesExport">Export sales CSV</button>' : "") + "</div></div>";
     if (!sales.length) {
       panel.innerHTML = head + emptyPanel("No sales yet", "When you sell or trade away a card, open it in your collection and choose <b>Sold</b>. " +
         "Card Vault takes it out of your collection, keeps the sale here, and works out your profit.");
@@ -12704,6 +12776,111 @@
     return '<div class="status-line ' + cls + '"><span class="dot" aria-hidden="true"></span><span>' + text + '</span></div><div class="btn-row">' + buttons + "</div>";
   }
 
+  /* ======================= Shop money: month by month ======================= */
+  // Trades & sales > Shop money. For each month: what you spent on cards (their prices paid, in the month you added
+  // them to Card Vault, the ones sold since included), what cards sold for, the fees, what the cards sold had cost you,
+  // the profit (sold less fees and cost) and the money in less the money out (sold less fees and spending). Trades
+  // aren't counted, since no money changed hands: cards traded away, and cards from a trade. A card sold without a
+  // price paid counts as costing nothing (and it says how many). As a file too, for your records or taxes.
+  const fromTrade = r => /^From a trade on /.test(String((r && r.notes) || ""));
+  const monthOf = iso => { const d = parseDate(iso); return d ? localDay(d).slice(0, 7) : ""; };
+  const MONEY_COLS = [["bought", "Spent on cards"], ["sold", "Sold"], ["fees", "Fees"], ["cost", "Cost of cards sold"], ["profit", "Profit"], ["cash", "Money in less out"]];
+  // {list: [{m: "2026-10", bought, boughtN, sold, soldN, fees, cost, noCost (cards sold with no price paid), profit, cash}]
+  // newest first, total (the same, for them all), unpriced (cards of yours with no price paid, so not in spending), years}
+  function moneyByMonth(year) {
+    const months = new Map(), years = new Set();
+    const at = m => {
+      years.add(m.slice(0, 4));
+      if (year && !m.startsWith(year)) return null;
+      if (!months.has(m)) months.set(m, {m, bought: 0, boughtN: 0, sold: 0, soldN: 0, fees: 0, cost: 0, noCost: 0});
+      return months.get(m);
+    };
+    let unpriced = 0;
+    const buy = (r, qty) => {
+      if (!r || fromTrade(r)) return;
+      const m = monthOf(r.added);
+      if (!m) return;
+      if (r.paid == null) { if (!year || m.startsWith(year)) unpriced += qty; years.add(m.slice(0, 4)); return; }
+      const x = at(m);
+      if (x) { x.bought += r.paid * qty; x.boughtN += qty; }
+    };
+    for (const r of collection) buy(r, r.qty);
+    // (a box or packs you opened: what you paid, in the month you opened it, since it's left your sealed products;
+    // it counts in bought, not in boughtN, the cards)
+    for (const o of openings) {
+      if (o.cost == null || !parseDay(o.date)) continue;
+      const x = at(o.date.slice(0, 7));
+      if (x) x.bought += o.cost;
+    }
+    for (const s of sales) {
+      if (s.record) buy(s.record, s.qty);
+      if (s.traded) continue;
+      const x = parseDay(s.date) ? at(s.date.slice(0, 7)) : null;
+      if (!x) continue;
+      x.sold += s.price * s.qty; x.soldN += s.qty; x.fees += s.fees || 0;
+      if (s.paid != null) x.cost += s.paid * s.qty; else x.noCost += s.qty;
+    }
+    const list = Array.from(months.values()).sort((a, b) => b.m.localeCompare(a.m));
+    const total = {m: "", bought: 0, boughtN: 0, sold: 0, soldN: 0, fees: 0, cost: 0, noCost: 0};
+    for (const x of list) {
+      for (const k of Object.keys(total)) if (k !== "m") total[k] += x[k];
+      finishMoney(x);
+    }
+    return {list, total: finishMoney(total), unpriced, years: Array.from(years).sort().reverse()};
+  }
+  function finishMoney(x) {
+    for (const k of ["bought", "sold", "fees", "cost"]) x[k] = round2(x[k]);
+    x.profit = round2(x.sold - x.fees - x.cost);
+    x.cash = round2(x.sold - x.fees - x.bought);
+    return x;
+  }
+  const monthName = m => new Date(+m.slice(0, 4), +m.slice(5, 7) - 1, 1).toLocaleDateString("en-US", {month: "short", year: "numeric"});
+  const moneyYear = () => settings.moneyYear == null ? String(new Date().getFullYear()) : String(settings.moneyYear);
+  function renderMoney() {
+    const panel = $("salesBody") || $("panel-sales");
+    if (!panel) return;
+    let year = moneyYear();
+    let d = moneyByMonth(year);
+    if (year && !d.years.includes(year)) { year = d.years[0] || ""; d = moneyByMonth(year); }
+    const head = '<div class="panel-head sub-head"><div><h3 class="sub-h">Shop money</h3><p>What you spent on cards and what they sold for, month by month' + (year ? ", in " + esc(year) : "") + ".</p></div>" +
+      (d.years.length ? '<div class="panel-tools"><label class="basis">Year <select class="select" id="moneyYear"><option value="">All years</option>' +
+        d.years.map(y => '<option value="' + y + '"' + (y === year ? " selected" : "") + ">" + y + "</option>").join("") + "</select></label>" +
+        '<button class="btn btn-small" type="button" id="moneyExport">Export CSV</button></div>' : "") + "</div>";
+    if (!d.list.length) {
+      panel.innerHTML = head + emptyPanel("Nothing to count yet", "Prices you paid for your cards and the sales you record (or bring in from SortSwift) show here, month by month.");
+      return;
+    }
+    const t = d.total, money = v => esc(usd(v)), signed = v => v ? changeHTML(v, null, true) : money(0);
+    const fact = (value, label) => '<div class="fact"><b>' + value + "</b><span>" + label + "</span></div>";
+    // (a month with no sales has no profit to show)
+    const cell = (x, k, label) => '<td class="num" data-label="' + label + '"' + (k === "profit" && !x.soldN ? " data-empty>" : k === "profit" || k === "cash" ? ">" + signed(x[k]) : (x[k] ? ">" + money(x[k]) : " data-empty>")) + "</td>";
+    const notes = [
+      "Spent on cards goes by the day each card was added to Card Vault, so cards brought in all at once from a file count in that month; a box or packs you opened count in the month you opened them." +
+        (d.unpriced ? " " + plural(d.unpriced, "card has", "cards have") + ' no price paid, so ' + (d.unpriced === 1 ? "it isn't" : "they aren't") + ' counted: <button type="button" class="link-btn" id="moneyPaid">fill in prices paid</button>.' : ""),
+      t.noCost ? plural(t.noCost, "card sold has", "cards sold have") + " no price paid, so " + (t.noCost === 1 ? "it counts" : "they count") + " as costing nothing in the profit." : "",
+      "Trades aren't counted: no money changed hands. Profit is what cards sold for, less fees and what they cost you; money in less out takes off everything you spent on cards that month instead."
+    ].filter(Boolean);
+    panel.innerHTML = head + '<div class="facts sales-facts money-facts">' +
+      fact(money(t.sold), "sold, " + plural(t.soldN, "card")) + fact(money(t.fees), "in fees") + fact(signed(t.profit), "profit") +
+      fact(money(t.bought), "spent on cards") + fact(signed(t.cash), "money in less out") + "</div>" +
+      '<div class="table-wrap"><table class="table stack-table money-table"><thead><tr><th>Month</th>' + MONEY_COLS.map(([, l]) => '<th class="num">' + esc(l) + "</th>").join("") + "</tr></thead><tbody>" +
+      d.list.map(x => '<tr><th scope="row" class="money-month">' + esc(monthName(x.m)) + "</th>" + MONEY_COLS.map(([k, l]) => cell(x, k, l)).join("") + "</tr>").join("") +
+      "</tbody>" + (d.list.length > 1 ? '<tfoot><tr><th scope="row" class="money-month">' + (year ? esc(year) : "All years") + "</th>" + MONEY_COLS.map(([k, l]) => cell(t, k, l)).join("") + "</tr></tfoot>" : "") +
+      "</table></div>" + notes.map(n => '<p class="small">' + n + "</p>").join("");
+    $("moneyYear").addEventListener("change", e => { settings.moneyYear = e.target.value; saveSettings(); renderMoney(); });
+    $("moneyExport").addEventListener("click", () => exportMoneyCSV(year));
+    if ($("moneyPaid")) $("moneyPaid").addEventListener("click", () => openPaidTool());
+  }
+  function exportMoneyCSV(year) {
+    const d = moneyByMonth(year);
+    if (!d.list.length) { toast("There's nothing to export."); return; }
+    const money2 = v => (Math.round(v * 100) / 100).toFixed(2);
+    const head = ["Month"].concat(MONEY_COLS.map(([, l]) => l + " (USD)"), ["Cards Bought", "Cards Sold"]);
+    const line = (label, x) => [label].concat(MONEY_COLS.map(([k]) => money2(x[k])), [x.boughtN, x.soldN]).map(csvCell).join(",");
+    const lines = [head.map(csvCell).join(",")].concat(d.list.slice().reverse().map(x => line(x.m, x)), [line(year ? year + " total" : "Total", d.total)]);
+    download(new Blob(["﻿" + lines.join("\r\n")], {type: "text/csv;charset=utf-8"}), "card-vault-shop-money" + (year ? "-" + year : "") + ".csv");
+    toast("Exported " + plural(d.list.length, "month") + ".");
+  }
   /* ======================= Deck check ======================= */
   let deckDraft = null;   // the deck being edited: {id, name, text}
   let deckResult = null;
@@ -15086,12 +15263,14 @@
       '<p class="hint" style="margin:12px 0 0"><b>In SortSwift:</b> Inventory, then Import, and choose this file. Leave <b>Direct Import</b> off, so the cards wait in staging for you to check before they go live. ' +
       "Each card remembers how many of its copies went (on every device you use), so next time the file can have only the rest.</p>" +
       '<div class="form-actions"><button type="button" class="btn btn-primary" id="ssxGo"' + (plan.rows.length ? "" : " disabled") + ">Download the file</button>" +
-      '<a class="btn" target="_blank" rel="noopener" href="' + SS_DOCS + '">How SortSwift\'s import works</a></div>';
+      '<a class="btn" target="_blank" rel="noopener" href="' + SS_DOCS + '">How SortSwift\'s import works</a></div>' +
+      '<p class="hint" style="margin:12px 0 0">Sold some through your shop? <button type="button" class="link-btn" id="ssxSales">Bring in SortSwift sales</button> to take them out of your collection and log what they sold for.</p>';
     box.querySelectorAll("[name=ssxFrom]").forEach(b => b.addEventListener("change", () => { ssx.from = b.value; renderSsExport(); }));
     box.querySelectorAll("[name=ssxWhich]").forEach(b => b.addEventListener("change", () => { ssx.onlyNew = b.value === "new"; renderSsExport(); }));
     $("ssxPrice").addEventListener("change", e => { ssx.price = e.target.checked; renderSsExport(); });
     if ($("ssxUndo")) $("ssxUndo").addEventListener("click", ssExportUndo);
     $("ssxGo").addEventListener("click", () => ssExportDownload(plan));
+    $("ssxSales").addEventListener("click", openSsSales);
   }
   function ssExportDownload(plan) {
     if (!plan.rows.length) return;
@@ -15117,6 +15296,236 @@
     ssx.saved = null;
     renderSsExport();
     toast("Taken back: Card Vault offers those cards again next time.");
+  }
+  /* ======================= Sales from SortSwift ======================= */
+  // Cards your shop sold, brought back: SortSwift's orders (in SortSwift, Orders, then export a CSV) or a TCGplayer
+  // order export. Each line is matched to your cards like Import CSV matches them (TCGplayer product, card number,
+  // name and set), the copies come out of your collection (the ones you sent to SortSwift first, then ones on your sell
+  // list) and each sale goes in the sales log with its price, date and fees. Fees come from the file when it has
+  // them, else from your selling fees (Settings). A line already brought in is never brought in twice (sale.ref), so
+  // an export that overlaps the last one is fine. Cancelled and refunded orders stay out; buyers' names aren't read.
+  // SortSwift lets you choose the export's columns, so they're found by their names (below), like Import CSV's.
+  const SALE_ALIASES = {
+    order: ["ordernumber", "orderno", "ordernum", "orderid", "order"],
+    date: ["orderdate", "solddate", "saledate", "datesold", "dateordered", "orderedat", "placedat", "orderplaced", "paiddate", "createdat", "created", "date"],
+    price: ["price", "saleprice", "soldprice", "unitprice", "itemprice", "priceeach", "soldfor", "sellprice", "sellingprice", "listingprice"],
+    total: ["linetotal", "itemtotal", "extendedprice", "producttotal", "subtotal", "total", "amount"],
+    fees: ["fees", "fee", "totalfees", "sellingfees", "sellerfees", "sellerfee", "marketplacefees", "marketplacefee", "platformfees", "platformfee", "commission"],
+    channel: ["channel", "saleschannel", "salechannel", "marketplace", "platform", "source", "store"],
+    status: ["status", "orderstatus"]
+  };
+  const SALE_NOT = /cancel|refund|void|return/i;   // (orders that didn't go through, by their status)
+  function saleCols(headers) {
+    const norm = headers.map(h => String(h || "").toLowerCase().replace(/[^a-z0-9]/g, ""));
+    const idx = {};
+    for (const f in SALE_ALIASES) { idx[f] = -1; for (const a of SALE_ALIASES[f]) { const at = norm.indexOf(a); if (at >= 0) { idx[f] = at; break; } } }
+    return idx;
+  }
+  // "2026-10-14", "10/14/2026 3:22 PM", "2026-10-14T19:22:00Z", "Oct 14, 2026" → "2026-10-14" (your own day)
+  function saleDay(raw) {
+    const s = String(raw || "").trim();
+    let m = /^(\d{4})-(\d{2})-(\d{2})(?:$|[ T])/.exec(s);
+    if (m && !/(?:[zZ]|[+-]\d\d:?\d\d)$/.test(s)) return m[1] + "-" + m[2] + "-" + m[3];
+    m = /^(\d{1,2})\/(\d{1,2})\/(\d{4}|\d{2})\b/.exec(s);
+    if (m) return localDay(new Date(m[3].length === 2 ? 2000 + +m[3] : +m[3], +m[1] - 1, +m[2]));
+    const d = parseDate(s);
+    return d ? localDay(d) : "";
+  }
+  const money = v => { const n = num(v); return n == null ? null : round2(Math.abs(n)); };
+  // Your cards that could be the one sold: the same TCGplayer printing (else card number, else name and set), the
+  // same printing (1st Edition and the rest) and language; any condition, the same one first
+  function saleCands(rec) {
+    const same = r => {
+      if (!!r.sealed !== !!rec.sealed || r.grade || r.grading) return false;
+      if (rec.productId) return r.productId === rec.productId;
+      if (rec.number && r.number) return normNumber(r.number) === normNumber(rec.number) && (!rec.rarity || !r.rarity || r.rarity.toLowerCase() === rec.rarity.toLowerCase());
+      return r.name.toLowerCase() === rec.name.toLowerCase() && (!rec.setName || r.setName.toLowerCase() === rec.setName.toLowerCase());
+    };
+    const ed = rec.edition, lang = rec.language || "English";
+    return collection.filter(r => same(r) && (!ed || !r.edition || r.edition === ed) && (r.language || "English") === lang)
+      .sort((a, b) => (+(b.condition === rec.condition) - +(a.condition === rec.condition)) || ((b.ssSent ? 1 : 0) - (a.ssSent ? 1 : 0)) || ((b.sell ? 1 : 0) - (a.sell ? 1 : 0)));
+  }
+  // What a file would do: {lines: [{n (line in the file), order, date, channel, rec (the card), qty, price, fees,
+  // feesFrom ("file" or "settings"), ref, state ("new", "done": brought in before, "off": cancelled or refunded,
+  // "bad": no card or price), why, takes: [{id, n, ss (of them sent to SortSwift), cond (true if the condition differs)}],
+  // short (copies not in your collection)}], cols (the file's columns used), fileFees (whether it has fees)} or {error}
+  function ssSalesPlan(text, opts) {
+    opts = opts || {};
+    const rows = parseCSV(String(text || ""));
+    if (rows.length < 2) return {error: "That file has no order lines."};
+    const headers = rows[0], idx = mapHeaders(headers), sx = saleCols(headers);
+    if (idx.productId < 0 && idx.name < 0 && idx.productName < 0 && idx.number < 0) return {error: "Card Vault couldn't find a card name, card number or Product ID column. The columns in this file are: " + headers.map(h => '"' + String(h).trim() + '"').join(", ") + "."};
+    if (sx.price < 0 && sx.total < 0) return {error: "Card Vault couldn't find the price the cards sold for (a Price or Total column). The columns in this file are: " + headers.map(h => '"' + String(h).trim() + '"').join(", ") + "."};
+    const used = Object.keys(sx).filter(k => sx[k] >= 0).map(k => sx[k]).concat(["productId", "name", "productName", "number", "setName", "rarity", "condition", "edition", "language", "qtyTotal"].filter(k => idx[k] >= 0).map(k => idx[k]));
+    const cols = Array.from(new Set(used)).sort((a, b) => a - b).map(i => String(headers[i]).trim());
+    const left = new Map(collection.map(r => [r.id, {qty: r.qty, ss: Math.min(r.qty, r.ssSent || 0)}]));
+    const seen = new Map(), done = new Set(sales.map(x => x.ref).filter(Boolean)), now = new Date().toISOString(), lines = [];
+    rows.slice(1).forEach((row, i) => {
+      const get = f => sx[f] >= 0 && row[sx[f]] != null ? String(row[sx[f]]).trim() : "";
+      const line = {n: i + 2, order: get("order"), date: saleDay(get("date")) || localDay(new Date()), channel: get("channel"), takes: [], short: 0};
+      lines.push(line);
+      const res = rowToRecord(row, idx, now);
+      if (res.skip) { line.state = "bad"; line.why = res.skip; return; }
+      const rec = line.rec = res.rec;
+      line.qty = rec.qty;
+      const unit = money(get("price")), total = money(get("total"));
+      line.price = unit != null ? unit : total != null ? round2(total / line.qty) : null;
+      if (line.price == null) { line.state = "bad"; line.why = "no price"; return; }
+      const fee = money(get("fees"));
+      if (fee != null) { line.fees = fee; line.feesFrom = "file"; }
+      else if (opts.estimate !== false) { line.fees = round2(line.price * line.qty * sellPct() / 100 + sellFlat() * line.qty); line.feesFrom = "settings"; }
+      else { line.fees = 0; line.feesFrom = ""; }
+      // (the same line twice in one order, two copies sold separately, say, stays two lines)
+      const key = ["ss", line.order || line.date, rec.productId || normNumber(rec.number) + "/" + rec.name.toLowerCase(), rec.condition, rec.edition, rec.language, line.qty, line.price].join("|");
+      const k = (seen.get(key) || 0) + 1;
+      seen.set(key, k);
+      line.ref = key + "|" + k;
+      if (SALE_NOT.test(get("status"))) { line.state = "off"; line.why = get("status").toLowerCase(); return; }
+      if (done.has(line.ref)) { line.state = "done"; return; }
+      line.state = "new";
+      let need = line.qty;
+      for (const r of saleCands(rec)) {
+        const l = left.get(r.id);
+        if (!need) break;
+        if (!l || !l.qty) continue;
+        const n = Math.min(need, l.qty), ss = Math.min(n, l.ss);
+        l.qty -= n; l.ss -= ss; need -= n;
+        line.takes.push({id: r.id, n, ss, cond: r.condition !== rec.condition});
+      }
+      line.short = need;
+    });
+    return {lines, cols, fileFees: sx.fees >= 0, orders: new Set(lines.map(x => x.order).filter(Boolean)).size};
+  }
+  // Brings a plan in: the copies come out, the sales go in the log (with the ones not in your collection too, when
+  // opts.missing). Returns {sales, copies, out (copies taken out), missing, gross, undo}
+  function ssSalesApply(plan, opts) {
+    opts = opts || {};
+    const beforeCollection = collection.map(r => Object.assign({}, r, {sell: r.sell ? Object.assign({}, r.sell) : r.sell})), beforeSales = sales.slice();
+    const res = {sales: 0, copies: 0, out: 0, missing: 0, gross: 0};
+    for (const line of plan.lines) {
+      if (line.state !== "new") continue;
+      const note = "SortSwift" + (line.channel ? " (" + line.channel + ")" : "") + (line.order ? ", order " + line.order : "");
+      const feeFor = n => round2((line.fees || 0) * n / line.qty);
+      const f = n => ({date: line.date, price: line.price, fees: feeFor(n), notes: note, ref: line.ref});
+      for (const t of line.takes) {
+        const r = collection.find(x => x.id === t.id);
+        if (!r) continue;
+        const n = Math.min(t.n, r.qty);
+        if (!n) continue;
+        sales.push(saleEntry(r, n, f(n)));
+        takeSold(r, n);
+        res.sales++; res.copies += n; res.out += n; res.gross += line.price * n;
+      }
+      if (line.short && opts.missing !== false) {
+        const r = line.rec;
+        sales.push(upgradeSale(Object.assign({id: newId(), qty: line.short, name: r.name, productId: r.productId, number: r.number, setName: r.setName, rarity: r.rarity,
+          edition: r.edition, condition: r.condition, language: r.language, paid: r.paid, market: marketValue(Object.assign({}, r, {qty: 1})).unit, image: imageFor(r, "200w"), record: null}, f(line.short))));
+        res.sales++; res.copies += line.short; res.missing += line.short; res.gross += line.price * line.short;
+      }
+    }
+    res.gross = round2(res.gross);
+    if (!res.sales) return res;
+    noteChange("Sold " + plural(res.out, "card") + " (SortSwift orders)");
+    save();
+    render();
+    res.undo = () => {
+      collection = beforeCollection;
+      sales = beforeSales;
+      for (const sid of Array.from(selected)) if (!collection.some(r => r.id === sid)) selected.delete(sid);
+      noteChange("Took back the SortSwift sales");
+      save();
+      render();
+    };
+    return res;
+  }
+
+  const sso = {text: "", name: "", estimate: true, missing: true, plan: null, done: null};
+  function openSsSales() {
+    Object.assign(sso, {text: "", name: "", plan: null, done: null});
+    drawerCtx = {mode: "ss-sales"};
+    openDrawer("Sales from SortSwift", '<div id="ssoBody"></div>');
+    renderSsSales();
+  }
+  function renderSsSales() {
+    const box = $("ssoBody");
+    if (!box || !drawerCtx || drawerCtx.mode !== "ss-sales") return;
+    if (!catalog) { box.innerHTML = '<div class="notice">This needs TCGplayer\'s card list, which hasn\'t loaded yet. Try again in a moment.</div>'; return; }
+    const intro = '<p class="small" style="margin:0 0 10px">The cards your shop sold, back in Card Vault: they come out of your collection (the copies you sent to SortSwift first) ' +
+      "and go in your sales log with what they sold for, so your profit is right. In SortSwift, open <b>Orders</b>, choose the dates, and export them as a CSV; a TCGplayer order export works too. " +
+      "Bringing in a file that overlaps the last one is fine: a sale already here isn't added again.</p>";
+    const pick = '<label class="btn" style="position:relative;overflow:hidden">' + (sso.text ? "Choose another file" : "Choose the orders file") +
+      '<input type="file" id="ssoFile" accept=".csv,text/csv" style="position:absolute;inset:0;opacity:0;cursor:pointer"></label>' + (sso.name ? ' <span class="small">' + esc(sso.name) + "</span>" : "");
+    if (sso.done) {
+      const d = sso.done;
+      box.innerHTML = intro + '<div class="notice good" role="status">Recorded ' + plural(d.sales, "sale") + " (" + plural(d.copies, "card") + ", " + esc(usd(d.gross)) + "). " +
+        (d.out ? plural(d.out, "card") + " came out of your collection. " : "") + (d.missing ? plural(d.missing, "card wasn't", "cards weren't") + " in Card Vault, so just the sale is logged. " : "") +
+        '<button type="button" class="link-btn" id="ssoUndo">Undo</button></div>' +
+        '<div class="form-actions"><button type="button" class="btn" id="ssoLog">See the sales log</button>' + pick + "</div>";
+      $("ssoUndo").addEventListener("click", () => { if (d.undo) d.undo(); sso.done = null; sso.plan = sso.text ? ssSalesPlan(sso.text, {estimate: sso.estimate}) : null; renderSsSales(); toast("Taken back."); });
+      $("ssoLog").addEventListener("click", () => { settings.salesView = "log"; closeDrawer(); setTab("sales", true); renderSalesTab(); });
+      wireSsoFile();
+      return;
+    }
+    const p = sso.plan;
+    if (!p) { box.innerHTML = intro + '<div class="form-actions">' + pick + "</div>"; wireSsoFile(); return; }
+    if (p.error) { box.innerHTML = intro + '<div class="notice bad" role="alert">' + esc(p.error) + '</div><div class="form-actions">' + pick + "</div>"; wireSsoFile(); return; }
+    const L = p.lines, sum = (list, f) => list.reduce((t, x) => t + f(x), 0);
+    const fresh = L.filter(x => x.state === "new"), done = L.filter(x => x.state === "done"), off = L.filter(x => x.state === "off"), bad = L.filter(x => x.state === "bad");
+    const out = sum(fresh, x => sum(x.takes, t => t.n)), ss = sum(fresh, x => sum(x.takes, t => t.ss)), short = sum(fresh, x => x.short);
+    const copies = sum(fresh, x => x.qty), gross = sum(fresh, x => x.price * x.qty), feesNow = sum(fresh, x => x.fees || 0);
+    const days = fresh.map(x => x.date).sort(), span = days.length ? (days[0] === days[days.length - 1] ? fmtDate(parseDay(days[0])) : fmtShortDate(parseDay(days[0])) + " to " + fmtDate(parseDay(days[days.length - 1]))) : "";
+    const condDiff = sum(fresh, x => sum(x.takes.filter(t => t.cond), t => t.n));
+    const est = fresh.some(x => x.feesFrom === "settings");
+    const where = x => {
+      if (x.state === "done") return "Already in your sales log";
+      if (x.state === "off") return "Left out: " + x.why;
+      if (x.state === "bad") return "Left out: " + x.why;
+      const parts = x.takes.map(t => { const r = collection.find(c => c.id === t.id); return t.n + " from " + (r && String(r.location || "").trim() ? r.location : "no location") + (t.cond && r ? " (" + r.condition + " in Card Vault)" : ""); });
+      if (x.short) parts.push(x.short + " not in Card Vault");
+      return parts.join("; ");
+    };
+    const row = x => '<li class="sso-line sso-' + x.state + '"><div><b>' + esc(x.rec ? x.rec.name : "Line " + x.n) + "</b>" +
+      (x.rec ? ' <span class="small">' + esc([x.rec.number, x.rec.edition === "No edition mark" ? "" : x.rec.edition, x.rec.condition].filter(Boolean).join(" · ")) + "</span>" : "") +
+      '<div class="small">' + esc(where(x)) + "</div></div>" +
+      (x.price != null ? '<div class="sso-amt">' + (x.qty > 1 ? x.qty + " × " : "") + esc(usd(x.price)) + '<div class="small">' + esc(fmtShortDate(parseDay(x.date))) + "</div></div>" : "") + "</li>";
+    box.innerHTML = intro +
+      '<div class="pcx-sum">' +
+      '<p class="pcx-line"><b>' + (fresh.length ? plural(copies, "card") + " sold for " + esc(usd(gross)) : "Nothing new to bring in") + "</b>" +
+      (fresh.length ? " (" + plural(fresh.length, "line") + (p.orders ? " from " + plural(new Set(fresh.map(x => x.order).filter(Boolean)).size, "order") : "") + (span ? ", " + esc(span) : "") + ")" : "") + "</p>" +
+      (out ? '<p class="pcx-line small">' + plural(out, "card comes", "cards come") + " out of your collection" + (ss ? ", " + (ss === out ? "all of them" : ss) + " sent to SortSwift" : "") + "." + (condDiff ? " " + plural(condDiff, "is", "are") + " in a different condition in Card Vault; the closest copies go." : "") + "</p>" : "") +
+      (short ? '<p class="pcx-line small">' + plural(short, "card isn't", "cards aren't") + " in Card Vault.</p>" : "") +
+      (done.length ? '<p class="pcx-line small">' + plural(done.length, "line was", "lines were") + " brought in before, so " + (done.length === 1 ? "it's" : "they're") + " left out.</p>" : "") +
+      (off.length ? '<p class="pcx-line small">' + plural(off.length, "cancelled or refunded line") + " left out.</p>" : "") +
+      (bad.length ? '<p class="pcx-line small">' + plural(bad.length, "line") + " Card Vault couldn't read, left out.</p>" : "") +
+      "</div>" +
+      (short ? '<label class="check-row" style="margin-top:10px"><input type="checkbox" class="check" id="ssoMissing"' + (sso.missing ? " checked" : "") + "> <span>Log the " + plural(short, "sale") + " of cards not in Card Vault too (nothing to take out)</span></label>" : "") +
+      (p.fileFees ? '<p class="hint" style="margin:8px 0 0">Fees from the file: ' + esc(usd(feesNow)) + ".</p>"
+        : '<label class="check-row" style="margin-top:10px"><input type="checkbox" class="check" id="ssoEst"' + (sso.estimate ? " checked" : "") + "> <span>The file has no fees: work them out from your selling fees (" + esc(feeWords()) + ")" + (est ? ", " + esc(usd(feesNow)) + " in all" : "") + "</span></label>") +
+      (L.length ? '<ul class="sso-list">' + L.slice(0, 200).map(row).join("") + (L.length > 200 ? '<li class="small">…and ' + (L.length - 200) + " more lines</li>" : "") + "</ul>" : "") +
+      '<details class="more"><summary>Columns Card Vault used</summary><p class="small">' + esc(p.cols.join(", ")) + ". Anything else in the file, like buyers' names and addresses, isn't read.</p></details>" +
+      '<div class="form-actions"><button type="button" class="btn btn-primary" id="ssoGo"' + (fresh.length ? "" : " disabled") + ">Record " + (fresh.length ? plural(fresh.length, "sale") : "the sales") + "</button>" + pick + "</div>";
+    if ($("ssoMissing")) $("ssoMissing").addEventListener("change", e => { sso.missing = e.target.checked; });
+    if ($("ssoEst")) $("ssoEst").addEventListener("change", e => { sso.estimate = e.target.checked; sso.plan = ssSalesPlan(sso.text, {estimate: sso.estimate}); renderSsSales(); });
+    $("ssoGo").addEventListener("click", () => {
+      const fresh2 = ssSalesPlan(sso.text, {estimate: sso.estimate});      // (afresh: in case anything changed since)
+      sso.done = ssSalesApply(fresh2, {missing: sso.missing});
+      sso.plan = null;
+      renderSsSales();
+    });
+    wireSsoFile();
+  }
+  function wireSsoFile() {
+    const inp = $("ssoFile");
+    if (!inp) return;
+    inp.addEventListener("change", async () => {
+      const file = inp.files && inp.files[0];
+      if (!file) return;
+      sso.text = await file.text();
+      sso.name = file.name;
+      sso.done = null;
+      sso.plan = ssSalesPlan(sso.text, {estimate: sso.estimate});
+      renderSsSales();
+    });
   }
   /* ======================= Events ======================= */
   function readFile(file, done) {
@@ -15726,6 +16135,7 @@
       const b = e.target.closest("[data-sale-action]");
       if (b) { if (b.dataset.saleAction === "back") putBackSale(b.dataset.id); else deleteSale(b.dataset.id); return; }
       if (e.target.closest("#salesExport")) exportSalesCSV();
+      if (e.target.closest("#salesImportSs")) openSsSales();
       const sa = e.target.closest("[data-sell-act]");
       if (sa) { sellAction(sa.dataset.sellAct, sa.dataset.id); return; }
       const op = e.target.closest("[data-open]");
@@ -15912,6 +16322,7 @@
     try { catalog = buildCatalog(window.TCG_DATA); } catch (e) { catalog = null; }
     window.TCG_DATA = null; // free the raw copy; the catalog keeps what it needs
     loadState();
+    initLook();   // (light or dark, the size of the words: Settings, Look)
     shopPricesReady();   // (the same for the Japanese and Korean sealed products you own: priced from the shops' lists)
     setTimeout(fillPrintPhotos, 3000);   // (your cards: a photo of their own print, where they have none that loads)
     if (recordValueHistory()) save({quiet: true});  // today's value-history point
@@ -15955,7 +16366,7 @@
   window.CardVault = {state: () => ({collection, settings, selected, catalog, wants, valueHistory, backup, decks, sales, phone, deleted, batch, sync}),
     mergeBackup, checkBackupFile, openBatch, parseBatchLine, batchRowFor, addBatch, save, analyzeCSV, commitImport, openImport,
     findByNumber, searchByName, priceInfo, marketValue, unitValue, changeFor, periodChange, historySeries, totals, deleteRecords, exportCSV,
-      openPcExport, pcExportPlan, pcExportText, pcGrade, pcExportId, pcSentFromLastExport, pcWaiting, renderPcBanner, goTo, runGo, applyDock, openChanges, undoChange, changesList, noteChange, openScanner, showScanPrice, dealVerdict, showFacts, showBuy, cleanBinders, mergeBinders, openBinder, binderPlan, binderSlipsHTML, binderOf, bx: () => bx, openSsExport, ssExportPlan, ssExportText, ssPrinting, ssx: () => ssx, big: () => big, bigGet, bigSet, yugiCache, readDataText, mergeDuplicates, openPaidTool, paidPlan, pp: () => pp, openTcgCart, tcgCartPlan, tcgCartURL, pcx: () => pcx,
+      openPcExport, pcExportPlan, pcExportText, pcGrade, pcExportId, pcSentFromLastExport, pcWaiting, renderPcBanner, goTo, runGo, applyDock, applyLook, shownTheme, ssSalesPlan, ssSalesApply, openSsSales, saleDay, saleEntry, takeSold, moneyByMonth, renderMoney, openChanges, undoChange, changesList, noteChange, openScanner, showScanPrice, dealVerdict, showFacts, showBuy, cleanBinders, mergeBinders, openBinder, binderPlan, binderSlipsHTML, binderOf, bx: () => bx, openSsExport, ssExportPlan, ssExportText, ssPrinting, ssx: () => ssx, big: () => big, bigGet, bigSet, yugiCache, readDataText, mergeDuplicates, openPaidTool, paidPlan, pp: () => pp, openTcgCart, tcgCartPlan, tcgCartURL, pcx: () => pcx,
     openDetails, openAdd, openSettings, render, setTab, setsData, extrasMap, wantStatus, addWant, restoreBackup, backupPayload,
     findYugiImages, rankYugiImages, parseYugiFile, yugiMangaPhoto, fillMangaPhotos, fillPrintPhotos, yugiPrintPick, langNumber, printPicOf, scanURL, isScanURL, yugiLabel, recordValueHistory, niceTicks, dateTicks, checkForNewData, writeBackup, initBackup,
     photoCandidates, findPhotosBatch, tradeListText, parseDeckText, parseYdk, parseYdke, checkDeck, cardNamesFor, runDeckCheck,

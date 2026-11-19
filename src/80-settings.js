@@ -78,7 +78,7 @@
         "it waits if you're in the middle of something.</span></label>" : "") +
       '<div class="btn-row"><button class="btn btn-small" type="button" data-bk="download">Download a backup file</button>' +
       '<button class="btn btn-small" type="button" data-bk="restore">Restore from a backup…</button></div>' +
-      '<h3 style="margin:16px 0 6px;font-size:13.5px">Earlier versions kept in this browser</h3>' +
+      '<h3 style="margin:16px 0 6px;font-size:calc(13.5px*var(--ts))">Earlier versions kept in this browser</h3>' +
       '<p class="small" style="margin:0 0 8px">Your collection as it was when you first opened Card Vault on each of the last 7 days you used it.</p>' +
       '<div id="snapList"><p class="small" style="margin:0">Loading…</p></div>' +
       (backup.drive ? '<div id="driveCopiesWrap"' + (backup.handle && backup.handle.kind === "gdrive" ? "" : " hidden") + '><h3 style="margin:16px 0 6px;font-size:13.5px">Dated copies in your Google Drive</h3>' +
@@ -110,6 +110,8 @@
       "For cards on eBay and TCGplayer it has been around 13% plus 30 to 40 cents; fees change, so check the site you sell on.</p>" +
       '<div class="alert-grid"><label class="field"><span>Share of the price</span><span class="pct"><input class="input" type="number" min="0" max="60" step="0.1" id="sSellPct" value="' + esc(sellPct()) + '">%</span></label>' +
       '<label class="field"><span>Plus, per card</span><span class="pct">$<input class="input" type="number" min="0" max="50" step="0.01" id="sSellFlat" value="' + esc(sellFlat()) + '"></span></label></div></div>' +
+
+      lookHTML() +
 
       '<div class="section"><h3>On a phone or tablet</h3>' +
       '<label class="check-row"><input type="checkbox" class="check" id="sSwipe"' + (settings.swipeCopies !== false ? " checked" : "") +
@@ -316,6 +318,7 @@
     });
     const pctInputs = () => document.querySelectorAll("#drawerBody [data-cond]");
     $("sSwipe").addEventListener("change", () => { settings.swipeCopies = $("sSwipe").checked; saveSettings(); });
+    wireLook();
     $("sCondAdjust").addEventListener("change", () => {
       settings.condAdjust = $("sCondAdjust").checked;
       pctInputs().forEach(i => { i.disabled = !settings.condAdjust; });

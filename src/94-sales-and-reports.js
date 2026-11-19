@@ -40,20 +40,29 @@
       recordSale(r, {qty: posInt($("sQty").value) || 1, price, fees: num($("sFees").value) || 0, date: $("sDate").value, notes: $("sNotes").value.trim()});
     });
   }
-  function recordSale(r, f) {
-    if (!collection.includes(r)) r = collection.find(x => x.id === r.id);
-    if (!r) return;
-    const qty = Math.min(Math.max(1, f.qty), r.qty);
-    const sale = upgradeSale({id: newId(), date: parseDay(f.date) ? f.date : localDay(new Date()), qty, price: f.price, fees: f.fees, notes: f.notes,
+  // A sale's entry in the log: qty copies of a card of yours, at f.price each, f.fees in all (also the SortSwift sales
+  // import, 97b, with f.ref: which line of which order it was)
+  function saleEntry(r, qty, f) {
+    return upgradeSale({id: newId(), date: parseDay(f.date) ? f.date : localDay(new Date()), qty, price: f.price, fees: f.fees, notes: f.notes, ref: f.ref,
       name: r.name, productId: r.productId, number: r.number, setName: r.setName, rarity: r.rarity, edition: r.edition, condition: r.condition,
       language: r.language, grade: r.grade, paid: r.paid, market: marketValue(r).unit, image: imageFor(r, "200w"),
       record: JSON.parse(JSON.stringify(Object.assign({}, r, {qty, sell: null, ssSent: Math.min(qty, r.ssSent || 0)})))});
-    const beforeCollection = collection.slice(), beforeQty = r.qty, beforeSales = sales.slice(), beforeSell = r.sell ? Object.assign({}, r.sell) : null, beforeSs = r.ssSent;
+  }
+  // Sold copies leave the collection
+  function takeSold(r, qty) {
     r.qty -= qty;
     // (the copies sold were the ones sent to SortSwift first: that's where your shop sells them)
     if (r.ssSent) { r.ssSent = Math.max(0, r.ssSent - qty); if (!r.ssSent) delete r.ssSent; }
     if (r.qty <= 0) { collection = collection.filter(x => x !== r); selected.delete(r.id); }
     else if (r.sell && r.sell.qty) { r.sell.qty -= qty; if (r.sell.qty <= 0) r.sell = null; else if (r.sell.qty >= r.qty) r.sell.qty = null; }
+  }
+  function recordSale(r, f) {
+    if (!collection.includes(r)) r = collection.find(x => x.id === r.id);
+    if (!r) return;
+    const qty = Math.min(Math.max(1, f.qty), r.qty);
+    const sale = saleEntry(r, qty, f);
+    const beforeCollection = collection.slice(), beforeQty = r.qty, beforeSales = sales.slice(), beforeSell = r.sell ? Object.assign({}, r.sell) : null, beforeSs = r.ssSent;
+    takeSold(r, qty);
     sales.push(sale);
     save(); closeDrawer(); render();
     toast("Recorded the sale of " + (qty > 1 ? qty + " × " : "") + r.name + " for " + usd(f.price * qty) + ".", {action: "Undo", onAction: () => {
@@ -83,9 +92,10 @@
     const head = '<div class="panel-head sub-head"><div><h3 class="sub-h">Sales log</h3><p>' + (sales.length
       ? "Cards you've sold or traded away" + (settings.salesYear ? " in " + esc(settings.salesYear) : "") + "."
       : "Cards you've sold or traded away, and what you made on them.") + "</p></div>" +
-      (sales.length ? '<div class="panel-tools"><label class="basis">Year <select class="select" id="salesYear"><option value="">All years</option>' +
-        years.map(y => '<option value="' + y + '"' + (y === settings.salesYear ? " selected" : "") + ">" + y + "</option>").join("") + "</select></label>" +
-        '<button class="btn btn-small" type="button" id="salesExport">Export sales CSV</button></div>' : "") + "</div>";
+      '<div class="panel-tools">' + (sales.length ? '<label class="basis">Year <select class="select" id="salesYear"><option value="">All years</option>' +
+        years.map(y => '<option value="' + y + '"' + (y === settings.salesYear ? " selected" : "") + ">" + y + "</option>").join("") + "</select></label>" : "") +
+        '<button class="btn btn-small" type="button" id="salesImportSs">Bring in SortSwift sales</button>' +
+        (sales.length ? '<button class="btn btn-small" type="button" id="salesExport">Export sales CSV</button>' : "") + "</div></div>";
     if (!sales.length) {
       panel.innerHTML = head + emptyPanel("No sales yet", "When you sell or trade away a card, open it in your collection and choose <b>Sold</b>. " +
         "Card Vault takes it out of your collection, keeps the sale here, and works out your profit.");
