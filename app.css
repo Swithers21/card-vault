@@ -138,7 +138,7 @@
   .panel-tools{display:flex;gap:10px;flex-wrap:wrap;align-items:center}
   .top-cards{display:flex;flex-direction:column;align-items:center;justify-self:stretch;min-width:0}
   .top-cards-label{order:2;color:var(--text-dim);font-size:12.5px;margin-top:12px}
-  .fan{--w:116px;position:relative;width:100%;height:calc(var(--w) * 1.46 + 34px)}
+  .fan{--w:116px;position:relative;width:100%;height:calc(var(--w) * 1.46 + 34px);translate:calc(var(--shift,0) * var(--w) * var(--spread,.56)) 0}
   .mini{position:absolute;left:50%;bottom:10px;width:var(--w);margin-left:calc(var(--w) / -2);background:none;border:0;padding:0;cursor:pointer;
     z-index:calc(10 - var(--rank));transform-origin:50% 135%;
     translate:calc(var(--slot) * var(--w) * var(--spread,.56)) calc(var(--slot) * var(--slot) * 5px);rotate:calc(var(--slot) * 7.5deg);transition:translate .2s ease}
@@ -1112,8 +1112,12 @@
     .tab{padding:10px 11px 9px;font-size:14px}
   }
   @media (max-width:1024px){
-    .summary{grid-template-columns:minmax(0,1fr) minmax(240px,380px);gap:16px 24px;padding:26px 26px 22px}
-    .fan{--w:96px}
+    /* (the words get at least 300px and the fan of cards gives way: on the iPhone Duo's inside screen held upright, about
+       673px wide, the fan took 380px and left the value 175px, so its heading wrapped onto three lines) */
+    .summary{grid-template-columns:minmax(300px,1fr) minmax(200px,380px);gap:16px 24px;padding:26px 26px 22px}
+    /* (and the five fanned cards fit the room their column has: about 3.4 cards' widths, side to side) */
+    .top-cards{container-type:inline-size}
+    .fan{--w:min(96px,100cqi / 3.5)}
   }
   /* ---------- below a wide screen, the filters fold behind one button: one row of search, Filters and view ---------- */
   @media (max-width:1279px){

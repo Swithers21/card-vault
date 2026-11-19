@@ -77,6 +77,19 @@ class ScreenSizes(base.FeelBase):
                 self.assertLessEqual(page.evaluate("document.querySelector('#filterPanel .controls-row').getBoundingClientRect().right"),
                                      page.evaluate("document.getElementById('filterPanel').getBoundingClientRect().right"))
 
+    def test_the_value_has_room_beside_its_cards(self):
+        # (the iPhone Duo's inside screen held upright, Nov 2026, about 673 wide: the fan of cards took 380px of the
+        # collection value's box and left its words 175px; now the words get 300px and the fan's cards fit their column)
+        for width in (641, 673, 760, 890, 1024):
+            with self.subTest(width=width):
+                page = self.sized(width, 900)
+                page.wait_for_selector(".summary .mini")
+                got = page.evaluate("""(() => { const s = document.querySelector('.summary').getBoundingClientRect(), cols = getComputedStyle(document.querySelector('.summary')).gridTemplateColumns;
+                    const out = [...document.querySelectorAll('.summary .mini')].map(m => m.getBoundingClientRect()).filter(r => r.left < s.left - 1 || r.right > s.right - 8).length;
+                    return {text: parseFloat(cols), out}; })()""")
+                self.assertGreaterEqual(got["text"], 300)
+                self.assertEqual(got["out"], 0)
+
     def test_settings_says_how_big_the_screen_is(self):
         page = self.sized(457, 678)
         page.evaluate("window.CardVault.openSettings()")
