@@ -370,6 +370,12 @@
       if (m.changed) { settings.themeGoals = m.list; res.goals = true; res.changed = true; }
       if (m.behind) res.behind = true;
     } else if (ds && cleanThemeGoals(settings.themeGoals).length) res.behind = true;
+    // (master set binders the same way)
+    if (ds && Array.isArray(ds.binders)) {
+      const m = mergeBinders(settings.binders, ds.binders, fileWins);
+      if (m.changed) { settings.binders = m.list; res.goals = true; res.changed = true; }
+      if (m.behind) res.behind = true;
+    } else if (ds && cleanBinders(settings.binders).length) res.behind = true;
     if (Array.isArray(data.valueHistory)) {
       const merged = mergeHistory(valueHistory, data.valueHistory);
       if (merged.length !== valueHistory.length) { valueHistory = merged; res.touched = true; }

@@ -561,16 +561,20 @@
   }
   // opts.batch: scan one card after another into the "Add several cards" list.
   // opts.batch: several cards into the add list; opts.check: just see what each card is worth (Card search)
+  // opts.show: show mode, for a card show or a shop: checking a price plus whether the card fills a gap in a master set
+  // binder, whether you have it or want it, how an asking price compares, and a button to add it at that price
   function openScanner(opts) {
-    const many = !!(opts && opts.batch), check = !many && !!(opts && opts.check);
-    drawerCtx = {mode: "scan", batch: many, check};
+    const many = !!(opts && opts.batch), show = !many && !!(opts && opts.show), check = !many && (!!(opts && opts.check) || show);
+    drawerCtx = {mode: "scan", batch: many, check, show};
     ocgCardsReady();   // (so a Japanese or Korean card is known right away)
-    openDrawer(many ? "Scan several cards" : check ? "Scan to check a price" : "Scan a card",
+    openDrawer(many ? "Scan several cards" : show ? "Show mode" : check ? "Scan to check a price" : "Scan a card",
       '<div class="scan-view" id="scanView"><video id="scanVideo" playsinline muted autoplay></video><div class="scan-box" id="scanBox" aria-hidden="true"></div></div>' +
       '<p class="scan-status" id="scanStatus" role="status">Starting the camera…</p>' +
       (many ? '<p class="hint" style="margin:4px 0 0">Hold up one card at a time, with its number inside the box. Each card it reads goes into the list; ' +
           "then hold up the next one. For more copies of the same card, change how many in the list.</p>" +
           '<div class="btn-row"><button class="btn btn-primary" type="button" id="scanList">' + batchListLabel() + "</button></div>"
+        : show ? '<p class="hint" style="margin:4px 0 0">At a show or a shop: hold the card close with its number in the box, or type the number. See whether it fills a gap in your binders, ' +
+          "whether you have it already, and how their price compares. Nothing is added unless you say so.</p>"
         : check ? '<p class="hint" style="margin:4px 0 0">Hold the card close, with its number (just under the picture, on the right) inside the box. Its prices show here; nothing is added to your collection.</p>'
         : '<p class="hint" style="margin:4px 0 0">Hold the card close, with its number (just under the picture, on the right) inside the box. Good light helps. ' +
           'Have a stack? <button type="button" class="link-btn" id="scanMany">Scan several in a row</button></p>') +
@@ -580,7 +584,7 @@
       '<form id="scanForm" class="lookup-row" style="margin-top:14px"' + (check ? "" : " hidden") + ' autocomplete="off"><input class="input" id="scanNumber" aria-label="Card number"' +
       (check ? ' placeholder="Or type its number, like LOB-EN001"' : "") + ">" +
       '<button class="btn" type="submit">Find</button></form><div id="lookupOut"></div>' + (check ? '<div id="scanChecks"></div>' : ""));
-    scan = {stream: null, active: true, busy: false, timer: null, tries: 0, devices: [], deviceIndex: -1, batch: many, check, recent: {}};
+    scan = {stream: null, active: true, busy: false, timer: null, tries: 0, devices: [], deviceIndex: -1, batch: many, check, show, recent: {}};
     if (check) renderScanChecks();
     if ($("scanList")) $("scanList").addEventListener("click", () => openBatch());
     if ($("scanMany")) $("scanMany").addEventListener("click", () => openScanner({batch: true}));
@@ -777,17 +781,18 @@
       if (best && (!top || best.v > top.v)) top = {name, v: best.v, number};
       return '<div class="scan-card"><span class="sleeve"' + foilAttr(p.rarity) + ">" + imgTag(productPics(p, "200w"), name) + "</span>" +
         '<div class="scan-info"><b class="scan-name">' + esc(name) + '</b><span class="small">' + esc([p.group.name, p.rarity].filter(Boolean).join(" · ")) + "</span>" +
-        (have ? '<span class="cs-own">You have ' + have + "</span>" : "") + lines +
+        (have ? '<span class="cs-own">You have ' + have + "</span>" : "") + lines + (scan && scan.show ? showModeHTML(p, eds) : "") +
         '<button type="button" class="link-btn" data-scan-open="' + esc(p.id + "|" + (best ? best.ed : eds[0] || "")) + '">Details, price over time, PSA 10</button></div></div>';
     }).join("") + "</div>" + (products.length > 1 ? '<p class="small" style="margin:6px 0 0">' + products.length + " printings have this number: compare the rarity and set with your card.</p>" : "") +
       '<div class="btn-row"><button class="btn btn-primary" type="button" data-scan-next>Scan the next card</button></div>';
     out.querySelector("[data-scan-next]").addEventListener("click", () => resumeScan());
+    if (scan && scan.show) wireShowMode(out, products);
     $("scanAgain").hidden = true;   // (its own button is under the prices)
     // (on a phone the camera fills the screen: bring the prices into view)
     if (out.scrollIntoView) out.scrollIntoView({block: "start", behavior: "smooth"});
     out.querySelectorAll("[data-scan-open]").forEach(b => b.addEventListener("click", () => {
       const at = b.dataset.scanOpen.indexOf("|");
-      openPriceCard(b.dataset.scanOpen.slice(0, at), b.dataset.scanOpen.slice(at + 1), {fromScan: true});
+      openPriceCard(b.dataset.scanOpen.slice(0, at), b.dataset.scanOpen.slice(at + 1), {fromScan: true, show: !!(scan && scan.show)});
     }));
     if (top && !(scanChecks[0] && scanChecks[0].number === number)) scanChecks.unshift(top);
     renderScanChecks();

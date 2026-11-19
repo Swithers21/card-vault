@@ -386,6 +386,7 @@
     });
     csPanel.addEventListener("click", e => {
       if (e.target.closest("#csScan")) { openScanner({check: true}); return; }
+      if (e.target.closest("#csShow")) { openScanner({show: true}); return; }
       const md = e.target.closest("[data-csmode], [data-cs-mode]");
       if (md) {
         settings.csMode = (md.dataset.csmode || md.dataset.csMode) === "sets" ? "sets" : "cards"; saveSettings();
@@ -790,7 +791,7 @@
   window.CardVault = {state: () => ({collection, settings, selected, catalog, wants, valueHistory, backup, decks, sales, phone, deleted, batch, sync}),
     mergeBackup, checkBackupFile, openBatch, parseBatchLine, batchRowFor, addBatch, save, analyzeCSV, commitImport, openImport,
     findByNumber, searchByName, priceInfo, marketValue, unitValue, changeFor, periodChange, historySeries, totals, deleteRecords, exportCSV,
-      openPcExport, pcExportPlan, pcExportText, pcGrade, pcExportId, pcSentFromLastExport, pcWaiting, renderPcBanner, openBinder, binderPlan, binderSlipsHTML, binderOf, bx: () => bx, openSsExport, ssExportPlan, ssExportText, ssPrinting, ssx: () => ssx, big: () => big, bigGet, bigSet, yugiCache, readDataText, mergeDuplicates, openPaidTool, paidPlan, pp: () => pp, openTcgCart, tcgCartPlan, tcgCartURL, pcx: () => pcx,
+      openPcExport, pcExportPlan, pcExportText, pcGrade, pcExportId, pcSentFromLastExport, pcWaiting, renderPcBanner, openScanner, showScanPrice, dealVerdict, showFacts, showBuy, cleanBinders, mergeBinders, openBinder, binderPlan, binderSlipsHTML, binderOf, bx: () => bx, openSsExport, ssExportPlan, ssExportText, ssPrinting, ssx: () => ssx, big: () => big, bigGet, bigSet, yugiCache, readDataText, mergeDuplicates, openPaidTool, paidPlan, pp: () => pp, openTcgCart, tcgCartPlan, tcgCartURL, pcx: () => pcx,
     openDetails, openAdd, openSettings, render, setTab, setsData, extrasMap, wantStatus, addWant, restoreBackup, backupPayload,
     findYugiImages, rankYugiImages, parseYugiFile, yugiMangaPhoto, fillMangaPhotos, fillPrintPhotos, yugiPrintPick, langNumber, printPicOf, scanURL, isScanURL, yugiLabel, recordValueHistory, niceTicks, dateTicks, checkForNewData, writeBackup, initBackup,
     photoCandidates, findPhotosBatch, tradeListText, parseDeckText, parseYdk, parseYdke, checkDeck, cardNamesFor, runDeckCheck,

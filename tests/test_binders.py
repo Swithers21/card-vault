@@ -106,7 +106,7 @@ class Binders(SealedBase):
         self.assertIn([12, "", 1, "1st Edition"], where)             # (the graded one stays)
         self.assertIn([11, "Deck: Chaos", 1, "1st Edition"], where)  # (and the deck's)
         self.assertEqual(self.plan(page)["in"], 3)
-        self.assertEqual(page.evaluate("window.CardVault.state().settings.binders"), [{"g": 1, "name": BINDER, "pockets": 9}])
+        self.assertEqual(page.evaluate("window.CardVault.state().settings.binders.map(b => [b.g, b.name, b.pockets, b.t > 0])"), [[1, BINDER, 9, True]])
         self.assertEqual(page.locator("#bxFill").count(), 0)          # (nothing more to put in: never a second copy)
         page.click(".toast button")
         page.wait_for_function("window.CardVault.binderPlan(1).move === 2")

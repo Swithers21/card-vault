@@ -728,6 +728,12 @@
       if (m.changed) { settings.themeGoals = m.list; res.goals = true; res.changed = true; }
       if (m.behind) res.behind = true;
     } else if (ds && cleanThemeGoals(settings.themeGoals).length) res.behind = true;
+    // (master set binders the same way)
+    if (ds && Array.isArray(ds.binders)) {
+      const m = mergeBinders(settings.binders, ds.binders, fileWins);
+      if (m.changed) { settings.binders = m.list; res.goals = true; res.changed = true; }
+      if (m.behind) res.behind = true;
+    } else if (ds && cleanBinders(settings.binders).length) res.behind = true;
     if (Array.isArray(data.valueHistory)) {
       const merged = mergeHistory(valueHistory, data.valueHistory);
       if (merged.length !== valueHistory.length) { valueHistory = merged; res.touched = true; }
@@ -5293,7 +5299,8 @@
         '<div class="cs-bar"><div class="seg" role="group" aria-label="Search for" id="csMode"><button type="button" data-csmode="cards">Cards</button><button type="button" data-csmode="sets">Sets</button></div>' +
         '<input class="search" id="csQ" type="search" autocomplete="off" spellcheck="false" value="' + esc(cs.q) + '">' +
         '<select class="select" id="csSort" aria-label="Sort">' + CS_SORTS.map(([k, l]) => '<option value="' + k + '"' + ((settings.csSort || "best") === k ? " selected" : "") + ">" + l + "</option>").join("") + "</select>" +
-        '<button class="btn cs-scan" type="button" id="csScan" title="Point your camera at a card to see what it\'s worth"><svg width="16" height="16" viewBox="0 0 20 20" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M2.5 6.5V4.2A1.7 1.7 0 0 1 4.2 2.5h2.3M13.5 2.5h2.3a1.7 1.7 0 0 1 1.7 1.7v2.3M17.5 13.5v2.3a1.7 1.7 0 0 1-1.7 1.7h-2.3M6.5 17.5H4.2a1.7 1.7 0 0 1-1.7-1.7v-2.3"/><path d="M6 10h8"/></svg>Scan a card</button></div>' +
+        '<button class="btn cs-scan" type="button" id="csScan" title="Point your camera at a card to see what it\'s worth"><svg width="16" height="16" viewBox="0 0 20 20" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M2.5 6.5V4.2A1.7 1.7 0 0 1 4.2 2.5h2.3M13.5 2.5h2.3a1.7 1.7 0 0 1 1.7 1.7v2.3M17.5 13.5v2.3a1.7 1.7 0 0 1-1.7 1.7h-2.3M6.5 17.5H4.2a1.7 1.7 0 0 1-1.7-1.7v-2.3"/><path d="M6 10h8"/></svg>Scan a card</button>' +
+        '<button class="btn cs-scan" type="button" id="csShow" title="At a card show or a shop: does it fill a gap in your binders, and is the price fair?">Show mode</button></div>' +
         '<div id="csOut"></div>';
     } else {
       $("csIntro").innerHTML = intro;
@@ -5957,7 +5964,7 @@
       '<div class="form-actions"><button class="btn btn-primary" type="button" id="csHave">' + (mine.length ? "Add more" : "I have it") + "</button>" +
       '<button class="btn" type="button" id="csWant">' + (want ? "Edit want" : "Want") + "</button>" +
       (opts && opts.fromScan ? '<span class="spacer"></span><button class="btn" type="button" id="csScanMore">Scan another card</button>' : "") + "</div></div>");
-    if ($("csScanMore")) $("csScanMore").addEventListener("click", () => openScanner({check: true}));
+    if ($("csScanMore")) $("csScanMore").addEventListener("click", () => openScanner({check: true, show: !!(opts && opts.show)}));
     $("otherBtn").addEventListener("click", () => loadOtherMarkets(r));
     $("csSetLink").addEventListener("click", () => openSearchSet("en:" + p.group.id));
     $("csHave").addEventListener("click", () => { drawerCtx = null; openPickedForm(p, {edition: r.edition || null}); });
@@ -7239,7 +7246,7 @@
       settings: {condAdjust: settings.condAdjust, condPct: settings.condPct,
         alertsOn: settings.alertsOn, alertMinDollar: settings.alertMinDollar, alertMinPct: settings.alertMinPct,
         psa10Mult: settings.psa10Mult, psa10Floor: settings.psa10Floor, gradePct: settings.gradePct, pcToken: settings.pcToken || "",
-        gradingCost: settings.gradingCost, gradingMin: settings.gradingMin, gradingFees: cleanGradingFees(settings.gradingFees), gradingCo: settings.gradingCo || "PSA", ntfyTopic: settings.ntfyTopic || "", siteUrl: settings.siteUrl || "", setGoals: cleanGoals(settings.setGoals), themeGoals: cleanThemeGoals(settings.themeGoals),
+        gradingCost: settings.gradingCost, gradingMin: settings.gradingMin, gradingFees: cleanGradingFees(settings.gradingFees), gradingCo: settings.gradingCo || "PSA", ntfyTopic: settings.ntfyTopic || "", siteUrl: settings.siteUrl || "", setGoals: cleanGoals(settings.setGoals), themeGoals: cleanThemeGoals(settings.themeGoals), binders: cleanBinders(settings.binders),
         sellFeePct: settings.sellFeePct, sellFeeFlat: settings.sellFeeFlat, cloudAlerts: cleanCloudAlerts(settings.cloudAlerts), sharedMod: settings.sharedMod || 0}};
   }
   const hasUnbackedChanges = () => !!settings.lastChangeAt && (!settings.lastBackupAt || settings.lastChangeAt > settings.lastBackupAt);
@@ -8312,6 +8319,7 @@
     if (ds && typeof ds === "object") applySharedSettings(ds);
     if (ds && Array.isArray(ds.setGoals)) settings.setGoals = cleanGoals(ds.setGoals);
     if (ds && Array.isArray(ds.themeGoals)) settings.themeGoals = cleanThemeGoals(ds.themeGoals);
+    if (ds && Array.isArray(ds.binders)) settings.binders = cleanBinders(ds.binders);
     selected.clear();
     autoLink();
     save();
@@ -11315,7 +11323,7 @@
       '<div class="form-actions">' + (ref ? '<button class="btn btn-primary" type="button" data-ocgc-have="' + ref + '">' + (mine.length ? "Add more" : "I have it") + "</button>" +
         (want ? "" : '<button class="btn" type="button" data-ocgc-want="' + ref + '">Want</button>') : "") +
       (opts && opts.fromScan ? '<span class="spacer"></span><button class="btn" type="button" id="csScanMore">Scan another card</button>' : "") + "</div></div>");
-    if ($("csScanMore")) $("csScanMore").addEventListener("click", () => openScanner({check: true}));
+    if ($("csScanMore")) $("csScanMore").addEventListener("click", () => openScanner({check: true, show: !!(opts && opts.show)}));
     $("csSetLink").addEventListener("click", () => openSearchSet(card.set.id));
     $("drawerBody").querySelectorAll("[data-cs-mine]").forEach(b => b.addEventListener("click", () => openDetails(b.dataset.csMine)));
     if (ocgHistoryBase() && row) loadOcgHistory({number: card.number, rarity: row.rarity}, row);
@@ -11550,18 +11558,45 @@
   // goes (page and pocket), whether it's in the binder, whether you have one elsewhere (and a button that puts one of each
   // in), and what you still need; and placeholders to print for the gaps, at the size of a card: the card's picture,
   // name, number and rarity, and its page and pocket.
-  // settings.binders: [{g: the set's TCGplayer group id, name: its location, pockets: 4, 9 or 12 to a page}]
+  // settings.binders: [{g: the set's TCGplayer group id, name: its location, pockets: 4, 9 or 12 to a page, t: when it
+  // last changed}], kept in the backup and synced like set goals: one by one, the latest change to each binder wins.
   const BINDER_POCKETS = [4, 9, 12];
-  const binderOf = gid => (Array.isArray(settings.binders) ? settings.binders : []).find(b => b && b.g === +gid) || null;
+  function cleanBinders(list) {
+    const by = new Map();
+    for (const x of Array.isArray(list) ? list : []) {
+      const g = Number(x && x.g), name = String((x && x.name) || "").trim().slice(0, 80);
+      if (!Number.isFinite(g) || g <= 0 || !name) continue;
+      const e = {g, name, pockets: BINDER_POCKETS.includes(+x.pockets) ? +x.pockets : 9, t: modTime(x.t) || 0};
+      const cur = by.get(g);
+      if (!cur || e.t >= cur.t) by.set(g, e);
+    }
+    return Array.from(by.values()).sort((a, b) => a.t - b.t).slice(-200);
+  }
+  function mergeBinders(mine, theirs, fileWins) {
+    const a = new Map(cleanBinders(mine).map(e => [e.g, e])), b = new Map(cleanBinders(theirs).map(e => [e.g, e]));
+    const same = (x, y) => x.name === y.name && x.pockets === y.pockets && x.t === y.t;
+    let changed = false, behind = false;
+    for (const [g, e] of b) {
+      const m = a.get(g);
+      if (!m || e.t > m.t || (fileWins && !same(m, e))) { if (!m || !same(m, e)) changed = true; a.set(g, e); }
+      else if (m.t > e.t) behind = true;
+    }
+    for (const g of a.keys()) if (!b.has(g)) behind = true;
+    return {list: cleanBinders(Array.from(a.values())), changed, behind};
+  }
+  const binderOf = gid => cleanBinders(settings.binders).find(b => b.g === +gid) || null;
   const binderGroup = gid => { const ps = catalog && productsByGroup().get(+gid); return ps && ps.length ? ps[0].group : null; };
   const binderDefault = gid => { const g = binderGroup(gid); return {g: +gid, name: (g ? g.name : "Set") + " master set", pockets: 9}; };
   function binderSave(gid, patch) {
-    const list = (Array.isArray(settings.binders) ? settings.binders : []).filter(b => b && b.g !== +gid);
-    const b = Object.assign({}, binderOf(gid) || binderDefault(gid), patch);
+    const was = binderOf(gid);
+    const list = cleanBinders(settings.binders).filter(b => b.g !== +gid);
+    const b = Object.assign({}, was || binderDefault(gid), patch);
     b.name = String(b.name || "").trim().slice(0, 80) || binderDefault(gid).name;
     if (!BINDER_POCKETS.includes(+b.pockets)) b.pockets = 9;
-    list.push({g: +gid, name: b.name, pockets: +b.pockets});
-    settings.binders = list;
+    // (a new time only when something changed, so opening a binder doesn't count as a change to sync)
+    b.t = was && was.name === b.name && was.pockets === +b.pockets ? was.t : Date.now();
+    list.push({g: +gid, name: b.name, pockets: +b.pockets, t: b.t});
+    settings.binders = cleanBinders(list);
     saveSettings();
     return b;
   }
@@ -11604,12 +11639,13 @@
   }
 
   const binderMeta = p => [p.number, p.rarity].filter(Boolean).join(" · ") || (p.sealed ? "Token" : "");
-  const bx = {gid: 0, show: "all", bw: false, which: "need"};
+  const bx = {gid: 0, show: "all", bw: false, which: "need", view: "list", page: 1};
   function openBinder(gid) {
     if (!catalog || !binderGroup(gid)) { toast("Master set binders need TCGplayer's card list. " + GET_DATA, {kind: "error"}); return; }
     bx.gid = +gid;
     bx.show = "all";
     bx.printOpen = false;
+    bx.page = 1;
     drawerCtx = {mode: "binder", gid: +gid};
     openDrawer("Master set binder", '<div id="bxBody"></div>');
     $("drawer").classList.add("wide");
@@ -11649,7 +11685,8 @@
       (plan.extra ? '<p class="small">' + plural(plan.extra, "extra copy", "extra copies") + " in the binder: a master set needs only one of each.</p>" : "") +
       (plan.stray.length ? '<p class="small">' + plural(plan.stray.reduce((t, r) => t + r.qty, 0), "card") + " in " + esc(b.name) + (plan.stray.reduce((t, r) => t + r.qty, 0) === 1 ? " isn't" : " aren't") + " from this set.</p>" : "") + "</div>" +
       '<div class="btn-row">' + (plan.move ? '<button type="button" class="btn btn-primary" id="bxFill">Put ' + (plan.move === 1 ? "it" : "one of each of the " + plan.move) + " in the binder</button>" : "") +
-      (plan.need ? '<button type="button" class="btn" id="bxWant">Add the ' + plural(plan.need, "card") + " I need to my want list</button>" : "") + "</div>" +
+      (plan.need ? '<button type="button" class="btn" id="bxWant">Add the ' + plural(plan.need, "card") + " I need to my want list</button>" : "") +
+      (done ? "" : '<button type="button" class="btn" id="bxShow" title="At a card show or a shop: scan a card to see if it fills a gap here">Show mode</button>') + "</div>" +
       (done ? "" : '<details class="more bx-print"' + (bx.printOpen ? " open" : "") + '><summary>Print placeholders for the gaps</summary>' +
         '<p class="small" style="margin:6px 0 8px">Card-sized slips with the picture, name, number and rarity, nine to a sheet of letter paper, in binder order with each one\'s page and pocket. Cut along the dashed lines.</p>' +
         '<div class="theme-langs"><label class="check-row"><input type="radio" name="bxWhich" value="need"' + (bx.which !== "all" ? " checked" : "") + "> <span>The " + plural(plan.need + plan.kept, "card") + " I don't have" +
@@ -11657,9 +11694,12 @@
         '<label class="check-row"><input type="radio" name="bxWhich" value="all"' + (bx.which === "all" ? " checked" : "") + "> <span>Every gap in the binder (" + plural(plan.total - plan.in, "card") + ")</span></label></div>" +
         '<label class="check-row" style="margin-top:8px"><input type="checkbox" class="check" id="bxBw"' + (bx.bw ? " checked" : "") + "> <span>Black-and-white pictures (saves ink)</span></label>" +
         '<div class="form-actions"><button type="button" class="btn" id="bxPrint"' + ((bx.which === "all" ? plan.total - plan.in : plan.need + plan.kept) ? "" : " disabled") + ">Print or save as PDF</button></div></details>") +
-      '<div class="seg bx-show" role="group" aria-label="Show">' + BX_SHOW.map(([k, l]) => '<button type="button" data-bx-show="' + k + '" aria-pressed="' + (bx.show === k) + '">' + l +
-        " <small>" + (k === "all" ? plan.total : k === "need" ? plan.need + plan.kept : plan[k]) + "</small></button>").join("") + "</div>" +
-      (rows.length ? '<ol class="bx-list">' + list + "</ol>" : '<p class="small">None.</p>');
+      '<div class="seg bx-views" role="group" aria-label="See it as">' + [["list", "Checklist"], ["pages", "Pages"]].map(([k, l]) =>
+        '<button type="button" data-bx-view="' + k + '" aria-pressed="' + (bx.view === k) + '">' + l + "</button>").join("") + "</div>" +
+      (bx.view === "pages" ? binderPagesHTML(plan) :
+        '<div class="seg bx-show" role="group" aria-label="Show">' + BX_SHOW.map(([k, l]) => '<button type="button" data-bx-show="' + k + '" aria-pressed="' + (bx.show === k) + '">' + l +
+          " <small>" + (k === "all" ? plan.total : k === "need" ? plan.need + plan.kept : plan[k]) + "</small></button>").join("") + "</div>" +
+        (rows.length ? '<ol class="bx-list">' + list + "</ol>" : '<p class="small">None.</p>'));
     const name = $("bxName");
     // (a new name for a binder that has cards in it: its cards go with it, as renaming the binder on the shelf would)
     name.addEventListener("change", () => {
@@ -11667,6 +11707,7 @@
       if (!to || sameLoc(old, to)) { name.value = old; return; }
       const moving = made ? collection.filter(r => sameLoc(r.location, old)) : [];
       binderSave(gid, {name: to});
+      save();
       if (moving.length) {
         const res = moveCopies(moving.map(r => ({id: r.id, qty: r.qty})), to);
         save(); render();
@@ -11675,7 +11716,9 @@
       }
       renderBinder(); renderIfSets();
     });
-    $("bxPockets").addEventListener("change", e => { binderSave(gid, {pockets: +e.target.value}); renderBinder(); });
+    $("bxPockets").addEventListener("change", e => { binderSave(gid, {pockets: +e.target.value}); save(); renderBinder(); });
+    box.querySelectorAll("[data-bx-view]").forEach(x => x.addEventListener("click", () => { bx.view = x.dataset.bxView; renderBinder(); }));
+    wireBinderPages(box, plan);
     box.querySelectorAll("[data-bx-show]").forEach(x => x.addEventListener("click", () => { bx.show = x.dataset.bxShow; renderBinder(); }));
     box.querySelectorAll("[name=bxWhich]").forEach(x => x.addEventListener("change", () => { bx.which = x.value; renderBinder(); }));
     const fold = box.querySelector(".bx-print");
@@ -11684,8 +11727,56 @@
     if ($("bxFill")) $("bxFill").addEventListener("click", () => binderFill(gid));
     if ($("bxWant")) $("bxWant").addEventListener("click", () => binderWants(gid));
     if ($("bxPrint")) $("bxPrint").addEventListener("click", () => binderPrint(gid));
+    if ($("bxShow")) $("bxShow").addEventListener("click", () => openScanner({show: true}));
   }
   const renderIfSets = () => { if (settings.tab === "sets") renderSets(); };
+  // The binder as its pages: one page at a time, its pockets in a grid (2 by 2, 3 by 3, or 3 across and 4 down), a card in
+  // the binder showing its picture and a gap showing a faded one with what it is and whether you have it elsewhere. Swipe or
+  // use the arrows to turn the page; tap a pocket for the card.
+  const BX_GAP = {move: "To put in", kept: "Kept elsewhere", need: "Needed"};
+  function binderPagesHTML(plan) {
+    const per = plan.b.pockets, cols = per === 4 ? 2 : 3;
+    bx.page = Math.min(Math.max(1, bx.page || 1), Math.max(1, plan.pages));
+    const items = plan.items.filter(it => it.page === bx.page);
+    const pocket = it => {
+      const name = cleanName(it.p.name, it.p.rarity), pics = productPics(it.p.sealed ? Object.assign({}, it.p, {sealed: false}) : it.p, "200w");
+      return '<button type="button" class="bx-pocket bx-' + it.state + '" data-bx-open="' + it.p.id + '" aria-label="Pocket ' + it.pocket + ": " + esc(name + ", " + binderMeta(it.p) + ", " +
+        (it.state === "in" ? "in the binder" : BX_GAP[it.state].toLowerCase())) + '"><span class="bx-pic">' + imgTag(pics, name) + "</span>" +
+        (it.state === "in" ? "" : '<span class="bx-gap"><b>' + esc(name) + "</b><small>" + esc(binderMeta(it.p)) + "</small><em>" + esc(BX_GAP[it.state] +
+          (it.state === "need" && it.price != null ? " · " + usd(it.price) : "")) + "</em></span>") + '<span class="bx-num">' + it.pocket + "</span></button>";
+    };
+    const empty = Math.max(0, per - items.length);
+    const filled = items.filter(it => it.state === "in").length;
+    return '<div class="bx-pager"><button type="button" class="btn btn-small" data-bx-turn="-1" aria-label="Previous page"' + (bx.page <= 1 ? " disabled" : "") + ">‹</button>" +
+      '<span><b>Page ' + bx.page + "</b> of " + plan.pages + ' <span class="small">· ' + filled + " of " + items.length + " in</span></span>" +
+      '<button type="button" class="btn btn-small" data-bx-turn="1" aria-label="Next page"' + (bx.page >= plan.pages ? " disabled" : "") + ">›</button></div>" +
+      '<div class="bx-sheet" tabindex="0" aria-label="Page ' + bx.page + ' of the binder" style="--cols:' + cols + '">' + items.map(pocket).join("") +
+      '<span class="bx-pocket bx-empty" aria-hidden="true"></span>'.repeat(empty) + "</div>" +
+      '<p class="small bx-legend">Faded pockets are gaps. Swipe or use the arrows to turn the page.</p>';
+  }
+  function wireBinderPages(box, plan) {
+    const sheet = box.querySelector(".bx-sheet");
+    if (!sheet) return;
+    const turn = d => { const to = bx.page + d; if (to < 1 || to > plan.pages) return; bx.page = to; renderBinder(); const s = $("bxBody").querySelector(".bx-sheet"); if (s) s.focus({preventScroll: true}); };
+    box.querySelectorAll("[data-bx-turn]").forEach(x => x.addEventListener("click", () => turn(+x.dataset.bxTurn)));
+    sheet.addEventListener("keydown", e => { if (e.key === "ArrowRight") { e.preventDefault(); turn(1); } else if (e.key === "ArrowLeft") { e.preventDefault(); turn(-1); } });
+    let x0 = null, y0 = null;
+    sheet.addEventListener("touchstart", e => { const t = e.touches[0]; x0 = t.clientX; y0 = t.clientY; }, {passive: true});
+    sheet.addEventListener("touchend", e => {
+      if (x0 == null) return;
+      const t = e.changedTouches[0], dx = t.clientX - x0, dy = t.clientY - y0;
+      x0 = null;
+      if (Math.abs(dx) > 50 && Math.abs(dx) > Math.abs(dy) * 1.5) turn(dx < 0 ? 1 : -1);
+    });
+    box.querySelectorAll("[data-bx-open]").forEach(x => x.addEventListener("click", () => {
+      const pid = +x.dataset.bxOpen, it = plan.items.find(i => i.p.id === pid);
+      if (!it) return;
+      // (one in the binder: that copy; otherwise the card's prices, where it can go on the want list)
+      const mine = it.state === "in" ? collection.find(r => r.productId === pid && sameLoc(r.location, plan.b.name)) : null;
+      if (mine) openDetails(mine.id);
+      else openPriceCard(String(pid), (it.from && it.from.edition) || printingsFor(it.p).filter(k => k !== "Normal")[0] || printingsFor(it.p)[0] || "");
+    }));
+  }
   // One copy of each printing you have elsewhere goes into the binder (Undo puts them back)
   function binderFill(gid) {
     const plan = binderPlan(gid), b = binderSave(gid, {});
@@ -13666,16 +13757,20 @@
   }
   // opts.batch: scan one card after another into the "Add several cards" list.
   // opts.batch: several cards into the add list; opts.check: just see what each card is worth (Card search)
+  // opts.show: show mode, for a card show or a shop: checking a price plus whether the card fills a gap in a master set
+  // binder, whether you have it or want it, how an asking price compares, and a button to add it at that price
   function openScanner(opts) {
-    const many = !!(opts && opts.batch), check = !many && !!(opts && opts.check);
-    drawerCtx = {mode: "scan", batch: many, check};
+    const many = !!(opts && opts.batch), show = !many && !!(opts && opts.show), check = !many && (!!(opts && opts.check) || show);
+    drawerCtx = {mode: "scan", batch: many, check, show};
     ocgCardsReady();   // (so a Japanese or Korean card is known right away)
-    openDrawer(many ? "Scan several cards" : check ? "Scan to check a price" : "Scan a card",
+    openDrawer(many ? "Scan several cards" : show ? "Show mode" : check ? "Scan to check a price" : "Scan a card",
       '<div class="scan-view" id="scanView"><video id="scanVideo" playsinline muted autoplay></video><div class="scan-box" id="scanBox" aria-hidden="true"></div></div>' +
       '<p class="scan-status" id="scanStatus" role="status">Starting the camera…</p>' +
       (many ? '<p class="hint" style="margin:4px 0 0">Hold up one card at a time, with its number inside the box. Each card it reads goes into the list; ' +
           "then hold up the next one. For more copies of the same card, change how many in the list.</p>" +
           '<div class="btn-row"><button class="btn btn-primary" type="button" id="scanList">' + batchListLabel() + "</button></div>"
+        : show ? '<p class="hint" style="margin:4px 0 0">At a show or a shop: hold the card close with its number in the box, or type the number. See whether it fills a gap in your binders, ' +
+          "whether you have it already, and how their price compares. Nothing is added unless you say so.</p>"
         : check ? '<p class="hint" style="margin:4px 0 0">Hold the card close, with its number (just under the picture, on the right) inside the box. Its prices show here; nothing is added to your collection.</p>'
         : '<p class="hint" style="margin:4px 0 0">Hold the card close, with its number (just under the picture, on the right) inside the box. Good light helps. ' +
           'Have a stack? <button type="button" class="link-btn" id="scanMany">Scan several in a row</button></p>') +
@@ -13685,7 +13780,7 @@
       '<form id="scanForm" class="lookup-row" style="margin-top:14px"' + (check ? "" : " hidden") + ' autocomplete="off"><input class="input" id="scanNumber" aria-label="Card number"' +
       (check ? ' placeholder="Or type its number, like LOB-EN001"' : "") + ">" +
       '<button class="btn" type="submit">Find</button></form><div id="lookupOut"></div>' + (check ? '<div id="scanChecks"></div>' : ""));
-    scan = {stream: null, active: true, busy: false, timer: null, tries: 0, devices: [], deviceIndex: -1, batch: many, check, recent: {}};
+    scan = {stream: null, active: true, busy: false, timer: null, tries: 0, devices: [], deviceIndex: -1, batch: many, check, show, recent: {}};
     if (check) renderScanChecks();
     if ($("scanList")) $("scanList").addEventListener("click", () => openBatch());
     if ($("scanMany")) $("scanMany").addEventListener("click", () => openScanner({batch: true}));
@@ -13882,17 +13977,18 @@
       if (best && (!top || best.v > top.v)) top = {name, v: best.v, number};
       return '<div class="scan-card"><span class="sleeve"' + foilAttr(p.rarity) + ">" + imgTag(productPics(p, "200w"), name) + "</span>" +
         '<div class="scan-info"><b class="scan-name">' + esc(name) + '</b><span class="small">' + esc([p.group.name, p.rarity].filter(Boolean).join(" · ")) + "</span>" +
-        (have ? '<span class="cs-own">You have ' + have + "</span>" : "") + lines +
+        (have ? '<span class="cs-own">You have ' + have + "</span>" : "") + lines + (scan && scan.show ? showModeHTML(p, eds) : "") +
         '<button type="button" class="link-btn" data-scan-open="' + esc(p.id + "|" + (best ? best.ed : eds[0] || "")) + '">Details, price over time, PSA 10</button></div></div>';
     }).join("") + "</div>" + (products.length > 1 ? '<p class="small" style="margin:6px 0 0">' + products.length + " printings have this number: compare the rarity and set with your card.</p>" : "") +
       '<div class="btn-row"><button class="btn btn-primary" type="button" data-scan-next>Scan the next card</button></div>';
     out.querySelector("[data-scan-next]").addEventListener("click", () => resumeScan());
+    if (scan && scan.show) wireShowMode(out, products);
     $("scanAgain").hidden = true;   // (its own button is under the prices)
     // (on a phone the camera fills the screen: bring the prices into view)
     if (out.scrollIntoView) out.scrollIntoView({block: "start", behavior: "smooth"});
     out.querySelectorAll("[data-scan-open]").forEach(b => b.addEventListener("click", () => {
       const at = b.dataset.scanOpen.indexOf("|");
-      openPriceCard(b.dataset.scanOpen.slice(0, at), b.dataset.scanOpen.slice(at + 1), {fromScan: true});
+      openPriceCard(b.dataset.scanOpen.slice(0, at), b.dataset.scanOpen.slice(at + 1), {fromScan: true, show: !!(scan && scan.show)});
     }));
     if (top && !(scanChecks[0] && scanChecks[0].number === number)) scanChecks.unshift(top);
     renderScanChecks();
@@ -13972,6 +14068,86 @@
     toast("Deleted " + what + ".", {action: "Undo", onAction: () => { collection = before; save(); render(); toast("Restored."); }});
   }
 
+  /* ======================= Show mode ======================= */
+  // At a card show or a shop: scan or type a card (the price-checking scanner, 96-adding-cards) and, under its prices,
+  // see whether it fills a gap in one of your master set binders (which one, and the page and pocket), whether you have
+  // one already or it's on your want list, and how their asking price compares to TCGplayer's market price for that
+  // printing in that condition. "I bought it" adds it at that price, into the binder when it fills a gap there.
+  const SHOW_GOOD = 0.85, SHOW_FAIR = 1.05;   // (up to 15% under the market: a good deal; up to 5% over: fair)
+  // How their price compares: {k: good | fair | high | none, t: the words}
+  function dealVerdict(ask, market, low) {
+    if (ask == null || !(ask >= 0)) return null;
+    const under = low != null && low > 0 && ask < low ? " That's less than any TCGplayer listing (" + usd(low) + ")." : "";
+    if (market == null || !(market > 0)) return {k: "none", t: (low != null ? "No recent sales to compare with; the lowest TCGplayer listing is " + usd(low) + "." : "No TCGplayer price to compare with.")};
+    const r = ask / market, pct = Math.round(Math.abs(1 - r) * 100);
+    if (r <= SHOW_GOOD) return {k: "good", t: "Good deal: " + pct + "% under the market price of " + usd(market) + "." + under};
+    if (r <= SHOW_FAIR) return {k: "fair", t: "Fair: " + (pct === 0 ? "right at" : pct + "% " + (r < 1 ? "under" : "over")) + " the market price of " + usd(market) + "." + under};
+    return {k: "high", t: "Above market: " + pct + "% over the market price of " + usd(market) + "."};
+  }
+  // What it means for you: a gap in a binder, one you have to put in, one already in, on the want list
+  function showFacts(p) {
+    const out = [];
+    const b = p.group && binderOf(p.group.id);
+    const it = b ? binderPlan(p.group.id).items.find(x => x.p.id === p.id) : null;
+    if (it) {
+      out.push(it.state === "in" ? {k: "have", t: "Already in " + b.name + " (page " + it.page + ", pocket " + it.pocket + ")."}
+        : it.state === "move" ? {k: "have", t: "You have one to put in " + b.name + ": it's in " + (String(it.from.location || "").trim() || "no location") + "."}
+        : {k: "gap", t: "Fills a gap in " + b.name + ": page " + it.page + ", pocket " + it.pocket + "." + (it.state === "kept" ? " (Yours is graded or kept elsewhere.)" : "")});
+    }
+    const w = wants.find(x => x.productId === p.id);
+    if (w) out.push({k: "want", t: "On your want list" + (w.target != null ? ", up to " + usd(w.target) : "") + "."});
+    return {facts: out, gap: !!(it && it.state !== "in" && it.state !== "move"), binder: b};
+  }
+  function showModeHTML(p, eds) {
+    const f = showFacts(p);
+    const ed0 = eds.filter(e => e !== "Normal")[0] || eds[0] || "";
+    const last = (settings.lastAdd && settings.lastAdd.condition) || "Near Mint";
+    return '<div class="show-box" data-show="' + p.id + '">' + f.facts.map(x => '<p class="show-fact show-' + x.k + '">' + esc(x.t) + "</p>").join("") +
+      '<div class="show-ask"><label class="field"><span>Their price</span><span class="pct">$<input class="input" type="number" min="0" step="0.01" inputmode="decimal" data-show-ask aria-label="Their price"></span></label>' +
+      (eds.length > 1 ? '<label class="field"><span>Printing</span><select class="select" data-show-ed>' + eds.map(e => '<option value="' + esc(e) + '"' + (e === ed0 ? " selected" : "") + ">" +
+        esc(csPrinting(e)) + "</option>").join("") + "</select></label>" : "") +
+      '<label class="field"><span>Condition</span><select class="select" data-show-cond>' + CONDITIONS.map(c => '<option' + (c === last ? " selected" : "") + ">" + c + "</option>").join("") + "</select></label></div>" +
+      '<p class="show-verdict" data-show-verdict role="status"></p>' +
+      '<button type="button" class="btn btn-small' + (f.gap ? " btn-primary" : "") + '" data-show-buy>' + (f.gap ? "I bought it: put it in " + esc(f.binder.name) : "I bought it: add it to my collection") + "</button></div>";
+  }
+  // The market price of that printing in that condition (adjusted as your collection's values are)
+  function showMarket(p, ed, cond) {
+    const sub = p.prices[ed] || p.prices[Object.keys(p.prices)[0]] || {};
+    const f = conditionFactor({condition: cond});
+    return {market: sub.market != null ? round2(sub.market * f) : null, low: sub.low != null ? round2(sub.low * f) : null};
+  }
+  function wireShowMode(out, products) {
+    out.querySelectorAll(".show-box").forEach(box => {
+      const p = products.find(x => x.id === +box.dataset.show);
+      if (!p) return;
+      const ask = box.querySelector("[data-show-ask]"), edSel = box.querySelector("[data-show-ed]"), condSel = box.querySelector("[data-show-cond]"), verdict = box.querySelector("[data-show-verdict]");
+      const ed = () => edSel ? edSel.value : (printingsFor(p)[0] || "");
+      const update = () => {
+        const m = showMarket(p, ed(), condSel.value), v = dealVerdict(num(ask.value), m.market, m.low);
+        verdict.textContent = v ? v.t : "";
+        verdict.className = "show-verdict" + (v ? " show-" + v.k : "");
+      };
+      ask.addEventListener("input", update);
+      if (edSel) edSel.addEventListener("change", update);
+      condSel.addEventListener("change", update);
+      box.querySelector("[data-show-buy]").addEventListener("click", () => showBuy(p, ed(), condSel.value, num(ask.value), box));
+    });
+  }
+  // "I bought it": the card goes into the collection at their price, into the binder when it fills a gap there
+  function showBuy(p, ed, cond, paid, box) {
+    const f = showFacts(p);
+    const location = f.gap ? f.binder.name : String((settings.lastAdd && settings.lastAdd.location) || "");
+    const rec = upgradeRecord({id: newId(), productId: p.id, productName: p.name, name: cleanName(p.name, p.rarity), setName: p.group.name, number: p.number, rarity: p.rarity,
+      edition: ed === "Normal" ? "No edition mark" : ed, condition: cond, language: "English", qty: 1, paid: paid != null && paid >= 0 ? round2(paid) : null, location,
+      snap: snapFromCatalog(p, ed), added: new Date().toISOString()});
+    const before = collection.slice(), res = addOrMerge(rec), was = res.merged ? res.record.qty - 1 : 0;
+    save(); render();
+    if (box) box.innerHTML = '<p class="show-fact show-have">Added' + (location ? " to " + esc(location) : "") + (paid != null ? " at " + esc(usd(paid)) : "") + ".</p>";
+    toast("Added " + cleanName(p.name, p.rarity) + (location ? " to " + location : "") + ".", {action: "Undo", onAction: () => {
+      if (res.merged) res.record.qty = was; else collection = before;
+      save(); render();
+    }});
+  }
   /* ======================= CSV import ======================= */
   function parseCSV(text) {
     if (text.charCodeAt(0) === 0xFEFF) text = text.slice(1);
@@ -15188,6 +15364,7 @@
     });
     csPanel.addEventListener("click", e => {
       if (e.target.closest("#csScan")) { openScanner({check: true}); return; }
+      if (e.target.closest("#csShow")) { openScanner({show: true}); return; }
       const md = e.target.closest("[data-csmode], [data-cs-mode]");
       if (md) {
         settings.csMode = (md.dataset.csmode || md.dataset.csMode) === "sets" ? "sets" : "cards"; saveSettings();
@@ -15592,7 +15769,7 @@
   window.CardVault = {state: () => ({collection, settings, selected, catalog, wants, valueHistory, backup, decks, sales, phone, deleted, batch, sync}),
     mergeBackup, checkBackupFile, openBatch, parseBatchLine, batchRowFor, addBatch, save, analyzeCSV, commitImport, openImport,
     findByNumber, searchByName, priceInfo, marketValue, unitValue, changeFor, periodChange, historySeries, totals, deleteRecords, exportCSV,
-      openPcExport, pcExportPlan, pcExportText, pcGrade, pcExportId, pcSentFromLastExport, pcWaiting, renderPcBanner, openBinder, binderPlan, binderSlipsHTML, binderOf, bx: () => bx, openSsExport, ssExportPlan, ssExportText, ssPrinting, ssx: () => ssx, big: () => big, bigGet, bigSet, yugiCache, readDataText, mergeDuplicates, openPaidTool, paidPlan, pp: () => pp, openTcgCart, tcgCartPlan, tcgCartURL, pcx: () => pcx,
+      openPcExport, pcExportPlan, pcExportText, pcGrade, pcExportId, pcSentFromLastExport, pcWaiting, renderPcBanner, openScanner, showScanPrice, dealVerdict, showFacts, showBuy, cleanBinders, mergeBinders, openBinder, binderPlan, binderSlipsHTML, binderOf, bx: () => bx, openSsExport, ssExportPlan, ssExportText, ssPrinting, ssx: () => ssx, big: () => big, bigGet, bigSet, yugiCache, readDataText, mergeDuplicates, openPaidTool, paidPlan, pp: () => pp, openTcgCart, tcgCartPlan, tcgCartURL, pcx: () => pcx,
     openDetails, openAdd, openSettings, render, setTab, setsData, extrasMap, wantStatus, addWant, restoreBackup, backupPayload,
     findYugiImages, rankYugiImages, parseYugiFile, yugiMangaPhoto, fillMangaPhotos, fillPrintPhotos, yugiPrintPick, langNumber, printPicOf, scanURL, isScanURL, yugiLabel, recordValueHistory, niceTicks, dateTicks, checkForNewData, writeBackup, initBackup,
     photoCandidates, findPhotosBatch, tradeListText, parseDeckText, parseYdk, parseYdke, checkDeck, cardNamesFor, runDeckCheck,

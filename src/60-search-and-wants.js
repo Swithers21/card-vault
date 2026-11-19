@@ -109,7 +109,8 @@
         '<div class="cs-bar"><div class="seg" role="group" aria-label="Search for" id="csMode"><button type="button" data-csmode="cards">Cards</button><button type="button" data-csmode="sets">Sets</button></div>' +
         '<input class="search" id="csQ" type="search" autocomplete="off" spellcheck="false" value="' + esc(cs.q) + '">' +
         '<select class="select" id="csSort" aria-label="Sort">' + CS_SORTS.map(([k, l]) => '<option value="' + k + '"' + ((settings.csSort || "best") === k ? " selected" : "") + ">" + l + "</option>").join("") + "</select>" +
-        '<button class="btn cs-scan" type="button" id="csScan" title="Point your camera at a card to see what it\'s worth"><svg width="16" height="16" viewBox="0 0 20 20" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M2.5 6.5V4.2A1.7 1.7 0 0 1 4.2 2.5h2.3M13.5 2.5h2.3a1.7 1.7 0 0 1 1.7 1.7v2.3M17.5 13.5v2.3a1.7 1.7 0 0 1-1.7 1.7h-2.3M6.5 17.5H4.2a1.7 1.7 0 0 1-1.7-1.7v-2.3"/><path d="M6 10h8"/></svg>Scan a card</button></div>' +
+        '<button class="btn cs-scan" type="button" id="csScan" title="Point your camera at a card to see what it\'s worth"><svg width="16" height="16" viewBox="0 0 20 20" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M2.5 6.5V4.2A1.7 1.7 0 0 1 4.2 2.5h2.3M13.5 2.5h2.3a1.7 1.7 0 0 1 1.7 1.7v2.3M17.5 13.5v2.3a1.7 1.7 0 0 1-1.7 1.7h-2.3M6.5 17.5H4.2a1.7 1.7 0 0 1-1.7-1.7v-2.3"/><path d="M6 10h8"/></svg>Scan a card</button>' +
+        '<button class="btn cs-scan" type="button" id="csShow" title="At a card show or a shop: does it fill a gap in your binders, and is the price fair?">Show mode</button></div>' +
         '<div id="csOut"></div>';
     } else {
       $("csIntro").innerHTML = intro;
@@ -773,7 +774,7 @@
       '<div class="form-actions"><button class="btn btn-primary" type="button" id="csHave">' + (mine.length ? "Add more" : "I have it") + "</button>" +
       '<button class="btn" type="button" id="csWant">' + (want ? "Edit want" : "Want") + "</button>" +
       (opts && opts.fromScan ? '<span class="spacer"></span><button class="btn" type="button" id="csScanMore">Scan another card</button>' : "") + "</div></div>");
-    if ($("csScanMore")) $("csScanMore").addEventListener("click", () => openScanner({check: true}));
+    if ($("csScanMore")) $("csScanMore").addEventListener("click", () => openScanner({check: true, show: !!(opts && opts.show)}));
     $("otherBtn").addEventListener("click", () => loadOtherMarkets(r));
     $("csSetLink").addEventListener("click", () => openSearchSet("en:" + p.group.id));
     $("csHave").addEventListener("click", () => { drawerCtx = null; openPickedForm(p, {edition: r.edition || null}); });
