@@ -792,6 +792,7 @@
     try { catalog = buildCatalog(window.TCG_DATA); } catch (e) { catalog = null; }
     window.TCG_DATA = null; // free the raw copy; the catalog keeps what it needs
     loadState();
+    initLook();   // (light or dark, the size of the words: Settings, Look)
     shopPricesReady();   // (the same for the Japanese and Korean sealed products you own: priced from the shops' lists)
     setTimeout(fillPrintPhotos, 3000);   // (your cards: a photo of their own print, where they have none that loads)
     if (recordValueHistory()) save({quiet: true});  // today's value-history point
@@ -835,7 +836,7 @@
   window.CardVault = {state: () => ({collection, settings, selected, catalog, wants, valueHistory, backup, decks, sales, phone, deleted, batch, sync}),
     mergeBackup, checkBackupFile, openBatch, parseBatchLine, batchRowFor, addBatch, save, analyzeCSV, commitImport, openImport,
     findByNumber, searchByName, priceInfo, marketValue, unitValue, changeFor, periodChange, historySeries, totals, deleteRecords, exportCSV,
-      openPcExport, pcExportPlan, pcExportText, pcGrade, pcExportId, pcSentFromLastExport, pcWaiting, renderPcBanner, goTo, runGo, applyDock, openChanges, undoChange, changesList, noteChange, openScanner, showScanPrice, dealVerdict, showFacts, showBuy, cleanBinders, mergeBinders, openBinder, binderPlan, binderSlipsHTML, binderOf, bx: () => bx, openSsExport, ssExportPlan, ssExportText, ssPrinting, ssx: () => ssx, big: () => big, bigGet, bigSet, yugiCache, readDataText, mergeDuplicates, openPaidTool, paidPlan, pp: () => pp, openTcgCart, tcgCartPlan, tcgCartURL, pcx: () => pcx,
+      openPcExport, pcExportPlan, pcExportText, pcGrade, pcExportId, pcSentFromLastExport, pcWaiting, renderPcBanner, goTo, runGo, applyDock, applyLook, shownTheme, openChanges, undoChange, changesList, noteChange, openScanner, showScanPrice, dealVerdict, showFacts, showBuy, cleanBinders, mergeBinders, openBinder, binderPlan, binderSlipsHTML, binderOf, bx: () => bx, openSsExport, ssExportPlan, ssExportText, ssPrinting, ssx: () => ssx, big: () => big, bigGet, bigSet, yugiCache, readDataText, mergeDuplicates, openPaidTool, paidPlan, pp: () => pp, openTcgCart, tcgCartPlan, tcgCartURL, pcx: () => pcx,
     openDetails, openAdd, openSettings, render, setTab, setsData, extrasMap, wantStatus, addWant, restoreBackup, backupPayload,
     findYugiImages, rankYugiImages, parseYugiFile, yugiMangaPhoto, fillMangaPhotos, fillPrintPhotos, yugiPrintPick, langNumber, printPicOf, scanURL, isScanURL, yugiLabel, recordValueHistory, niceTicks, dateTicks, checkForNewData, writeBackup, initBackup,
     photoCandidates, findPhotosBatch, tradeListText, parseDeckText, parseYdk, parseYdke, checkDeck, cardNamesFor, runDeckCheck,

@@ -10,6 +10,11 @@
 <link rel="icon" href="icons/icon-192.png" type="image/png">
 <link rel="apple-touch-icon" href="icons/apple-touch-icon.png">
 <meta name="theme-color" content="#0f0b1c">
+<!-- The look chosen in Settings (light or dark, the size of the words), before the page is drawn: no flash of the other colours. Also in app.js (86-look). -->
+<script>try{var cvS=JSON.parse(localStorage.getItem("cardvault.v2.settings")||"{}")||{},cvD=document.documentElement,cvT=cvS.theme;
+if(cvT==="auto")cvT=window.matchMedia&&matchMedia("(prefers-color-scheme: light)").matches?"light":"dark";
+if(cvT==="light"){cvD.setAttribute("data-theme","light");document.querySelector('meta[name="theme-color"]').setAttribute("content","#f4eee2");}
+if(/^(smaller|larger|largest)$/.test(cvS.textSize))cvD.setAttribute("data-text",cvS.textSize);}catch(e){}</script>
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="black">
