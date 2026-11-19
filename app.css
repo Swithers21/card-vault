@@ -813,6 +813,7 @@
   .add-wrap{position:relative;display:inline-flex}
   #addBtn{-webkit-touch-callout:none;-webkit-user-select:none;user-select:none}
   .add-wrap .menu{width:300px}
+  @media (max-width:560px){.add-wrap .menu{width:auto}}   /* (a phone: across the bottom, like the other menus) */
   .goal-tag{display:inline-block;vertical-align:2px;margin-left:6px;font:600 10.5px/1.6 "Archivo",system-ui,sans-serif;letter-spacing:.02em;padding:0 6px;border-radius:5px;border:1px solid rgba(216,173,87,.5);color:var(--gold-hi)}
   .cs-set-actions{display:flex;flex-wrap:wrap;gap:8px;align-items:center;margin:10px 0 0}
   .cs-set-actions .btn.is-goal{border-color:rgba(216,173,87,.6);color:var(--gold-hi)}
