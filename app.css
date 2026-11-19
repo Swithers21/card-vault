@@ -1632,3 +1632,9 @@
     html[data-theme="light"] .tabs{background:rgba(255,251,243,.96);border-top-color:rgba(160,120,50,.35)}
     html[data-theme="light"] [role="tabpanel"]{background:none}
   }
+  /* Sales from SortSwift (97b) */
+  .sso-list{list-style:none;margin:12px 0 0;padding:0;border-top:1px solid var(--line)}
+  .sso-line{display:flex;justify-content:space-between;gap:12px;padding:8px 0;border-bottom:1px solid var(--line)}
+  .sso-line > div:first-child{min-width:0}
+  .sso-amt{text-align:right;white-space:nowrap;font-variant-numeric:tabular-nums}
+  .sso-done,.sso-off,.sso-bad{opacity:.62}

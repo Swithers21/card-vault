@@ -120,7 +120,8 @@
       fees: n(x.fees) || 0, notes: String(x.notes || ""), name: String(x.name), productId: idOrNull(x.productId), number: String(x.number || ""),
       setName: String(x.setName || ""), rarity: String(x.rarity || ""), edition: String(x.edition || ""), condition: String(x.condition || ""),
       language: String(x.language || ""), grade: normalizeGrade(x.grade), paid: n(x.paid), market: n(x.market), image: safeImg(x.image),
-      record: x.record && typeof x.record === "object" ? x.record : null, traded: !!x.traded, mod: modTime(x.mod)};
+      record: x.record && typeof x.record === "object" ? x.record : null, traded: !!x.traded, mod: modTime(x.mod),
+      ref: x.ref ? String(x.ref).slice(0, 300) : undefined};   // (a sale brought in from a shop's orders: which line, so it's never brought in twice)
   }
   function readJSON(key, fallback) {
     try { const v = JSON.parse(localStorage.getItem(key) || "null"); return v == null ? fallback : v; } catch (e) { return fallback; }

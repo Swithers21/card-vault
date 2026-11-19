@@ -142,12 +142,14 @@
       '<p class="hint" style="margin:12px 0 0"><b>In SortSwift:</b> Inventory, then Import, and choose this file. Leave <b>Direct Import</b> off, so the cards wait in staging for you to check before they go live. ' +
       "Each card remembers how many of its copies went (on every device you use), so next time the file can have only the rest.</p>" +
       '<div class="form-actions"><button type="button" class="btn btn-primary" id="ssxGo"' + (plan.rows.length ? "" : " disabled") + ">Download the file</button>" +
-      '<a class="btn" target="_blank" rel="noopener" href="' + SS_DOCS + '">How SortSwift\'s import works</a></div>';
+      '<a class="btn" target="_blank" rel="noopener" href="' + SS_DOCS + '">How SortSwift\'s import works</a></div>' +
+      '<p class="hint" style="margin:12px 0 0">Sold some through your shop? <button type="button" class="link-btn" id="ssxSales">Bring in SortSwift sales</button> to take them out of your collection and log what they sold for.</p>';
     box.querySelectorAll("[name=ssxFrom]").forEach(b => b.addEventListener("change", () => { ssx.from = b.value; renderSsExport(); }));
     box.querySelectorAll("[name=ssxWhich]").forEach(b => b.addEventListener("change", () => { ssx.onlyNew = b.value === "new"; renderSsExport(); }));
     $("ssxPrice").addEventListener("change", e => { ssx.price = e.target.checked; renderSsExport(); });
     if ($("ssxUndo")) $("ssxUndo").addEventListener("click", ssExportUndo);
     $("ssxGo").addEventListener("click", () => ssExportDownload(plan));
+    $("ssxSales").addEventListener("click", openSsSales);
   }
   function ssExportDownload(plan) {
     if (!plan.rows.length) return;
