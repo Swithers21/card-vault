@@ -657,7 +657,20 @@
   // screen reader as if it were reachable): Tab stays inside the open window.
   function syncBackdrop() {
     const app = document.querySelector(".app");
-    if (app) app.inert = !$("drawer").hidden || !$("importModal").hidden;
+    if (app) app.inert = (!$("drawer").hidden && !document.body.classList.contains("docked")) || !$("importModal").hidden;
+  }
+  // Side by side: on a wide screen (the iPhone Duo's inside screen turned sideways, a computer) a card's details sit
+  // beside your cards instead of over them: no dimmed backdrop, the cards still scroll and can be tapped (another card
+  // opens in the same place), and the page makes room for the panel. Narrower, it's the usual panel over the page.
+  const DOCK_MIN = 900, DOCK_MODES = new Set(["details", "price"]);
+  const shouldDock = () => !$("drawer").hidden && !!drawerCtx && DOCK_MODES.has(drawerCtx.mode) && !$("drawer").classList.contains("wide") &&
+    window.innerWidth >= DOCK_MIN && $("importModal").hidden;
+  function applyDock() {
+    const dock = shouldDock();
+    document.body.classList.toggle("docked", dock);
+    $("drawer").setAttribute("aria-modal", dock ? "false" : "true");
+    if (!$("drawer").hidden && $("importModal").hidden) { $("scrim").hidden = dock; document.body.classList.toggle("no-scroll", !dock); }
+    syncBackdrop();
   }
   function openDrawer(title, html) {
     stopScanner();
@@ -669,14 +682,16 @@
     $("drawerBody").scrollTop = 0;
     $("drawer").hidden = false;
     $("scrim").hidden = false;
-    syncBackdrop();
     document.body.classList.add("no-scroll");
+    applyDock();
     const first = $("drawerBody").querySelector("[autofocus]") || $("drawerClose");
     setTimeout(() => first.focus(), 20);
   }
   function closeDrawer() {
     stopScanner();
     $("drawer").hidden = true;
+    document.body.classList.remove("docked");
+    $("drawer").setAttribute("aria-modal", "true");
     syncBackdrop();
     if ($("importModal").hidden) { $("scrim").hidden = true; document.body.classList.remove("no-scroll"); }
     drawerCtx = null;

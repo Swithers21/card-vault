@@ -132,7 +132,7 @@
   // the browser's database (IndexedDB) now, which has far more room: read into memory once while Card Vault opens (ones
   // still in local storage move over and are cleared from it), written back a moment after they change. Without a
   // database (a private window, say) they stay in local storage, as before.
-  const BIG_KEYS = ["cardvault.v2.pricecharting", "cardvault.v2.yugipedia", "cardvault.v2.ocg", "cardvault.v2.ygocards", "cardvault.v2.ygoarch", "cardvault.v2.cardids"];
+  const BIG_KEYS = ["cardvault.v2.pricecharting", "cardvault.v2.yugipedia", "cardvault.v2.ocg", "cardvault.v2.ygocards", "cardvault.v2.ygoarch", "cardvault.v2.cardids", "cardvault.v2.changes"];
   const big = {mem: new Map(), db: null, settled: false, dirty: new Set(), sending: new Set(), timer: 0};
   function bigGet(key, fallback) {
     if (big.mem.has(key)) return big.mem.get(key);
@@ -190,7 +190,9 @@
           let local = null;
           try { const t = localStorage.getItem(k); local = t ? JSON.parse(t) : null; } catch (e) { local = null; }
           const kept = got.get(k), plain = v => v && typeof v === "object" && !Array.isArray(v);
-          if (local != null) { big.mem.set(k, plain(local) && plain(kept) ? Object.assign(kept, local) : local); big.dirty.add(k); } else if (got.has(k)) big.mem.set(k, kept);
+          // (a list, Recent changes: the ones logged while the database opened go in front of the ones kept)
+          const both = Array.isArray(local) && Array.isArray(kept) ? local.concat(kept.filter(x => !local.some(y => y && x && y.id === x.id))) : null;
+          if (local != null) { big.mem.set(k, both || (plain(local) && plain(kept) ? Object.assign(kept, local) : local)); big.dirty.add(k); } else if (got.has(k)) big.mem.set(k, kept);
         }
         bigFlush();
         settle();
@@ -274,20 +276,23 @@
     for (const k of SYNC_KINDS) prints[k] = new Map(listOf(k).map(x => [x.id, {p: printOf(x), mod: x.mod || 0}]));
   }
   // At every save: entries that are new or changed get the time; ones that disappeared are noted as deleted.
-  function stampChanges() {
+  // log: a change you made (not a quiet save), to go in Recent changes (66-changes) with what each card was before
+  function stampChanges(log) {
     if (!prints) { rebuildPrints(); return; }
-    const now = Date.now();
+    const now = Date.now(), changed = [];
     for (const k of SYNC_KINDS) {
       const old = prints[k], next = new Map(), gone = deleted[k];
       for (const x of listOf(k)) {
         const p = printOf(x), was = old.get(x.id);
         // (a change here always counts as newer than the version it started from, even if clocks disagree)
-        if (!was || was.p !== p) { x.mod = Math.max(now, (x.mod || 0) + 1, was ? was.mod + 1 : 0, (gone[x.id] || 0) + 1); delete gone[x.id]; }
+        if (!was || was.p !== p) { x.mod = Math.max(now, (x.mod || 0) + 1, was ? was.mod + 1 : 0, (gone[x.id] || 0) + 1); delete gone[x.id]; if (k === "collection") changed.push({id: x.id, b: was ? was.p : null, a: p}); }
         next.set(x.id, {p, mod: x.mod || 0});
       }
-      for (const [id, was] of old) if (!next.has(id)) gone[id] = Math.max(now, (was.mod || 0) + 1, gone[id] || 0);
+      for (const [id, was] of old) if (!next.has(id)) { gone[id] = Math.max(now, (was.mod || 0) + 1, gone[id] || 0); if (k === "collection") changed.push({id, b: was.p, a: null}); }
       prints[k] = next;
     }
+    if (log && changed.length) { try { logChanges(changed); } catch (e) { /* the log is only a convenience */ } }
+    else if (!log) noteChange("");
     const sp = sharedPrint();
     if (sp !== prints.shared) { settings.sharedMod = Math.max(now, (settings.sharedMod || 0) + 1); prints.shared = sp; }
   }
@@ -370,6 +375,12 @@
       if (m.changed) { settings.themeGoals = m.list; res.goals = true; res.changed = true; }
       if (m.behind) res.behind = true;
     } else if (ds && cleanThemeGoals(settings.themeGoals).length) res.behind = true;
+    // (master set binders the same way)
+    if (ds && Array.isArray(ds.binders)) {
+      const m = mergeBinders(settings.binders, ds.binders, fileWins);
+      if (m.changed) { settings.binders = m.list; res.goals = true; res.changed = true; }
+      if (m.behind) res.behind = true;
+    } else if (ds && cleanBinders(settings.binders).length) res.behind = true;
     if (Array.isArray(data.valueHistory)) {
       const merged = mergeHistory(valueHistory, data.valueHistory);
       if (merged.length !== valueHistory.length) { valueHistory = merged; res.touched = true; }
@@ -515,7 +526,7 @@
       // An older Undo would also roll back this newer change, so it stops being offered.
       document.querySelectorAll("#toasts .toast.has-action").forEach(t => t.remove());
     }
-    stampChanges();
+    stampChanges(!(opts && opts.quiet));
     recordValueHistory();
     const write = () => {
       try {

@@ -5,18 +5,45 @@
   // goes (page and pocket), whether it's in the binder, whether you have one elsewhere (and a button that puts one of each
   // in), and what you still need; and placeholders to print for the gaps, at the size of a card: the card's picture,
   // name, number and rarity, and its page and pocket.
-  // settings.binders: [{g: the set's TCGplayer group id, name: its location, pockets: 4, 9 or 12 to a page}]
+  // settings.binders: [{g: the set's TCGplayer group id, name: its location, pockets: 4, 9 or 12 to a page, t: when it
+  // last changed}], kept in the backup and synced like set goals: one by one, the latest change to each binder wins.
   const BINDER_POCKETS = [4, 9, 12];
-  const binderOf = gid => (Array.isArray(settings.binders) ? settings.binders : []).find(b => b && b.g === +gid) || null;
+  function cleanBinders(list) {
+    const by = new Map();
+    for (const x of Array.isArray(list) ? list : []) {
+      const g = Number(x && x.g), name = String((x && x.name) || "").trim().slice(0, 80);
+      if (!Number.isFinite(g) || g <= 0 || !name) continue;
+      const e = {g, name, pockets: BINDER_POCKETS.includes(+x.pockets) ? +x.pockets : 9, t: modTime(x.t) || 0};
+      const cur = by.get(g);
+      if (!cur || e.t >= cur.t) by.set(g, e);
+    }
+    return Array.from(by.values()).sort((a, b) => a.t - b.t).slice(-200);
+  }
+  function mergeBinders(mine, theirs, fileWins) {
+    const a = new Map(cleanBinders(mine).map(e => [e.g, e])), b = new Map(cleanBinders(theirs).map(e => [e.g, e]));
+    const same = (x, y) => x.name === y.name && x.pockets === y.pockets && x.t === y.t;
+    let changed = false, behind = false;
+    for (const [g, e] of b) {
+      const m = a.get(g);
+      if (!m || e.t > m.t || (fileWins && !same(m, e))) { if (!m || !same(m, e)) changed = true; a.set(g, e); }
+      else if (m.t > e.t) behind = true;
+    }
+    for (const g of a.keys()) if (!b.has(g)) behind = true;
+    return {list: cleanBinders(Array.from(a.values())), changed, behind};
+  }
+  const binderOf = gid => cleanBinders(settings.binders).find(b => b.g === +gid) || null;
   const binderGroup = gid => { const ps = catalog && productsByGroup().get(+gid); return ps && ps.length ? ps[0].group : null; };
   const binderDefault = gid => { const g = binderGroup(gid); return {g: +gid, name: (g ? g.name : "Set") + " master set", pockets: 9}; };
   function binderSave(gid, patch) {
-    const list = (Array.isArray(settings.binders) ? settings.binders : []).filter(b => b && b.g !== +gid);
-    const b = Object.assign({}, binderOf(gid) || binderDefault(gid), patch);
+    const was = binderOf(gid);
+    const list = cleanBinders(settings.binders).filter(b => b.g !== +gid);
+    const b = Object.assign({}, was || binderDefault(gid), patch);
     b.name = String(b.name || "").trim().slice(0, 80) || binderDefault(gid).name;
     if (!BINDER_POCKETS.includes(+b.pockets)) b.pockets = 9;
-    list.push({g: +gid, name: b.name, pockets: +b.pockets});
-    settings.binders = list;
+    // (a new time only when something changed, so opening a binder doesn't count as a change to sync)
+    b.t = was && was.name === b.name && was.pockets === +b.pockets ? was.t : Date.now();
+    list.push({g: +gid, name: b.name, pockets: +b.pockets, t: b.t});
+    settings.binders = cleanBinders(list);
     saveSettings();
     return b;
   }
@@ -59,12 +86,13 @@
   }
 
   const binderMeta = p => [p.number, p.rarity].filter(Boolean).join(" · ") || (p.sealed ? "Token" : "");
-  const bx = {gid: 0, show: "all", bw: false, which: "need"};
+  const bx = {gid: 0, show: "all", bw: false, which: "need", view: "list", page: 1};
   function openBinder(gid) {
     if (!catalog || !binderGroup(gid)) { toast("Master set binders need TCGplayer's card list. " + GET_DATA, {kind: "error"}); return; }
     bx.gid = +gid;
     bx.show = "all";
     bx.printOpen = false;
+    bx.page = 1;
     drawerCtx = {mode: "binder", gid: +gid};
     openDrawer("Master set binder", '<div id="bxBody"></div>');
     $("drawer").classList.add("wide");
@@ -104,7 +132,8 @@
       (plan.extra ? '<p class="small">' + plural(plan.extra, "extra copy", "extra copies") + " in the binder: a master set needs only one of each.</p>" : "") +
       (plan.stray.length ? '<p class="small">' + plural(plan.stray.reduce((t, r) => t + r.qty, 0), "card") + " in " + esc(b.name) + (plan.stray.reduce((t, r) => t + r.qty, 0) === 1 ? " isn't" : " aren't") + " from this set.</p>" : "") + "</div>" +
       '<div class="btn-row">' + (plan.move ? '<button type="button" class="btn btn-primary" id="bxFill">Put ' + (plan.move === 1 ? "it" : "one of each of the " + plan.move) + " in the binder</button>" : "") +
-      (plan.need ? '<button type="button" class="btn" id="bxWant">Add the ' + plural(plan.need, "card") + " I need to my want list</button>" : "") + "</div>" +
+      (plan.need ? '<button type="button" class="btn" id="bxWant">Add the ' + plural(plan.need, "card") + " I need to my want list</button>" : "") +
+      (done ? "" : '<button type="button" class="btn" id="bxShow" title="At a card show or a shop: scan a card to see if it fills a gap here">Show mode</button>') + "</div>" +
       (done ? "" : '<details class="more bx-print"' + (bx.printOpen ? " open" : "") + '><summary>Print placeholders for the gaps</summary>' +
         '<p class="small" style="margin:6px 0 8px">Card-sized slips with the picture, name, number and rarity, nine to a sheet of letter paper, in binder order with each one\'s page and pocket. Cut along the dashed lines.</p>' +
         '<div class="theme-langs"><label class="check-row"><input type="radio" name="bxWhich" value="need"' + (bx.which !== "all" ? " checked" : "") + "> <span>The " + plural(plan.need + plan.kept, "card") + " I don't have" +
@@ -112,9 +141,12 @@
         '<label class="check-row"><input type="radio" name="bxWhich" value="all"' + (bx.which === "all" ? " checked" : "") + "> <span>Every gap in the binder (" + plural(plan.total - plan.in, "card") + ")</span></label></div>" +
         '<label class="check-row" style="margin-top:8px"><input type="checkbox" class="check" id="bxBw"' + (bx.bw ? " checked" : "") + "> <span>Black-and-white pictures (saves ink)</span></label>" +
         '<div class="form-actions"><button type="button" class="btn" id="bxPrint"' + ((bx.which === "all" ? plan.total - plan.in : plan.need + plan.kept) ? "" : " disabled") + ">Print or save as PDF</button></div></details>") +
-      '<div class="seg bx-show" role="group" aria-label="Show">' + BX_SHOW.map(([k, l]) => '<button type="button" data-bx-show="' + k + '" aria-pressed="' + (bx.show === k) + '">' + l +
-        " <small>" + (k === "all" ? plan.total : k === "need" ? plan.need + plan.kept : plan[k]) + "</small></button>").join("") + "</div>" +
-      (rows.length ? '<ol class="bx-list">' + list + "</ol>" : '<p class="small">None.</p>');
+      '<div class="seg bx-views" role="group" aria-label="See it as">' + [["list", "Checklist"], ["pages", "Pages"]].map(([k, l]) =>
+        '<button type="button" data-bx-view="' + k + '" aria-pressed="' + (bx.view === k) + '">' + l + "</button>").join("") + "</div>" +
+      (bx.view === "pages" ? binderPagesHTML(plan) :
+        '<div class="seg bx-show" role="group" aria-label="Show">' + BX_SHOW.map(([k, l]) => '<button type="button" data-bx-show="' + k + '" aria-pressed="' + (bx.show === k) + '">' + l +
+          " <small>" + (k === "all" ? plan.total : k === "need" ? plan.need + plan.kept : plan[k]) + "</small></button>").join("") + "</div>" +
+        (rows.length ? '<ol class="bx-list">' + list + "</ol>" : '<p class="small">None.</p>'));
     const name = $("bxName");
     // (a new name for a binder that has cards in it: its cards go with it, as renaming the binder on the shelf would)
     name.addEventListener("change", () => {
@@ -122,6 +154,7 @@
       if (!to || sameLoc(old, to)) { name.value = old; return; }
       const moving = made ? collection.filter(r => sameLoc(r.location, old)) : [];
       binderSave(gid, {name: to});
+      save();
       if (moving.length) {
         const res = moveCopies(moving.map(r => ({id: r.id, qty: r.qty})), to);
         save(); render();
@@ -130,7 +163,9 @@
       }
       renderBinder(); renderIfSets();
     });
-    $("bxPockets").addEventListener("change", e => { binderSave(gid, {pockets: +e.target.value}); renderBinder(); });
+    $("bxPockets").addEventListener("change", e => { binderSave(gid, {pockets: +e.target.value}); save(); renderBinder(); });
+    box.querySelectorAll("[data-bx-view]").forEach(x => x.addEventListener("click", () => { bx.view = x.dataset.bxView; renderBinder(); }));
+    wireBinderPages(box, plan);
     box.querySelectorAll("[data-bx-show]").forEach(x => x.addEventListener("click", () => { bx.show = x.dataset.bxShow; renderBinder(); }));
     box.querySelectorAll("[name=bxWhich]").forEach(x => x.addEventListener("change", () => { bx.which = x.value; renderBinder(); }));
     const fold = box.querySelector(".bx-print");
@@ -139,8 +174,56 @@
     if ($("bxFill")) $("bxFill").addEventListener("click", () => binderFill(gid));
     if ($("bxWant")) $("bxWant").addEventListener("click", () => binderWants(gid));
     if ($("bxPrint")) $("bxPrint").addEventListener("click", () => binderPrint(gid));
+    if ($("bxShow")) $("bxShow").addEventListener("click", () => openScanner({show: true}));
   }
   const renderIfSets = () => { if (settings.tab === "sets") renderSets(); };
+  // The binder as its pages: one page at a time, its pockets in a grid (2 by 2, 3 by 3, or 3 across and 4 down), a card in
+  // the binder showing its picture and a gap showing a faded one with what it is and whether you have it elsewhere. Swipe or
+  // use the arrows to turn the page; tap a pocket for the card.
+  const BX_GAP = {move: "To put in", kept: "Kept elsewhere", need: "Needed"};
+  function binderPagesHTML(plan) {
+    const per = plan.b.pockets, cols = per === 4 ? 2 : 3;
+    bx.page = Math.min(Math.max(1, bx.page || 1), Math.max(1, plan.pages));
+    const items = plan.items.filter(it => it.page === bx.page);
+    const pocket = it => {
+      const name = cleanName(it.p.name, it.p.rarity), pics = productPics(it.p.sealed ? Object.assign({}, it.p, {sealed: false}) : it.p, "200w");
+      return '<button type="button" class="bx-pocket bx-' + it.state + '" data-bx-open="' + it.p.id + '" aria-label="Pocket ' + it.pocket + ": " + esc(name + ", " + binderMeta(it.p) + ", " +
+        (it.state === "in" ? "in the binder" : BX_GAP[it.state].toLowerCase())) + '"><span class="bx-pic">' + imgTag(pics, name) + "</span>" +
+        (it.state === "in" ? "" : '<span class="bx-gap"><b>' + esc(name) + "</b><small>" + esc(binderMeta(it.p)) + "</small><em>" + esc(BX_GAP[it.state] +
+          (it.state === "need" && it.price != null ? " · " + usd(it.price) : "")) + "</em></span>") + '<span class="bx-num">' + it.pocket + "</span></button>";
+    };
+    const empty = Math.max(0, per - items.length);
+    const filled = items.filter(it => it.state === "in").length;
+    return '<div class="bx-pager"><button type="button" class="btn btn-small" data-bx-turn="-1" aria-label="Previous page"' + (bx.page <= 1 ? " disabled" : "") + ">‹</button>" +
+      '<span><b>Page ' + bx.page + "</b> of " + plan.pages + ' <span class="small">· ' + filled + " of " + items.length + " in</span></span>" +
+      '<button type="button" class="btn btn-small" data-bx-turn="1" aria-label="Next page"' + (bx.page >= plan.pages ? " disabled" : "") + ">›</button></div>" +
+      '<div class="bx-sheet" tabindex="0" aria-label="Page ' + bx.page + ' of the binder" style="--cols:' + cols + '">' + items.map(pocket).join("") +
+      '<span class="bx-pocket bx-empty" aria-hidden="true"></span>'.repeat(empty) + "</div>" +
+      '<p class="small bx-legend">Faded pockets are gaps. Swipe or use the arrows to turn the page.</p>';
+  }
+  function wireBinderPages(box, plan) {
+    const sheet = box.querySelector(".bx-sheet");
+    if (!sheet) return;
+    const turn = d => { const to = bx.page + d; if (to < 1 || to > plan.pages) return; bx.page = to; renderBinder(); const s = $("bxBody").querySelector(".bx-sheet"); if (s) s.focus({preventScroll: true}); };
+    box.querySelectorAll("[data-bx-turn]").forEach(x => x.addEventListener("click", () => turn(+x.dataset.bxTurn)));
+    sheet.addEventListener("keydown", e => { if (e.key === "ArrowRight") { e.preventDefault(); turn(1); } else if (e.key === "ArrowLeft") { e.preventDefault(); turn(-1); } });
+    let x0 = null, y0 = null;
+    sheet.addEventListener("touchstart", e => { const t = e.touches[0]; x0 = t.clientX; y0 = t.clientY; }, {passive: true});
+    sheet.addEventListener("touchend", e => {
+      if (x0 == null) return;
+      const t = e.changedTouches[0], dx = t.clientX - x0, dy = t.clientY - y0;
+      x0 = null;
+      if (Math.abs(dx) > 50 && Math.abs(dx) > Math.abs(dy) * 1.5) turn(dx < 0 ? 1 : -1);
+    });
+    box.querySelectorAll("[data-bx-open]").forEach(x => x.addEventListener("click", () => {
+      const pid = +x.dataset.bxOpen, it = plan.items.find(i => i.p.id === pid);
+      if (!it) return;
+      // (one in the binder: that copy; otherwise the card's prices, where it can go on the want list)
+      const mine = it.state === "in" ? collection.find(r => r.productId === pid && sameLoc(r.location, plan.b.name)) : null;
+      if (mine) openDetails(mine.id);
+      else openPriceCard(String(pid), (it.from && it.from.edition) || printingsFor(it.p).filter(k => k !== "Normal")[0] || printingsFor(it.p)[0] || "");
+    }));
+  }
   // One copy of each printing you have elsewhere goes into the binder (Undo puts them back)
   function binderFill(gid) {
     const plan = binderPlan(gid), b = binderSave(gid, {});

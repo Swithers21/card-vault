@@ -498,7 +498,7 @@
       '<div class="form-actions">' + (ref ? '<button class="btn btn-primary" type="button" data-ocgc-have="' + ref + '">' + (mine.length ? "Add more" : "I have it") + "</button>" +
         (want ? "" : '<button class="btn" type="button" data-ocgc-want="' + ref + '">Want</button>') : "") +
       (opts && opts.fromScan ? '<span class="spacer"></span><button class="btn" type="button" id="csScanMore">Scan another card</button>' : "") + "</div></div>");
-    if ($("csScanMore")) $("csScanMore").addEventListener("click", () => openScanner({check: true}));
+    if ($("csScanMore")) $("csScanMore").addEventListener("click", () => openScanner({check: true, show: !!(opts && opts.show)}));
     $("csSetLink").addEventListener("click", () => openSearchSet(card.set.id));
     $("drawerBody").querySelectorAll("[data-cs-mine]").forEach(b => b.addEventListener("click", () => openDetails(b.dataset.csMine)));
     if (ocgHistoryBase() && row) loadOcgHistory({number: card.number, rarity: row.rarity}, row);

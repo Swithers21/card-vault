@@ -326,6 +326,30 @@
   html.site .local-only,html.site #phoneBtn{display:none}
   .picked{display:grid;grid-template-columns:96px 1fr;gap:14px;align-items:start;margin-bottom:18px}
   .drawer.wide{width:min(800px,100vw)}
+  /* side by side: a card's details docked beside the cards on a wide screen (30-shell applyDock) */
+  body.docked .drawer{width:min(420px,44vw);box-shadow:none;animation:none}
+  body.docked .app{padding-right:calc(min(420px,44vw) + clamp(16px,3vw,40px))}
+  body.docked .value-bar{right:min(420px,44vw)}
+  /* (with less room beside the panel: the search on its own line, then the count, Select and the view below it) */
+  @media (min-width:641px){
+    body.docked .tabs{gap:2px;padding:0 6px}
+    body.docked .tab{position:relative;flex:1 1 auto;justify-content:center;gap:6px;padding:11px clamp(6px,1.4vw,14px) 10px;font-size:13px;letter-spacing:.01em}
+    body.docked .tab-label{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0);white-space:nowrap}
+    body.docked .tab-short{display:inline}
+  }
+  @media (max-width:1099px){
+    body.docked .tabs{gap:0;padding:0 2px}
+    body.docked .tab{padding:10px 3px 9px;font-size:12px;letter-spacing:0;gap:4px}
+  }
+  @media (max-width:1279px){
+    body.docked .tab .tab-icon{display:none}
+    /* (the value on its own: the fan of top cards needs more room than is left beside the panel) */
+    body.docked[data-tab="collection"] .summary{grid-template-columns:minmax(0,1fr)}
+    body.docked .top-cards{display:none}
+    body.docked .controls{grid-template-columns:minmax(0,1fr) auto}
+    body.docked .controls-view{grid-column:1 / -1;grid-row:2;flex-wrap:wrap}
+    body.docked .filter-panel{grid-row:3}
+  }
   textarea.batch-text{min-height:74px;font:13.5px/1.5 ui-monospace,SFMono-Regular,Consolas,monospace}
   .batch-list{display:flex;flex-direction:column;gap:8px;margin:16px 0 0}
   .batch-row{display:grid;grid-template-columns:38px minmax(0,1fr) auto 74px 32px;grid-template-areas:"img info ctl price x";gap:8px 10px;align-items:center;
@@ -735,6 +759,61 @@
   .bx-where{font-size:12.5px;color:var(--text-dim);text-align:right;max-width:13em;overflow-wrap:anywhere}
   .bx-need .bx-where{color:var(--gold-hi)}
   .bx-in .bx-name{color:var(--text-dim)}
+  .bx-views{display:flex;margin:16px 0 4px}
+  .bx-pager{display:flex;align-items:center;justify-content:space-between;gap:10px;margin:12px 0 10px}
+  .bx-pager .btn{min-width:44px;font-size:20px;line-height:1}
+  .bx-sheet{display:grid;grid-template-columns:repeat(var(--cols,3),minmax(0,1fr));gap:8px;padding:10px;border:1px solid var(--line-2);border-radius:12px;
+    background:linear-gradient(180deg,rgba(255,255,255,.03),rgba(0,0,0,.18));touch-action:pan-y}
+  .bx-sheet:focus-visible{outline:2px solid var(--gold);outline-offset:2px}
+  .bx-pocket{position:relative;aspect-ratio:63/88;padding:0;border:1px solid var(--line-2);border-radius:6px;background:rgba(0,0,0,.25);overflow:hidden;cursor:pointer;color:inherit;font:inherit;text-align:center}
+  .bx-pocket.bx-empty{cursor:default;border-style:dashed;opacity:.5}
+  .bx-pic{position:absolute;inset:0;display:block}
+  .bx-pic img{width:100%;height:100%;object-fit:cover;display:block}
+  .bx-pocket:not(.bx-in) .bx-pic{opacity:.22;filter:grayscale(1)}
+  .bx-pocket:not(.bx-in){border-style:dashed}
+  .bx-move{border-color:var(--gold)}
+  .bx-gap{position:absolute;inset:0;display:flex;flex-direction:column;justify-content:center;gap:3px;padding:6px;font-size:11.5px;line-height:1.2;overflow:hidden}
+  .bx-gap b{font-weight:600;overflow-wrap:anywhere;display:-webkit-box;-webkit-line-clamp:3;-webkit-box-orient:vertical;overflow:hidden}
+  .bx-gap small{color:var(--text-dim);font-size:10.5px}
+  .bx-gap em{font-style:normal;font-size:10.5px;color:var(--gold-hi)}
+  .bx-move .bx-gap em{color:var(--gold)}
+  .bx-num{position:absolute;right:4px;bottom:3px;font-size:10px;color:var(--text-faint);background:rgba(0,0,0,.45);border-radius:4px;padding:0 4px}
+  .bx-legend{margin:8px 0 0}
+  /* ---------- show mode (the scanner, at a card show or a shop) ---------- */
+  .show-box{display:grid;gap:8px;margin-top:10px;padding:10px 12px;border:1px solid var(--line-2);border-radius:10px;background:rgba(0,0,0,.18)}
+  .show-fact{margin:0;font-size:13px;line-height:1.35;padding-left:20px;position:relative}
+  .show-fact::before{content:"";position:absolute;left:2px;top:4px;width:10px;height:10px;border-radius:50%;border:2px solid var(--text-dim)}
+  .show-gap{color:var(--gold-hi);font-weight:600}
+  .show-gap::before{border-color:var(--gold);border-style:dashed}
+  .show-have::before{background:var(--good);border-color:var(--good)}
+  .show-want::before{border-color:var(--gold-hi)}
+  .show-ask{display:grid;grid-template-columns:repeat(auto-fit,minmax(110px,1fr));gap:8px}
+  .show-ask .field{margin:0}
+  .show-verdict{margin:0;font-size:13.5px;line-height:1.35;min-height:1px}
+  .show-verdict:empty{display:none}
+  .show-good{color:var(--good);font-weight:600}
+  .show-fair{color:var(--text)}
+  .show-high{color:var(--bad,#e2786c);font-weight:600}
+  .show-none{color:var(--text-dim)}
+  .show-box .btn{justify-self:start}
+  /* ---------- recent changes ---------- */
+  .changes-btn{padding-left:9px;padding-right:9px}
+  .changes-btn svg{display:block}
+  .ch-list{list-style:none;margin:0;padding:0}
+  .ch-day{font:600 11.5px/1.4 "Archivo",system-ui,sans-serif;letter-spacing:.08em;text-transform:uppercase;color:var(--text-dim);padding:14px 0 4px;border-bottom:1px solid var(--line-2)}
+  .ch-row{padding:8px 0;border-bottom:1px solid var(--line)}
+  .ch-main{display:grid;grid-template-columns:auto minmax(0,1fr) auto;gap:10px;align-items:center}
+  .ch-time{font-size:12px;color:var(--text-faint);font-variant-numeric:tabular-nums;min-width:4.6em}
+  .ch-label{overflow-wrap:anywhere}
+  .ch-undone .ch-label{color:var(--text-dim);text-decoration:line-through}
+  .ch-row details{margin:4px 0 0 calc(4.6em + 10px)}
+  .ch-cards{margin:4px 0 0;padding-left:18px;font-size:13px}
+  .ch-cards li{margin:2px 0}
+  /* the Add card button's menu (press and hold) */
+  .add-wrap{position:relative;display:inline-flex}
+  #addBtn{-webkit-touch-callout:none;-webkit-user-select:none;user-select:none}
+  .add-wrap .menu{width:300px}
+  @media (max-width:560px){.add-wrap .menu{width:auto}}   /* (a phone: across the bottom, like the other menus) */
   .goal-tag{display:inline-block;vertical-align:2px;margin-left:6px;font:600 10.5px/1.6 "Archivo",system-ui,sans-serif;letter-spacing:.02em;padding:0 6px;border-radius:5px;border:1px solid rgba(216,173,87,.5);color:var(--gold-hi)}
   .cs-set-actions{display:flex;flex-wrap:wrap;gap:8px;align-items:center;margin:10px 0 0}
   .cs-set-actions .btn.is-goal{border-color:rgba(216,173,87,.6);color:var(--gold-hi)}

@@ -47,12 +47,53 @@
     setTab("search");
     setTimeout(() => { if ($("csQ")) $("csQ").focus(); }, 0);
   }
+  // Shortcuts: "Add card" pressed and held (or right-clicked, or the down arrow) opens a menu of the ways to add and
+  // look up cards; the same ones are the app icon's shortcuts where the phone or computer offers them (manifest:
+  // Chrome and Edge on a computer or Android, Safari on a Mac; an iPhone doesn't), as ?go= links.
+  function goTo(where) {
+    if (where === "add") openAdd();
+    else if (where === "scan") openScanner();
+    else if (where === "several") openBatch();
+    else if (where === "show") openScanner({show: true});
+    else if (where === "search") { setTab("search", true); focusSearch(); }
+    else if (where === "wants") setTab("wants", true);
+    else if (where === "changes") openChanges();
+  }
+  const GO = ["add", "scan", "several", "show", "search", "wants", "changes"];
+  function runGo() {
+    let go = "";
+    try { go = new URLSearchParams(location.search).get("go") || ""; } catch (e) { return; }
+    if (!GO.includes(go)) return;
+    // (taken out of the address, so a reload doesn't do it again)
+    try { history.replaceState(history.state, "", location.pathname + location.hash); } catch (e) { /* file: pages */ }
+    goTo(go);
+  }
+  function wireAddMenu() {
+    const btn = $("addBtn"), menu = $("addMenu");
+    const items = () => Array.from(menu.querySelectorAll("[role=menuitem]"));
+    const show = open => { menu.hidden = !open; btn.setAttribute("aria-expanded", String(open)); if (open) items()[0].focus(); };
+    let timer = 0, held = false;
+    btn.addEventListener("pointerdown", e => { if (e.button) return; held = false; clearTimeout(timer); timer = setTimeout(() => { held = true; show(true); }, 480); });
+    ["pointerup", "pointerleave", "pointercancel"].forEach(t => btn.addEventListener(t, () => clearTimeout(timer)));
+    btn.addEventListener("click", e => { if (held) { held = false; e.preventDefault(); return; } if (!menu.hidden) { show(false); return; } openAdd(); });
+    btn.addEventListener("contextmenu", e => { e.preventDefault(); clearTimeout(timer); held = false; show(true); });
+    btn.addEventListener("keydown", e => { if (e.key === "ArrowDown") { e.preventDefault(); show(true); } });
+    menu.addEventListener("keydown", e => {
+      const list = items(), i = list.indexOf(document.activeElement);
+      if (e.key === "ArrowDown") { e.preventDefault(); list[(i + 1) % list.length].focus(); }
+      else if (e.key === "ArrowUp") { e.preventDefault(); list[(i + list.length - 1) % list.length].focus(); }
+      else if (e.key === "Escape") { e.preventDefault(); e.stopPropagation(); show(false); btn.focus(); }
+      else if (e.key === "Tab") show(false);
+    });
+    menu.addEventListener("click", e => { const it = e.target.closest("[data-go]"); if (!it) return; show(false); goTo(it.dataset.go); });
+    document.addEventListener("click", e => { if (!menu.hidden && !e.target.closest(".add-wrap")) show(false); });
+  }
   function wireShortcuts() {
     document.addEventListener("keydown", e => {
       if (e.defaultPrevented || e.isComposing || e.ctrlKey || e.metaKey || e.altKey) return;
       const t = e.target;
       if (t && (t.isContentEditable || /^(INPUT|TEXTAREA|SELECT)$/.test(t.tagName))) return;   // (typing)
-      if (document.querySelector("[role=dialog]:not([hidden])")) return;                          // (a window is open)
+      if (document.querySelector("[role=dialog]:not([hidden]):not([aria-modal=false])")) return;   // (a window is open; not a card docked beside the list)
       const k = e.key;
       if (k === "/") { e.preventDefault(); focusSearch(); }
       else if (k === "n" || k === "N") { e.preventDefault(); openAdd(); }
@@ -63,7 +104,7 @@
   }
 
   function wire() {
-    $("addBtn").addEventListener("click", () => openAdd());
+    wireAddMenu();
     $("settingsBtn").addEventListener("click", openSettings);
     $("drawerClose").addEventListener("click", closeDrawer);
     $("importClose").addEventListener("click", closeImport);
@@ -73,6 +114,7 @@
       if (!$("importModal").hidden) closeImport(); else if (!$("drawer").hidden) closeDrawer();
     });
     wireShortcuts();
+    window.addEventListener("resize", () => { if (!$("drawer").hidden) applyDock(); });   // (turned or unfolded with a card open)
     // ----- back to top (the button at the bottom of the page)
     $("toTop").addEventListener("click", backToTop);
     initValueBar();
@@ -386,6 +428,7 @@
     });
     csPanel.addEventListener("click", e => {
       if (e.target.closest("#csScan")) { openScanner({check: true}); return; }
+      if (e.target.closest("#csShow")) { openScanner({show: true}); return; }
       const md = e.target.closest("[data-csmode], [data-cs-mode]");
       if (md) {
         settings.csMode = (md.dataset.csmode || md.dataset.csMode) === "sets" ? "sets" : "cards"; saveSettings();
@@ -630,6 +673,7 @@
     $("exportBtn").addEventListener("click", exportCSV);
     $("pcExportBtn").addEventListener("click", openPcExport);
     $("ssExportBtn").addEventListener("click", () => openSsExport());
+    $("changesBtn").addEventListener("click", openChanges);
     $("phoneBtn").addEventListener("click", savePhoneCopy);
     $("reportBtn").addEventListener("click", openReport);
     // ----- the Export menu
@@ -781,6 +825,7 @@
       if (linked) { save(); render(); toast("Linked " + plural(linked, "card") + " to TCGplayer printings by card number."); }
     });
     whenIdle(warmSearch, 2500);
+    runGo();
     window.addEventListener("online", () => { refreshOcgPrices(); if (settings.gradedView) refreshGradedPrices(); });
     if (loadProblem) toast("Card Vault couldn't read your saved collection, so it started empty. Your backup file wasn't changed: restore it from Settings.", {kind: "error", sticky: true});
     if (!storageOK) toast("This browser is blocking storage, so changes won't be kept after you close the page. Use Export CSV to keep a copy.", {kind: "error", sticky: true});
@@ -790,7 +835,7 @@
   window.CardVault = {state: () => ({collection, settings, selected, catalog, wants, valueHistory, backup, decks, sales, phone, deleted, batch, sync}),
     mergeBackup, checkBackupFile, openBatch, parseBatchLine, batchRowFor, addBatch, save, analyzeCSV, commitImport, openImport,
     findByNumber, searchByName, priceInfo, marketValue, unitValue, changeFor, periodChange, historySeries, totals, deleteRecords, exportCSV,
-      openPcExport, pcExportPlan, pcExportText, pcGrade, pcExportId, pcSentFromLastExport, pcWaiting, renderPcBanner, openBinder, binderPlan, binderSlipsHTML, binderOf, bx: () => bx, openSsExport, ssExportPlan, ssExportText, ssPrinting, ssx: () => ssx, big: () => big, bigGet, bigSet, yugiCache, readDataText, mergeDuplicates, openPaidTool, paidPlan, pp: () => pp, openTcgCart, tcgCartPlan, tcgCartURL, pcx: () => pcx,
+      openPcExport, pcExportPlan, pcExportText, pcGrade, pcExportId, pcSentFromLastExport, pcWaiting, renderPcBanner, goTo, runGo, applyDock, openChanges, undoChange, changesList, noteChange, openScanner, showScanPrice, dealVerdict, showFacts, showBuy, cleanBinders, mergeBinders, openBinder, binderPlan, binderSlipsHTML, binderOf, bx: () => bx, openSsExport, ssExportPlan, ssExportText, ssPrinting, ssx: () => ssx, big: () => big, bigGet, bigSet, yugiCache, readDataText, mergeDuplicates, openPaidTool, paidPlan, pp: () => pp, openTcgCart, tcgCartPlan, tcgCartURL, pcx: () => pcx,
     openDetails, openAdd, openSettings, render, setTab, setsData, extrasMap, wantStatus, addWant, restoreBackup, backupPayload,
     findYugiImages, rankYugiImages, parseYugiFile, yugiMangaPhoto, fillMangaPhotos, fillPrintPhotos, yugiPrintPick, langNumber, printPicOf, scanURL, isScanURL, yugiLabel, recordValueHistory, niceTicks, dateTicks, checkForNewData, writeBackup, initBackup,
     photoCandidates, findPhotosBatch, tradeListText, parseDeckText, parseYdk, parseYdke, checkDeck, cardNamesFor, runDeckCheck,
